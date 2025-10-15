@@ -1,0 +1,13 @@
+{
+  "itemGroup.minagic": "Example Mod Tab",
+  "block.minagic.example_block": "Example Block",
+  "item.minagic.example_item": "Example Item",
+
+  "minagic.configuration.title": "Minagic Configs",
+  "minagic.configuration.section.minagic.common.toml": "Minagic Configs",
+  "minagic.configuration.section.minagic.common.toml.title": "Minagic Configs",
+  "minagic.configuration.items": "Item List",
+  "minagic.configuration.logDirtBlock": "Log Dirt Block",
+  "minagic.configuration.magicNumberIntroduction": "Magic Number Text",
+  "minagic.configuration.magicNumber": "Magic Number"
+}
