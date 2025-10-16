@@ -1,0 +1,6 @@
+{
+  "message_id": "fire",
+  "scaling": "always",
+  "exhaustion": 0.1,
+  "death_message_type": "default"
+}
