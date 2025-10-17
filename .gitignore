@@ -29,4 +29,5 @@ run
 runs
 run-data
 
+!gradle/wrapper/gradle-wrapper.jar
 repo

@@ -2,6 +2,7 @@
   "itemGroup.minagic": "Example Mod Tab",
   "block.minagic.example_block": "Example Block",
   "item.minagic.example_item": "Example Item",
+  "item.minagic.effect_wand": "Effect Wand",
 
   "minagic.configuration.title": "Minagic Configs",
   "minagic.configuration.section.minagic.common.toml": "Minagic Configs",
