@@ -1,5 +1,6 @@
 package com.minagic.minagic;
 
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import com.minagic.minagic.item.EffectWandItem;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -61,6 +62,11 @@ public class Minagic {
                 output.accept(EFFECT_WAND.get()); // Add the effect wand to the tab
             }).build());
 
+    // Command registration method
+    private void onRegisterCommands(RegisterCommandsEvent event) {
+        MinagicTestCommand.register(event.getDispatcher());
+    }
+
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public Minagic(IEventBus modEventBus, ModContainer modContainer) {
@@ -81,6 +87,12 @@ public class Minagic {
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
+
+        // Register your tick handler here!
+        NeoForge.EVENT_BUS.register(new MinagicTaskScheduler());
+
+        // Register commands (optional)
+        NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
