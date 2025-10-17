@@ -14,10 +14,11 @@ import java.util.Set;
 
 public record MinagicDamage(
         Entity sourceEntity, // Caster or attacker
-        LivingEntity targetEntity, // Optional, useful for effects
-        float baseAmount, // Before modifiers
-        Set<ResourceKey<DamageType>> tags // e.g. FIRE, MAGIC, DOT
+        LivingEntity targetEntity, // Optional, useful for effects, resistances
+        float baseAmount, // Before modifiers, use for "base spell damage"
+        Set<ResourceKey<DamageType>> tags // our custom resource tags
 ) {
+    // BOGUS
     private static final Map<ResourceKey<DamageType>, Float> DAMAGE_MODIFIERS = Map.ofEntries(
             Map.entry(DamageTypes.MAGIC, 1.0f),
             Map.entry(DamageTypes.ELEMENTAL, 2.0f),
@@ -27,7 +28,7 @@ public record MinagicDamage(
             Map.entry(DamageTypes.POISON, 6.0f),
             Map.entry(DamageTypes.LIGHTNING, 7.0f),
             Map.entry(DamageTypes.PHYSICAL, 8.0f),
-            Map.entry(DamageTypes.ARMOR_PIERCING, 9.0f),
+            Map.entry(DamageTypes.ARMOR_PIERCING, 0.0f),
             Map.entry(DamageTypes.INJURY, 10.0f),
             Map.entry(DamageTypes.PSYCHIC, 11.0f),
             Map.entry(DamageTypes.ETHEREAL, 12.0f),
@@ -39,7 +40,9 @@ public record MinagicDamage(
         float total = damage.baseAmount;
 
         for (ResourceKey<DamageType> tag : damage.tags) {
-            // HERE WE DEFINE MODIFIERS, e.g. if damage.sourceEntity has some trinket for fire we increase damage if current tag contains fire.
+            // HERE WE DEFINE MODIFIERS,
+            // e.g. if damage.sourceEntity has some trinket for fire we increase damage
+            // if current tag contains fire.
             total += DAMAGE_MODIFIERS.getOrDefault(tag, 0.0f);
         }
 
@@ -47,21 +50,19 @@ public record MinagicDamage(
     }
 
     public void hurt(ServerLevel level) {
-        // 1. Calculate final damage amount
         float finalDamage = calculateDamage(this);
 
-        // 2. Resolve primary damage type (optional tiered priority)
+        // THIS SHOULD BE REPLACED BY PRIORITIZATION
         ResourceKey<DamageType> primaryType = DamageTypes.MAGIC;
 
-        // 3. Get the Holder<DamageType> from registry
         Holder<DamageType> typeHolder = level.registryAccess()
                 .holderOrThrow(primaryType);
 
+        // 0.5f is base exhaustion,
+        // in this example all NATURAL damage deals double the exhaustion
+        // ARMOR_PIERCING is now embedded into DynamicDamageSource
+        DamageSource source = new DynamicDamageSource(typeHolder, this.tags, 0.5f);
 
-        // 4. Construct the DamageSource — includes source entity if available
-        DamageSource source = new DamageSource(typeHolder);
-
-        // 5. Apply the damage
         this.targetEntity.hurt(source, finalDamage);
     }
 }
