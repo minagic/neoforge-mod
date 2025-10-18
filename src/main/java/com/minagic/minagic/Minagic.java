@@ -1,5 +1,9 @@
 package com.minagic.minagic;
 
+import com.minagic.minagic.item.FireballWandItem;
+import com.minagic.minagic.spells.FireballEntity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import com.minagic.minagic.item.EffectWandItem;
 import net.minecraft.resources.ResourceKey;
@@ -40,19 +44,41 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class Minagic {
     // Define mod id in a common place for everything to reference
     public static final String MODID = "minagic";
+
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+
+
     // Create a Deferred Register to hold Blocks which will all be registered under the "minagic" namespace
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     // Create a Deferred Register to hold Items which will all be registered under the "minagic" namespace
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     // Create a Deferred Register to hold CreativeModeTabs which will all be registered under the "minagic" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+    // ENTITIES REGISTRATION WOULD GO HERE
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
+            DeferredRegister.createEntities(MODID);
+
 
     // Register the Effect Wand item
     public static final DeferredItem<Item> EFFECT_WAND = ITEMS.register("effect_wand",
             () -> new EffectWandItem(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(MODID + ":effect_wand"))))
     );
+
+    public static final DeferredItem<Item> FIREBALL_WAND = ITEMS.register("fireball_wand",
+            () -> new FireballWandItem(
+                    new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(MODID + ":fireball_wand"))
+                                        )));
+
+    // REGISTER FIREBALL ENTITY TYPE
+    public static final DeferredHolder<EntityType<?>, EntityType<?>> FIREBALL =
+            ENTITY_TYPES.register("fireball",
+                    () -> EntityType.Builder.<FireballEntity>of(FireballEntity::new, MobCategory.MISC)
+                            .sized(0.5F, 0.5F) // Size of the entity
+                            .clientTrackingRange(32) // Tracking range
+                            .updateInterval(1) // Update interval
+                            .setShouldReceiveVelocityUpdates(true)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":fireball"))));
 
     // Creates a creative tab with the id "minagic:example_tab" for the example item, that is placed after the combat tab
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
@@ -79,6 +105,8 @@ public class Minagic {
         ITEMS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
+        // Register the Deferred Register to the mod event bus so entity types get registered
+        ENTITY_TYPES.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (Minagic) to respond directly to events.
@@ -91,6 +119,7 @@ public class Minagic {
         // Register your tick handler here!
         NeoForge.EVENT_BUS.register(new MinagicTaskScheduler());
 
+        modEventBus.register(new ClientModEvents());
         // Register commands (optional)
         NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
 
@@ -115,6 +144,7 @@ public class Minagic {
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(EFFECT_WAND);
+            event.accept(FIREBALL_WAND);
         }
     }
 

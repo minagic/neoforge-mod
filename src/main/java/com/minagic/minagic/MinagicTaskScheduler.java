@@ -2,7 +2,7 @@ package com.minagic.minagic;
 
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+
 import net.neoforged.neoforge.event.tick.ServerTickEvent.Pre;
 
 import java.util.ArrayList;

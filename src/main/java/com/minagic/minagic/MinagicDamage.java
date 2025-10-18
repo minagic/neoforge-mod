@@ -15,8 +15,10 @@ import java.util.Set;
 public record MinagicDamage(
         Entity sourceEntity, // Caster or attacker
         LivingEntity targetEntity, // Optional, useful for effects, resistances
+        Entity directEntity,
         float baseAmount, // Before modifiers, use for "base spell damage"
         Set<ResourceKey<DamageType>> tags // our custom resource tags
+
 ) {
     // BOGUS
     private static final Map<ResourceKey<DamageType>, Float> DAMAGE_MODIFIERS = Map.ofEntries(
@@ -61,7 +63,7 @@ public record MinagicDamage(
         // 0.5f is base exhaustion,
         // in this example all NATURAL damage deals double the exhaustion
         // ARMOR_PIERCING is now embedded into DynamicDamageSource
-        DamageSource source = new DynamicDamageSource(typeHolder, this.tags, 0.5f);
+        DamageSource source = new DynamicDamageSource(typeHolder, this.tags, 0.5f, directEntity, sourceEntity);
 
         this.targetEntity.hurt(source, finalDamage);
     }

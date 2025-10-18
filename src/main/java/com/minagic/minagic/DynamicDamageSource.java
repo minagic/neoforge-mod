@@ -6,15 +6,23 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.entity.Entity;
 
+
+import javax.annotation.Nullable;
 import java.util.Set;
 
 public class DynamicDamageSource extends DamageSource {
     private final Set<ResourceKey<DamageType>> tags;
     private final float baseExhaustion;
 
-    public DynamicDamageSource(Holder<DamageType> dummyType, Set<ResourceKey<DamageType>> tags, float exhaustion) {
-        super(dummyType);
+    public DynamicDamageSource(Holder<DamageType> dummyType,
+                               Set<ResourceKey<DamageType>> tags,
+                               float exhaustion,
+                               Entity causing,
+                               @Nullable Entity directSource
+                               ) {
+        super(dummyType, directSource, causing);
         this.tags = tags;
         this.baseExhaustion = exhaustion;
     }
@@ -37,6 +45,11 @@ public class DynamicDamageSource extends DamageSource {
 
         // fallback to default logic
         return super.is(tag);
+    }
+
+    @Override
+    public boolean is(ResourceKey<DamageType> key){
+        return this.tags.contains(key);
     }
 
 

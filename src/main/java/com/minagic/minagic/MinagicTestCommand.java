@@ -49,7 +49,7 @@ public class MinagicTestCommand {
                             if (!player.isAlive()) return;
                             player.setHealth(player.getMaxHealth());
 
-                            MinagicDamage dmg = new MinagicDamage(player, player, 1.0f, Set.of(key));
+                            MinagicDamage dmg = new MinagicDamage(player, player, player,.0f, Set.of(key));
                             dmg.hurt((ServerLevel) player.level());
                             player.sendSystemMessage(Component.literal("Applied: " + key.location()));
                         });
@@ -62,7 +62,7 @@ public class MinagicTestCommand {
                             if (!player.isAlive()) return;
                             player.setHealth(player.getMaxHealth());
 
-                            MinagicDamage dmg = new MinagicDamage(player, player, 1.0f, Set.of(key, DamageTypes.ARMOR_PIERCING));
+                            MinagicDamage dmg = new MinagicDamage(player, player, player,1.0f, Set.of(key, DamageTypes.ARMOR_PIERCING));
                             dmg.hurt((ServerLevel) player.level());
                             player.sendSystemMessage(Component.literal("Applied: " + key.location() + " + ARMOR_PIERCING"));
                         });
