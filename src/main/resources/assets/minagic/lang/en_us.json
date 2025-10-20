@@ -10,5 +10,8 @@
   "minagic.configuration.items": "Item List",
   "minagic.configuration.logDirtBlock": "Log Dirt Block",
   "minagic.configuration.magicNumberIntroduction": "Magic Number Text",
-  "minagic.configuration.magicNumber": "Magic Number"
+  "minagic.configuration.magicNumber": "Magic Number",
+
+  "death.attack.magic": "%1$s was killed by magic damage",
+  "death.attack.magic.player": "%1$s was killed by %2$s using magic damage"
 }
