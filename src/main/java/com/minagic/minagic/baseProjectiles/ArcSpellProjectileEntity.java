@@ -12,11 +12,8 @@ public abstract class ArcSpellProjectileEntity extends SpellProjectileEntity {
         this.setNoGravity(false); // Enable gravity
         this.gravity = gravity;
     }
-
     @Override
     public void tick() {
-
-
         Vec3 motion = this.getDeltaMovement();
         this.setDeltaMovement(motion.add(0, -gravity, 0)); // Gravity
 

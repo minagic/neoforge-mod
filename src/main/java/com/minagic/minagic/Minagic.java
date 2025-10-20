@@ -71,13 +71,12 @@ public class Minagic {
                                         )));
 
     // REGISTER FIREBALL ENTITY TYPE
-    public static final DeferredHolder<EntityType<?>, EntityType<?>> FIREBALL =
+    public static final DeferredHolder<EntityType<?>, EntityType<FireballEntity>> FIREBALL =
             ENTITY_TYPES.register("fireball",
                     () -> EntityType.Builder.<FireballEntity>of(FireballEntity::new, MobCategory.MISC)
                             .sized(0.5F, 0.5F) // Size of the entity
                             .clientTrackingRange(32) // Tracking range
                             .updateInterval(1) // Update interval
-                            .setShouldReceiveVelocityUpdates(true)
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":fireball"))));
 
     // Creates a creative tab with the id "minagic:example_tab" for the example item, that is placed after the combat tab
