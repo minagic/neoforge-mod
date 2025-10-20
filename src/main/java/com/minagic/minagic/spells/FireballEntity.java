@@ -2,7 +2,6 @@ package com.minagic.minagic.spells;
 
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.baseProjectiles.ArcSpellProjectileEntity;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,15 +19,16 @@ import java.util.Set;
 public class FireballEntity extends SpellProjectileEntity implements ItemSupplier {
     private static final float SPEED = 5f;
     private static final float RADIUS = 4f;
+    private static final float GRAVITY = 0f;
 
     // Generic constructor
     public FireballEntity(EntityType<? extends FireballEntity> type, Level level) {
-        super(type, level, FireballEntity.SPEED, Vec3.ZERO);
+        super(type, level, SPEED, Vec3.ZERO, GRAVITY);
     }
 
     // Custom constructor
     public FireballEntity(Level level, Vec3 position, Vec3 direction) {
-        super( Minagic.FIREBALL.get(), level, FireballEntity.SPEED, direction);
+        super( Minagic.FIREBALL.get(), level, SPEED, direction, GRAVITY);
         this.setPos(position.x, position.y, position.z);
         this.setDeltaMovement(direction.normalize().scale(SPEED));
     }

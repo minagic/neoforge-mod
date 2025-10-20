@@ -1,9 +1,15 @@
 package com.minagic.minagic;
 
-import com.minagic.minagic.item.FireballWandItem;
+import com.minagic.minagic.packets.MinagicNetwork;
+import com.minagic.minagic.packets.SpellSlotCyclePacket;
+import com.minagic.minagic.sorcerer.sorcererStaff;
+import com.minagic.minagic.spellCasting.SpellCooldownHandler;
+import com.minagic.minagic.spellCasting.SpellSlot;
 import com.minagic.minagic.spells.FireballEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.neoforged.fml.event.IModBusEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import com.minagic.minagic.item.EffectWandItem;
 import net.minecraft.resources.ResourceKey;
@@ -15,16 +21,10 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -34,7 +34,6 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -65,10 +64,10 @@ public class Minagic {
             () -> new EffectWandItem(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(MODID + ":effect_wand"))))
     );
 
-    public static final DeferredItem<Item> FIREBALL_WAND = ITEMS.register("fireball_wand",
-            () -> new FireballWandItem(
-                    new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(MODID + ":fireball_wand"))
-                                        )));
+    public static final DeferredItem<Item> SORCERER_STAFF = ITEMS.register("sorcerer_staff",
+            () -> new sorcererStaff(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(MODID + ":sorcerer_staff"))))
+    );
+
 
     // REGISTER FIREBALL ENTITY TYPE
     public static final DeferredHolder<EntityType<?>, EntityType<FireballEntity>> FIREBALL =
@@ -115,8 +114,16 @@ public class Minagic {
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
 
-        // Register your tick handler here!
+        // Register your tick handlers here!
         NeoForge.EVENT_BUS.register(new MinagicTaskScheduler());
+        NeoForge.EVENT_BUS.register(new SpellCooldownHandler());
+        NeoForge.EVENT_BUS.register(new ClientInputHandler());
+
+        // Register packet handlers
+        MinagicNetwork network = new MinagicNetwork();
+        network.register(modEventBus);
+
+        // Register client-side mod event handlers
 
         modEventBus.register(new ClientModEvents());
         // Register commands (optional)
@@ -137,13 +144,14 @@ public class Minagic {
         LOGGER.info("{}{}", Config.MAGIC_NUMBER_INTRODUCTION.get(), Config.MAGIC_NUMBER.getAsInt());
 
         Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
+
     }
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(EFFECT_WAND);
-            event.accept(FIREBALL_WAND);
+            event.accept(SORCERER_STAFF);
         }
     }
 

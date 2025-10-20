@@ -19,27 +19,30 @@ import java.util.Optional;
 public abstract class SpellProjectileEntity extends Projectile {
     protected double speed;
     protected Vec3 direction;
+    protected double gravity;
 
-    public SpellProjectileEntity(EntityType<? extends SpellProjectileEntity> type, Level level, double speed, Vec3 direction) {
+    public SpellProjectileEntity(EntityType<? extends SpellProjectileEntity> type, Level level,
+                                 double speed, Vec3 direction, double gravity) {
         super(type, level);
         this.speed = speed;
         this.direction = direction;
-        this.setNoGravity(true); // Disable gravity by default
+        this.setNoGravity(gravity == 0); // Disable gravity by default
         this.setDeltaMovement(direction.normalize().scale(speed));
+        this.gravity = gravity;
+
     }
 
+    // PHYSICS
     @Override
     public void tick() {
-        // Apply gravity if not disabled
-        if (!this.isNoGravity()) {
-            this.setDeltaMovement(this.getDeltaMovement().add(0, -0.05, 0));
-        }
 
         // Collision check: block
         Vec3 currentPos = this.position();
         Vec3 motion = this.getDeltaMovement();
+        motion = motion.add(0, -gravity, 0); // Apply gravity
         Vec3 nextPos = currentPos.add(motion);
 
+        // collision with block
         BlockHitResult blockHit = this.level().clip(new ClipContext(
                 currentPos,
                 nextPos,
@@ -48,6 +51,7 @@ public abstract class SpellProjectileEntity extends Projectile {
                 this
         ));
 
+        // Handle block hit
         if (blockHit.getType() != HitResult.Type.MISS) {
             this.onHitBlock(blockHit);
             return;
@@ -95,10 +99,11 @@ public abstract class SpellProjectileEntity extends Projectile {
         return entity.isAlive() && entity.isPickable();
     }
 
+
+    // HANDLING HITS
     @Override
     protected void onHitEntity(EntityHitResult hitResult) {
         super.onHitEntity(hitResult);
-        Minagic.LOGGER.info("SpellProjectileEntity hit entity");
         this.discard();
 
     }
@@ -111,7 +116,6 @@ public abstract class SpellProjectileEntity extends Projectile {
     @Override
     protected void onHitBlock(BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
-        Minagic.LOGGER.info("SpellProjectileEntity hit block");
         this.discard();
 
     }
