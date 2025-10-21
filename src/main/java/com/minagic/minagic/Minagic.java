@@ -1,11 +1,13 @@
 package com.minagic.minagic;
 
+import com.minagic.minagic.gui.CooldownOverlay;
 import com.minagic.minagic.packets.MinagicNetwork;
 import com.minagic.minagic.packets.SpellSlotCyclePacket;
 import com.minagic.minagic.sorcerer.sorcererStaff;
 import com.minagic.minagic.spellCasting.SpellCooldownHandler;
 import com.minagic.minagic.spellCasting.SpellSlot;
 import com.minagic.minagic.spells.FireballEntity;
+import com.minagic.minagic.utilities.LocalCooldownManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -118,6 +120,8 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(new MinagicTaskScheduler());
         NeoForge.EVENT_BUS.register(new SpellCooldownHandler());
         NeoForge.EVENT_BUS.register(new ClientInputHandler());
+        NeoForge.EVENT_BUS.register(new LocalCooldownManager());
+        NeoForge.EVENT_BUS.register(new CooldownOverlay());
 
         // Register packet handlers
         MinagicNetwork network = new MinagicNetwork();
