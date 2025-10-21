@@ -12,7 +12,7 @@ public class SpellCooldownHandler {
         for (int i = 0; i < event.getEntity().getInventory().getContainerSize(); i++) {
             ItemStack stack = event.getEntity().getInventory().getItem(i);
             if (stack.getItem() instanceof SpellcastingItem spellcastingItem) {
-                spellcastingItem.tickSpellSlots(event.getEntity().level(), event.getEntity());
+                spellcastingItem.tickSpellSlots();
             }
         }
     }

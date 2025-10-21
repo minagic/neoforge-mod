@@ -36,7 +36,8 @@ public class sorcererStaff extends Item implements SpellcastingItem {
         return super.use(level, player, hand);
     }
 
-    public void tickSpellSlots(Level level, Player player) {
+    @Override
+    public void tickSpellSlots() {
         for (SpellSlot slot : spellSlots) {
            slot.tickCooldown();
         }
@@ -66,6 +67,11 @@ public class sorcererStaff extends Item implements SpellcastingItem {
                 )
         );
 
+    }
+
+    @Override
+    public double getRemainingCooldown() {
+        return Math.floor((spellSlots[currentSlot].cooldownRemaining)/2.0)/10.0;
     }
 
 
