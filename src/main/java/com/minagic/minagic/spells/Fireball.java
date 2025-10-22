@@ -1,7 +1,9 @@
 package com.minagic.minagic.spells;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -10,10 +12,17 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 
 public class Fireball implements ISpell{
-    private final int cooldownTicks = 20 * 15; // 1 second cooldown
+    private final int cooldownTicks = 20 * 20; // 1 second cooldown
+
+
 
     public int getCooldownTicks() {
         return cooldownTicks;
+    }
+
+    @Override
+    public ResourceLocation getId() {
+        return ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "fireball");
     }
 
     @Override

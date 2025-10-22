@@ -17,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Set;
 
 public class FireballEntity extends SpellProjectileEntity implements ItemSupplier {
-    private static final float SPEED = 5f;
+    private static final float SPEED = 2f;
     private static final float RADIUS = 4f;
     private static final float GRAVITY = 0f;
 
