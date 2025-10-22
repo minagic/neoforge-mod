@@ -12,12 +12,17 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 
 public class Fireball implements ISpell{
-    private final int cooldownTicks = 20 * 20; // 1 second cooldown
+    private final int cooldownTicks = 20 * 2; // 1 second cooldown
+    private final int manaCost = 30;
 
 
 
     public int getCooldownTicks() {
         return cooldownTicks;
+    }
+
+    public int getManaCost() {
+        return manaCost;
     }
 
     @Override

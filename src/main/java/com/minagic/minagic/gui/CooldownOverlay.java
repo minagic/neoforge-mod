@@ -1,5 +1,6 @@
 package com.minagic.minagic.gui;
 
+import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellcastingItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,5 +37,22 @@ public class CooldownOverlay {
         String text_cooldown = cooldown > 0 ? String.format("%.1f s", cooldown) : "Ready";
         int textWidth = Minecraft.getInstance().font.width(text_cooldown);
         gui.drawString(Minecraft.getInstance().font, text_cooldown, x + 25 - textWidth / 2, y + 20, cooldown > 0 ? 0xFFFF0000 : 0xFF00FF00);
+
+        // render class and mana in bottom left of the overlay
+
+        int x2 = 10;
+        int y2 = 70;
+
+        String playerClass = player.getData(ModAttachments.PLAYER_CLASS.get()).getPlayerClass().toString();
+
+        int classWidth = Minecraft.getInstance().font.width(playerClass);
+        gui.drawString(Minecraft.getInstance().font, playerClass, x2 + 25 - classWidth / 2, y2 + 35, 0xFFFFFF00);
+
+        float mana = player.getData(ModAttachments.MANA.get()).getMana();
+        int maxMana = player.getData(ModAttachments.MANA.get()).getMaxMana();
+        String manaText = "Mana: " + mana + "/" + maxMana;
+        int manaWidth = Minecraft.getInstance().font.width(manaText);
+        gui.drawString(Minecraft.getInstance().font, manaText, x2 + 25 - manaWidth / 2, y2 + 50, 0xFF00FFFF);
+
     }
 }

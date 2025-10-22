@@ -1,6 +1,7 @@
 package com.minagic.minagic;
 
 import com.minagic.minagic.spells.InscribeCommand;
+import com.minagic.minagic.utilities.SetClassCommand;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -76,6 +77,7 @@ public class MinagicTestCommand {
                 }));
 
         InscribeCommand.register(dispatcher);
+        SetClassCommand.register(dispatcher);
 
     }
 }

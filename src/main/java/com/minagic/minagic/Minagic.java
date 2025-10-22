@@ -6,6 +6,7 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModItems;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.sorcerer.sorcererStaff;
+import com.minagic.minagic.spellCasting.ManaHandler;
 import com.minagic.minagic.spellCasting.SpellCooldownHandler;
 import com.minagic.minagic.spells.FireballEntity;
 import com.minagic.minagic.utilities.ModDataComponents;
@@ -17,6 +18,7 @@ import com.minagic.minagic.item.EffectWandItem;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
+import org.checkerframework.checker.units.qual.N;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -110,6 +112,7 @@ public class Minagic {
 
         // Register your tick handlers here!
         NeoForge.EVENT_BUS.register(new MinagicTaskScheduler());
+        NeoForge.EVENT_BUS.register(new ManaHandler());
         NeoForge.EVENT_BUS.register(new SpellCooldownHandler());
         NeoForge.EVENT_BUS.register(new ClientInputHandler());
         NeoForge.EVENT_BUS.register(new CooldownOverlay());

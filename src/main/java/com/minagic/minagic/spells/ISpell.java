@@ -14,4 +14,8 @@ public interface ISpell {
     default int getCooldownTicks() {
         return 0;
     }
+
+    default int getManaCost() {
+        return 0;
+    }
 }

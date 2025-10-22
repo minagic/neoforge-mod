@@ -63,22 +63,33 @@ public class SpellSlot {
 
         // Ensure resolved on use
         resolveSpell();
+        if (spell == null) {
+            player.sendSystemMessage(Component.literal("No spell assigned to this slot."));
+            return;
+        }
+
         System.out.println("Attempting to cast spell in slot: "+spell+"/"+ (spellId == null ? "null" : spellId.getPath().toString()));
 
         var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-        System.out.println("Fetched cd data: "+cooldowns);
+        var spell_ready = cooldowns.getCooldown(spellId) == 0;
 
-        double cooldownRemaining = cooldowns.getCooldown(spellId);
-        System.out.println("Cooldown remaining for spell "+spellId+": "+cooldownRemaining);
-
-
-
-        if (cooldownRemaining <= 0 && spell != null) {
-            boolean success = spell.cast(context);
-            if (success) cooldowns.setCooldown(spellId, spell.getCooldownTicks());
-        } else if (spell == null) {
-            player.sendSystemMessage(Component.literal("No spell assigned to this slot."));
+        if (!spell_ready) {
+            player.sendSystemMessage(Component.literal("Spell " + spell.getClass().getSimpleName() + " is on cooldown."));
+            return;
         }
+        var mana = context.caster.getData(ModAttachments.MANA.get());
+        var mana_sufficient = mana.drainMana(spell.getManaCost());
+
+        if (!mana_sufficient) {
+            player.sendSystemMessage(Component.literal("Not enough mana to cast " + spell.getClass().getSimpleName() + "."));
+            return;
+        }
+
+
+        boolean success = spell.cast(context);
+        if (success) cooldowns.setCooldown(spellId, spell.getCooldownTicks());
+        if (success) context.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
+        if (success) context.caster.setData(ModAttachments.MANA.get(), mana);
     }
 
     public String getEnterPhrase() {

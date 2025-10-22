@@ -1,7 +1,7 @@
 package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.capabilities.PlayerSpellCooldowns;
+import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.utilities.PlayerSpellCooldownsSerializer;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
@@ -23,6 +23,23 @@ public class ModAttachments {
                             .sync(ByteBufCodecs.fromCodec(PlayerSpellCooldowns.CODEC))
                             .build()
             );
+
+    public static final Supplier<AttachmentType<PlayerClass>> PLAYER_CLASS =
+            ATTACHMENTS.register("player_class", () ->
+                    AttachmentType.<PlayerClass>builder(PlayerClass::new)
+                            .serialize(new PlayerClassSerializer()) // persistent & sync-enabled
+                            .sync(ByteBufCodecs.fromCodec(PlayerClass.CODEC))
+                            .build()
+            );
+
+    public static final Supplier<AttachmentType<Mana>> MANA =
+            ATTACHMENTS.register("mana", () ->
+                    AttachmentType.<Mana>builder(Mana::new)
+                            .serialize(new ManaSerializer()) // persistent & sync-enabled
+                            .sync(ByteBufCodecs.fromCodec(Mana.CODEC))
+                            .build()
+            );
+
 
     public static void register(IEventBus bus) {
         ATTACHMENTS.register(bus);

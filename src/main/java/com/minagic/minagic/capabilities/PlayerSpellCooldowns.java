@@ -6,6 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
 import java.util.Map;
 
@@ -27,27 +28,6 @@ public final class PlayerSpellCooldowns {
         return cooldowns.getOrDefault(id, 0);
     }
 
-    public boolean isReady(ResourceLocation id) {
-        return getCooldown(id) <= 0;
-    }
-
-    // NBT <-> object: simple and explicit
-    public CompoundTag toTag() {
-        CompoundTag tag = new CompoundTag();
-        for (var e : cooldowns.entrySet()) {
-            tag.putInt(e.getKey().toString(), e.getValue());
-        }
-        return tag;
-    }
-
-    public static PlayerSpellCooldowns fromTag(CompoundTag tag) {
-        PlayerSpellCooldowns data = new PlayerSpellCooldowns();
-        for (String k : tag.keySet()) {
-            data.cooldowns.put(ResourceLocation.fromNamespaceAndPath("minagic", k), tag.getInt(k).orElse(0));
-        }
-        return data;
-    }
-
     // optional helper if you want to replace whole map during sync
     public void replaceAll(Map<ResourceLocation, Integer> newMap) {
         cooldowns.clear();
@@ -65,5 +45,6 @@ public final class PlayerSpellCooldowns {
                         inst.cooldowns.putAll(map);
                         return inst;
                     }, d -> d.cooldowns);
+
 
 }
