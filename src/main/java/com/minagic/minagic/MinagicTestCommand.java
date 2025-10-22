@@ -1,5 +1,6 @@
 package com.minagic.minagic;
 
+import com.minagic.minagic.spells.InscribeCommand;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -73,5 +74,8 @@ public class MinagicTestCommand {
                     ctx.getSource().sendSuccess(() -> Component.literal("Starting extended Minagic damage test..."), false);
                     return 1;
                 }));
+
+        InscribeCommand.register(dispatcher);
+
     }
 }

@@ -4,13 +4,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import java.util.Optional;
+
 public class ServerPayloadHandler {
     public static void handleDataOnMain(SpellSlotCyclePacket payload, IPayloadContext context) {
         if (context.player() instanceof ServerPlayer serverPlayer) {
             // get the item in the player's main hand
             ItemStack stack = serverPlayer.getMainHandItem();
             if (stack.getItem() instanceof com.minagic.minagic.spellCasting.SpellcastingItem spellcastingItem) {
-                spellcastingItem.cycleActiveSpellSlot(serverPlayer);
+                spellcastingItem.cycleActiveSpellSlot(Optional.of(serverPlayer), stack);
 
             }
         }
@@ -23,7 +25,7 @@ public class ServerPayloadHandler {
             // get the item in the player's main hand
             ItemStack stack = serverPlayer.getMainHandItem();
             if (stack.getItem() instanceof com.minagic.minagic.spellCasting.SpellcastingItem spellcastingItem) {
-                spellcastingItem.cycleActiveSpellSlotDown(serverPlayer);
+                spellcastingItem.cycleActiveSpellSlotDown(Optional.of(serverPlayer), stack);
             }
         }
     }

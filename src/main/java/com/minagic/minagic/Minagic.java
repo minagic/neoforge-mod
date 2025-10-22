@@ -2,20 +2,21 @@ package com.minagic.minagic;
 
 import com.minagic.minagic.gui.CooldownOverlay;
 import com.minagic.minagic.packets.MinagicNetwork;
-import com.minagic.minagic.packets.SpellSlotCyclePacket;
+import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.registries.ModItems;
+import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.sorcerer.sorcererStaff;
 import com.minagic.minagic.spellCasting.SpellCooldownHandler;
-import com.minagic.minagic.spellCasting.SpellSlot;
 import com.minagic.minagic.spells.FireballEntity;
-import com.minagic.minagic.utilities.LocalCooldownManager;
-import net.minecraft.server.level.ServerPlayer;
+import com.minagic.minagic.utilities.ModDataComponents;
+import com.minagic.minagic.utilities.WorldEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.neoforged.fml.event.IModBusEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import com.minagic.minagic.item.EffectWandItem;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -48,8 +49,6 @@ public class Minagic {
 
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
-
-
     // Create a Deferred Register to hold Blocks which will all be registered under the "minagic" namespace
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     // Create a Deferred Register to hold Items which will all be registered under the "minagic" namespace
@@ -62,13 +61,7 @@ public class Minagic {
 
 
     // Register the Effect Wand item
-    public static final DeferredItem<Item> EFFECT_WAND = ITEMS.register("effect_wand",
-            () -> new EffectWandItem(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(MODID + ":effect_wand"))))
-    );
 
-    public static final DeferredItem<Item> SORCERER_STAFF = ITEMS.register("sorcerer_staff",
-            () -> new sorcererStaff(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(MODID + ":sorcerer_staff"))))
-    );
 
 
     // REGISTER FIREBALL ENTITY TYPE
@@ -85,7 +78,7 @@ public class Minagic {
             .title(Component.translatable("itemGroup.minagic")) //The language key for the title of your CreativeModeTab
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .displayItems((parameters, output) -> {
-                output.accept(EFFECT_WAND.get()); // Add the effect wand to the tab
+                output.accept(ModItems.EFFECT_WAND.get()); // Add the effect wand to the tab
             }).build());
 
     // Command registration method
@@ -101,8 +94,6 @@ public class Minagic {
 
         // Register the Deferred Register to the mod event bus so blocks get registered
         BLOCKS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so items get registered
-        ITEMS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so entity types get registered
@@ -116,12 +107,20 @@ public class Minagic {
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
 
+
         // Register your tick handlers here!
         NeoForge.EVENT_BUS.register(new MinagicTaskScheduler());
         NeoForge.EVENT_BUS.register(new SpellCooldownHandler());
         NeoForge.EVENT_BUS.register(new ClientInputHandler());
-        NeoForge.EVENT_BUS.register(new LocalCooldownManager());
         NeoForge.EVENT_BUS.register(new CooldownOverlay());
+        NeoForge.EVENT_BUS.register(new WorldEvents());
+
+        ModItems.register(modEventBus);
+        ModDataComponents.register(modEventBus);
+        ModAttachments.register(modEventBus);
+        ModSpells.register();
+
+
 
         // Register packet handlers
         MinagicNetwork network = new MinagicNetwork();
@@ -130,6 +129,7 @@ public class Minagic {
         // Register client-side mod event handlers
 
         modEventBus.register(new ClientModEvents());
+
         // Register commands (optional)
         NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
 
@@ -154,8 +154,8 @@ public class Minagic {
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
-            event.accept(EFFECT_WAND);
-            event.accept(SORCERER_STAFF);
+            event.accept(ModItems.EFFECT_WAND);
+            event.accept(ModItems.SORCERER_STAFF);
         }
     }
 
@@ -164,5 +164,6 @@ public class Minagic {
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+
     }
 }
