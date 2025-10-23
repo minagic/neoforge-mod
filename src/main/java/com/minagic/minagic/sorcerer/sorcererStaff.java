@@ -1,5 +1,7 @@
 package com.minagic.minagic.sorcerer;
 
+import com.minagic.minagic.capabilities.PlayerClass;
+import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellSlot;
 import com.minagic.minagic.spellCasting.SpellcastingItem;
@@ -32,12 +34,26 @@ public class sorcererStaff extends Item implements SpellcastingItem {
         }
         return d;
     }
+
+    @Override
+    public boolean canPlayerClassUseSpellcastingItem(PlayerClass playerClass) {
+        return playerClass.getMainClass() == PlayerClassEnum.SORCERER;
+    }
+
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
+        if (! (player instanceof ServerPlayer serverPlayer)) return InteractionResult.FAIL;
+
+        // check if player can use this staff
+        PlayerClass playerClass = player.getData(ModAttachments.PLAYER_CLASS);
+        if (!canPlayerClassUseSpellcastingItem(playerClass)) {
+            serverPlayer.sendSystemMessage(Component.literal("You have zero idea on how to use this..."));
+            return InteractionResult.FAIL;
+        }
         ItemStack stack = player.getItemInHand(hand);
         StaffData data = getData(stack);
 
-        SpellCastContext context = new SpellCastContext(player, level);
+        SpellCastContext context = new SpellCastContext(serverPlayer, level);
         data.getActive().cast(context);
 
         return super.use(level, player, hand);
@@ -82,13 +98,12 @@ public class sorcererStaff extends Item implements SpellcastingItem {
 
     @Override
     public String getActiveSpellSlotKey(ItemStack stack) {
+
         StaffData data = getData(stack);
-        SpellSlot slot = data.getActive();
-        String result = slot.getSpell() == null ? "No spell assigned" : slot.getSpell().getClass().getSimpleName();
-       // System.out.println("This is sorcerer Staff reporting, spell in active slot is: " + result);
-        return data.getActive().getSpell() != null ?
-                data.getActive().getSpell().getClass().getSimpleName() :
-                "No Spell Assigned";
+        System.out.println("this is SorcererStaff reporting: Getting active spell slot key: " + data.getActive().getSpell().getString());
+        System.out.println(data.getActive().getSpell());
+        System.out.println(data.getActive());
+        return data.getActive().getSpell().getString();
     }
 
     @Override
@@ -98,20 +113,20 @@ public class sorcererStaff extends Item implements SpellcastingItem {
 
         int tickCooldown = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get()).getCooldown(spellId);
 
-        System.out.println("This is sorcerer Staff reporting, remaining cooldown (in ticks) is: " + tickCooldown);
-
         return Math.floor((tickCooldown)/2.0)/10.0;
     }
 
     @Override
     public void writeSpell(ItemStack stack, Level level, int slotIndex, com.minagic.minagic.spells.ISpell spell) {
+        System.out.println("Writing spell " + (spell == null ? "null" : spell.getString()) + " to slot " + slotIndex);
+
         StaffData data = getData(stack);
         if (slotIndex < 0 || slotIndex >= data.slots().length) {
             return;
         }
-        SpellSlot slot = data.slots()[slotIndex];
+        SpellSlot slot = data.getActive();
         slot.setSpell(spell);
-        stack.set(ModDataComponents.STAFF_DATA.get(), data);
+        stack.set(ModDataComponents.STAFF_DATA, data);
         cycleActiveSpellSlot(Optional.empty(), stack);
         cycleActiveSpellSlotDown(Optional.empty(), stack);
     }

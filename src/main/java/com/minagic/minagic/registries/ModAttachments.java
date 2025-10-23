@@ -41,6 +41,7 @@ public class ModAttachments {
             );
 
 
+
     public static void register(IEventBus bus) {
         ATTACHMENTS.register(bus);
     }

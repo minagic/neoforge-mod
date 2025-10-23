@@ -10,6 +10,7 @@ public class ClientKeybinds {
     public static final String CATEGORY = "key.categories.minagic";
     public static KeyMapping CYCLE_SPELL;
     public static KeyMapping CYCLE_SPELL_DOWN;
+    public static KeyMapping SHOW_SPELL_HUD;
 
     public static void registerKeybinds(RegisterKeyMappingsEvent event) {
         CYCLE_SPELL = new KeyMapping(
@@ -26,6 +27,12 @@ public class ClientKeybinds {
         );
 
         event.register(CYCLE_SPELL_DOWN);
+
+        SHOW_SPELL_HUD = new KeyMapping(
+                "key.minagic.show_spell_hud", // translation key
+                GLFW.GLFW_KEY_V,
+                KeyMapping.Category.MISC
+        );
     }
 
 }

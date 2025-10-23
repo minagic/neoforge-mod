@@ -10,23 +10,28 @@ import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
 import java.util.Optional;
 
-public class PlayerClassSerializer implements IAttachmentSerializer<PlayerClass> {
-    private static final String KEY = "playerClass";
 
-    // Use the same Codec as defined earlier
-    private static final Codec<PlayerClassEnum> ENUM_CODEC =
-            Codec.STRING.xmap(PlayerClassEnum::valueOf, PlayerClassEnum::name);
+public class PlayerClassSerializer implements IAttachmentSerializer<PlayerClass> {
 
     @Override
     public PlayerClass read(IAttachmentHolder holder, ValueInput input) {
-        PlayerClass data = new PlayerClass();
-        input.read(KEY, ENUM_CODEC).ifPresent(data::setPlayerClass);
-        return data;
+        PlayerClass result = new PlayerClass();
+        input.read("player_class", PlayerClass.CODEC)
+                .ifPresentOrElse(
+                        pc -> {
+                            result.setMainClass(pc.getMainClass());
+                            pc.getAllSubclasses().forEach(result::setSubclassLevel);
+                            pc.getDeity().ifPresent(result::setDeity);
+                        },
+                        () -> {
+                            // fallback or leave default UNDECLARED
+                        });
+        return result;
     }
 
     @Override
     public boolean write(PlayerClass attachment, ValueOutput output) {
-        output.store(KEY, ENUM_CODEC, attachment.getPlayerClass());
+        output.store("player_class", PlayerClass.CODEC, attachment);
         return true;
     }
 }
