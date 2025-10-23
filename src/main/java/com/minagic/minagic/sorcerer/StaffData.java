@@ -44,21 +44,10 @@ public record StaffData(SpellSlot[] slots, int currentSlot) {
 
     public SpellSlot getActive() {
         int idx = Mth.clamp(currentSlot, 0, slots.length - 1);
-        //System.out.print("Returning active spellslots from all: ");
-//        for (int i = 0; i < slots.length; ++i) {
-//            System.out.print(slots[i].getSpellId()  == null ? "empty" : slots[i].getSpellId().getPath().toString());
-//            System.out.print(" ");
-//        }
-//        System.out.println();
-//        System.out.println(idx);
-//
-//        System.out.println(slots[idx].getSpellId() == null ? "active is empty" : "active is " + slots[idx].getSpellId().getPath().toString());
-
         return slots[idx];
     }
 
     public StaffData withCurrentSlot(int next) {
-        //System.out.println("Cycling staff slot to " + next);
         int idx = Math.floorMod(next, slots.length);
         return new StaffData(slots, idx);
     }
@@ -73,19 +62,4 @@ public record StaffData(SpellSlot[] slots, int currentSlot) {
                     SpellSlot.CODEC.listOf().fieldOf("slots").forGetter(c -> Arrays.asList(c.slots)),
                     Codec.INT.fieldOf("currentSlot").forGetter(StaffData::currentSlot)
             ).apply(inst, (list, cur) -> new StaffData(list.toArray(new SpellSlot[DEFAULT_SIZE]), cur)));
-
-    // hacking the mainframe of this PoS framework to stop animation
-//    @Override
-//    public boolean equals(Object o) {
-//        if (o instanceof StaffData other) {
-//            return this.currentSlot == other.currentSlot && Arrays.equals(this.slots(), other.slots()); // only check current slot, but not the cooldowns inside arrays
-//        }
-//        return false;
-//
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Integer.hashCode(currentSlot);
-//    }
 }

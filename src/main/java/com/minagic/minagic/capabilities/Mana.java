@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
@@ -18,23 +19,48 @@ public final class Mana {
 
     public Mana() {}
 
-    public void changeClass(PlayerClassEnum newClass) {
-        switch (newClass) {
-            case SORCERER -> maxMana = 100;
-            default -> maxMana = 200;
+    public void tick(Player player) {
+        // --- Retrieve Player Class Info ---
+        PlayerClass pc = player.getData(ModAttachments.PLAYER_CLASS);
+
+        int computedMax = computeMaxMana(player, pc);
+
+        // Adjust current mana if needed
+        if (mana > computedMax) {
+            mana = computedMax;
         }
-        mana = Math.min(mana, maxMana); // Adjust current mana if needed
+
+        this.maxMana = computedMax;
+
+        // --- Regeneration Logic Example ---
+        boolean restored = false;
+
+        // Sorcerer passive regen
+        if (pc.getMainClass() == PlayerClassEnum.SORCERER) {
+            restored |= restoreMana(2);
+        }
+        // Optional: log or effect if mana restored
+        if (restored) {
+            // Visual or sound feedback here, if needed
+        }
     }
 
-    public void tick(Player player) {
-        // Example: Regenerate 1 mana every tick up to maxMana
-        if (player.getData(ModAttachments.PLAYER_CLASS.get()).getPlayerClass() == PlayerClassEnum.SORCERER){
-            restoreMana(0.1f);
-        }
-        else {
-            restoreMana(0.2f);
-        }
+    private int computeMaxMana(Player player, PlayerClass pc) {
+        int base = switch (pc.getMainClass()) {
+            case SORCERER -> 120;
+            case CLERIC -> 100;
+            case DRUID -> 110;
+            case WIZARD -> 90;
+            case BARD -> 95;
+            default -> 80;
+        };
 
+        // Subclass bonuses
+        base += pc.getSubclassLevel(PlayerSubClassEnum.SORCERER_VOIDBOURNE) * 5;
+        base += pc.getSubclassLevel(PlayerSubClassEnum.CLERIC_ORACLE) * 3;
+        base += pc.getSubclassLevel(PlayerSubClassEnum.DRUID_SPIRITS) * 2;
+
+        return base;
     }
 
     public float getMana() {return mana;}

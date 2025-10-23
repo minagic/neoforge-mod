@@ -1,5 +1,6 @@
 package com.minagic.minagic.spellCasting;
 
+import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.spells.ISpell;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,4 +19,6 @@ public interface SpellcastingItem {
     void writeSpell(ItemStack stack, Level level, int slotIndex, ISpell spell);
 
     String getActiveSpellSlotKey(ItemStack stack);
+
+    public boolean canPlayerClassUseSpellcastingItem(PlayerClass playerClass);
 }

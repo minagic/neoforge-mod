@@ -4,6 +4,7 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 
 import com.minagic.minagic.spells.ISpell;
+import com.minagic.minagic.spells.NoneSpell;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +20,7 @@ public class SpellSlot {
     private @Nullable ISpell spell;                  // runtime cache
     private @Nullable ResourceLocation spellId;      // persistent identity
 
-    public SpellSlot() { this(null); }
+    public SpellSlot() { this(new NoneSpell()); }
 
     public SpellSlot(@Nullable ISpell spell) {
         this.spell = spell;
@@ -45,28 +46,27 @@ public class SpellSlot {
         }
     }
 
-    public void setSpell(@Nullable ISpell spell) {
+    public void setSpell(ISpell spell) {
+        System.out.println("Setting SpellSlot spell to: "+spell);
         this.spell = spell;
-        this.spellId = (spell == null) ? null : ModSpells.getId(spell);
+        this.spellId = ModSpells.getId(spell);
+        System.out.println("SpellSlot spellId: "+spellId);
     }
 
-    public @Nullable ISpell getSpell() {
+    public ISpell getSpell() {
         resolveSpell();
-        //System.out.println("This is SpellSlot reporting, current spell is: "+spell+"/"+ (spellId == null ? "null" : spellId.getPath().toString()));
+        System.out.println("This is SpellSlot reporting, current spell is: "+spell+"/"+ (spellId == null ? "null" : spellId.getPath().toString()));
         return spell;
     }
 
     public @Nullable ResourceLocation getSpellId() { return spellId; }
 
     public void cast(SpellCastContext context) {
-        if (!(context.caster instanceof ServerPlayer player)) return;
+        ServerPlayer player = context.caster;
 
         // Ensure resolved on use
         resolveSpell();
-        if (spell == null) {
-            player.sendSystemMessage(Component.literal("No spell assigned to this slot."));
-            return;
-        }
+        if (spell == null) {return;}
 
         System.out.println("Attempting to cast spell in slot: "+spell+"/"+ (spellId == null ? "null" : spellId.getPath().toString()));
 
@@ -88,8 +88,13 @@ public class SpellSlot {
 
         boolean success = spell.cast(context);
         if (success) cooldowns.setCooldown(spellId, spell.getCooldownTicks());
-        if (success) context.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
-        if (success) context.caster.setData(ModAttachments.MANA.get(), mana);
+
+        if (!success) {
+            cooldowns.setCooldown(spellId, 0);
+            mana.restoreMana(spell.getManaCost());
+        }
+        context.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
+        context.caster.setData(ModAttachments.MANA.get(), mana);
     }
 
     public String getEnterPhrase() {

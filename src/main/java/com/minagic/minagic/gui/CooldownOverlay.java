@@ -21,8 +21,6 @@ public class CooldownOverlay {
 
         double cooldown =  item.getRemainingCooldown(stack, player);
 
-        System.out.println("This is Cooldown Overlay reporting: Remaining cooldown is " + cooldown);
-
         int x = 10;
         int y = 10;
         GuiGraphics gui = event.getGuiGraphics();
@@ -30,7 +28,7 @@ public class CooldownOverlay {
         gui.fill(x, y, x + 50, y + 50, 0x80000000); // Background
 
         String spell_slot = item.getActiveSpellSlotKey(stack);
-        //System.out.println("This is Cooldown Overlay reporting: Active spell slot key is " + spell_slot);
+        System.out.println("This is Cooldown Overlay reporting: Active spell slot key is " + spell_slot);
         int spellSlotWidth = Minecraft.getInstance().font.width(spell_slot);
         gui.drawString(Minecraft.getInstance().font, spell_slot, x + 25 - spellSlotWidth / 2, y + 5, 0xFFFFFFFF);
 
@@ -43,16 +41,29 @@ public class CooldownOverlay {
         int x2 = 10;
         int y2 = 70;
 
-        String playerClass = player.getData(ModAttachments.PLAYER_CLASS.get()).getPlayerClass().toString();
+        String playerClass = player.getData(ModAttachments.PLAYER_CLASS.get()).getMainClass().toString();
 
         int classWidth = Minecraft.getInstance().font.width(playerClass);
         gui.drawString(Minecraft.getInstance().font, playerClass, x2 + 25 - classWidth / 2, y2 + 35, 0xFFFFFF00);
+
+        // subclasses and their levels
+        StringBuilder subclassesText = new StringBuilder("Subclasses: ");
+        player.getData(ModAttachments.PLAYER_CLASS).getAllSubclasses().forEach((subclass, level) -> {
+            subclassesText.append(subclass.toString()).append(" (Lv ").append(level).append("), ");
+        });
+        // render subclasses text
+        String subclassesFinalText = subclassesText.toString();
+        if (subclassesFinalText.endsWith(", ")) {
+            subclassesFinalText = subclassesFinalText.substring(0, subclassesFinalText.length() - 2);
+        }
+        int subclassesWidth = Minecraft.getInstance().font.width(subclassesFinalText);
+        gui.drawString(Minecraft.getInstance().font, subclassesFinalText, x2 + 25 - subclassesWidth / 2, y2 + 50, 0xFFFFFFAA);
 
         float mana = player.getData(ModAttachments.MANA.get()).getMana();
         int maxMana = player.getData(ModAttachments.MANA.get()).getMaxMana();
         String manaText = "Mana: " + mana + "/" + maxMana;
         int manaWidth = Minecraft.getInstance().font.width(manaText);
-        gui.drawString(Minecraft.getInstance().font, manaText, x2 + 25 - manaWidth / 2, y2 + 50, 0xFF00FFFF);
+        gui.drawString(Minecraft.getInstance().font, manaText, x2 + 25 - manaWidth / 2, y2 + 75, 0xFF00FFFF);
 
     }
 }
