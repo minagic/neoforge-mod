@@ -1,8 +1,7 @@
 package com.minagic.minagic.packets;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.packets.SpellSlotCyclePacket;
-import net.minecraft.network.chat.Component;
+import com.minagic.minagic.spellCasting.ISpellcastingItem;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -35,7 +34,7 @@ public class MinagicNetwork {
 
         // get the item in the player's main hand
         var stack = player.getMainHandItem();
-        if (stack.getItem() instanceof com.minagic.minagic.spellCasting.SpellcastingItem spellcastingItem) {
+        if (stack.getItem() instanceof ISpellcastingItem spellcastingItem) {
             spellcastingItem.cycleActiveSpellSlot(Optional.of(player), stack);
         }
     }

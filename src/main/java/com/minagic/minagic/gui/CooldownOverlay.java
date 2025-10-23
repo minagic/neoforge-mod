@@ -1,7 +1,7 @@
 package com.minagic.minagic.gui;
 
 import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.spellCasting.SpellcastingItem;
+import com.minagic.minagic.spellCasting.ISpellcastingItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
@@ -17,7 +17,7 @@ public class CooldownOverlay {
         if (player == null) return;
 
         ItemStack stack = player.getMainHandItem();
-        if (!(stack.getItem() instanceof SpellcastingItem item)) return;
+        if (!(stack.getItem() instanceof ISpellcastingItem item)) return;
 
         double cooldown =  item.getRemainingCooldown(stack, player);
 
@@ -28,7 +28,6 @@ public class CooldownOverlay {
         gui.fill(x, y, x + 50, y + 50, 0x80000000); // Background
 
         String spell_slot = item.getActiveSpellSlotKey(stack);
-        System.out.println("This is Cooldown Overlay reporting: Active spell slot key is " + spell_slot);
         int spellSlotWidth = Minecraft.getInstance().font.width(spell_slot);
         gui.drawString(Minecraft.getInstance().font, spell_slot, x + 25 - spellSlotWidth / 2, y + 5, 0xFFFFFFFF);
 

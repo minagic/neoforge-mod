@@ -1,3 +1,5 @@
 package com.minagic.minagic.spells;
 
-public class NoneSpell implements ISpell {}
+import com.minagic.minagic.abstractionLayer.Spell;
+
+public class NoneSpell extends Spell {}

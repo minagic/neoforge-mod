@@ -1,5 +1,6 @@
 package com.minagic.minagic.spellCasting;
 
+import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.spells.ISpell;
 import net.minecraft.world.entity.player.Player;
@@ -8,7 +9,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.Optional;
 
-public interface SpellcastingItem {
+public interface ISpellcastingItem {
 
     void cycleActiveSpellSlot(Optional<Player> player, ItemStack stack);
 
@@ -20,5 +21,5 @@ public interface SpellcastingItem {
 
     String getActiveSpellSlotKey(ItemStack stack);
 
-    public boolean canPlayerClassUseSpellcastingItem(PlayerClass playerClass);
+    boolean canPlayerClassUseSpellcastingItem(PlayerClass playerClass);
 }

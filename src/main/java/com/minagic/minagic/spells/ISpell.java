@@ -11,7 +11,7 @@ public interface ISpell {
         return true;
     }
 
-    default String getString(){
+    default String getString() {
         return "No Spell";
     }
 
@@ -25,4 +25,6 @@ public interface ISpell {
 
     default boolean canPlayerClassCastSpell(PlayerClass playerClass) {
         return true;
-    }}
+    }
+
+}
