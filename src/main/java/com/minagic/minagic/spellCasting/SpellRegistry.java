@@ -31,6 +31,9 @@ public class SpellRegistry {
     }
 
     public static ResourceLocation getId(ISpell spell) {
+        System.out.println("SPELL REGISTRY: Looking up " + spell);
+        System.out.println("SPELL REGISTRY: " + REVERSE.keySet());
+        System.out.println("SPELL REGISTRY: Found ID: " + REVERSE.get(spell));
         return REVERSE.get(spell);
     }
 }

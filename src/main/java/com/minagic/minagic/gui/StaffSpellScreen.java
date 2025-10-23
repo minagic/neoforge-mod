@@ -2,7 +2,7 @@
 //
 //import com.minagic.minagic.spellCasting.SpellSlot;
 //import com.minagic.minagic.spells.ISpell;
-//import com.minagic.minagic.utilities.ModDataComponents;
+//import com.minagic.minagic.registries.ModDataComponents;
 //import com.mojang.blaze3d.systems.RenderSystem;
 //import net.minecraft.client.Minecraft;
 //import net.minecraft.client.gui.GuiGraphics;

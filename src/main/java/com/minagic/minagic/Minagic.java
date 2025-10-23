@@ -5,20 +5,16 @@ import com.minagic.minagic.packets.MinagicNetwork;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModItems;
 import com.minagic.minagic.registries.ModSpells;
-import com.minagic.minagic.sorcerer.sorcererStaff;
 import com.minagic.minagic.spellCasting.ManaHandler;
 import com.minagic.minagic.spellCasting.SpellCooldownHandler;
 import com.minagic.minagic.spells.FireballEntity;
-import com.minagic.minagic.utilities.ModDataComponents;
+import com.minagic.minagic.registries.ModDataComponents;
 import com.minagic.minagic.utilities.WorldEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import com.minagic.minagic.item.EffectWandItem;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.registries.NewRegistryEvent;
-import org.checkerframework.checker.units.qual.N;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -28,7 +24,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -40,7 +35,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file

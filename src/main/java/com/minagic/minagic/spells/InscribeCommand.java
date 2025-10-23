@@ -2,8 +2,7 @@ package com.minagic.minagic.spells;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.registries.ModSpells;
-import com.minagic.minagic.spellCasting.SpellRegistry;
-import com.minagic.minagic.spellCasting.SpellcastingItem;
+import com.minagic.minagic.spellCasting.ISpellcastingItem;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -21,7 +20,7 @@ public final class InscribeCommand {
 
     private static int inscribeFireball(CommandSourceStack source, ServerPlayer player) {
         ItemStack stack = player.getMainHandItem();
-        if (!(stack.getItem() instanceof SpellcastingItem sci)) {
+        if (!(stack.getItem() instanceof ISpellcastingItem sci)) {
             source.sendFailure(Component.literal("Hold a spellcasting item first."));
             return 0;
         }
