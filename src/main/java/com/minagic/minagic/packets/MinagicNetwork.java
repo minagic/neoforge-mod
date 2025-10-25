@@ -1,13 +1,10 @@
 package com.minagic.minagic.packets;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.spellCasting.ISpellcastingItem;
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.bus.api.IEventBus;
-
-import java.util.Optional;
 
 public class MinagicNetwork {
     public void register(IEventBus modBus) {
@@ -16,26 +13,21 @@ public class MinagicNetwork {
         registrar.playToServer(
                 SpellSlotCyclePacket.TYPE,
                 SpellSlotCyclePacket.CODEC,
-                MinagicNetwork::handleCycleSpell
+                SpellSlotCyclePacket::handle
         );
 
         registrar.playToServer(
                 SpellSlotCycleDownPacket.TYPE,
                 SpellSlotCycleDownPacket.CODEC,
-                ServerPayloadHandler::handleCycleSpellDown
+                SpellSlotCycleDownPacket::handle
+        );
+
+        registrar.playToServer(
+                SpellWritePacket.TYPE,
+                SpellWritePacket.STREAM_CODEC,
+                SpellWritePacket::handle
         );
     }
 
-    private static void handleCycleSpell(SpellSlotCyclePacket packet, IPayloadContext context) {
-        ServerPlayer player = (ServerPlayer) context.player();
-        if (player == null) {
-            return;
-        }
 
-        // get the item in the player's main hand
-        var stack = player.getMainHandItem();
-        if (stack.getItem() instanceof ISpellcastingItem spellcastingItem) {
-            spellcastingItem.cycleActiveSpellSlot(Optional.of(player), stack);
-        }
-    }
 }

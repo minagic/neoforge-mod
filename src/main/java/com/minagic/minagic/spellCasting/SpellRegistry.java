@@ -1,23 +1,27 @@
 package com.minagic.minagic.spellCasting;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.spells.ISpell;
+import com.minagic.minagic.abstractionLayer.Spell;
+import com.minagic.minagic.capabilities.PlayerClass;
+import com.minagic.minagic.registries.ModAttachments;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SpellRegistry {
-    private static final Map<ResourceLocation, ISpell> REGISTRY = new HashMap<>();
-    private static final Map<ISpell, ResourceLocation> REVERSE = new HashMap<>();
+    private static final Map<ResourceLocation, Spell> REGISTRY = new HashMap<>();
+    private static final Map<Spell, ResourceLocation> REVERSE = new HashMap<>();
 
 
 
-    public static void register(ResourceLocation id, ISpell spell) {
+    public static void register(ResourceLocation id, Spell spell) {
         REGISTRY.put(id, spell);
         REVERSE.put(spell, id);
     }
-    public static ISpell getSpell(ResourceLocation id) {
+    public static Spell getSpell(ResourceLocation id) {
         System.out.println("Attempting lookup for spell ID: " + id + " in SpellRegistry: " + REGISTRY.keySet());
 
         if (id != null && REGISTRY.containsKey(id)) {
@@ -30,10 +34,15 @@ public class SpellRegistry {
         //return id == null || id.equals(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "empty_spell")) ? REGISTRY.get(id) : null;
     }
 
-    public static ResourceLocation getId(ISpell spell) {
+    public static ResourceLocation getId(Spell spell) {
         System.out.println("SPELL REGISTRY: Looking up " + spell);
         System.out.println("SPELL REGISTRY: " + REVERSE.keySet());
         System.out.println("SPELL REGISTRY: Found ID: " + REVERSE.get(spell));
         return REVERSE.get(spell);
+    }
+
+    public static List<Spell> getSpells(Player player) {
+        PlayerClass playerClass = player.getData(ModAttachments.PLAYER_CLASS);
+        return REGISTRY.values().stream().filter(spell -> spell.canPlayerClassCastSpell(playerClass)).toList();
     }
 }

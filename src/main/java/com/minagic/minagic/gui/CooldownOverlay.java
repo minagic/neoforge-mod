@@ -1,7 +1,7 @@
 package com.minagic.minagic.gui;
 
+import com.minagic.minagic.abstractionLayer.SpellcastingItem;
 import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.spellCasting.ISpellcastingItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
@@ -13,13 +13,15 @@ public class CooldownOverlay {
     @SubscribeEvent
     public void onRenderOverlay(RenderGuiEvent.Pre event) {
         Player player = Minecraft.getInstance().player;
-
+        System.out.println("[-COOLDOWN OVERLAY-] Tick event: Rendering cooldown overlay");
         if (player == null) return;
 
         ItemStack stack = player.getMainHandItem();
-        if (!(stack.getItem() instanceof ISpellcastingItem item)) return;
+        if (!(stack.getItem() instanceof SpellcastingItem<?> item)) return;
 
+        System.out.println("[-COOLDOWN OVERLAY-] Player is holding a SpellcastingItem: " + item.getClass());
         double cooldown =  item.getRemainingCooldown(stack, player);
+        System.out.println("[-COOLDOWN OVERLAY-] Cooldown: " + cooldown);
 
         int x = 10;
         int y = 10;
@@ -28,6 +30,8 @@ public class CooldownOverlay {
         gui.fill(x, y, x + 50, y + 50, 0x80000000); // Background
 
         String spell_slot = item.getActiveSpellSlotKey(stack);
+        System.out.println("[-COOLDOWN OVERLAY-] Spell slot key: " + spell_slot);
+
         int spellSlotWidth = Minecraft.getInstance().font.width(spell_slot);
         gui.drawString(Minecraft.getInstance().font, spell_slot, x + 25 - spellSlotWidth / 2, y + 5, 0xFFFFFFFF);
 
