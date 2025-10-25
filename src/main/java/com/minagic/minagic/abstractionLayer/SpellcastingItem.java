@@ -1,16 +1,16 @@
 package com.minagic.minagic.abstractionLayer;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.PlayerClass;
+import com.minagic.minagic.packets.SpellWritePacket;
+import com.minagic.minagic.packets.SyncSpellcastingDataPacket;
 import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModDataComponents;
-import com.minagic.minagic.sorcerer.StaffData;
-import com.minagic.minagic.spellCasting.ISpellcastingItem;
+import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellCasting.SpellSlot;
-import com.minagic.minagic.spells.ISpell;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.component.TypedDataComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -19,14 +19,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class SpellcastingItem<T extends SpellcastingItemData> extends Item implements ISpellcastingItem {
+public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     protected final DataComponentType<T> type;
     private final Supplier<T> factory;
+
+    public DataComponentType<T> getType() {
+        return type;
+    }
 
     protected SpellcastingItem(Properties properties, DataComponentType<T> type, Supplier<T> factory) {
         super(properties);
@@ -34,60 +39,81 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item imple
         this.type = type;
         this.factory = factory;
     }
-    @SuppressWarnings("unchecked")
     protected T getData(ItemStack stack){
+        System.out.println("[-GET DATA-] Getting data for SpellcastingItem from stack");
         // if no data present, initialize it
+        System.out.println("[-GET DATA-] Expecting this data component: " + type);
         if (!stack.has(type)) {
+            System.out.print("[-GET DATA-] No data component found in stack. Initializing new data component: ");
             System.out.println(factory.get());
             setData(stack, factory.get());
         }
+        else {
+            System.out.println("[-GET DATA-] Data component found in stack.");
+        }
+
+        System.out.println("[-GET DATA-] RECEIVED DATA Type: " + stack.get(type).getClass());
+        System.out.println("[-GET DATA-] RECEIVED DATA Content: " + stack.get(type));
+
         return stack.get(type);
     }
 
-
-
     protected void setData(ItemStack stack, T data) {
-        stack.set(type, data);
+        if (stack == null || data == null) return;
+
+        // Defensive copy to force a new reference
+
+        T newData = (T) data.copy();
+        System.out.println("[-SET DATA-] Setting data for Spellcasting Item in stack");
+        System.out.println("[-SET DATA-] New data Type: " + newData.getClass());
+        System.out.println("[-SET DATA-] New data Content: " + newData);
+
+        stack.set(type, newData);
     }
 
+    public void cycleSlotUp(Optional<Player> player, ItemStack stack) {
+        System.out.println("[-CYCLING ACTIVE SPELLSLOT UP-] Setting data for Spellcasting Item in stack");
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void cycleActiveSpellSlot(Optional<Player> player, ItemStack stack) {
         T data = getData(stack);
-        data = (T) data.cycleUp();
-        SpellSlot slot = data.getActive();
+        System.out.println("[-CYCLING ACTIVE SPELLSLOT UP-] New active slot: " + data.getCurrentSlot() + " Spell: " + data.getActive().getSpell().getString());
+        int newSlot = Math.floorMod(data.getCurrentSlot() + 1, data.getSlots().size());
+        data.setCurrentSlot(newSlot);
 
         if (player.isPresent()) {
             if (!(player.get() instanceof ServerPlayer serverPlayer)) return;
             serverPlayer.sendSystemMessage(Component.literal(
-                    "Switched to slot " + data.getCurrentSlot() + ": " + slot.getEnterPhrase()
+                    "Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase()
             ));
         }
+
+        System.out.println("[-CYCLING ACTIVE SPELLSLOT UP-] Setting updated data back to stack, data type: " + data.getClass());
 
         setData(stack, data);
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void cycleActiveSpellSlotDown(Optional<Player> player, ItemStack stack) {
-        // similar to cycleActiveSpellSlot but cycles down
+    public void cycleSlotDown(Optional<Player> player, ItemStack stack) {
+        System.out.println("[-CYCLING ACTIVE SPELLSLOT DOWN UP-] Setting data for Spellcasting Item in stack");
+
         T data = getData(stack);
-        data = (T) data.cycleDown();
-        SpellSlot slot = data.getActive();
+        System.out.println("[-CYCLING ACTIVE SPELLSLOT DOWN-] New active slot: " + data.getCurrentSlot() + " Spell: " + data.getActive().getSpell().getString());
+        int newSlot = Math.floorMod(data.getCurrentSlot() - 1, data.getSlots().size());
+        data.setCurrentSlot(newSlot);
 
         if (player.isPresent()) {
             if (!(player.get() instanceof ServerPlayer serverPlayer)) return;
             serverPlayer.sendSystemMessage(Component.literal(
-                    "Switched to slot " + data.getCurrentSlot() + ": " + slot.getEnterPhrase()
+                    "Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase()
             ));
         }
+
+        System.out.println("[-CYCLING ACTIVE SPELLSLOT DOWN-] Setting updated data back to stack, data type: " + data.getClass());
+
         setData(stack, data);
     }
 
-    @Override
+
     public double getRemainingCooldown(ItemStack stack, Player player) {
-        SpellcastingItemData data = getData(stack);
+        T data = getData(stack);
         ResourceLocation spellId = data.getActive().getSpellId();
 
         int tickCooldown = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get()).getCooldown(spellId);
@@ -95,36 +121,53 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item imple
         return Math.floor((tickCooldown)/2.0)/10.0;
     }
 
-    @Override
-    public void writeSpell(ItemStack stack, Level level, int slotIndex, ISpell spell) {
-        System.out.println("Writing spell " + (spell == null ? "null" : spell.getString()) + " to slot " + slotIndex);
+
+    public void writeSpell(ItemStack stack, Level level, Player player, int slotIndex, Spell spell) {
+        if (level.isClientSide()) {
+            System.out.println("[-SPELL WRITE-] Client side write spell attempt! Redirecting to server via packet.");
+            ClientPacketDistributor.sendToServer(new SpellWritePacket(slotIndex, ModSpells.getId(spell)));
+            return;
+        }
+        System.out.println("[-SPELL WRITE-] Server side write spell attempt, proceeding.");
+        System.out.println("[-SPELL WRITE-] Writing spell " + (spell == null ? "null" : spell.getString()) + " to slot " + slotIndex);
 
         T data = getData(stack);
+        System.out.println("[-SPELL WRITE-] Resolved data created from stack: " + data.getClass());
         if (slotIndex < 0 || slotIndex >= data.getSlots().size()) {
             return;
         }
-        SpellSlot slot = data.getActive();
+        SpellSlot slot = data.getSlots().get(slotIndex);
         slot.setSpell(spell);
+        slot.resolveSpell();
+        System.out.println("[-SPELL WRITE-] Updated slot " + slotIndex + " with spell " + (slot.getSpell() == null ? "null" : slot.getSpell().getString()));
+        System.out.println("[-SPELL WRITE-] Setting updated data back to stack, data: " + data);
         setData(stack, data);
-        cycleActiveSpellSlot(Optional.empty(), stack);
-        cycleActiveSpellSlotDown(Optional.empty(), stack);
+
+        // sync to clients holding this item
+        ServerPlayer serverPlayer = (ServerPlayer) player;
+        PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
     }
 
-    @Override
+
     public String getActiveSpellSlotKey(ItemStack stack) {
         T data = getData(stack);
         SpellSlot slot = data.getActive();
+        System.out.println("[-GET ACTIVE SPELL SLOT KEY-] Active slot: " + data.getCurrentSlot() + " Spell: " + slot.getSpell().getString());
         return slot.getEnterPhrase();
     }
 
-    @Override
+
     public boolean canPlayerClassUseSpellcastingItem(PlayerClass playerClass) {
         return false;
     }
 
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        if (! (player instanceof ServerPlayer serverPlayer)) return InteractionResult.FAIL;
+        System.out.println("[-SPELLCASTING ITEM USE-] Attempting to use spellcasting item");
+        if (! (player instanceof ServerPlayer serverPlayer)) {
+            System.out.println("[-SPELLCASTING ITEM USE-] Player is not a ServerPlayer, aborting.");
+            return InteractionResult.FAIL;
+        }
 
         // check if player can use this staff
         PlayerClass playerClass = player.getData(ModAttachments.PLAYER_CLASS);
@@ -132,13 +175,25 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item imple
             serverPlayer.sendSystemMessage(Component.literal("You have zero idea on how to use this..."));
             return InteractionResult.FAIL;
         }
+
+
         ItemStack stack = player.getItemInHand(hand);
-        SpellcastingItemData data = getData(stack);
+        T data = getData(stack);
+        System.out.println("[-SPELLCASTING ITEM USE-] Retrieved data from item stack: " + data.getClass());
+        System.out.println("[-SPELLCASTING ITEM USE-] Data content: " + data);
+        System.out.println("[-SPELLCASTING ITEM USE-] Active spell slot: " + data.getCurrentSlot() + " Spell: " + data.getActive().getSpell().getString());
 
         SpellCastContext context = new SpellCastContext(serverPlayer, level);
+
+
         data.getActive().cast(context);
 
         return super.use(level, player, hand);
+    }
+    @SuppressWarnings("unchecked")
+    public <S extends SpellEditorScreen<T>> S getEditorScreen(Player player, ItemStack stack) {
+        System.out.println("Opening spell editor screen via SpellcastingItem for player " + player.getName().getString());
+        return (S) new SpellEditorScreen<>(player, this, stack); // safe cast if you know what you're doing
     }
 
 }

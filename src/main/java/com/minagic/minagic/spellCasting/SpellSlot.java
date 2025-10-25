@@ -1,9 +1,9 @@
 package com.minagic.minagic.spellCasting;
 
+import com.minagic.minagic.abstractionLayer.Spell;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 
-import com.minagic.minagic.spells.ISpell;
 import com.minagic.minagic.spells.NoneSpell;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
@@ -17,12 +17,12 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 
 public class SpellSlot {
-    private @Nullable ISpell spell;                  // runtime cache
+    private @Nullable Spell spell;                  // runtime cache
     private @Nullable ResourceLocation spellId;      // persistent identity
 
     public SpellSlot() { this(new NoneSpell()); }
 
-    public SpellSlot(@Nullable ISpell spell) {
+    public SpellSlot(@Nullable Spell spell) {
         this.spell = spell;
         this.spellId = null; // will be filled on first resolve if needed
     }
@@ -46,16 +46,17 @@ public class SpellSlot {
         }
     }
 
-    public void setSpell(ISpell spell) {
-        System.out.println("Setting SpellSlot spell to: "+spell);
+    public void setSpell(Spell spell) {
+        System.out.println("[-SET SPELL-]Setting SpellSlot spell to: "+spell);
+
         this.spell = spell;
         this.spellId = ModSpells.getId(spell);
-        System.out.println("SpellSlot spellId: "+spellId);
+        System.out.println("[-SET SPELL-] SpellSlot spellId: "+spellId);
+
     }
 
-    public ISpell getSpell() {
+    public Spell getSpell() {
         resolveSpell();
-        System.out.println("This is SpellSlot reporting, current spell is: "+spell+"/"+ (spellId == null ? "null" : spellId.getPath().toString()));
         return spell;
     }
 
@@ -114,15 +115,15 @@ public class SpellSlot {
 
     // overrides of equals and hashCode to ensure proper comparisons
 
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (!(obj instanceof SpellSlot other)) return false;
-//
-//        return this.getSpell() == other.getSpell();
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return (spell != null ? spell.hashCode() : 0);
-//    }
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof SpellSlot other)) return false;
+
+        return this.getSpell() == other.getSpell();
+    }
+
+    @Override
+    public int hashCode() {
+        return (spell != null ? spell.hashCode() : 0);
+    }
 }

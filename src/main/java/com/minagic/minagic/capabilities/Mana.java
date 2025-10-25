@@ -36,9 +36,7 @@ public final class Mana {
         boolean restored = false;
 
         // Sorcerer passive regen
-        if (pc.getMainClass() == PlayerClassEnum.SORCERER) {
-            restored |= restoreMana(2);
-        }
+        restored = restoreMana(3);
         // Optional: log or effect if mana restored
         if (restored) {
             // Visual or sound feedback here, if needed

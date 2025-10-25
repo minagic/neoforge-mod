@@ -104,7 +104,7 @@ public abstract class SpellProjectileEntity extends Projectile {
     @Override
     protected void onHitEntity(EntityHitResult hitResult) {
         super.onHitEntity(hitResult);
-        this.discard();
+        //this.discard();
 
     }
 
@@ -116,7 +116,7 @@ public abstract class SpellProjectileEntity extends Projectile {
     @Override
     protected void onHitBlock(BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
-        this.discard();
+        //this.discard();
 
     }
 }

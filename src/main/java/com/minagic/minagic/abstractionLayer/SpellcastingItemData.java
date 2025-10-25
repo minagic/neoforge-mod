@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiFunction;
 
 // this is a record-like class to hold spellcasting item data such as spell slots and the current active slot
 // it is immutable but extensible
@@ -31,28 +32,13 @@ public class SpellcastingItemData {
         int idx = Mth.clamp(currentSlot, 0, slots.size() - 1);
         return slots.get(idx);
     }
-
-    // override this method
-    public SpellcastingItemData withCurrentSlot(int next) {
-        int idx = Math.floorMod(next, slots.size());
-        return new SpellcastingItemData(slots, idx);
-    }
-
-    // override this method
-    public SpellcastingItemData cycleUp() {
-        return withCurrentSlot(currentSlot + 1);
-    }
-
-    // override this method
-
-    public SpellcastingItemData cycleDown() {
-        return withCurrentSlot(currentSlot - 1);
-    }
-
     public List<SpellSlot> getSlots() {return slots;}
 
     public int getCurrentSlot() {return currentSlot;}
 
+    public void setCurrentSlot(int currentSlot) {this.currentSlot = currentSlot;}
+
+    @Override
     public boolean equals(Object other) {
         if (this == other) return true;
         if (!(other instanceof SpellcastingItemData that)) return false;
@@ -63,7 +49,7 @@ public class SpellcastingItemData {
         }
         return true;
     }
-
+    @Override
     public int hashCode() {
         int result = Integer.hashCode(currentSlot);
         for (SpellSlot slot : slots) {
@@ -72,25 +58,42 @@ public class SpellcastingItemData {
         return result;
     }
 
+    public String getRaw(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("currentSlot:").append(currentSlot).append(";");
+        sb.append("slots:");
+        for (int i = 0; i < slots.size(); i++) {
+            sb.append(slots.get(i).getSpellId());
+            if (i < slots.size() - 1) sb.append(",");
+        }
+        return sb.toString();
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder("SpellcastingItemData{");
         sb.append("currentSlot=").append(currentSlot).append(", slots=[");
         for (int i = 0; i < slots.size(); i++) {
-            sb.append(slots.get(i).toString());
+            sb.append(slots.get(i).getSpell().toString());
+            sb.append("/");
+            sb.append(slots.get(i).getSpellId());
             if (i < slots.size() - 1) sb.append(", ");
         }
         sb.append("]}");
         return sb.toString();
     }
 
+    public SpellcastingItemData copy(){
+        return new SpellcastingItemData(this.getSlots(), this.getCurrentSlot());
+    }
+
     // ---- CODEC ----
-    @SuppressWarnings("unchecked")
-    public static <T extends SpellcastingItemData> Codec<T> codec() {
+    public static <T extends SpellcastingItemData> Codec<T> codec(
+            BiFunction<List<SpellSlot>, Integer, T> factory
+    ) {
         return RecordCodecBuilder.create(instance -> instance.group(
                 SpellSlot.CODEC.listOf().fieldOf("slots").forGetter(SpellcastingItemData::getSlots),
                 Codec.INT.fieldOf("currentSlot").forGetter(SpellcastingItemData::getCurrentSlot)
-        ).apply(instance, (slots, currentSlot) -> (T)new SpellcastingItemData(slots, currentSlot)
-        ));
+        ).apply(instance, factory));
     }
 
 }
