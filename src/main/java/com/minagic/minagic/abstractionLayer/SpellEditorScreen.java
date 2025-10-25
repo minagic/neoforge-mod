@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.LoomMenu;
@@ -49,8 +50,8 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
             addSlotButton(i); // you'll define this method
         }
     }
-    protected List<Spell> getAvailableSpells(Player player){
-        return SpellRegistry.getSpells(player);
+    protected List<Spell> getAvailableSpells(Player player, ItemStack stack) {
+        return SpellRegistry.getSpells(player, player.level(), stack);
     }
 
     @Override
@@ -88,7 +89,7 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
     }
 
     private void openSpellSelection(int index) {
-        List<Spell> available = getAvailableSpells(player);
+        List<Spell> available = getAvailableSpells(player, stack);
 
         Minecraft.getInstance().setScreen(new SpellSelectionScreen(available, selected -> {
             System.out.println("Selected spell: " + selected.getString() + " for slot " + index);

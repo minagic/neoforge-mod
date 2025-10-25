@@ -63,7 +63,7 @@ public class SpellSlot {
     public @Nullable ResourceLocation getSpellId() { return spellId; }
 
     public void cast(SpellCastContext context) {
-        ServerPlayer player = context.caster;
+        if (!(context.caster instanceof ServerPlayer player)) return; // NEVER EVER CAST ON CLIENT
 
         // Ensure resolved on use
         resolveSpell();

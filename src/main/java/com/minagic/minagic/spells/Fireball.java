@@ -20,10 +20,18 @@ public class Fireball extends Spell {
     private final int manaCost = 30;
 
     @Override
-    public boolean canPlayerClassCastSpell(PlayerClass playerClass){
+    public String canCast(SpellCastContext context){
+        PlayerClass playerClass = context.caster.getData(ModAttachments.PLAYER_CLASS);
         // only infernal sorcerers and elemental wizards of level 3 and above can cast fireball
-        return playerClass.getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) >= 3 ||
-               playerClass.getSubclassLevel(PlayerSubClassEnum.WIZARD_ELEMANCY) >= 3;
+
+        String error = "";
+        if  (!(playerClass.getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) >= 3 ||
+                playerClass.getSubclassLevel(PlayerSubClassEnum.WIZARD_ELEMANCY) >= 3)) {
+            error = "WTH is this spell? You can't cast it.";
+        }
+        return error;
+
+
     }
 
     @Override
@@ -43,17 +51,13 @@ public class Fireball extends Spell {
 
     @Override
     public boolean cast(SpellCastContext context) {
-        Level level = context.level;
-        ServerPlayer player = context.caster;
-
-        if (level.isClientSide()) return false; // Only cast on server side
-
-        // player class verification
-        PlayerClass pc = player.getData(ModAttachments.PLAYER_CLASS);
-        if (!canPlayerClassCastSpell(pc)) {
-            player.sendSystemMessage(Component.literal("WTF is this spell? You can't cast it."));
-            return false;
+        ServerPlayer player = preCast(context);
+        if (player == null) {
+            return false; // Pre-cast checks failed
         }
+
+        Level level = context.level;
+        if (level.isClientSide()) return false; // Only cast on server side
 
 
         Vec3 look = player.getLookAngle();

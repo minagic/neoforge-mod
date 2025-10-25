@@ -23,7 +23,6 @@ public final class ModDataComponents {
             COMPONENTS.register("staff_data", () ->
                     DataComponentType.<StaffData>builder()
                             .persistent(StaffData.CODEC)
-    //                        .networkSynchronized(ByteBufCodecs.fromCodec(StaffData.CODEC))
                             .build()
             );
     // WIZARD
@@ -31,7 +30,6 @@ public final class ModDataComponents {
             COMPONENTS.register("wizard_wand_data", () ->
                     DataComponentType.<WizardWandData>builder()
                             .persistent(WizardWandData.CODEC)
-    //                        .networkSynchronized(ByteBufCodecs.fromCodec(WizardWandData.CODEC))
                             .build()
             );
 

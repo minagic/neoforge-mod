@@ -5,7 +5,10 @@ import com.minagic.minagic.abstractionLayer.Spell;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.registries.ModAttachments;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +44,8 @@ public class SpellRegistry {
         return REVERSE.get(spell);
     }
 
-    public static List<Spell> getSpells(Player player) {
+    public static List<Spell> getSpells(Player player, Level level, ItemStack stack) {
         PlayerClass playerClass = player.getData(ModAttachments.PLAYER_CLASS);
-        return REGISTRY.values().stream().filter(spell -> spell.canPlayerClassCastSpell(playerClass)).toList();
+        return REGISTRY.values().stream().filter(spell -> spell.canCast(new SpellCastContext(player, level, stack)).equals("")).toList();
     }
 }

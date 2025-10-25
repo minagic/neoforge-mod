@@ -19,9 +19,9 @@ public class sorcererStaff extends SpellcastingItem<StaffData> {
             return playerClass.getMainClass() == PlayerClassEnum.SORCERER;
         }
         // override screen method
-        @Override
-        public SpellEditorScreen<StaffData> getEditorScreen(Player player, ItemStack stack) {
-            System.out.println("Opening Staff Editor Screen via sorcererStaff");
-            return new StaffEditorScreen(player, this, stack);
-        }
+//        @Override
+//        public SpellEditorScreen<StaffData> getEditorScreen(Player player, ItemStack stack) {
+//            System.out.println("Opening Staff Editor Screen via sorcererStaff");
+//            return new StaffEditorScreen(player, this, stack);
+//        }
 }

@@ -25,6 +25,4 @@ public class StaffData extends SpellcastingItemData {
     }
     public static final Codec<StaffData> CODEC =
             SpellcastingItemData.codec(StaffData::new);
-
-
 }

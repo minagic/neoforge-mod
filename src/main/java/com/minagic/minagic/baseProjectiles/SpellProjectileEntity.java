@@ -116,7 +116,6 @@ public abstract class SpellProjectileEntity extends Projectile {
     @Override
     protected void onHitBlock(BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
-        //this.discard();
 
     }
 }

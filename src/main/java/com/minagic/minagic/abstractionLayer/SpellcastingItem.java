@@ -183,7 +183,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         System.out.println("[-SPELLCASTING ITEM USE-] Data content: " + data);
         System.out.println("[-SPELLCASTING ITEM USE-] Active spell slot: " + data.getCurrentSlot() + " Spell: " + data.getActive().getSpell().getString());
 
-        SpellCastContext context = new SpellCastContext(serverPlayer, level);
+        SpellCastContext context = new SpellCastContext(serverPlayer, level, player.getItemInHand(hand));
 
 
         data.getActive().cast(context);
@@ -193,7 +193,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     @SuppressWarnings("unchecked")
     public <S extends SpellEditorScreen<T>> S getEditorScreen(Player player, ItemStack stack) {
         System.out.println("Opening spell editor screen via SpellcastingItem for player " + player.getName().getString());
-        return (S) new SpellEditorScreen<>(player, this, stack); // safe cast if you know what you're doing
+        return (S) new SpellEditorScreen<>(player, this, stack);
     }
 
 }
