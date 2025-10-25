@@ -27,6 +27,12 @@ public class MinagicNetwork {
                 SpellWritePacket.STREAM_CODEC,
                 SpellWritePacket::handle
         );
+
+        registrar.playToClient(
+                SyncSpellcastingDataPacket.TYPE,
+                SyncSpellcastingDataPacket.STREAM_CODEC,
+                SyncSpellcastingDataPacket::handle
+        );
     }
 
 

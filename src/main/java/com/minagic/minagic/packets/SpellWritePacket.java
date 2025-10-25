@@ -37,7 +37,10 @@ public record SpellWritePacket(int slotIndex, ResourceLocation spellId) implemen
         Spell spell = ModSpells.get(pkt.spellId());
         if (spell == null) return;
 
-        item.writeSpell(stack, serverPlayer.level(), pkt.slotIndex(), spell); // <- this now runs on the server
+        item.writeSpell(stack, serverPlayer.level(), serverPlayer, pkt.slotIndex(), spell); // <- this now runs on the server
+
+        serverPlayer.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        serverPlayer.containerMenu.broadcastChanges();
     }
     public static final Codec<SpellWritePacket> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(

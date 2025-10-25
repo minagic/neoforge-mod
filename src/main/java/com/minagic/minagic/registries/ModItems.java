@@ -3,6 +3,7 @@ package com.minagic.minagic.registries;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.item.EffectWandItem;
 import com.minagic.minagic.sorcerer.sorcererStaff;
+import com.minagic.minagic.wizard.WizardWand;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -20,6 +21,10 @@ public final class ModItems {
 
     public static final DeferredItem<Item> EFFECT_WAND = Minagic.ITEMS.register("effect_wand",
             () -> new EffectWandItem(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(Minagic.MODID + "effect_wand"))))
+    );
+
+    public static final DeferredItem<Item> WIZARD_WAND = Minagic.ITEMS.register("wizard_wand",
+            () -> new WizardWand(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(Minagic.MODID + "wizard_wand"))))
     );
 
     public static void register(IEventBus modBus) { Minagic.ITEMS.register(modBus); }

@@ -3,12 +3,14 @@ package com.minagic.minagic.abstractionLayer;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.packets.SpellWritePacket;
+import com.minagic.minagic.packets.SyncSpellcastingDataPacket;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellCasting.SpellSlot;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -18,6 +20,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -25,6 +28,10 @@ import java.util.function.Supplier;
 public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     protected final DataComponentType<T> type;
     private final Supplier<T> factory;
+
+    public DataComponentType<T> getType() {
+        return type;
+    }
 
     protected SpellcastingItem(Properties properties, DataComponentType<T> type, Supplier<T> factory) {
         super(properties);
@@ -51,15 +58,17 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         return stack.get(type);
     }
 
-
-
     protected void setData(ItemStack stack, T data) {
+        if (stack == null || data == null) return;
 
-        System.out.println("[-SET DATA-] Setting data for SpellcastingItem in stack");
-        System.out.println("[-SET DATA-] Expecting this data component: " + type);
-        System.out.println("[-SET DATA-] Pushing data for SpellcastingItem to stack, data type: " + data.getClass());
-        System.out.println("[-SET DATA-] Data content: " + data);
-        stack.set(type, data);
+        // Defensive copy to force a new reference
+
+        T newData = (T) data.copy();
+        System.out.println("[-SET DATA-] Setting data for Spellcasting Item in stack");
+        System.out.println("[-SET DATA-] New data Type: " + newData.getClass());
+        System.out.println("[-SET DATA-] New data Content: " + newData);
+
+        stack.set(type, newData);
     }
 
     public void cycleSlotUp(Optional<Player> player, ItemStack stack) {
@@ -113,7 +122,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     }
 
 
-    public void writeSpell(ItemStack stack, Level level, int slotIndex, Spell spell) {
+    public void writeSpell(ItemStack stack, Level level, Player player, int slotIndex, Spell spell) {
         if (level.isClientSide()) {
             System.out.println("[-SPELL WRITE-] Client side write spell attempt! Redirecting to server via packet.");
             ClientPacketDistributor.sendToServer(new SpellWritePacket(slotIndex, ModSpells.getId(spell)));
@@ -133,8 +142,10 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         System.out.println("[-SPELL WRITE-] Updated slot " + slotIndex + " with spell " + (slot.getSpell() == null ? "null" : slot.getSpell().getString()));
         System.out.println("[-SPELL WRITE-] Setting updated data back to stack, data: " + data);
         setData(stack, data);
-        cycleSlotUp(Optional.empty(), stack);
-        cycleSlotDown(Optional.empty(), stack);
+
+        // sync to clients holding this item
+        ServerPlayer serverPlayer = (ServerPlayer) player;
+        PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
     }
 
 

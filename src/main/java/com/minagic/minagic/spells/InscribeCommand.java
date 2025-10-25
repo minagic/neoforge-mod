@@ -24,7 +24,7 @@ public final class InscribeCommand {
             source.sendFailure(Component.literal("Hold a spellcasting item first."));
             return 0;
         }
-        sci.writeSpell(stack, player.level(), 0, ModSpells.get(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "fireball")));
+        sci.writeSpell(stack, player.level(), player, 0, ModSpells.get(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "fireball")));
         return 0;
     }
 }

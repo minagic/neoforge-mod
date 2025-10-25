@@ -1,11 +1,9 @@
-package com.minagic.minagic.gui;
+package com.minagic.minagic.abstractionLayer;
 
-import com.minagic.minagic.abstractionLayer.Spell;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
 import java.util.function.Consumer;

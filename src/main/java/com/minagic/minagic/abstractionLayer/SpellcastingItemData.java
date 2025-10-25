@@ -82,6 +82,10 @@ public class SpellcastingItemData {
         return sb.toString();
     }
 
+    public SpellcastingItemData copy(){
+        return new SpellcastingItemData(this.getSlots(), this.getCurrentSlot());
+    }
+
     // ---- CODEC ----
     public static <T extends SpellcastingItemData> Codec<T> codec(
             BiFunction<List<SpellSlot>, Integer, T> factory

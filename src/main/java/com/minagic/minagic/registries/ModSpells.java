@@ -24,9 +24,4 @@ public final class ModSpells {
         System.out.println("MOD SPELLS: ID is: "+SpellRegistry.getId(spell));
         return SpellRegistry.getId(spell);
     }
-
-    public static @Nullable Spell getFromString(String idString) {
-        ResourceLocation id = ResourceLocation.parse(idString);
-        return get(id);
-    }
 }

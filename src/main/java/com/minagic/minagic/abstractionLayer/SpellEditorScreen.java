@@ -2,13 +2,18 @@ package com.minagic.minagic.abstractionLayer;
 
 import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spellCasting.SpellSlot;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.LoomMenu;
+import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.event.InputEvent;
 
@@ -23,7 +28,7 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
     protected T data;
 
     public SpellEditorScreen(Player player, SpellcastingItem<T> item, ItemStack stack) {
-        super(new LoomMenu(0, player.getInventory()), player.getInventory(), item.getName(stack));
+        super(new MerchantMenu(0, player.getInventory()), player.getInventory(), item.getName(stack));
 
         this.player = player;
         this.item = item;
@@ -44,11 +49,6 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
             addSlotButton(i); // you'll define this method
         }
     }
-
-    protected void addSlotButton(int index){
-        // Placeholder: Override in subclasses to add buttons for each spell slot
-    }
-
     protected List<Spell> getAvailableSpells(Player player){
         return SpellRegistry.getSpells(player);
     }
@@ -68,5 +68,33 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.fill(0, 0, this.width, this.height, 0x20202020); // simple dark background
+    }
+
+    protected void addSlotButton(int index) {
+        int x = this.leftPos + 10 + (index % 5) * 20;
+        int y = this.topPos + 20 + (index / 5) * 20;
+        SpellSlot slot = data.getSlots().get(index);
+        String spellName = (slot != null && slot.getSpell() != null)
+                ? slot.getSpell().getString()
+                : "None";
+
+
+        var btn = Button.builder(Component.literal("S"), button -> openSpellSelection(index))
+                .tooltip(Tooltip.create(Component.literal("Select Spell for Slot " + (index + 1) + " Current Spell: " + spellName)))
+                .pos(x, y)
+                .size(18, 18)
+                .build();
+        this.addRenderableWidget(btn);
+    }
+
+    private void openSpellSelection(int index) {
+        List<Spell> available = getAvailableSpells(player);
+
+        Minecraft.getInstance().setScreen(new SpellSelectionScreen(available, selected -> {
+            System.out.println("Selected spell: " + selected.getString() + " for slot " + index);
+            System.out.println("Inscribing the spell into the staff.");
+            assert Minecraft.getInstance().level != null;
+            item.writeSpell(stack, Minecraft.getInstance().level, Minecraft.getInstance().player, index, selected);
+        }));
     }
 }

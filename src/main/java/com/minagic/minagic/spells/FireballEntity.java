@@ -19,7 +19,7 @@ import java.util.Set;
 public class FireballEntity extends SpellProjectileEntity implements ItemSupplier {
     private static final float SPEED = 2f;
     private static final float RADIUS = 4f;
-    private static final float GRAVITY = 0f;
+    private static final float GRAVITY = -0.01f;
 
     // Generic constructor
     public FireballEntity(EntityType<? extends FireballEntity> type, Level level) {
@@ -36,10 +36,6 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
     @Override
     protected void onHitBlock(BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
-
-        BlockPos center = hitResult.getBlockPos();
-        AOEHit.applyAOE(this.getOwner(), this, Set.of(DamageTypes.MAGIC, DamageTypes.FIRE, DamageTypes.ELEMENTAL), 10, RADIUS, center);
-        spawnAOESparkParticles(level(), hitResult.getLocation(), RADIUS);
     }
 
     @Override
@@ -49,6 +45,8 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
         BlockPos center = hitResult.getEntity().blockPosition();
         AOEHit.applyAOE(this.getOwner(),  this, Set.of(DamageTypes.MAGIC, DamageTypes.FIRE, DamageTypes.ELEMENTAL), 10, RADIUS, center);
         spawnAOESparkParticles(level(), hitResult.getLocation(), RADIUS);
+
+        this.discard();
     }
 
     public static void spawnAOESparkParticles(Level level, Vec3 center, double radius) {
