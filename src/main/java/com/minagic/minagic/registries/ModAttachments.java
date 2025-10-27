@@ -29,6 +29,7 @@ public class ModAttachments {
                     AttachmentType.<PlayerClass>builder(PlayerClass::new)
                             .serialize(new PlayerClassSerializer()) // persistent & sync-enabled
                             .sync(ByteBufCodecs.fromCodec(PlayerClass.CODEC))
+                            .copyOnDeath()
                             .build()
             );
 
@@ -37,6 +38,13 @@ public class ModAttachments {
                     AttachmentType.<Mana>builder(Mana::new)
                             .serialize(new ManaSerializer()) // persistent & sync-enabled
                             .sync(ByteBufCodecs.fromCodec(Mana.CODEC))
+                            .build()
+            );
+    public static final Supplier<AttachmentType<PlayerSimulacraAttachment>> PLAYER_SIMULACRA =
+            ATTACHMENTS.register("player_simulacra", () ->
+                    AttachmentType.<PlayerSimulacraAttachment>builder(PlayerSimulacraAttachment::new)
+                            .serialize(new PlayerSimulacraAttachment.Serializer())
+                            .sync(ByteBufCodecs.fromCodec(PlayerSimulacraAttachment.CODEC))
                             .build()
             );
 

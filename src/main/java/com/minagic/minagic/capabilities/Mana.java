@@ -36,11 +36,13 @@ public final class Mana {
         boolean restored = false;
 
         // Sorcerer passive regen
-        restored = restoreMana(3);
+        restored = restoreMana(20);
         // Optional: log or effect if mana restored
         if (restored) {
             // Visual or sound feedback here, if needed
         }
+
+
     }
 
     private int computeMaxMana(Player player, PlayerClass pc) {

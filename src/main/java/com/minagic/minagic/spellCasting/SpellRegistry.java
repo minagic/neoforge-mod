@@ -19,13 +19,12 @@ public class SpellRegistry {
     private static final Map<Spell, ResourceLocation> REVERSE = new HashMap<>();
 
 
-
     public static void register(ResourceLocation id, Spell spell) {
         REGISTRY.put(id, spell);
         REVERSE.put(spell, id);
     }
     public static Spell getSpell(ResourceLocation id) {
-        System.out.println("Attempting lookup for spell ID: " + id + " in SpellRegistry: " + REGISTRY.keySet());
+        //System.out.println("Attempting lookup for spell ID: " + id + " in SpellRegistry: " + REGISTRY.keySet());
 
         if (id != null && REGISTRY.containsKey(id)) {
             return REGISTRY.get(id);
@@ -38,9 +37,9 @@ public class SpellRegistry {
     }
 
     public static ResourceLocation getId(Spell spell) {
-        System.out.println("SPELL REGISTRY: Looking up " + spell);
-        System.out.println("SPELL REGISTRY: " + REVERSE.keySet());
-        System.out.println("SPELL REGISTRY: Found ID: " + REVERSE.get(spell));
+        //System.out.println("SPELL REGISTRY: Looking up " + spell);
+        //System.out.println("SPELL REGISTRY: " + REVERSE.keySet());
+        //System.out.println("SPELL REGISTRY: Found ID: " + REVERSE.get(spell));
         return REVERSE.get(spell);
     }
 
