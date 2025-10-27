@@ -1,5 +1,6 @@
 package com.minagic.minagic.registries;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
 import com.minagic.minagic.sorcerer.StaffData;
 import com.minagic.minagic.wizard.WizardWandData;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 
 public final class ModDataComponents {
     public static final DeferredRegister<DataComponentType<?>> COMPONENTS =
-            DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, "minagic");
+            DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, Minagic.MODID);
 
     // SORCERER
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<StaffData>> STAFF_DATA =

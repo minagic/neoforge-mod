@@ -1,5 +1,6 @@
 package com.minagic.minagic.packets;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.abstractionLayer.SpellcastingItem;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -13,7 +14,7 @@ import java.util.Optional;
 public record SpellSlotCyclePacket() implements CustomPacketPayload {
     // Unique packet ID
     public static final Type<SpellSlotCyclePacket> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath("minagic", "cycle_spell"));
+            new Type<>(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "cycle_spell"));
 
     // Encoder/decoder (no data in this example)
     public static final StreamCodec<FriendlyByteBuf, SpellSlotCyclePacket> CODEC =
