@@ -51,5 +51,9 @@ public final class DamageTypes  {
 
     public static final ResourceKey<DamageType> UNBLOCKABLE = ResourceKey.create(
             Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(modID, "unblockable"));
+
+    public static final ResourceKey<DamageType> VOID = ResourceKey.create(
+            Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(modID, "void")
+    );
 }   
 

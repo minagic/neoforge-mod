@@ -13,15 +13,15 @@ public class CooldownOverlay {
     @SubscribeEvent
     public void onRenderOverlay(RenderGuiEvent.Pre event) {
         Player player = Minecraft.getInstance().player;
-        System.out.println("[-COOLDOWN OVERLAY-] Tick event: Rendering cooldown overlay");
+        //System.out.println("[-COOLDOWN OVERLAY-] Tick event: Rendering cooldown overlay");
         if (player == null) return;
 
         ItemStack stack = player.getMainHandItem();
         if (!(stack.getItem() instanceof SpellcastingItem<?> item)) return;
 
-        System.out.println("[-COOLDOWN OVERLAY-] Player is holding a SpellcastingItem: " + item.getClass());
+        //System.out.println("[-COOLDOWN OVERLAY-] Player is holding a SpellcastingItem: " + item.getClass());
         double cooldown =  item.getRemainingCooldown(stack, player);
-        System.out.println("[-COOLDOWN OVERLAY-] Cooldown: " + cooldown);
+        //System.out.println("[-COOLDOWN OVERLAY-] Cooldown: " + cooldown);
 
         int x = 10;
         int y = 10;
@@ -30,7 +30,7 @@ public class CooldownOverlay {
         gui.fill(x, y, x + 50, y + 50, 0x80000000); // Background
 
         String spell_slot = item.getActiveSpellSlotKey(stack);
-        System.out.println("[-COOLDOWN OVERLAY-] Spell slot key: " + spell_slot);
+        //System.out.println("[-COOLDOWN OVERLAY-] Spell slot key: " + spell_slot);
 
         int spellSlotWidth = Minecraft.getInstance().font.width(spell_slot);
         gui.drawString(Minecraft.getInstance().font, spell_slot, x + 25 - spellSlotWidth / 2, y + 5, 0xFFFFFFFF);
@@ -67,6 +67,20 @@ public class CooldownOverlay {
         String manaText = "Mana: " + mana + "/" + maxMana;
         int manaWidth = Minecraft.getInstance().font.width(manaText);
         gui.drawString(Minecraft.getInstance().font, manaText, x2 + 25 - manaWidth / 2, y2 + 75, 0xFF00FFFF);
+
+        // Render a channeled spell indicator if applicable
+
+        var activeChannelling = player.getData(ModAttachments.PLAYER_SIMULACRA.get()).getActiveChanneling();
+        var progress = player.getData(ModAttachments.PLAYER_SIMULACRA.get()).getActiveChannelingProgress() * 100f;
+        if (activeChannelling != null) {
+            String channellingText = "Channelling: " + activeChannelling.getSpell().getString();
+            int channellingWidth = Minecraft.getInstance().font.width(channellingText);
+            gui.drawString(Minecraft.getInstance().font, channellingText, x2 + 25 - channellingWidth / 2, y2 + 75, 0xFFFFFFFF);
+
+            String progressText = String.format("Progress: %.1f%%",  progress);
+            int progressWidth = Minecraft.getInstance().font.width(progressText);
+            gui.drawString(Minecraft.getInstance().font, progressText, x2 + 25 - progressWidth / 2, y2 + 90, 0xFFFFFFFF);
+        }
 
     }
 }

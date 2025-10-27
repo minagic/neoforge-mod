@@ -5,7 +5,10 @@ import com.minagic.minagic.packets.MinagicNetwork;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModItems;
 import com.minagic.minagic.registries.ModSpells;
+import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
+import com.minagic.minagic.spellCasting.ClearData;
 import com.minagic.minagic.spellCasting.ManaHandler;
+import com.minagic.minagic.spellCasting.PlayerSimulacraHandler;
 import com.minagic.minagic.spellCasting.SpellCooldownHandler;
 import com.minagic.minagic.spells.FireballEntity;
 import com.minagic.minagic.registries.ModDataComponents;
@@ -69,6 +72,16 @@ public class Minagic {
                             .updateInterval(1) // Update interval
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":fireball"))));
 
+    // Register VOID BLAST ENTITY TYPE
+    // (Example of how to register another entity type, similar to FIREBALL)
+    public static final DeferredHolder<EntityType<?>, EntityType<VoidBlastEntity>> VOID_BLAST_ENTITY =
+            ENTITY_TYPES.register("void_blast_entity",
+                    () -> EntityType.Builder.<VoidBlastEntity>of(VoidBlastEntity::new, MobCategory.MISC)
+                            .sized(0.5F, 0.5F) // Size of the entity
+                            .clientTrackingRange(32) // Tracking range
+                            .updateInterval(1) // Update interval
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":void_blast_entity"))));
+
     // Creates a creative tab with the id "minagic:example_tab" for the example item, that is placed after the combat tab
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.minagic")) //The language key for the title of your CreativeModeTab
@@ -103,7 +116,7 @@ public class Minagic {
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
 
-
+        ModSpells.register();
         // Register your tick handlers here!
         NeoForge.EVENT_BUS.register(new MinagicTaskScheduler());
         NeoForge.EVENT_BUS.register(new ManaHandler());
@@ -111,11 +124,13 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(new ClientInputHandler());
         NeoForge.EVENT_BUS.register(new CooldownOverlay());
         NeoForge.EVENT_BUS.register(new WorldEvents());
+        NeoForge.EVENT_BUS.register(new PlayerSimulacraHandler());
+        NeoForge.EVENT_BUS.register(new ClearData());
 
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
         ModAttachments.register(modEventBus);
-        ModSpells.register();
+
 
 
 

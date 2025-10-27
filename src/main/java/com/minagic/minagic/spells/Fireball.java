@@ -8,6 +8,7 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -31,7 +32,6 @@ public class Fireball extends Spell {
         }
         return error;
 
-
     }
 
     @Override
@@ -50,14 +50,13 @@ public class Fireball extends Spell {
     }
 
     @Override
-    public boolean cast(SpellCastContext context) {
+    public void cast(SpellCastContext context) {
         ServerPlayer player = preCast(context);
         if (player == null) {
-            return false; // Pre-cast checks failed
+            return; // Pre-cast checks failed
         }
 
         Level level = context.level;
-        if (level.isClientSide()) return false; // Only cast on server side
 
 
         Vec3 look = player.getLookAngle();
@@ -70,6 +69,7 @@ public class Fireball extends Spell {
 
         // Optional: play sound or trigger animation
         level.playSound(null, player.blockPosition(), SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
-        return true;
+
+        applyMagicCosts(context);
     }
 }

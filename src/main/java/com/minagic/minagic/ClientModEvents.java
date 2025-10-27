@@ -13,7 +13,8 @@ public class ClientModEvents {
 
     @SubscribeEvent
     public void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer((EntityType<FireballEntity>) Minagic.FIREBALL.get(), ThrownItemRenderer::new);
+        event.registerEntityRenderer(Minagic.FIREBALL.get(), ThrownItemRenderer::new);
+        event.registerEntityRenderer(Minagic.VOID_BLAST_ENTITY.get(), ThrownItemRenderer::new);
     }
 
     @SubscribeEvent

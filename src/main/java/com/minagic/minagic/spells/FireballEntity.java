@@ -19,16 +19,24 @@ import java.util.Set;
 public class FireballEntity extends SpellProjectileEntity implements ItemSupplier {
     private static final float SPEED = 2f;
     private static final float RADIUS = 4f;
-    private static final float GRAVITY = -0.05f;
+    private static final float GRAVITY = 0f;
 
     // Generic constructor
     public FireballEntity(EntityType<? extends FireballEntity> type, Level level) {
-        super(type, level, SPEED, Vec3.ZERO, GRAVITY);
+        super(type, level);
+        this.speed = SPEED;
+        this.gravity = GRAVITY;
+        this.setNoGravity(false);
     }
 
     // Custom constructor
     public FireballEntity(Level level, Vec3 position, Vec3 direction) {
-        super( Minagic.FIREBALL.get(), level, SPEED, direction, GRAVITY);
+        super(Minagic.FIREBALL.get(), level);
+
+        this.speed = SPEED;
+        this.gravity = GRAVITY;
+        this.isEntityPiercing = false;
+        this.setNoGravity(false);
         this.setPos(position.x, position.y, position.z);
         this.setDeltaMovement(direction.normalize().scale(SPEED));
     }
