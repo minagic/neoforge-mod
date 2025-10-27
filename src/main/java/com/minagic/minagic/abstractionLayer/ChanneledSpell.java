@@ -36,8 +36,7 @@ public class ChanneledSpell extends Spell{
             return; // Pre-cast checks failed
         }
         var data = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
-        data.setActiveChanneling(null, 0, 0, context.stack);
-        player.setData(ModAttachments.PLAYER_SIMULACRA.get(), data);
+        data.clearChanneling();
     }
 
 

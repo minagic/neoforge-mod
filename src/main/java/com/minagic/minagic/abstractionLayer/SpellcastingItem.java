@@ -1,6 +1,5 @@
 package com.minagic.minagic.abstractionLayer;
 
-import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.packets.SpellWritePacket;
 import com.minagic.minagic.packets.SyncSpellcastingDataPacket;
@@ -10,7 +9,6 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellCasting.SpellSlot;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -203,7 +201,6 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
         SpellCastContext context = new SpellCastContext(serverPlayer, level, player.getItemInHand(hand));
 
-
         data.getActive().onStart(context);
         serverPlayer.startUsingItem(hand);
 
@@ -211,15 +208,14 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     }
 
     @Override
-    public ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
+    public @NotNull ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
         return ItemUseAnimation.SPEAR;
     }
 
-
-
-
-
-
+    @Override
+    public int getUseDuration(@NotNull ItemStack stack, @NotNull LivingEntity player) {
+        return 72000;
+    }
 
     @Override
     public boolean releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity player, int timeLeft) {
@@ -229,17 +225,19 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
             return false;
         }
 
-        ItemStack itemStack = player.getItemInHand(player.getUsedItemHand());
-        T data = getData(itemStack);
+        if (!(stack.getItem() instanceof SpellcastingItem)) {
+            return false;
+        }
+        T data = getData(stack);
         //System.out.println("[-SPELLCASTING ITEM RELEASE USING-] Retrieved data from item stack: " + data.getClass());
         //System.out.println("[-SPELLCASTING ITEM RELEASE USING-] Data content: " + data);
         //System.out.println("[-SPELLCASTING ITEM RELEASE USING-] Active spell slot: " + data.getCurrentSlot() + " Spell: " + data.getActive().getSpell().getString());
 
         SpellCastContext context = new SpellCastContext(serverPlayer, level, player.getItemInHand(player.getUsedItemHand()));
-
         data.getActive().onStop(context);
+        setData(stack, data);
 
-        return super.releaseUsing(stack, level, player, timeLeft);
+        return true;
     }
     @SuppressWarnings("unchecked")
     public <S extends SpellEditorScreen<T>> S getEditorScreen(Player player, ItemStack stack) {

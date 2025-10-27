@@ -56,8 +56,13 @@ public class FireballBarrage extends AutonomousSpell {
     }
 
     @Override
-    public int getCooldownTicks() {
+    public int getSimulacrumThreshold() {
         return 1;
+    }
+
+    @Override
+    public int getMaxLifetime() {
+        return 20; // No limit
     }
 
     @Override
