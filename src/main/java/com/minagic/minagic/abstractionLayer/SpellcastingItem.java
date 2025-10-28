@@ -1,5 +1,6 @@
 package com.minagic.minagic.abstractionLayer;
 
+import com.minagic.minagic.abstractionLayer.gui.SpellEditorScreen;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.packets.SpellWritePacket;

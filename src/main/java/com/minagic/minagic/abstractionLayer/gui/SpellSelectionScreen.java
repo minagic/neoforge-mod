@@ -1,4 +1,4 @@
-package com.minagic.minagic.abstractionLayer;
+package com.minagic.minagic.abstractionLayer.gui;
 
 import com.minagic.minagic.abstractionLayer.spells.Spell;
 import net.minecraft.client.gui.GuiGraphics;

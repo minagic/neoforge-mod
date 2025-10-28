@@ -1,5 +1,7 @@
-package com.minagic.minagic.abstractionLayer;
+package com.minagic.minagic.abstractionLayer.gui;
 
+import com.minagic.minagic.abstractionLayer.SpellcastingItem;
+import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spellCasting.SpellSlot;
