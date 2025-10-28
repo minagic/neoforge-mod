@@ -1,5 +1,6 @@
 package com.minagic.minagic.sorcerer.spells;
 
+import com.minagic.minagic.abstractionLayer.spells.InstanteneousSpell;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
@@ -8,7 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public class VoidBlast extends Spell {
+public class VoidBlast extends InstanteneousSpell {
     @Override
     public String canCast(SpellCastContext context){
         if (!(context.caster.getData(ModAttachments.PLAYER_CLASS)

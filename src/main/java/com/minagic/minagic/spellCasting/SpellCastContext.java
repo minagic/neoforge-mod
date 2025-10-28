@@ -9,10 +9,13 @@ public class SpellCastContext {
     public Player caster;
     public Level level;
     public ItemStack stack;
+    public int simulacrtumLifetime = -1;
 
     public SpellCastContext(Player caster, Level level, ItemStack stack) {
         this.stack = stack;
         this.caster = caster;
         this.level = level;
     }
+
+
 }

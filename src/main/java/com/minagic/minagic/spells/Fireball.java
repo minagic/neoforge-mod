@@ -1,5 +1,6 @@
 package com.minagic.minagic.spells;
 
+import com.minagic.minagic.abstractionLayer.spells.InstanteneousSpell;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
@@ -11,7 +12,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 
-public class Fireball extends Spell {
+public class Fireball extends InstanteneousSpell {
     private final int cooldownTicks = 20 * 2; // 1 second cooldown
     private final int manaCost = 30;
 
