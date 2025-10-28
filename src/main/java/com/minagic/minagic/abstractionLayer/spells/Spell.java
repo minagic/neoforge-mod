@@ -35,6 +35,24 @@ public abstract class Spell {
         return player;
     }
 
+    public String magicPrerequisitesHelper(SpellCastContext context) {
+
+        // set cooldown
+        var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
+        var mana = context.caster.getData(ModAttachments.MANA.get());
+
+        if (mana.getMana() < getManaCost()) {
+            return "Not enough mana to cast " + getString() + ".";
+        }
+
+        if (cooldowns.getCooldown(ModSpells.getId(this)) > 0) {
+            return "Spell " + getString() + " is on cooldown.";
+        }
+
+        return "";
+
+    }
+
     public ServerPlayer preCast(SpellCastContext context, boolean checkPrerequisites) {
         // Bypass prerequisite check
         if (checkPrerequisites) {
@@ -65,7 +83,6 @@ public abstract class Spell {
     public void onStop(SpellCastContext context) {
         // No-op by default
     }
-
     public void cast(SpellCastContext context) {
         ServerPlayer player = preCast(context);
         if (player == null) {
@@ -76,24 +93,6 @@ public abstract class Spell {
 
         applyMagicCosts(context);
     }
-    public String magicPrerequisitesHelper(SpellCastContext context) {
-
-        // set cooldown
-        var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-        var mana = context.caster.getData(ModAttachments.MANA.get());
-
-        if (mana.getMana() < getManaCost()) {
-            return "Not enough mana to cast " + getString() + ".";
-        }
-
-        if (cooldowns.getCooldown(ModSpells.getId(this)) > 0) {
-            return "Spell " + getString() + " is on cooldown.";
-        }
-
-        return "";
-
-    }
-
 
     public void applyMagicCosts(SpellCastContext context) {
         // set cooldown
@@ -102,10 +101,6 @@ public abstract class Spell {
 
         mana.drainMana(getManaCost());
         cooldowns.setCooldown(ModSpells.getId(this), getCooldownTicks());
-    }
-
-    public void spellChargeTick(SpellCastContext context) {
-        // No-op by default
     }
 
     public String getString() {
@@ -121,11 +116,7 @@ public abstract class Spell {
     }
 
     public int getSimulacrumThreshold(){
-        return getCooldownTicks();
-    }
-
-    public int getSimulacrumManaCost(){
-        return getManaCost();
+        return 0; // No simulacrum by default
     }
 
     public int getMaxLifetime(){
@@ -135,6 +126,8 @@ public abstract class Spell {
     public String canCast(SpellCastContext context) {
         return "";
     }
+
+    public abstract void tick(SpellCastContext context);
 
     @Override
     public boolean equals(Object obj) {

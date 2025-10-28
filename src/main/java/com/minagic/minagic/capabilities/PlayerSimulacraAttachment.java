@@ -78,11 +78,19 @@ public class PlayerSimulacraAttachment {
                 this.activeChannelingProgress = 0f; // Reset progress on expire
             }
             else {
-                this.activeChannelingProgress = (float) this.activeChanneling.getLifetime() / this.activeChanneling.getThreshold();
+                if (this.activeChanneling.getThreshold() == 0 && this.activeChanneling.getMaxLifetime() == 0) {
+                    this.activeChannelingProgress = 0f;
+                }
+                else if (this.activeChanneling.getThreshold() == 0) {
+                    this.activeChannelingProgress = (float) this.activeChanneling.getLifetime() / this.activeChanneling.getSpell().getMaxLifetime();
+                }
+                else{
+                    this.activeChannelingProgress = (float) this.activeChanneling.getLifetime() / this.activeChanneling.getThreshold();
+                }
             }
         }
 
-        System.out.println("[PlayerSimulacraAttachment] Tick of active channeling complete. Active channeling progress: " + this.activeChannelingProgress);
+        //System.out.println("[PlayerSimulacraAttachment] Tick of active channeling complete. Active channeling progress: " + this.activeChannelingProgress);
 
         // Tick background simulacra
         backgroundSimulacra.entrySet().removeIf(entry -> {

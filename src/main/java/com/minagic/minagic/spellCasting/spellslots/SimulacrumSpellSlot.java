@@ -14,8 +14,8 @@ import java.util.function.Consumer;
 
 public class SimulacrumSpellSlot extends SpellSlot {
     private int lifetime = 0;
-    private int threshold = 1;
-    private int maxLifetime = -1; // -1 means no limit
+    private int threshold;
+    private int maxLifetime; // -1 means no limit
     private ItemStack stack = ItemStack.EMPTY;
 
     public SimulacrumSpellSlot(
@@ -27,7 +27,6 @@ public class SimulacrumSpellSlot extends SpellSlot {
         super(spell);
         this.threshold = threshold;
         this.maxLifetime = maxLifetime;
-        this.stack = ItemStack.EMPTY;
     }
 
     // Getters
@@ -74,9 +73,13 @@ public class SimulacrumSpellSlot extends SpellSlot {
         }
 
         lifetime ++;
-        if (lifetime >= threshold) {
+        SpellCastContext ctx = new SpellCastContext(player, level, stack);
+        ctx.simulacrtumLifetime = lifetime;
+        this.getSpell().tick(ctx);
+
+        if (lifetime == threshold) {
             lifetime = 0;
-            getSpell().cast(new SpellCastContext(player, level, stack));
+            getSpell().cast(ctx);
         }
 
         maxLifetime --;
