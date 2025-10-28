@@ -1,12 +1,12 @@
 package com.minagic.minagic.capabilities;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -37,7 +37,7 @@ public final class PlayerSpellCooldowns {
     public Map<ResourceLocation, Integer> view() { return cooldowns; } // read-only use only
 
 
-    // === Serialization ===
+    // === CODEC ===
     public static final Codec<PlayerSpellCooldowns> CODEC =
             Codec.unboundedMap(ResourceLocation.CODEC, Codec.INT)
                     .xmap(map -> {
@@ -46,5 +46,22 @@ public final class PlayerSpellCooldowns {
                         return inst;
                     }, d -> d.cooldowns);
 
+    // === SERIALIZER ===
+    public static class Serializer implements IAttachmentSerializer<PlayerSpellCooldowns> {
+        @Override
+        public @NotNull PlayerSpellCooldowns read(@NotNull IAttachmentHolder holder, ValueInput input) {
+            PlayerSpellCooldowns data = new PlayerSpellCooldowns();
+            // For each key stored, read via ValueInput
+            input.read("cooldowns", Codec.unboundedMap(ResourceLocation.CODEC, Codec.INT))
+                    .ifPresent(data::replaceAll);
+            return data;
+        }
+
+        @Override
+        public boolean write(PlayerSpellCooldowns attachment, ValueOutput output) {
+            output.store("cooldowns", Codec.unboundedMap(ResourceLocation.CODEC, Codec.INT), attachment.view());
+            return true;
+        }
+    }
 
 }

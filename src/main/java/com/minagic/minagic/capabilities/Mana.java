@@ -7,6 +7,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
+import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,6 +86,8 @@ public final class Mana {
 
     public void setMaxMana(int maxMana) {this.maxMana = maxMana;}
 
+
+    // CODEC
     public static final Codec<Mana> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.FLOAT.fieldOf("mana").forGetter(Mana::getMana),
             Codec.INT.fieldOf("maxMana").forGetter(Mana::getMaxMana)
@@ -91,5 +97,33 @@ public final class Mana {
         m.restoreMana(manaValue-m.getMana());
         return m;
     }));
+
+    // SERIALIZER
+
+    public static class Serializer implements IAttachmentSerializer<Mana> {
+        private static final String KEY_MANA = "mana";
+        private static final String KEY_MAX_MANA = "maxMana";
+
+        @Override
+        public Mana read(IAttachmentHolder holder, ValueInput input) {
+            Mana mana = new Mana();
+            input.read(KEY_MAX_MANA, Codec.INT).ifPresent(mana::setMaxMana);
+            // Read both mana and maxMana if present
+            input.read(KEY_MANA, Codec.INT).ifPresent(value -> {
+                // Clamp to ensure no invalid data
+                mana.restoreMana(value - mana.getMana());
+            });
+
+            return mana;
+        }
+
+        @Override
+        public boolean write(Mana attachment, ValueOutput output) {
+            output.store(KEY_MANA, Codec.FLOAT, attachment.getMana());
+            output.store(KEY_MAX_MANA, Codec.INT, attachment.getMaxMana());
+            return true;
+        }
+    }
+
 
 }
