@@ -1,8 +1,7 @@
 package com.minagic.minagic.wizard;
 
 import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
-import com.minagic.minagic.sorcerer.StaffData;
-import com.minagic.minagic.spellCasting.SpellSlot;
+import com.minagic.minagic.spellCasting.spellslots.SpellSlot;
 import com.mojang.serialization.Codec;
 
 import java.util.ArrayList;

@@ -2,8 +2,8 @@ package com.minagic.minagic.capabilities;
 
 import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.registries.ModSpells;
-import com.minagic.minagic.spellCasting.ChannelingSpellslot;
-import com.minagic.minagic.spellCasting.SimulacrumSpellSlot;
+import com.minagic.minagic.spellCasting.spellslots.ChannelingSpellslot;
+import com.minagic.minagic.spellCasting.spellslots.SimulacrumSpellSlot;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;

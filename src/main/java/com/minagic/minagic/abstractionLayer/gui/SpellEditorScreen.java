@@ -4,7 +4,7 @@ import com.minagic.minagic.abstractionLayer.SpellcastingItem;
 import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.spellCasting.SpellRegistry;
-import com.minagic.minagic.spellCasting.SpellSlot;
+import com.minagic.minagic.spellCasting.spellslots.SpellSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
