@@ -1,12 +1,14 @@
 package com.minagic.minagic.abstractionLayer;
 
+import com.minagic.minagic.abstractionLayer.gui.SpellEditorScreen;
+import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.packets.SpellWritePacket;
 import com.minagic.minagic.packets.SyncSpellcastingDataPacket;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellCasting.SpellSlot;
+import com.minagic.minagic.spellCasting.spellslots.SpellSlot;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -40,7 +42,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         this.type = type;
         this.factory = factory;
     }
-    protected T getData(ItemStack stack){
+    public T getData(ItemStack stack){
         //System.out.println("[-GET DATA-] Getting data for SpellcastingItem from stack");
         // if no data present, initialize it
         //System.out.println("[-GET DATA-] Expecting this data component: " + type);

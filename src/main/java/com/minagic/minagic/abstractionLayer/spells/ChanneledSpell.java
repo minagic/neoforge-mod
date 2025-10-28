@@ -1,13 +1,11 @@
-package com.minagic.minagic.abstractionLayer;
+package com.minagic.minagic.abstractionLayer.spells;
 
-import com.minagic.minagic.capabilities.Mana;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
-import com.minagic.minagic.spellCasting.SimulacrumSpellSlot;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.server.level.ServerPlayer;
 
-public class ChanneledSpell extends Spell{
+public class ChanneledSpell extends Spell {
 
     @Override
     public void onStart(SpellCastContext context) {

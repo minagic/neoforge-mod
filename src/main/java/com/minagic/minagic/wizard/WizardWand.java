@@ -1,13 +1,11 @@
 package com.minagic.minagic.wizard;
 
-import com.minagic.minagic.abstractionLayer.SpellEditorScreen;
+import com.minagic.minagic.abstractionLayer.gui.SpellEditorScreen;
 import com.minagic.minagic.abstractionLayer.SpellcastingItem;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.gui.StaffEditorScreen;
 import com.minagic.minagic.gui.WizardWandEditorScreen;
 import com.minagic.minagic.registries.ModDataComponents;
-import com.minagic.minagic.sorcerer.StaffData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 

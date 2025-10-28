@@ -12,7 +12,6 @@ import com.minagic.minagic.spellCasting.PlayerSimulacraHandler;
 import com.minagic.minagic.spellCasting.SpellCooldownHandler;
 import com.minagic.minagic.spells.FireballEntity;
 import com.minagic.minagic.registries.ModDataComponents;
-import com.minagic.minagic.utilities.PlayerItemUsageCheck;
 import com.minagic.minagic.utilities.WorldEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;

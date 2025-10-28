@@ -1,7 +1,7 @@
 package com.minagic.minagic.sorcerer;
 
 import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
-import com.minagic.minagic.spellCasting.SpellSlot;
+import com.minagic.minagic.spellCasting.spellslots.SpellSlot;
 import com.mojang.serialization.Codec;
 
 import java.util.ArrayList;

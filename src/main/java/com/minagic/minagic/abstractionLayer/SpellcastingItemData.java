@@ -1,6 +1,6 @@
 package com.minagic.minagic.abstractionLayer;
 
-import com.minagic.minagic.spellCasting.SpellSlot;
+import com.minagic.minagic.spellCasting.spellslots.SpellSlot;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Mth;
