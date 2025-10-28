@@ -1,11 +1,9 @@
 package com.minagic.minagic.spellCasting;
 
-import com.minagic.minagic.abstractionLayer.Spell;
-import com.minagic.minagic.abstractionLayer.SpellcastingItem;
+import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 

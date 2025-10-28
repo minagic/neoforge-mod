@@ -1,7 +1,6 @@
 package com.minagic.minagic.sorcerer.spells;
 
-import com.minagic.minagic.abstractionLayer.AutonomousSpell;
-import com.minagic.minagic.abstractionLayer.Spell;
+import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;

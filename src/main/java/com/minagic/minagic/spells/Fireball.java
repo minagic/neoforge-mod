@@ -1,18 +1,13 @@
 package com.minagic.minagic.spells;
 
-import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.Spell;
+import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 

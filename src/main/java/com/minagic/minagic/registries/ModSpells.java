@@ -1,7 +1,7 @@
 package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.Spell;
+import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.sorcerer.spells.EventHorizon;
 import com.minagic.minagic.sorcerer.spells.FireballBarrage;
 import com.minagic.minagic.sorcerer.spells.VoidBlast;

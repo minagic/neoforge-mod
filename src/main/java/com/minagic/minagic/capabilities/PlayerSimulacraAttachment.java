@@ -1,7 +1,6 @@
 package com.minagic.minagic.capabilities;
 
-import com.minagic.minagic.abstractionLayer.ChanneledSpell;
-import com.minagic.minagic.abstractionLayer.Spell;
+import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.ChannelingSpellslot;
 import com.minagic.minagic.spellCasting.SimulacrumSpellSlot;

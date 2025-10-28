@@ -1,5 +1,6 @@
 package com.minagic.minagic.abstractionLayer;
 
+import com.minagic.minagic.abstractionLayer.spells.Spell;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;

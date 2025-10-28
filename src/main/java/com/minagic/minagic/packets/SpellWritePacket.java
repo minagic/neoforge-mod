@@ -1,12 +1,11 @@
 package com.minagic.minagic.packets;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.Spell;
+import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.abstractionLayer.SpellcastingItem;
 import com.minagic.minagic.registries.ModSpells;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -16,7 +15,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
-import com.minagic.minagic.spellCasting.SpellRegistry;
 
 public record SpellWritePacket(int slotIndex, ResourceLocation spellId) implements CustomPacketPayload {
     public static final Type<SpellWritePacket> TYPE =

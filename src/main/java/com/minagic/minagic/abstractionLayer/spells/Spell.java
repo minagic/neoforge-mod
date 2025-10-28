@@ -1,13 +1,11 @@
-package com.minagic.minagic.abstractionLayer;
+package com.minagic.minagic.abstractionLayer.spells;
 
-import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.fml.startup.Server;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;

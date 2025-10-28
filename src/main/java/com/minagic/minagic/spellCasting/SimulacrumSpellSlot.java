@@ -1,6 +1,6 @@
 package com.minagic.minagic.spellCasting;
 
-import com.minagic.minagic.abstractionLayer.Spell;
+import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.registries.ModSpells;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
