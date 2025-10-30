@@ -107,7 +107,7 @@ public final class Mana {
         float ratio = Mth.clamp(mana / maxMana, 0f, 1f);
 
         int x = PADDING;
-        int y = screenHeight - 80; // anchored above hotbar
+        int y = screenHeight - 10; // anchored above hotbar
 
         // Background
         gui.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, COLOR_BACKGROUND);

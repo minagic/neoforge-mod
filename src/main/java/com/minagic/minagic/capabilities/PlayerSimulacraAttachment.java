@@ -79,6 +79,7 @@ public class PlayerSimulacraAttachment {
 
     public void clearChanneling() {
         this.activeChanneling = null;
+        this.activeChannelingProgress = 0f;
     }
 
     private void setActiveChannelingProgress(Float progress) {
@@ -103,32 +104,34 @@ public class PlayerSimulacraAttachment {
                     this.activeChannelingProgress = 0f;
                 }
                 else if (this.activeChanneling.getThreshold() == 0) {
-                    this.activeChannelingProgress = (float) this.activeChanneling.getLifetime() / this.activeChanneling.getSpell().getMaxLifetime();
+                    if (this.activeChanneling.getMaxLifetime() < 0) {
+                        this.activeChannelingProgress = 1f;
+                    }
+                    else {
+                        this.activeChannelingProgress = (float) this.activeChanneling.getLifetime() / this.activeChanneling.getSpell().getMaxLifetime();
+                    }
                 }
-                else{
-                    this.activeChannelingProgress = (float) this.activeChanneling.getLifetime() / this.activeChanneling.getThreshold();
+                else {
+                    this.activeChannelingProgress = (float) this.activeChanneling.getLifetime() / this.activeChanneling.getThreshold();;
                 }
+
             }
         }
 
         //System.out.println("[PlayerSimulacraAttachment] Tick of active channeling complete. Active channeling progress: " + this.activeChannelingProgress);
 
         // Tick background simulacra
-        backgroundSimulacra.entrySet().removeIf(entry -> {
-            SimulacrumSpellSlot slot = entry.getValue();
-            slot.tick(player, level, this::onBackgroundExpire);
-            return slot.getMaxLifetime() == 0; // Remove expired
-        });
 
         for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : backgroundSimulacra.entrySet()) {
             SimulacrumSpellSlot slot = entry.getValue();
+            slot.tick(player, level, this::onBackgroundExpire);
             float readiness = slot.getMaxLifetime() == 0
                     ? 0f
                     :
                     slot.getLifetime() < 0
                             ? 1f
                             : (float) slot.getMaxLifetime() / slot.getSpell().getMaxLifetime();
-            simulacraReadiness.put(entry.getKey(), Mth.clamp(readiness, 0f, 1f));
+            simulacraReadiness.put(entry.getKey(), readiness);
         }
     }
 
@@ -140,6 +143,7 @@ public class PlayerSimulacraAttachment {
     private void onBackgroundExpire(ResourceLocation spellId) {
         System.out.println("[PlayerSimulacraAttachment] Background simulacrum expired: " + spellId);
         backgroundSimulacra.remove(spellId);
+        simulacraReadiness.remove(spellId);
     }
 
     // Rendering

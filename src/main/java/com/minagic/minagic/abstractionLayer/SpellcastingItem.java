@@ -9,6 +9,7 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellCasting.spellslots.SpellSlot;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -246,5 +247,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         //System.out.println("Opening spell editor screen via SpellcastingItem for player " + player.getName().getString());
         return (S) new SpellEditorScreen<>(player, this, stack);
     }
+
+
 
 }

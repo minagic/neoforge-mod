@@ -5,6 +5,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -88,6 +91,52 @@ public class PlayerClass {
 
     private boolean canHaveDeity(PlayerClassEnum clazz) {
         return clazz == PlayerClassEnum.CLERIC || clazz == PlayerClassEnum.WARLOCK;
+    }
+
+    // RENDER
+    public void render(GuiGraphics gui) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc == null || mc.player == null) return;
+
+        Font font = mc.font;
+        int screenWidth = mc.getWindow().getGuiScaledWidth();
+        int screenHeight = mc.getWindow().getGuiScaledHeight();
+
+        // --- Positioning ---
+        int x = 10; // left margin
+        int y = 80; // start below top HUD
+        int spacing = 12;
+
+        // --- Colors ---
+        final int COLOR_MAIN = 0xFFFFFFAA;   // gold-white for main class
+        final int COLOR_SUB = 0xFFCCCCCC;    // light gray for subclasses
+        final int COLOR_DEITY = 0xFF88CCFF;  // pale blue for deity label
+
+        // --- Draw Main Class ---
+        String mainClassStr = "Class: " + mainClass.name();
+        gui.drawString(font, mainClassStr, x, y, COLOR_MAIN, false);
+        y += spacing;
+
+        // --- Draw Subclasses ---
+        if (subclasses.isEmpty()) {
+            gui.drawString(font, "No subclasses", x + 10, y, COLOR_SUB, false);
+            y += spacing;
+        } else {
+            for (Map.Entry<PlayerSubClassEnum, Integer> entry : subclasses.entrySet()) {
+                PlayerSubClassEnum subclass = entry.getKey();
+                int level = entry.getValue();
+                String subclassText = subclass.getString() + " - Lv. " + level;
+                gui.drawString(font, subclassText, x + 10, y, COLOR_SUB, false);
+                y += spacing;
+            }
+        }
+
+        // --- Draw Deity (if present) ---
+        if (deity.isPresent() && deity.get() != Deity.UNDECLARED) {
+            Deity d = deity.get();
+            String deityText = "Deity: " + d.toString();
+            gui.drawString(font, deityText, x, y + spacing, COLOR_DEITY, false);
+        }
     }
 
     // CODEC
