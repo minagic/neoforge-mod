@@ -5,6 +5,7 @@ import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,27 +13,21 @@ import java.util.Objects;
 
 public abstract class Spell {
 
-    protected @Nullable ServerPlayer preCast(SpellCastContext context) {
-        if (!(context.caster instanceof ServerPlayer player)) {
-            return null; // NEVER EVER CAST ON THE CLIENT
-        }
-
+    protected @Nullable LivingEntity preCast(SpellCastContext context) {
         if (context.level.isClientSide()){
             return null; // NEVER EVER CAST ON THE CLIENT
         }
 
         String error = canCast(context);
         if (!Objects.equals(error, "")) {
-            player.sendSystemMessage(Component.literal(error));
             return null;
         }
 
         if (!Objects.equals(magicPrerequisitesHelper(context), "")) {
-            player.sendSystemMessage(Component.literal(magicPrerequisitesHelper(context)));
             return null;
         }
 
-        return player;
+        return context.caster;
     }
 
     public String magicPrerequisitesHelper(SpellCastContext context) {
@@ -53,27 +48,21 @@ public abstract class Spell {
 
     }
 
-    public ServerPlayer preCast(SpellCastContext context, boolean checkPrerequisites) {
+    public LivingEntity preCast(SpellCastContext context, boolean checkPrerequisites) {
         // Bypass prerequisite check
         if (checkPrerequisites) {
             return preCast(context);
         } else {
-            Player player = context.caster;
-            if (!(player instanceof ServerPlayer serverPlayer)){
-                return null;
-            }
             if (!context.level.isClientSide()) {
                 String error = canCast(context);
                 if(Objects.equals(error, "")) {
-                    return serverPlayer;
-                } else {
-                    serverPlayer.sendSystemMessage(Component.literal(error));
-                    return null;
+                    return context.caster;
                 }
             } else {
                 return null;
             }
         }
+        return null;
     }
     // CASTING
     public void onStart(SpellCastContext context) {
@@ -84,12 +73,12 @@ public abstract class Spell {
         // No-op by default
     }
     public void cast(SpellCastContext context) {
-        ServerPlayer player = preCast(context);
+        LivingEntity player = preCast(context);
         if (player == null) {
             return; // Pre-cast checks failed
         }
 
-        player.sendSystemMessage(Component.literal("No spell is bound to this slot."));
+        System.out.println("No spell");
 
         applyMagicCosts(context);
     }

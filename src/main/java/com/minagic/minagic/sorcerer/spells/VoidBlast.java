@@ -6,6 +6,7 @@ import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -37,7 +38,7 @@ public class VoidBlast extends InstanteneousSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        ServerPlayer player = preCast(context);
+        LivingEntity player = preCast(context);
         if (player == null) {
             return;
         }

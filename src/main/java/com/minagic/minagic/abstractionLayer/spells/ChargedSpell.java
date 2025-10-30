@@ -4,6 +4,7 @@ import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 
 public class ChargedSpell extends Spell {
     private int chargeTime = 0;
@@ -35,7 +36,7 @@ public class ChargedSpell extends Spell {
     // Lifecycle methods
     @Override
     public void onStart(SpellCastContext context) {
-        ServerPlayer player = preCast(context, true);
+        LivingEntity player = preCast(context, true);
         if (player == null) {
             return; // Pre-cast checks failed
         }
@@ -52,7 +53,7 @@ public class ChargedSpell extends Spell {
 
     @Override
     public final void onStop(SpellCastContext context) {
-        ServerPlayer player = preCast(context, true);
+        LivingEntity player = preCast(context, true);
         if (player == null) {
             return; // Pre-cast checks failed
         }

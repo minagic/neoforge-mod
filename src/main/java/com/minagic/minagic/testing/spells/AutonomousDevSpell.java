@@ -2,12 +2,13 @@ package com.minagic.minagic.testing.spells;
 import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 
 public class AutonomousDevSpell extends AutonomousSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        ServerPlayer player = preCast(context);
+        LivingEntity player = preCast(context);
         if (player == null) return;
 
         System.out.println("[AutonomousDevSpell] 🔄 Tick fired for "

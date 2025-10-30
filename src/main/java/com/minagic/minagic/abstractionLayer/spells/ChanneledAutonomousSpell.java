@@ -4,6 +4,7 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 
 public class ChanneledAutonomousSpell extends Spell {
     @Override
@@ -35,7 +36,7 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public final void onStart(SpellCastContext context) {
-        ServerPlayer player = preCast(context, true);
+        LivingEntity player = preCast(context, true);
         if (player == null) {
             return; // Pre-cast checks failed
         }
@@ -60,7 +61,7 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public final void onStop(SpellCastContext context) {
-        ServerPlayer player = preCast(context);
+        LivingEntity player = preCast(context);
         if (player == null) {
             return; // Pre-cast checks failed
         }
