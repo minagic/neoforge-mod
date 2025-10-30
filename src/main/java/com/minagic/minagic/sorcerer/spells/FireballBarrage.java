@@ -8,6 +8,7 @@ import com.minagic.minagic.spells.FireballEntity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -27,7 +28,7 @@ public class FireballBarrage extends AutonomousSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        ServerPlayer player = preCast(context);
+        LivingEntity player = preCast(context);
         if (player == null) {
             return;
         }

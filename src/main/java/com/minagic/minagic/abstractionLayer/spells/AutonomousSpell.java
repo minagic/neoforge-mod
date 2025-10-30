@@ -7,6 +7,7 @@ import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 
 /**
  * A simple self-managed spell that automatically attaches or detaches itself
@@ -17,7 +18,7 @@ public class AutonomousSpell extends Spell {
 
     @Override
     public void onStart(SpellCastContext context) {
-        ServerPlayer player = preCast(context, false);
+        LivingEntity player = preCast(context, false);
 
         if (player == null) {
             return; // Pre-cast checks failed
@@ -31,10 +32,8 @@ public class AutonomousSpell extends Spell {
 
         if (existing != null) {
             sim.removeSimulacrum(ModSpells.getId(this));
-            player.sendSystemMessage(Component.literal("§eDeactivated autonomous spell: §r" + getString()));
         } else {
             sim.addSimulacrum( this, getSimulacrumThreshold(), getMaxLifetime(), context.stack);
-            player.sendSystemMessage(Component.literal("§bActivated autonomous spell: §r" + getString()));
         }
 
         // Save attachment back (important for NeoForge data sync)

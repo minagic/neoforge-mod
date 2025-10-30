@@ -4,6 +4,7 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 
 public class ChanneledSpell extends Spell {
 
@@ -17,7 +18,7 @@ public class ChanneledSpell extends Spell {
     @Override
     public final void onStart(SpellCastContext context) {
         System.out.println("[ChanneledSpell] onStart called for spell: " + getString());
-        ServerPlayer player = preCast(context, true);
+        LivingEntity player = preCast(context, true);
         if (player == null) {
             return; // Pre-cast checks failed
         }
@@ -40,7 +41,7 @@ public class ChanneledSpell extends Spell {
     }
 
     public final void onStop(SpellCastContext context) {
-        ServerPlayer player = preCast(context);
+        LivingEntity player = preCast(context);
         if (player == null) {
             return; // Pre-cast checks failed
         }

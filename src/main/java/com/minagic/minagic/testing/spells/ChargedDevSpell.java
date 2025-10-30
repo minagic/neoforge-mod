@@ -3,12 +3,13 @@ package com.minagic.minagic.testing.spells;
 import com.minagic.minagic.abstractionLayer.spells.ChargedSpell;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 
 public class ChargedDevSpell extends ChargedSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        ServerPlayer player = preCast(context);
+        LivingEntity player = preCast(context);
         if (player == null) return;
 
         float chargeRatio = (float) getChargeTime() / getMaxLifetime();

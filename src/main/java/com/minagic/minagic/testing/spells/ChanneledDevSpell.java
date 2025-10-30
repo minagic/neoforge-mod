@@ -4,12 +4,13 @@ package com.minagic.minagic.testing.spells;
 import com.minagic.minagic.abstractionLayer.spells.ChanneledSpell;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 
 public class ChanneledDevSpell extends ChanneledSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        ServerPlayer player = preCast(context);
+        LivingEntity player = preCast(context);
         if (player == null) return;
 
         System.out.println("[ChanneledDevSpell] 🔫 Pew! " + context.caster.getName().getString());

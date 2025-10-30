@@ -6,6 +6,7 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 
 public class EventHorizon extends ChanneledSpell {
     @Override
@@ -39,11 +40,10 @@ public class EventHorizon extends ChanneledSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        ServerPlayer player = preCast(context);
+        LivingEntity player = preCast(context);
         if (player == null) {
             return; // Pre-cast checks failed
         }
-        player.sendSystemMessage(Component.literal("You think I literally implemented a black hole?"));
         applyMagicCosts(context);
     }
 
