@@ -2,6 +2,7 @@ package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.*;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -45,6 +46,15 @@ public class ModAttachments {
                             .sync(ByteBufCodecs.fromCodec(PlayerSimulacraAttachment.CODEC))
                             .build()
             );
+
+    public static final Supplier<AttachmentType<HudAlertManager>> HUD_ALERTS =
+            ATTACHMENTS.register("hud_alerts", () ->
+                    AttachmentType.builder(HudAlertManager::new)
+                            .serialize(new HudAlertManager.Serializer())
+                            .sync(ByteBufCodecs.fromCodec(HudAlertManager.CODEC))
+                            .build()
+            );
+
 
 
 

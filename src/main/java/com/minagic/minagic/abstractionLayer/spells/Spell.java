@@ -1,12 +1,10 @@
 package com.minagic.minagic.abstractionLayer.spells;
 
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -18,12 +16,27 @@ public abstract class Spell {
             return null; // NEVER EVER CAST ON THE CLIENT
         }
 
-        String error = canCast(context);
-        if (!Objects.equals(error, "")) {
-            return null;
+
+        if (!canCast(context)) {
+            HudAlertManager hudAlertManager = context.caster.getData(ModAttachments.HUD_ALERTS);
+            hudAlertManager.addAlert(context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass().getUnknownSpellMessage()
+                    , 0xFFAA33CC, 1, 60);
+            context.caster.setData(ModAttachments.HUD_ALERTS, hudAlertManager);
+            return null; // this class cannot cast shit
         }
 
-        if (!Objects.equals(magicPrerequisitesHelper(context), "")) {
+        String prereqMessage = magicPrerequisitesHelper(context);
+        if (!Objects.equals(prereqMessage, "")) {
+            if (prereqMessage.contains("mana")) {
+                HudAlertManager hudAlertManager = context.caster.getData(ModAttachments.HUD_ALERTS);
+                hudAlertManager.addAlert(prereqMessage, 0xFF3399FF, 2, 60);
+                context.caster.setData(ModAttachments.HUD_ALERTS, hudAlertManager);
+            }
+            else{
+                HudAlertManager hudAlertManager = context.caster.getData(ModAttachments.HUD_ALERTS);
+                hudAlertManager.addAlert(prereqMessage, 0xFFFFAA33, 3, 60);
+                context.caster.setData(ModAttachments.HUD_ALERTS, hudAlertManager);
+            }
             return null;
         }
 
@@ -54,8 +67,7 @@ public abstract class Spell {
             return preCast(context);
         } else {
             if (!context.level.isClientSide()) {
-                String error = canCast(context);
-                if(Objects.equals(error, "")) {
+                if(canCast(context)) {
                     return context.caster;
                 }
             } else {
@@ -112,8 +124,8 @@ public abstract class Spell {
         return -1; // Infinite lifetime by default
     }
 
-    public String canCast(SpellCastContext context) {
-        return "";
+    public boolean canCast(SpellCastContext context) {
+        return true;
     }
 
     public abstract void tick(SpellCastContext context);

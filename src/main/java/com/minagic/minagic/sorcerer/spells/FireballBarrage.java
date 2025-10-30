@@ -5,7 +5,6 @@ import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spells.FireballEntity;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,11 +18,8 @@ import net.minecraft.world.phys.Vec3;
 public class FireballBarrage extends AutonomousSpell {
 
     @Override
-    public String canCast(SpellCastContext context) {
-        if (!(context.caster.getData(ModAttachments.PLAYER_CLASS.get()).getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL)>=10)) {
-            return "You must be an Infernal Sorcerer of level 10 or higher to cast Fireball Barrage.";
-        }
-        return "";
+    public boolean canCast(SpellCastContext context) {
+        return context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) >= 10;
     }
 
     @Override
@@ -62,7 +58,7 @@ public class FireballBarrage extends AutonomousSpell {
 
     @Override
     public int getMaxLifetime() {
-        return 20; // No limit
+        return -1; // No limit
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.minagic.minagic;
 
+import com.minagic.minagic.capabilities.hudAlerts.HudAlert;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.gui.CooldownOverlay;
 import com.minagic.minagic.packets.MinagicNetwork;
 import com.minagic.minagic.registries.ModAttachments;
@@ -18,6 +20,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import org.checkerframework.checker.units.qual.N;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -57,11 +60,6 @@ public class Minagic {
     // ENTITIES REGISTRATION WOULD GO HERE
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
             DeferredRegister.createEntities(MODID);
-
-
-    // Register the Effect Wand item
-
-
 
     // REGISTER FIREBALL ENTITY TYPE
     public static final DeferredHolder<EntityType<?>, EntityType<FireballEntity>> FIREBALL =
@@ -126,6 +124,7 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(new WorldEvents());
         NeoForge.EVENT_BUS.register(new PlayerSimulacraHandler());
         NeoForge.EVENT_BUS.register(new ClearData());
+        NeoForge.EVENT_BUS.register(new HudAlertManager());
         //NeoForge.EVENT_BUS.register(new PlayerItemUsageCheck());
 
         ModItems.register(modEventBus);

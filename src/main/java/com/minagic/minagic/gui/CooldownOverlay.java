@@ -1,6 +1,7 @@
 package com.minagic.minagic.gui;
 
 import com.minagic.minagic.abstractionLayer.SpellcastingItem;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.registries.ModAttachments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -62,25 +63,20 @@ public class CooldownOverlay {
         int subclassesWidth = Minecraft.getInstance().font.width(subclassesFinalText);
         gui.drawString(Minecraft.getInstance().font, subclassesFinalText, x2 + 25 - subclassesWidth / 2, y2 + 50, 0xFFFFFFAA);
 
-        float mana = player.getData(ModAttachments.MANA.get()).getMana();
-        int maxMana = player.getData(ModAttachments.MANA.get()).getMaxMana();
-        String manaText = "Mana: " + mana + "/" + maxMana;
-        int manaWidth = Minecraft.getInstance().font.width(manaText);
-        gui.drawString(Minecraft.getInstance().font, manaText, x2 + 25 - manaWidth / 2, y2 + 75, 0xFF00FFFF);
+        // Render mana
+        var manaData = player.getData(ModAttachments.MANA);
+        manaData.render(gui);
+
 
         // Render a channeled spell indicator if applicable
+        var simulacraData = player.getData(ModAttachments.PLAYER_SIMULACRA);
+        simulacraData.render(gui);
 
-        var activeChannelling = player.getData(ModAttachments.PLAYER_SIMULACRA.get()).getActiveChanneling();
-        var progress = player.getData(ModAttachments.PLAYER_SIMULACRA.get()).getActiveChannelingProgress() * 100f;
-        if (activeChannelling != null) {
-            String channellingText = "Channelling: " + activeChannelling.getSpell().getString();
-            int channellingWidth = Minecraft.getInstance().font.width(channellingText);
-            gui.drawString(Minecraft.getInstance().font, channellingText, x2 + 25 - channellingWidth / 2, y2 + 75, 0xFFFFFFFF);
 
-            String progressText = String.format("Progress: %.1f%%",  progress);
-            int progressWidth = Minecraft.getInstance().font.width(progressText);
-            gui.drawString(Minecraft.getInstance().font, progressText, x2 + 25 - progressWidth / 2, y2 + 90, 0xFFFFFFFF);
-        }
+        // render hud alerts
+        HudAlertManager hudAlertManager = player.getData(ModAttachments.HUD_ALERTS);
+        hudAlertManager.render(gui, gui.guiWidth(), gui.guiHeight());
+
 
     }
 }
