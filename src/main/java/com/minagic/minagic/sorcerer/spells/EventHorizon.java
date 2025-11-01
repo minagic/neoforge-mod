@@ -4,8 +4,6 @@ import com.minagic.minagic.abstractionLayer.spells.ChanneledSpell;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 
 public class EventHorizon extends ChanneledSpell {
@@ -30,12 +28,9 @@ public class EventHorizon extends ChanneledSpell {
     }
 
     @Override
-    public String canCast(SpellCastContext context) {
+    public boolean canCast(SpellCastContext context) {
         // voidbourne sorcerers of level 20 only
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_VOIDBOURNE) < 20) {
-            return "Only Voidbourne Sorcerers of level 20 can cast Event Horizon.";
-        }
-        return "";
+        return context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_VOIDBOURNE) >= 20;
     }
 
     @Override
@@ -44,6 +39,8 @@ public class EventHorizon extends ChanneledSpell {
         if (player == null) {
             return; // Pre-cast checks failed
         }
+
+        System.out.println("[EventHorizon] cast called for spell: " + getString());
         applyMagicCosts(context);
     }
 

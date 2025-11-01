@@ -1,12 +1,10 @@
 package com.minagic.minagic.spells;
 
 import com.minagic.minagic.abstractionLayer.spells.InstanteneousSpell;
-import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,16 +16,11 @@ public class Fireball extends InstanteneousSpell {
     private final int manaCost = 30;
 
     @Override
-    public String canCast(SpellCastContext context){
+    public boolean canCast(SpellCastContext context){
         PlayerClass playerClass = context.caster.getData(ModAttachments.PLAYER_CLASS);
         // only infernal sorcerers and elemental wizards of level 3 and above can cast fireball
-
-        String error = "";
-        if  (!(playerClass.getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) >= 3 ||
-                playerClass.getSubclassLevel(PlayerSubClassEnum.WIZARD_ELEMANCY) >= 3)) {
-            error = "WTH is this spell? You can't cast it.";
-        }
-        return error;
+        return playerClass.getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) >= 3 ||
+                playerClass.getSubclassLevel(PlayerSubClassEnum.WIZARD_ELEMANCY) >= 3;
 
     }
 

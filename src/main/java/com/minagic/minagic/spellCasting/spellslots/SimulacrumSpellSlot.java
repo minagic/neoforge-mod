@@ -1,12 +1,17 @@
 package com.minagic.minagic.spellCasting.spellslots;
 
+import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
+import com.minagic.minagic.abstractionLayer.spells.ChanneledAutonomousSpell;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.capabilities.PlayerSpellCooldowns;
+import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -64,11 +69,21 @@ public class SimulacrumSpellSlot extends SpellSlot {
         this.stack = stack;
     }
 
-    public void tick(ServerPlayer player, Level level, Consumer<ResourceLocation> onExpireCallback) {
+    public void tick(LivingEntity player, Level level, Consumer<ResourceLocation> onExpireCallback) {
         System.out.println("[SimulacrumSpellSlot] Ticking simulacrum spell slot for spell: " + getSpell().getString());
         if (maxLifetime == 0) {
             // Expire the spell slot
+            System.out.println("[SimulacrumSpellSlot] No spell lifetime found, expiring spell slot for spell: " + getSpell().getString());
+            // TODO: figure out a more elegant way to handle cooldowns for autonomous spells
+            if (getSpell() instanceof AutonomousSpell || getSpell() instanceof ChanneledAutonomousSpell) {
+                System.out.println("[SimulacrumSpellSlot] Applying cooldown for autonomous spell: " + getSpell().getString());
+                PlayerSpellCooldowns cd = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
+                cd.setCooldown(ModSpells.getId(getSpell()), getSpell().getCooldownTicks());
+                player.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS, cd);
+
+            }
             onExpireCallback.accept(ModSpells.getId(getSpell()));
+
             return;
         }
 

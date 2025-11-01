@@ -2,6 +2,7 @@ package com.minagic.minagic.abstractionLayer.spells;
 
 import com.minagic.minagic.capabilities.Mana;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.PlayerSpellCooldowns;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -18,7 +19,7 @@ public class AutonomousSpell extends Spell {
 
     @Override
     public void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context, false);
+        LivingEntity player = preCast(context);
 
         if (player == null) {
             return; // Pre-cast checks failed
@@ -26,18 +27,21 @@ public class AutonomousSpell extends Spell {
 
         // Get player simulacra attachment
         PlayerSimulacraAttachment sim = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
+        PlayerSpellCooldowns cooldowns = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
 
         // Toggle logic: if already active, remove; else add
         var existing = sim.getBackgroundSimulacra().get(ModSpells.getId(this));
 
         if (existing != null) {
             sim.removeSimulacrum(ModSpells.getId(this));
+            cooldowns.setCooldown(ModSpells.getId(this), getCooldownTicks());
         } else {
             sim.addSimulacrum( this, getSimulacrumThreshold(), getMaxLifetime(), context.stack);
         }
 
         // Save attachment back (important for NeoForge data sync)
         player.setData(ModAttachments.PLAYER_SIMULACRA.get(), sim);
+        player.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS, cooldowns);
     }
 
     @Override
@@ -54,11 +58,18 @@ public class AutonomousSpell extends Spell {
     // Magic cost methods
     @Override
     public final String magicPrerequisitesHelper(SpellCastContext context) {
-        // only check mana
         Mana mana = context.caster.getData(ModAttachments.MANA.get());
         if (mana.getMana() < getManaCost()) {
             return "Not enough mana to sustain " + getString() + ".";
         } else {
+            PlayerSpellCooldowns cd = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
+            if (cd != null) {
+                int cooldown = cd.getCooldown(ModSpells.getId(this));
+                if (cooldown > 0) {
+                    return "Spell " + getString() + " is on cooldown for " + cooldown + " more ticks.";
+                }
+            }
+
             return "";
         }
     }

@@ -1,5 +1,7 @@
 package com.minagic.minagic;
 
+import com.minagic.minagic.capabilities.hudAlerts.HudAlert;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.gui.CooldownOverlay;
 import com.minagic.minagic.packets.MinagicNetwork;
 import com.minagic.minagic.registries.ModAttachments;
@@ -18,6 +20,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import org.checkerframework.checker.units.qual.N;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -58,11 +61,6 @@ public class Minagic {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
             DeferredRegister.createEntities(MODID);
 
-
-    // Register the Effect Wand item
-
-
-
     // REGISTER FIREBALL ENTITY TYPE
     public static final DeferredHolder<EntityType<?>, EntityType<FireballEntity>> FIREBALL =
             ENTITY_TYPES.register("fireball",
@@ -83,12 +81,12 @@ public class Minagic {
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":void_blast_entity"))));
 
     // Creates a creative tab with the id "minagic:example_tab" for the example item, that is placed after the combat tab
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.minagic")) //The language key for the title of your CreativeModeTab
-            .withTabsBefore(CreativeModeTabs.COMBAT)
-            .displayItems((parameters, output) -> {
-                output.accept(ModItems.EFFECT_WAND.get()); // Add the effect wand to the tab
-            }).build());
+//    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
+//            .title(Component.translatable("itemGroup.minagic")) //The language key for the title of your CreativeModeTab
+//            .withTabsBefore(CreativeModeTabs.COMBAT)
+//            .displayItems((parameters, output) -> {
+//                output.accept(ModItems.EFFECT_WAND.get()); // Add the effect wand to the tab
+//            }).build());
 
     // Command registration method
     private void onRegisterCommands(RegisterCommandsEvent event) {
@@ -126,12 +124,12 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(new WorldEvents());
         NeoForge.EVENT_BUS.register(new PlayerSimulacraHandler());
         NeoForge.EVENT_BUS.register(new ClearData());
+        NeoForge.EVENT_BUS.register(new HudAlertManager());
         //NeoForge.EVENT_BUS.register(new PlayerItemUsageCheck());
 
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
         ModAttachments.register(modEventBus);
-
 
 
 
@@ -167,7 +165,6 @@ public class Minagic {
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
-            event.accept(ModItems.EFFECT_WAND);
             event.accept(ModItems.SORCERER_STAFF);
             event.accept(ModItems.WIZARD_WAND);
         }

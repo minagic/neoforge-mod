@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:item",
+  "model": {
+    "type": "minecraft:model",
+    "model": "minagic:item/sorcerer_staff"
+  }
+}

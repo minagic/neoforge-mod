@@ -1,15 +1,26 @@
 package com.minagic.minagic.gui;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.abstractionLayer.SpellcastingItem;
+import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.registries.ModSpells;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
 public class CooldownOverlay {
+    private static boolean cooldownColorFlag = false;
+    private static int cooldownRenderCounter = 0;
+    private static final int COOLDOWN_COLOR_SWITCH_RENDERS = 50;
+
     @SubscribeEvent
     public void onRenderOverlay(RenderGuiEvent.Pre event) {
         Player player = Minecraft.getInstance().player;
@@ -17,69 +28,72 @@ public class CooldownOverlay {
         if (player == null) return;
 
         ItemStack stack = player.getMainHandItem();
-        if (!(stack.getItem() instanceof SpellcastingItem<?> item)) return;
 
-        //System.out.println("[-COOLDOWN OVERLAY-] Player is holding a SpellcastingItem: " + item.getClass());
-        double cooldown =  item.getRemainingCooldown(stack, player);
-        //System.out.println("[-COOLDOWN OVERLAY-] Cooldown: " + cooldown);
+        if (!(stack.getItem() instanceof SpellcastingItem<?>)) return;
 
-        int x = 10;
-        int y = 10;
         GuiGraphics gui = event.getGuiGraphics();
 
-        gui.fill(x, y, x + 50, y + 50, 0x80000000); // Background
-
-        String spell_slot = item.getActiveSpellSlotKey(stack);
-        //System.out.println("[-COOLDOWN OVERLAY-] Spell slot key: " + spell_slot);
-
-        int spellSlotWidth = Minecraft.getInstance().font.width(spell_slot);
-        gui.drawString(Minecraft.getInstance().font, spell_slot, x + 25 - spellSlotWidth / 2, y + 5, 0xFFFFFFFF);
-
-        String text_cooldown = cooldown > 0 ? String.format("%.1f s", cooldown) : "Ready";
-        int textWidth = Minecraft.getInstance().font.width(text_cooldown);
-        gui.drawString(Minecraft.getInstance().font, text_cooldown, x + 25 - textWidth / 2, y + 20, cooldown > 0 ? 0xFFFF0000 : 0xFF00FF00);
-
-        // render class and mana in bottom left of the overlay
-
-        int x2 = 10;
-        int y2 = 70;
-
-        String playerClass = player.getData(ModAttachments.PLAYER_CLASS.get()).getMainClass().toString();
-
-        int classWidth = Minecraft.getInstance().font.width(playerClass);
-        gui.drawString(Minecraft.getInstance().font, playerClass, x2 + 25 - classWidth / 2, y2 + 35, 0xFFFFFF00);
+        // Render spell cooldown if applicable
+        renderCooldown(gui, player, stack);
 
         // subclasses and their levels
-        StringBuilder subclassesText = new StringBuilder("Subclasses: ");
-        player.getData(ModAttachments.PLAYER_CLASS).getAllSubclasses().forEach((subclass, level) -> {
-            subclassesText.append(subclass.toString()).append(" (Lv ").append(level).append("), ");
-        });
-        // render subclasses text
-        String subclassesFinalText = subclassesText.toString();
-        if (subclassesFinalText.endsWith(", ")) {
-            subclassesFinalText = subclassesFinalText.substring(0, subclassesFinalText.length() - 2);
-        }
-        int subclassesWidth = Minecraft.getInstance().font.width(subclassesFinalText);
-        gui.drawString(Minecraft.getInstance().font, subclassesFinalText, x2 + 25 - subclassesWidth / 2, y2 + 50, 0xFFFFFFAA);
+        var playerClassData = player.getData(ModAttachments.PLAYER_CLASS.get());
+        playerClassData.render(gui);
 
-        float mana = player.getData(ModAttachments.MANA.get()).getMana();
-        int maxMana = player.getData(ModAttachments.MANA.get()).getMaxMana();
-        String manaText = "Mana: " + mana + "/" + maxMana;
-        int manaWidth = Minecraft.getInstance().font.width(manaText);
-        gui.drawString(Minecraft.getInstance().font, manaText, x2 + 25 - manaWidth / 2, y2 + 75, 0xFF00FFFF);
+        // Render mana
+        var manaData = player.getData(ModAttachments.MANA);
+        manaData.render(gui);
+
 
         // Render a channeled spell indicator if applicable
+        var simulacraData = player.getData(ModAttachments.PLAYER_SIMULACRA);
+        simulacraData.render(gui);
 
-        var activeChannelling = player.getData(ModAttachments.PLAYER_SIMULACRA.get()).getActiveChanneling();
-        var progress = player.getData(ModAttachments.PLAYER_SIMULACRA.get()).getActiveChannelingProgress() * 100f;
-        if (activeChannelling != null) {
-            String channellingText = "Channelling: " + activeChannelling.getSpell().getString();
-            int channellingWidth = Minecraft.getInstance().font.width(channellingText);
-            gui.drawString(Minecraft.getInstance().font, channellingText, x2 + 25 - channellingWidth / 2, y2 + 75, 0xFFFFFFFF);
 
-            String progressText = String.format("Progress: %.1f%%",  progress);
-            int progressWidth = Minecraft.getInstance().font.width(progressText);
-            gui.drawString(Minecraft.getInstance().font, progressText, x2 + 25 - progressWidth / 2, y2 + 90, 0xFFFFFFFF);
+        // render hud alerts
+        HudAlertManager hudAlertManager = player.getData(ModAttachments.HUD_ALERTS);
+        hudAlertManager.render(gui, gui.guiWidth(), gui.guiHeight());
+
+    }
+
+    public void renderCooldown(GuiGraphics gui, LivingEntity entity, ItemStack stack) {
+        if (!(entity instanceof Player player)) return;
+        if (!(stack.getItem() instanceof SpellcastingItem<?> item)) return;
+
+        Minecraft mc = Minecraft.getInstance();
+        Font font = mc.font;
+
+        // --- Core data ---
+        double cooldown = item.getRemainingCooldown(stack, player);
+        Spell spell = item.getData(stack).getActive().getSpell();
+
+        // --- Layout ---
+        int x = 10;
+        int y = 150; // fixed vertical position
+        int width = 60;
+        int height = 50;
+
+        // --- Colors ---
+        final int COLOR_TEXT_READY = 0xFF00FF00;  // green
+        final int COLOR_TEXT_CD = 0xFFFF4444;     // red
+        final int COLOR_TEXT_CD_ALT= 0xFFFFFF00; // yellow
+        final int COLOR_TEXT_LABEL = 0xFFFFFFFF;  // white
+        final int COLOR_FILL = 0xFFFF4444;        // cooldown bar color
+
+        // --- Spell name ---
+        String spellName = (spell != null) ? spell.getString() : "No Spell";
+        int spellWidth = font.width(spellName);
+        gui.drawString(font, spellName, x + width / 2 - spellWidth / 2, y + 18, COLOR_TEXT_LABEL, false);
+
+        // --- Cooldown text ---
+        String cdText = cooldown > 0 ? String.format("[ %.1f s ]", cooldown) : "Ready to cast!";
+        int cdWidth = font.width(cdText);
+        gui.drawString(font, cdText, x + width / 2 - cdWidth / 2, y + 30, cooldown > 0 ? cooldownColorFlag ? COLOR_TEXT_CD_ALT : COLOR_TEXT_CD : COLOR_TEXT_READY, false);
+
+        cooldownRenderCounter ++;
+        if (cooldownRenderCounter >= COOLDOWN_COLOR_SWITCH_RENDERS) {
+            cooldownColorFlag = !cooldownColorFlag;
+            cooldownRenderCounter = 0;
         }
 
     }

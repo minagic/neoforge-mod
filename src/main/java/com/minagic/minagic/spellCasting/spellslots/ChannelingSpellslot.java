@@ -4,6 +4,7 @@ import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -20,7 +21,7 @@ public class ChannelingSpellslot extends SimulacrumSpellSlot {
     }
 
     @Override
-    public void tick(ServerPlayer player, Level level, Consumer<ResourceLocation> onExpireCallback) {
+    public void tick(LivingEntity player, Level level, Consumer<ResourceLocation> onExpireCallback) {
 
         super.tick(player, level, onExpireCallback);
         // if we have gone full cycle and reset lifetime to 0, expire the spell slot

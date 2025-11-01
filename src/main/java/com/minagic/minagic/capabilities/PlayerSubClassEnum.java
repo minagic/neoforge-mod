@@ -74,4 +74,79 @@ public enum PlayerSubClassEnum {
             default -> PlayerClassEnum.UNDECLARED;
         };
     }
+
+    public String getString() {
+        return switch (this) {
+            // --- Wizards ---
+            case WIZARD_ELEMANCY -> "Tradition of Elemancy";
+            case WIZARD_NECROMANCY -> "Tradition of Necromancy";
+            case WIZARD_CONJURATION -> "Tradition of Conjuration";
+
+            // --- Sorcerers ---
+            case SORCERER_CELESTIAL -> "Celestial Bloodline";
+            case SORCERER_DRACONIC -> "Draconic Bloodline";
+            case SORCERER_INFERNAL -> "Infernal Bloodline";
+            case SORCERER_VOIDBOURNE -> "Voidbourne Bloodline";
+            case SORCERER_SPIRITUAL -> "Spiritual Bloodline";
+
+            // --- Warlocks ---
+            case WARLOCK_CHAIN -> "Pact of the Chain";
+            case WARLOCK_WEAPON -> "Pact of the Blade";
+            case WARLOCK_TOME -> "Pact of the Tome";
+            case WARLOCK_PACTS -> "Pact of the Pacts";
+
+            // --- Clerics ---
+            case CLERIC_ZEALOT -> "Domain of Zealot";
+            case CLERIC_APOSTLE -> "Domain of Apostle";
+            case CLERIC_ORACLE -> "Domain of Oracle";
+
+            // --- Druids ---
+            case DRUID_TREES -> "Circle of Trees";
+            case DRUID_ANIMALS -> "Circle of Animals";
+            case DRUID_MONSTERS -> "Circle of Monsters";
+            case DRUID_UNDEAD -> "Circle of Undead";
+            case DRUID_SPIRITS -> "Circle of Spirits";
+
+            // --- Bards ---
+            case BARD_HARMONY -> "College of Harmony";
+            case BARD_DISCORD -> "College of Discord";
+            case BARD_ELOQUENCE -> "College of Eloquence";
+
+            // --- Bladesingers ---
+            case BLADESINGER_AFTERTONE -> "Voice of Aftertone";
+            case BLADESINGER_STINGS -> "Voice Stinging Stings";
+            case BLADESINGER_GROUNDED -> "Voice of Grounded Melody";
+
+            // --- Monks ---
+            case MONK_SHADOW -> "Way of Shadow";
+            case MONK_MIRRORING_HAND -> "Way of the Mirroring Hand";
+            case MONK_SPECTRAL_FIST -> "Way of the Spectral Fist";
+
+            // --- Herbalists ---
+            case HERBALIST_THORNS -> "Garden of Thorns";
+            case HERBALIST_ROOTS -> "Garden of Roots";
+            case HERBALIST_FLOWERS -> "Garden of Flowers";
+            case HERBALIST_STEMS -> "Garden of Stems";
+            case HERBALIST_LEAVES -> "Garden of Leaves";
+
+            // --- Alchemists ---
+            case ALCHEMIST_DISTILLATION -> "Cauldron of Distillation";
+            case ALCHEMIST_FERMENTATION -> "Cauldron of Fermentation";
+            case ALCHEMIST_DISPERSION -> "Cauldron of Dispersion";
+
+            // --- Rune Artificers ---
+            case RUNE_ARTIFICER_ENCHANTMENT -> "Codex of  Enchantment";
+            case RUNE_ARTIFICER_MYTHIC_FORGE -> "Codex of Mythic Forge";
+            case RUNE_ARTIFICER_RUNOMANCY -> "Codex of Runomancy";
+            case RUNE_ARTIFICER_OVERRIDE -> "Codex of Override";
+
+            // --- Shamans ---
+            case SHAMAN_WILD -> "Omen of the Wild";
+            case SHAMAN_FOUR_ELEMENTS -> "Omen of the Four Elements";
+            case SHAMAN_SPIRITS -> "Omen of the Spirits";
+
+            // --- Fallback ---
+            case UNDECLARED -> "Undeclared";
+        };
+    }
 }

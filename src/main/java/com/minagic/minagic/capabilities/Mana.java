@@ -3,9 +3,10 @@ package com.minagic.minagic.capabilities;
 import com.minagic.minagic.registries.ModAttachments;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -40,7 +41,7 @@ public final class Mana {
         boolean restored = false;
 
         // Sorcerer passive regen
-        restored = restoreMana(20);
+        restored = restoreMana(1);
         // Optional: log or effect if mana restored
         if (restored) {
             // Visual or sound feedback here, if needed
@@ -86,6 +87,37 @@ public final class Mana {
 
     public void setMaxMana(int maxMana) {this.maxMana = maxMana;}
 
+
+    // rendering
+    public void render(GuiGraphics gui) {
+        final int BAR_WIDTH = 100;
+        final int BAR_HEIGHT = 8;
+        final int PADDING = 8;
+        final int COLOR_BACKGROUND = 0xFF222222;
+        final int COLOR_FILL = 0xFF3399FF; // mana blue
+        final int COLOR_TEXT = 0xFF99CCFF;
+        
+        Minecraft mc = Minecraft.getInstance();
+        if (mc == null || mc.player == null) return;
+
+        Font font = mc.font;
+        int screenWidth = mc.getWindow().getGuiScaledWidth();
+        int screenHeight = mc.getWindow().getGuiScaledHeight();
+
+        float ratio = Mth.clamp(mana / maxMana, 0f, 1f);
+
+        int x = PADDING;
+        int y = screenHeight - 10; // anchored above hotbar
+
+        // Background
+        gui.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, COLOR_BACKGROUND);
+        // Fill
+        gui.fill(x, y, x + (int) (BAR_WIDTH * ratio), y + BAR_HEIGHT, COLOR_FILL);
+
+        // Text
+        String text = String.format("Mana: %.0f / %.0f", mana, (float) maxMana);
+        gui.drawString(font, text, x, y - 10, COLOR_TEXT, false);
+    }
 
     // CODEC
     public static final Codec<Mana> CODEC = RecordCodecBuilder.create(instance -> instance.group(
