@@ -81,12 +81,12 @@ public class Minagic {
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":void_blast_entity"))));
 
     // Creates a creative tab with the id "minagic:example_tab" for the example item, that is placed after the combat tab
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.minagic")) //The language key for the title of your CreativeModeTab
-            .withTabsBefore(CreativeModeTabs.COMBAT)
-            .displayItems((parameters, output) -> {
-                output.accept(ModItems.EFFECT_WAND.get()); // Add the effect wand to the tab
-            }).build());
+//    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
+//            .title(Component.translatable("itemGroup.minagic")) //The language key for the title of your CreativeModeTab
+//            .withTabsBefore(CreativeModeTabs.COMBAT)
+//            .displayItems((parameters, output) -> {
+//                output.accept(ModItems.EFFECT_WAND.get()); // Add the effect wand to the tab
+//            }).build());
 
     // Command registration method
     private void onRegisterCommands(RegisterCommandsEvent event) {
@@ -133,7 +133,6 @@ public class Minagic {
 
 
 
-
         // Register packet handlers
         MinagicNetwork network = new MinagicNetwork();
         network.register(modEventBus);
@@ -166,7 +165,6 @@ public class Minagic {
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
-            event.accept(ModItems.EFFECT_WAND);
             event.accept(ModItems.SORCERER_STAFF);
             event.accept(ModItems.WIZARD_WAND);
         }

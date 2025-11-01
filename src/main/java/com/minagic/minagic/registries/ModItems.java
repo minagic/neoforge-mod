@@ -15,13 +15,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class ModItems {
 
 
-    public static final DeferredItem<Item> SORCERER_STAFF = Minagic.ITEMS.register("sorcerer_staff",
-            () -> new sorcererStaff(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "sorcerer_staff"))))
-    );
-
-    public static final DeferredItem<Item> EFFECT_WAND = Minagic.ITEMS.register("effect_wand",
-            () -> new EffectWandItem(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(Minagic.MODID + "effect_wand"))))
-    );
+    public static final DeferredItem<Item> SORCERER_STAFF = Minagic.ITEMS.registerItem("sorcerer_staff", sorcererStaff::new);
 
     public static final DeferredItem<Item> WIZARD_WAND = Minagic.ITEMS.register("wizard_wand",
             () -> new WizardWand(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(Minagic.MODID + "wizard_wand"))))

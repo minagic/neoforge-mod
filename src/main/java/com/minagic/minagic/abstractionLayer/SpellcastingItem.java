@@ -212,7 +212,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     @Override
     public @NotNull ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
-        return ItemUseAnimation.SPEAR;
+        return ItemUseAnimation.SPYGLASS;
     }
 
     @Override

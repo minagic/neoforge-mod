@@ -3,6 +3,8 @@
   "block.minagic.example_block": "Example Block",
   "item.minagic.example_item": "Example Item",
   "item.minagic.effect_wand": "Effect Wand",
+  "item.minagic.sorcerer_staff": "Sorcerer Staff",
+  "item.minagic.sorcerer_staff.tooltip": "A staff used by sorcerers to channel magical energy.",
 
   "minagic.configuration.title": "Minagic Configs",
   "minagic.configuration.section.minagic.common.toml": "Minagic Configs",
