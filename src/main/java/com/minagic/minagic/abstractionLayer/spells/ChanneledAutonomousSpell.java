@@ -55,7 +55,7 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public final void onStop(SpellCastContext context) {
-        LivingEntity player = preCast(context);
+        LivingEntity player = preStop(context);
         if (player == null) {
             return; // Pre-cast checks failed
         }
@@ -72,6 +72,9 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public LivingEntity preTick(SpellCastContext context) {return null;}
+
+    @Override
+    public LivingEntity preStop(SpellCastContext context) {return checkContext(context, true, false, 0, false); }
 
 
     @Override

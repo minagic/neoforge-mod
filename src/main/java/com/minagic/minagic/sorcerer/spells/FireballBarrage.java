@@ -1,6 +1,7 @@
 package com.minagic.minagic.sorcerer.spells;
 
 import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
+import com.minagic.minagic.abstractionLayer.spells.ChanneledAutonomousSpell;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
@@ -16,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
  * A powerful spell that rapidly fires fireballs forward.
  * Intended for Celestial / Pyromancer classes.
  */
-public class FireballBarrage extends AutonomousSpell {
+public class FireballBarrage extends ChanneledAutonomousSpell {
 
     @Override
     public CastFailureReason canCast(SpellCastContext context) {
@@ -67,11 +68,6 @@ public class FireballBarrage extends AutonomousSpell {
     @Override
     public int getSimulacrumThreshold() {
         return 5;
-    }
-
-    @Override
-    public int getMaxLifetime() {
-        return 20; // No limit
     }
 
     @Override
