@@ -18,11 +18,11 @@ public class ChanneledSpell extends Spell {
     @Override
     public final void onStart(SpellCastContext context) {
         System.out.println("[ChanneledSpell] onStart called for spell: " + getString());
-        LivingEntity player = preCast(context, true);
+        LivingEntity player = preCast(context, true, true, false);
         if (player == null) {
             return; // Pre-cast checks failed
         }
-        System.out.println("[ChanneledSpell] onStart passed preCast check, prerequisites output " +( magicPrerequisitesHelper(context) == "" ? "no output" : magicPrerequisitesHelper(context))+  " for spell " + getString());
+        //System.out.println("[ChanneledSpell] onStart passed preCast check, prerequisites output " +( magicPrerequisitesHelper(context) == "" ? "no output" : magicPrerequisitesHelper(context))+  " for spell " + getString());
         var data = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
         if (data.getActiveChanneling()!=null && ModSpells.getId(data.getActiveChanneling().getSpell()) != ModSpells.getId(this)) {
             System.out.println("[ChanneledSpell] onStart found existing different channelling spell, clearing it for spell: " + getString());
@@ -41,7 +41,7 @@ public class ChanneledSpell extends Spell {
     }
 
     public final void onStop(SpellCastContext context) {
-        LivingEntity player = preCast(context);
+        LivingEntity player = preCast(context, true, false, false);
         if (player == null) {
             return; // Pre-cast checks failed
         }

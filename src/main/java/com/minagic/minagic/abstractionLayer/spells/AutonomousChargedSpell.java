@@ -8,32 +8,12 @@ import net.minecraft.world.entity.LivingEntity;
 
 //// An abstract class representing spells that are charged up over time before being released.
 public class AutonomousChargedSpell extends Spell {
-    @Override
-    public final int getMaxLifetime(){
-        return getSimulacrumThreshold();
-        // lifetime equals threshold for autonomous charged spells.
-        // This will exit as soon as threshold is reached.
-    }
-
-    @Override
-    public int getCooldownTicks(){
-        return 10; // default cooldown
-    }
-
-    @Override
-    public String getString() {
-        return "Autonomous Charged Spell";
-    }
-
-    @Override
-    public int getManaCost() {
-        return 15; // default mana cost
-    }
 
     // lifecycle methods
     @Override
     public final void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context, false);
+
+        LivingEntity player = preCast(context, true, false, false);
 
         if (player == null) {
             return; // Pre-cast checks failed
@@ -64,4 +44,29 @@ public class AutonomousChargedSpell extends Spell {
     public final void onStop(SpellCastContext context) {
         // No-op for autonomous charged spells
     }
+
+    @Override
+    public final int getMaxLifetime(){
+        return getSimulacrumThreshold();
+        // lifetime equals threshold for autonomous charged spells.
+        // This will exit as soon as threshold is reached.
+    }
+
+    @Override
+    public int getCooldownTicks(){
+        return 0; // default cooldown
+    }
+
+    @Override
+    public String getString() {
+        return "Autonomous Charged Spell";
+    }
+
+    @Override
+    public int getManaCost() {
+        return 0; // default mana cost
+    }
+
+
+
 }

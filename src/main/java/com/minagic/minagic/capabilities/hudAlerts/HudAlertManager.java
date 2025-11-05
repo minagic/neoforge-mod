@@ -21,6 +21,12 @@ import java.util.List;
 public class HudAlertManager {
     private List<HudAlertInstance> ACTIVE_ALERTS = new ArrayList<>();
 
+    public static void addToEntity(LivingEntity entity, String msg, int color, int priority, int durationTicks) {
+        HudAlertManager data = entity.getData(ModAttachments.HUD_ALERTS);
+        data.addAlert(msg, color, priority, durationTicks);
+        entity.setData(ModAttachments.HUD_ALERTS, data);
+    }
+
     public void addAlert(String msg, int color, int priority, int durationTicks) {
         // Remove lower-priority duplicates
         ACTIVE_ALERTS.removeIf(a -> a.getAlert().message().equals(msg));

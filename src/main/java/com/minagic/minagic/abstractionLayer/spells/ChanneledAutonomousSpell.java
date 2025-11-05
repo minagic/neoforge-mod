@@ -38,7 +38,7 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public final void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context, true);
+        LivingEntity player = preCast(context, true, true, false);
         if (player == null) {
             return; // Pre-cast checks failed
         }
@@ -63,45 +63,17 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public final void onStop(SpellCastContext context) {
-        LivingEntity player = preCast(context, false);
+        LivingEntity player = preCast(context, false, true, false);
         if (player == null) {
             return; // Pre-cast checks failed
         }
 
-        PlayerSpellCooldowns cooldowns = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
         var data = player.getData(ModAttachments.PLAYER_SIMULACRA);
-
         data.clearChanneling();
-        cooldowns.setCooldown(ModSpells.getId(this), getCooldownTicks());
-
         player.setData(ModAttachments.PLAYER_SIMULACRA, data);
-        player.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS, cooldowns);
+
+        postCast(context, true, false);
     }
-
-    @Override
-    public final String magicPrerequisitesHelper(SpellCastContext context) {
-        Mana mana = context.caster.getData(ModAttachments.MANA.get());
-        if (mana.getMana() < getManaCost()) {
-            return "Not enough mana to sustain " + getString() + ".";
-        } else {
-            PlayerSpellCooldowns cd = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-            if (cd != null) {
-                int cooldown = cd.getCooldown(ModSpells.getId(this));
-                if (cooldown > 0) {
-                    return "Spell " + getString() + " is on cooldown for " + cooldown + " more ticks.";
-                }
-            }
-
-            return "";
-        }
-    }
-
-    public final void applyMagicCosts(SpellCastContext context) {
-        // only drain mana
-        var mana = context.caster.getData(ModAttachments.MANA.get());
-        mana.drainMana(getManaCost());
-    }
-
 
 
 }

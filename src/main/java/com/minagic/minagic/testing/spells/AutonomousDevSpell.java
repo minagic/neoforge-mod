@@ -8,13 +8,10 @@ public class AutonomousDevSpell extends AutonomousSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        LivingEntity player = preCast(context);
-        if (player == null) return;
 
         System.out.println("[AutonomousDevSpell] 🔄 Tick fired for "
                 + context.caster.getName().getString());
 
-        applyMagicCosts(context);
     }
 
     @Override

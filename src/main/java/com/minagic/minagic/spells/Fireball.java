@@ -2,6 +2,7 @@ package com.minagic.minagic.spells;
 
 import com.minagic.minagic.abstractionLayer.spells.InstanteneousSpell;
 import com.minagic.minagic.capabilities.PlayerClass;
+import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -16,12 +17,25 @@ public class Fireball extends InstanteneousSpell {
     private final int manaCost = 30;
 
     @Override
-    public boolean canCast(SpellCastContext context){
-        PlayerClass playerClass = context.caster.getData(ModAttachments.PLAYER_CLASS);
-        // only infernal sorcerers and elemental wizards of level 3 and above can cast fireball
-        return playerClass.getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) >= 3 ||
-                playerClass.getSubclassLevel(PlayerSubClassEnum.WIZARD_ELEMANCY) >= 3;
+    public CastFailureReason canCast(SpellCastContext context){
 
+        // Check if player is a Mage subclass
+        PlayerClass playerClass = context.caster.getData(ModAttachments.PLAYER_CLASS);
+        if(playerClass.getMainClass() != PlayerClassEnum.SORCERER && playerClass.getMainClass() != PlayerClassEnum.WIZARD) {
+            return CastFailureReason.CASTER_CLASS_MISMATCH;
+        }
+
+        if (playerClass.getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) == 0 &&
+            playerClass.getSubclassLevel(PlayerSubClassEnum.WIZARD_ELEMANCY) == 0) {
+            return CastFailureReason.CASTER_SUBCLASS_MISMATCH;
+        }
+
+        if (playerClass.getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) < 3 &&
+                playerClass.getSubclassLevel(PlayerSubClassEnum.WIZARD_ELEMANCY) < 3) {
+            return CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
+        }
+
+        return CastFailureReason.OK;
     }
 
     @Override
@@ -41,12 +55,9 @@ public class Fireball extends InstanteneousSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        LivingEntity player = preCast(context);
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
 
         Level level = context.level;
+        LivingEntity player = context.caster;
 
 
         Vec3 look = player.getLookAngle();
@@ -59,7 +70,5 @@ public class Fireball extends InstanteneousSpell {
 
         // Optional: play sound or trigger animation
         level.playSound(null, player.blockPosition(), SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
-
-        applyMagicCosts(context);
     }
 }

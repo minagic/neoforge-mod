@@ -71,30 +71,24 @@ public class SimulacrumSpellSlot extends SpellSlot {
 
     public void tick(LivingEntity player, Level level, Consumer<ResourceLocation> onExpireCallback) {
         System.out.println("[SimulacrumSpellSlot] Ticking simulacrum spell slot for spell: " + getSpell().getString());
-        if (maxLifetime == 0) {
-            // Expire the spell slot
-            System.out.println("[SimulacrumSpellSlot] No spell lifetime found, expiring spell slot for spell: " + getSpell().getString());
-            // TODO: figure out a more elegant way to handle cooldowns for autonomous spells
-            if (getSpell() instanceof AutonomousSpell || getSpell() instanceof ChanneledAutonomousSpell) {
-                System.out.println("[SimulacrumSpellSlot] Applying cooldown for autonomous spell: " + getSpell().getString());
-                PlayerSpellCooldowns cd = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
-                cd.setCooldown(ModSpells.getId(getSpell()), getSpell().getCooldownTicks());
-                player.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS, cd);
-
-            }
-            onExpireCallback.accept(ModSpells.getId(getSpell()));
-
-            return;
-        }
-
         lifetime ++;
         SpellCastContext ctx = new SpellCastContext(player, level, stack);
         ctx.simulacrtumLifetime = lifetime;
+        if (maxLifetime == 0) {
+            // Expire the spell slot
+            System.out.println("[SimulacrumSpellSlot] No spell lifetime found, expiring spell slot for spell: " + getSpell().getString());
+            getSpell().postCast(ctx, true, false); 
+            // when the slot expires, we apply cooldown,
+            // but not mana cost
+            onExpireCallback.accept(ModSpells.getId(getSpell()));
+            return;
+        }
+
         this.getSpell().tick(ctx);
 
         if (lifetime == threshold) {
             lifetime = 0;
-            getSpell().cast(ctx);
+            getSpell().onCast(ctx);
         }
 
         maxLifetime --;

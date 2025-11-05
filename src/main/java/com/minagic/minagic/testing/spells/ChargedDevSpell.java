@@ -9,14 +9,12 @@ public class ChargedDevSpell extends ChargedSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        LivingEntity player = preCast(context);
-        if (player == null) return;
 
         float chargeRatio = (float) getChargeTime() / getMaxLifetime();
         System.out.println("[ChargedDevSpell] ⚡ BOOM! ChargeRatio=" + chargeRatio
                 + " Player=" + context.caster.getName().getString());
 
-        applyMagicCosts(context);
+
     }
 
     @Override

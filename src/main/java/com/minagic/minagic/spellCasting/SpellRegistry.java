@@ -43,6 +43,6 @@ public class SpellRegistry {
 
     public static List<Spell> getSpells(Player player, Level level, ItemStack stack) {
         PlayerClass playerClass = player.getData(ModAttachments.PLAYER_CLASS);
-        return REGISTRY.values().stream().filter(spell -> spell.canCast(new SpellCastContext(player, level, stack))).toList();
+        return REGISTRY.values().stream().filter(spell -> spell.canCast(new SpellCastContext(player, level, stack)) == Spell.CastFailureReason.OK).toList();
     }
 }

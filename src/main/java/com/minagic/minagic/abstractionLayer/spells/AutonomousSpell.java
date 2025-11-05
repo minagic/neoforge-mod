@@ -19,7 +19,7 @@ public class AutonomousSpell extends Spell {
 
     @Override
     public void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context);
+        LivingEntity player = preCast(context, true, true, false);
 
         if (player == null) {
             return; // Pre-cast checks failed
@@ -54,29 +54,4 @@ public class AutonomousSpell extends Spell {
         // No-op for autonomous spells
     }
 
-
-    // Magic cost methods
-    @Override
-    public final String magicPrerequisitesHelper(SpellCastContext context) {
-        Mana mana = context.caster.getData(ModAttachments.MANA.get());
-        if (mana.getMana() < getManaCost()) {
-            return "Not enough mana to sustain " + getString() + ".";
-        } else {
-            PlayerSpellCooldowns cd = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-            if (cd != null) {
-                int cooldown = cd.getCooldown(ModSpells.getId(this));
-                if (cooldown > 0) {
-                    return "Spell " + getString() + " is on cooldown for " + cooldown + " more ticks.";
-                }
-            }
-
-            return "";
-        }
-    }
-
-    public final void applyMagicCosts(SpellCastContext context) {
-        // only drain mana
-        var mana = context.caster.getData(ModAttachments.MANA.get());
-        mana.drainMana(getManaCost());
-    }
 }

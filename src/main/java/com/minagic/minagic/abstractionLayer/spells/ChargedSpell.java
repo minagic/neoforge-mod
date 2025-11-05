@@ -36,7 +36,7 @@ public class ChargedSpell extends Spell {
     // Lifecycle methods
     @Override
     public void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context, true);
+        LivingEntity player = preCast(context, true, true, false);
         if (player == null) {
             return; // Pre-cast checks failed
         }
@@ -53,7 +53,7 @@ public class ChargedSpell extends Spell {
 
     @Override
     public final void onStop(SpellCastContext context) {
-        LivingEntity player = preCast(context, true);
+        LivingEntity player = preCast(context, true, false, false);
         if (player == null) {
             return; // Pre-cast checks failed
         }

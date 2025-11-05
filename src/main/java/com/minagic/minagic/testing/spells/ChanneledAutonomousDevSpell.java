@@ -10,13 +10,9 @@ public class ChanneledAutonomousDevSpell extends ChanneledAutonomousSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        LivingEntity player = preCast(context);
-        if (player == null) return;
 
         System.out.println("[ChanneledAutonomousDevSpell] 🔫 Pew Pew Pew! lifetime="
                 + context.simulacrtumLifetime + " Player=" + context.caster.getName().getString());
-
-        applyMagicCosts(context);
 
     }
 
