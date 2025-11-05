@@ -9,7 +9,6 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellCasting.spellslots.SpellSlot;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -44,34 +43,17 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         this.factory = factory;
     }
     public T getData(ItemStack stack){
-        //System.out.println("[-GET DATA-] Getting data for SpellcastingItem from stack");
-        // if no data present, initialize it
-        //System.out.println("[-GET DATA-] Expecting this data component: " + type);
         if (!stack.has(type)) {
-            //System.out.print("[-GET DATA-] No data component found in stack. Initializing new data component: ");
-            //System.out.println(factory.get());
             setData(stack, factory.get());
         }
-        else {
-            //System.out.println("[-GET DATA-] Data component found in stack.");
-        }
-
-        //System.out.println("[-GET DATA-] RECEIVED DATA Type: " + stack.get(type).getClass());
-        //System.out.println("[-GET DATA-] RECEIVED DATA Content: " + stack.get(type));
 
         return stack.get(type);
     }
 
+    @SuppressWarnings("unchecked")
     protected void setData(ItemStack stack, T data) {
         if (stack == null || data == null) return;
-
-        // Defensive copy to force a new reference
-
         T newData = (T) data.copy();
-        //System.out.println("[-SET DATA-] Setting data for Spellcasting Item in stack");
-        //System.out.println("[-SET DATA-] New data Type: " + newData.getClass());
-        //System.out.println("[-SET DATA-] New data Content: " + newData);
-
         stack.set(type, newData);
     }
 
