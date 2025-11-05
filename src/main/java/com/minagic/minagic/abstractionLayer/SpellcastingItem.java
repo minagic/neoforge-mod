@@ -76,61 +76,44 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     }
 
     public void cycleSlotUp(Optional<Player> player, ItemStack stack) {
-        //System.out.println("[-CYCLING ACTIVE SPELLSLOT UP-] Setting data for Spellcasting Item in stack");
-        if (player.isEmpty()) {return;}
+        if (player.isEmpty()) {return;} // player should not be empty
+        releaseUsing(stack, player.get().level(), player.get(), 0); // stop using the item if in use
+
+
         T data = getData(stack);
-        //System.out.println("[-CYCLING ACTIVE SPELLSLOT UP-] New active slot: " + data.getCurrentSlot() + " Spell: " + data.getActive().getSpell().getString());
-        releaseUsing(stack, player.get().level(), player.get(), 0);
+
         int newSlot = Math.floorMod(data.getCurrentSlot() + 1, data.getSlots().size());
         data.setCurrentSlot(newSlot);
 
-        if (player.isPresent()) {
-            if (!(player.get() instanceof ServerPlayer serverPlayer)) return;
-            serverPlayer.sendSystemMessage(Component.literal(
-                    "Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase()
-            ));
-        }
+        // TODO: do we need this?
+        if (!(player.get() instanceof ServerPlayer serverPlayer)) return;
+        serverPlayer.sendSystemMessage(Component.literal(
+                "Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase()
+        ));
 
-        //System.out.println("[-CYCLING ACTIVE SPELLSLOT UP-] Setting updated data back to stack, data type: " + data.getClass());
 
         setData(stack, data);
-        if (player.isPresent()) {
-            if (player.get() instanceof ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
-            }
-        }
+
+        PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
 
 
     }
 
     public void cycleSlotDown(Optional<Player> player, ItemStack stack) {
-        //System.out.println("[-CYCLING ACTIVE SPELLSLOT DOWN UP-] Setting data for Spellcasting Item in stack");
-        if (player.isEmpty()) return;
+        if (player.isEmpty()) return; // player should not be empty
         T data = getData(stack);
-        //System.out.println("[-CYCLING ACTIVE SPELLSLOT DOWN-] New active slot: " + data.getCurrentSlot() + " Spell: " + data.getActive().getSpell().getString());
         releaseUsing(stack, player.get().level(), player.get(), 0);
         int newSlot = Math.floorMod(data.getCurrentSlot() - 1, data.getSlots().size());
         data.setCurrentSlot(newSlot);
 
-        if (player.isPresent()) {
-
-            if (!(player.get() instanceof ServerPlayer serverPlayer)) return;
-            serverPlayer.sendSystemMessage(Component.literal(
-                    "Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase()
-            ));
-        }
-
-        //System.out.println("[-CYCLING ACTIVE SPELLSLOT DOWN-] Setting updated data back to stack, data type: " + data.getClass());
+        if (!(player.get() instanceof ServerPlayer serverPlayer)) return;
+        serverPlayer.sendSystemMessage(
+                Component.literal("Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase())
+        );
 
         setData(stack, data);
 
-        // sync to clients holding this item
-
-        if (player.isPresent()) {
-            if (player.get() instanceof ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
-            }
-        }
+        PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack)); // sync back to client
 
     }
 
@@ -171,24 +154,13 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
     }
 
-
-    public String getActiveSpellSlotKey(ItemStack stack) {
-        T data = getData(stack);
-        SpellSlot slot = data.getActive();
-        //System.out.println("[-GET ACTIVE SPELL SLOT KEY-] Active slot: " + data.getCurrentSlot() + " Spell: " + slot.getSpell().getString());
-        return slot.getEnterPhrase();
-    }
-
-
     public boolean canPlayerClassUseSpellcastingItem(PlayerClass playerClass) {
         return false;
     }
 
     @Override
-    public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        System.out.println("[-SPELLCASTING ITEM USE-] Attempting to use spellcasting item");
+    public InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         if (! (player instanceof ServerPlayer serverPlayer)) {
-            //System.out.println("[-SPELLCASTING ITEM USE-] Player is not a ServerPlayer, aborting.");
             return InteractionResult.FAIL;
         }
 
@@ -202,9 +174,6 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
         ItemStack stack = player.getItemInHand(hand);
         T data = getData(stack);
-        //System.out.println("[-SPELLCASTING ITEM USE-] Retrieved data from item stack: " + data.getClass());
-        //System.out.println("[-SPELLCASTING ITEM USE-] Data content: " + data);
-        //System.out.println("[-SPELLCASTING ITEM USE-] Active spell slot: " + data.getCurrentSlot() + " Spell: " + data.getActive().getSpell().getString());
 
         SpellCastContext context = new SpellCastContext(serverPlayer, level, player.getItemInHand(hand));
 
@@ -213,7 +182,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
         return InteractionResult.SUCCESS;
     }
-
+    // These are use lifecycle methods, RMB usage does not work without them
     @Override
     public @NotNull ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
         return ItemUseAnimation.SPYGLASS;
@@ -226,9 +195,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     @Override
     public boolean releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity player, int timeLeft) {
-        System.out.println("[-SPELLCASTING ITEM RELEASE USING-] Attempting to stop using spellcasting item");
         if (! (player instanceof ServerPlayer serverPlayer)) {
-            //System.out.println("[-SPELLCASTING ITEM RELEASE USING-] Player is not a ServerPlayer, aborting.");
             return false;
         }
 
@@ -236,9 +203,6 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
             return false;
         }
         T data = getData(stack);
-        //System.out.println("[-SPELLCASTING ITEM RELEASE USING-] Retrieved data from item stack: " + data.getClass());
-        //System.out.println("[-SPELLCASTING ITEM RELEASE USING-] Data content: " + data);
-        //System.out.println("[-SPELLCASTING ITEM RELEASE USING-] Active spell slot: " + data.getCurrentSlot() + " Spell: " + data.getActive().getSpell().getString());
 
         SpellCastContext context = new SpellCastContext(serverPlayer, level, player.getItemInHand(player.getUsedItemHand()));
         data.getActive().onStop(context);
@@ -246,9 +210,10 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
         return true;
     }
+
+    // GUI Editor Screen
     @SuppressWarnings("unchecked")
     public <S extends SpellEditorScreen<T>> S getEditorScreen(Player player, ItemStack stack) {
-        //System.out.println("Opening spell editor screen via SpellcastingItem for player " + player.getName().getString());
         return (S) new SpellEditorScreen<>(player, this, stack);
     }
 
