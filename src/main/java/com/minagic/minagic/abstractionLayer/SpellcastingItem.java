@@ -77,9 +77,10 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     public void cycleSlotUp(Optional<Player> player, ItemStack stack) {
         //System.out.println("[-CYCLING ACTIVE SPELLSLOT UP-] Setting data for Spellcasting Item in stack");
-
+        if (player.isEmpty()) {return;}
         T data = getData(stack);
         //System.out.println("[-CYCLING ACTIVE SPELLSLOT UP-] New active slot: " + data.getCurrentSlot() + " Spell: " + data.getActive().getSpell().getString());
+        releaseUsing(stack, player.get().level(), player.get(), 0);
         int newSlot = Math.floorMod(data.getCurrentSlot() + 1, data.getSlots().size());
         data.setCurrentSlot(newSlot);
 
@@ -99,17 +100,20 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
             }
         }
 
+
     }
 
     public void cycleSlotDown(Optional<Player> player, ItemStack stack) {
         //System.out.println("[-CYCLING ACTIVE SPELLSLOT DOWN UP-] Setting data for Spellcasting Item in stack");
-
+        if (player.isEmpty()) return;
         T data = getData(stack);
         //System.out.println("[-CYCLING ACTIVE SPELLSLOT DOWN-] New active slot: " + data.getCurrentSlot() + " Spell: " + data.getActive().getSpell().getString());
+        releaseUsing(stack, player.get().level(), player.get(), 0);
         int newSlot = Math.floorMod(data.getCurrentSlot() - 1, data.getSlots().size());
         data.setCurrentSlot(newSlot);
 
         if (player.isPresent()) {
+
             if (!(player.get() instanceof ServerPlayer serverPlayer)) return;
             serverPlayer.sendSystemMessage(Component.literal(
                     "Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase()
