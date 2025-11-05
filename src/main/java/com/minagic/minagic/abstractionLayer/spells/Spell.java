@@ -1,5 +1,6 @@
 package com.minagic.minagic.abstractionLayer.spells;
 
+import com.minagic.minagic.abstractionLayer.SpellcastingItem;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
@@ -83,9 +84,9 @@ public abstract class Spell {
     // ────────────────────────────────────────────────
 // Helper: ensure caster has sufficient mana
 // ────────────────────────────────────────────────
-    protected boolean validateMana(SpellCastContext context) {
+    protected boolean validateMana(SpellCastContext context, int manaCost) {
         var mana = context.caster.getData(ModAttachments.MANA.get());
-        if (mana.getMana() < getManaCost()) {
+        if (mana.getMana() < manaCost) {
             HudAlertManager.addToEntity(
                     context.caster,
                     "Not enough mana to cast " + getString() + ".",
@@ -98,16 +99,66 @@ public abstract class Spell {
         return true;
     }
 
+    protected boolean validateItem(SpellCastContext context){
+        if (context.stack == null || context.stack.isEmpty()) {
+            HudAlertManager.addToEntity(
+                    context.caster,
+                    "Item to cast spell not found",
+                    0xFF555500,
+                    1,
+                    20
+            );
+            return false; // no spellcasting item
+        }
+
+        if (!(context.stack.getItem() instanceof SpellcastingItem<?>)) {
+            HudAlertManager.addToEntity(
+                    context.caster,
+                    "Item cannot perform spell casting",
+                    0xFF555500,
+                    1,
+                    20
+            );
+            return false; // item cannot perform spell casting
+        }
+        return true;
+    }
+
     // CASTING LIFECYCLE METHODS
 
     // returns the caster if all checks pass, null otherwise
     // spell.onCast calls this automatically
-    public @Nullable LivingEntity preCast(SpellCastContext context,
-                                             boolean checkCaster,
-                                             boolean checkCooldown,
-                                             boolean checkMana) {
+    public @Nullable LivingEntity preCast(SpellCastContext context) {
+        return checkContext(context, true, true, getManaCost(), true);
+    }
+
+    public @Nullable LivingEntity preExitSimulacrum(SpellCastContext context){
+        return checkContext(context, true, false, 0, true);
+    }
+
+    public @Nullable LivingEntity preTick(SpellCastContext context) {
+        return checkContext(context, true, false, 0, true);
+    }
+
+    public @Nullable LivingEntity preStart(SpellCastContext context) {
+        return checkContext(context, true, true,0, true);
+    }
+
+    public @Nullable LivingEntity preStop(SpellCastContext context) {
+        return checkContext(context, true, false,0, true);
+    }
+    // pre cast helper
+
+    protected LivingEntity checkContext(SpellCastContext context,
+                                        boolean checkCaster,
+                                        boolean checkCooldown,
+                                        int checkMana, boolean checkSpellcastingItem){
         if (context.level.isClientSide()) {
             return null; // NEVER EVER CAST ON THE CLIENT
+        }
+
+        if (checkSpellcastingItem && !validateItem(context)) {
+            return null;
         }
 
         if (checkCaster && !validateCaster(context)) {
@@ -118,33 +169,46 @@ public abstract class Spell {
             return null;
         }
 
-        if (checkMana && !validateMana(context)) {
+        if (checkMana >0 && !validateMana(context, checkMana)) {
             return null;
         }
 
         return context.caster;
     }
 
+
     // called after spell casting logic to apply cooldowns and mana costs
-    public void postCast(SpellCastContext context, boolean applyCooldown, boolean applyManaCost) {
-        applyMagicCosts(context, applyCooldown, applyManaCost);
+    public void postCast(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), getManaCost());
     }
 
-    protected void applyMagicCosts(SpellCastContext context, boolean applyCooldown, boolean applyManaCost) {
-        if (applyCooldown) {
+    public void postExitSimulacrum(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), 0);
+    }
+
+    public void postTick(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), 0);
+    }
+
+    public void postStart(SpellCastContext context) {}
+
+    public void postStop(SpellCastContext context) {}
+
+
+    // post cast helper to apply cooldowns and mana costs
+    protected void applyMagicCosts(SpellCastContext context, int applyCooldown, int applyManaCost) {
+        if (applyCooldown > 0) {
             var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-            cooldowns.setCooldown(ModSpells.getId(this), getCooldownTicks());
+            cooldowns.setCooldown(ModSpells.getId(this), applyCooldown);
             context.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
         }
 
-        if (applyManaCost) {
+        if (applyManaCost > 0) {
             var mana = context.caster.getData(ModAttachments.MANA.get());
-            mana.drainMana(getManaCost());
+            mana.drainMana(applyManaCost);
             context.caster.setData(ModAttachments.MANA.get(), mana);
         }
     }
-
-
 
 
     // this is called when spell casting item is used (RMB press)
@@ -153,8 +217,16 @@ public abstract class Spell {
     }
 
     // this is called every tick while in simulacrum / channeling spell slot
-    public void tick(SpellCastContext context){
-        // No-op by default
+    public void onTick(SpellCastContext context){
+        if (context.simulacrtumLifetime!=-1) {
+            LivingEntity caster = preTick(context);
+            if (caster == null) {
+                return; // Pre-cast checks failed
+            }
+            context.caster = caster;
+            tick(context); // guarantee a living entity
+            postTick(context);
+        }
     }
 
     // this is called when spell casting item is released (RMB release)
@@ -166,24 +238,46 @@ public abstract class Spell {
     // can be called directly from onStart, tick, or onStop as needed
     // WILL be called when simulacrum or channelling spell slot reaches its threshold
     public void onCast(SpellCastContext context) {
-        LivingEntity caster = preCast(context, true, true, true);
+        System.out.println("onCast called for spell: " + getString());
+        LivingEntity caster = preCast(context);
         if (caster == null) {
             return; // Pre-cast checks failed
         }
-        cast(new SpellCastContext(caster, context.level, context.stack)); // guarantee a living entity
-        postCast(context, true, true);
+        context.caster = caster;
+        System.out.println("cast will called for spell: " + getString());
+        cast(context); // guarantee a living entity
+        postCast(context);
     }
 
 
+    // this is called when simulacrum spell slot is exited (lifetime exceeded, or manually removed)
+    public void onExitSimulacrum(SpellCastContext context){
+        LivingEntity caster = preExitSimulacrum(context);
+        if (caster == null) {
+            return; // Pre-cast checks failed
+        }
+
+        context.caster = caster;
+        exitSimulacrum(context); // guarantee a living entity
+        postExitSimulacrum(context);
+    }
+
+
+    // OVERRIDES TO DEFINE SPELL BEHAVIOR
 
     // the main spell logic goes here
     // the context.caster is guaranteed to be non-null here
-    public void cast(SpellCastContext context) {
+    protected void cast(SpellCastContext context) {
         System.out.println("No spell");
     }
 
+    protected void exitSimulacrum(SpellCastContext context){
+        System.out.println("No spell exit simulacrum");
+    }
 
-
+    protected void tick(SpellCastContext context){
+        System.out.println("No spell simulacrum tick");
+    }
 
 
     // this returns a string name for this spell (for display / logging purposes)

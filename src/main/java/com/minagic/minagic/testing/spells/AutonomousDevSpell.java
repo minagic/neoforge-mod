@@ -15,7 +15,7 @@ public class AutonomousDevSpell extends AutonomousSpell {
     }
 
     @Override
-    public int getManaCost() { return 1; }
+    public int getManaCost() { return 40; }
 
     @Override
     public int getCooldownTicks() { return 0; }

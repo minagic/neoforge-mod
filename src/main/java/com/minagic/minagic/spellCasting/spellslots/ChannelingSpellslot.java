@@ -1,6 +1,7 @@
 package com.minagic.minagic.spellCasting.spellslots;
 
 import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;

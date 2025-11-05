@@ -20,7 +20,7 @@ public class ChanneledAutonomousDevSpell extends ChanneledAutonomousSpell {
     public int getManaCost() { return 2; }
 
     @Override
-    public int getCooldownTicks() { return 5; }
+    public int getSimulacrumThreshold() { return 5; } // once every 0.5s
 
     @Override
     public String getString() { return "ChanneledAutonomousDevSpell"; }

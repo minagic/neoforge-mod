@@ -43,9 +43,6 @@ public final class Mana {
         // Sorcerer passive regen
         restored = restoreMana(1);
         // Optional: log or effect if mana restored
-        if (restored) {
-            // Visual or sound feedback here, if needed
-        }
 
 
     }

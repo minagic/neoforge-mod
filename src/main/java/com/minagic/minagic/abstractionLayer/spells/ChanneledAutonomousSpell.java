@@ -1,6 +1,7 @@
 package com.minagic.minagic.abstractionLayer.spells;
 
 import com.minagic.minagic.capabilities.Mana;
+import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSpellCooldowns;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
@@ -15,7 +16,7 @@ public class ChanneledAutonomousSpell extends Spell {
     }
 
     @Override
-    public final int getSimulacrumThreshold() {
+    public int getSimulacrumThreshold() {
         return 0; // Channeled autonomous cannot be autocast by simulacra
     }
 
@@ -31,49 +32,59 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public int getCooldownTicks() {
-        return 3; // default cooldown
+        return 30; // default cooldown
     }
 
     // lifecycle like of channelled spell
 
     @Override
     public final void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context, true, true, false);
+        LivingEntity player = preCast(context);
         if (player == null) {
             return; // Pre-cast checks failed
         }
 
-        var data = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
-        if (data.getActiveChanneling()!=null && ModSpells.getId(data.getActiveChanneling().getSpell()) != ModSpells.getId(this)) {
-            data.setActiveChanneling(this, getSimulacrumThreshold(), -1, context.stack);
-        }
-        else if (data.getActiveChanneling()==null) {
-            data.setActiveChanneling(this, getSimulacrumThreshold(), -1, context.stack);
-        }
-        player.setData(ModAttachments.PLAYER_SIMULACRA.get(), data);
+        PlayerSimulacraAttachment.addSimulacrum(context.caster, context.level, this, getSimulacrumThreshold(), -1, context.stack);
+
     }
 
     @Override
     public final void tick(SpellCastContext context) {
-        if (context.simulacrtumLifetime==-1) {
-            throw new IllegalStateException("Channeled autonomous spell tick can only be called from simulacra");
-        }
-        cast(context);
+        // no-op
     }
 
     @Override
     public final void onStop(SpellCastContext context) {
-        LivingEntity player = preCast(context, false, true, false);
+        LivingEntity player = preCast(context);
         if (player == null) {
             return; // Pre-cast checks failed
         }
+        context.caster = player;
+        PlayerSimulacraAttachment.removeSimulacrum(context.caster, context.level, ModSpells.getId(this));
 
-        var data = player.getData(ModAttachments.PLAYER_SIMULACRA);
-        data.clearChanneling();
-        player.setData(ModAttachments.PLAYER_SIMULACRA, data);
-
-        postCast(context, true, false);
     }
 
+    @Override
+    public LivingEntity preCast(SpellCastContext context) {return checkContext(context, true, true, getManaCost(), true);}
+
+    @Override
+    public LivingEntity preExitSimulacrum(SpellCastContext context) {return checkContext(context, true, false, 0, false);}
+
+    @Override
+    public LivingEntity preTick(SpellCastContext context) {return null;}
+
+
+    @Override
+    public final void postCast(SpellCastContext context) {
+        applyMagicCosts(context, 0, getManaCost());
+    }
+
+    @Override
+    public final void postExitSimulacrum(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), 0);
+    }
+
+    @Override
+    public final void postTick(SpellCastContext context) {}
 
 }

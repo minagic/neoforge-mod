@@ -36,14 +36,12 @@ public class ChargedSpell extends Spell {
     // Lifecycle methods
     @Override
     public void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context, true, true, false);
+        LivingEntity player = preCast(context);
         if (player == null) {
             return; // Pre-cast checks failed
         }
 
-        PlayerSimulacraAttachment data =  player.getData(ModAttachments.PLAYER_SIMULACRA);
-        data.setActiveChanneling(this, getSimulacrumThreshold(), getMaxLifetime(), context.stack);
-        player.setData(ModAttachments.PLAYER_SIMULACRA.get(), data);
+        PlayerSimulacraAttachment.setActiveChanneling(context.caster, context.level, this, getSimulacrumThreshold(), -1, context.stack);
     }
 
     @Override
@@ -53,17 +51,53 @@ public class ChargedSpell extends Spell {
 
     @Override
     public final void onStop(SpellCastContext context) {
-        LivingEntity player = preCast(context, true, false, false);
+        LivingEntity player = preCast(context);
         if (player == null) {
             return; // Pre-cast checks failed
         }
 
-        PlayerSimulacraAttachment data =  player.getData(ModAttachments.PLAYER_SIMULACRA);
-        data.clearChanneling();
-        player.setData(ModAttachments.PLAYER_SIMULACRA.get(), data);
-
-        cast(context);
+        PlayerSimulacraAttachment.clearChanneling(context.caster, context.level);
     }
+
+    @Override
+    public void exitSimulacrum(SpellCastContext context) {
+        onCast(context);
+
+    }
+
+    // implement pre and post methods
+    @Override
+    public LivingEntity preCast(SpellCastContext context) {
+        return checkContext(context, true, true, getManaCost(), true);
+    }
+
+    @Override
+    public void postCast(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), getManaCost()*(getChargeTime()/getMaxLifetime()));
+    }
+
+    @Override
+    public void postTick(SpellCastContext context) {
+        // no-op
+    }
+
+    @Override
+    public LivingEntity preTick(SpellCastContext context) {
+        if (context.simulacrtumLifetime == -1) {
+            return null;
+        }
+
+        return checkContext(context, true, false, 0, false);
+    }
+
+    @Override
+    public void postExitSimulacrum(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), 0);
+    }
+
+
+
+
 
 
 }

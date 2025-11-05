@@ -3,15 +3,16 @@ package com.minagic.minagic.capabilities;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
+import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellCasting.spellslots.ChannelingSpellslot;
 import com.minagic.minagic.spellCasting.spellslots.SimulacrumSpellSlot;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.Hash;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -37,8 +38,8 @@ public class PlayerSimulacraAttachment {
     // --- Fields ---
     private ChannelingSpellslot activeChanneling = null;
     private float activeChannelingProgress = 0f;
-    private final Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = new HashMap<>();
-    private final Map<ResourceLocation, Float> simulacraReadiness = new HashMap<>();
+    private Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = new HashMap<>();
+    private Map<ResourceLocation, Float> simulacraReadiness = new HashMap<>();
 
     // --- Getters ---
     public ChannelingSpellslot getActiveChanneling() {
@@ -58,41 +59,95 @@ public class PlayerSimulacraAttachment {
     }
     // --- Setters ---
 
-    public void setActiveChanneling(Spell spell, int threshold, int maxLifetime, ItemStack stack) {
-        this.activeChanneling = new ChannelingSpellslot(stack.copy(), threshold, maxLifetime, spell);
-        this.activeChannelingProgress = 0f;
+    public static void setActiveChanneling(LivingEntity entity, Level level, Spell spell, int threshold, int maxLifetime, ItemStack stack) {
+        if (entity == null) return;
+
+        PlayerSimulacraAttachment attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA);
+        // Remove existing channeling if any
+        if (attachment.getActiveChanneling() != null) {
+            PlayerSimulacraAttachment.clearChanneling(entity, level);
+        }
+        attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA); // Refresh after clearing
+        attachment.activeChanneling = new ChannelingSpellslot(stack.copy(), threshold, maxLifetime, spell);
+        entity.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
-    public void addSimulacrum(Spell spell, int threshold, int maxLifetime, ItemStack stack) {
-        ResourceLocation id = ModSpells.getId(spell);
-        backgroundSimulacra.put(id, new SimulacrumSpellSlot(stack.copy(), threshold, maxLifetime, spell));
+    public static void addSimulacrum(LivingEntity entity, Level level, Spell spell, int threshold, int maxLifetime, ItemStack stack) {
+        if (entity == null) return;
+
+        System.out.println("[PlayerSimulacraAttachment] Adding simulacrum spell: " + spell.getString());
+        System.out.println("[PlayerSimulacraAttachment] Current itemStack source: " + stack.getItem());
+
+        PlayerSimulacraAttachment attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA);
+
+        attachment.backgroundSimulacra.put(
+                ModSpells.getId(spell),
+                new SimulacrumSpellSlot(stack, threshold, maxLifetime, spell)
+        );
+        attachment.simulacraReadiness.put(ModSpells.getId(spell), 0f);
+        entity.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
-    public void removeSimulacrum(ResourceLocation id) {
+    public static void removeSimulacrum(LivingEntity player, Level level, ResourceLocation id) {
+        // cast onExit
+        PlayerSimulacraAttachment attachment = player.getData(ModAttachments.PLAYER_SIMULACRA);
+        Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = attachment.getBackgroundSimulacra();
+        Map<ResourceLocation, Float> simulacraReadiness = attachment.getSimulacraReadiness();
+
+
+        SimulacrumSpellSlot slot = backgroundSimulacra.get(id);
+        if (slot != null) {
+            slot.exitSpellSlot(player, level);
+        }
+
         backgroundSimulacra.remove(id);
+        simulacraReadiness.remove(id);
+
+
+        attachment.backgroundSimulacra = (backgroundSimulacra);
+        attachment.simulacraReadiness = (simulacraReadiness);
+
+        player.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
-    public void clearSimulacra() {
+    public static void clearSimulacra(LivingEntity player, Level level) {
+        // cast onExit for all background simulacra
+        PlayerSimulacraAttachment attachment = player.getData(ModAttachments.PLAYER_SIMULACRA);
+        Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = attachment.getBackgroundSimulacra();
+        Map<ResourceLocation, Float> simulacraReadiness = attachment.getSimulacraReadiness();
+
+        for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : backgroundSimulacra.entrySet()) {
+            entry.getValue().exitSpellSlot(player, level);
+        }
+
         backgroundSimulacra.clear();
         simulacraReadiness.clear();
+        attachment.backgroundSimulacra = (backgroundSimulacra);
+        attachment.simulacraReadiness = (simulacraReadiness);
+        
+        player.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
-    public void clearChanneling() {
-        this.activeChanneling = null;
-        this.activeChannelingProgress = 0f;
+    public static void clearChanneling(LivingEntity player, Level level) {
+        PlayerSimulacraAttachment attachment = player.getData(ModAttachments.PLAYER_SIMULACRA);
+        ChannelingSpellslot channeling = attachment.getActiveChanneling();
+        if (channeling != null) {
+            channeling.exitSpellSlot(player, level);
+        }
+
+        attachment.activeChanneling = null;
+        attachment.activeChannelingProgress = 0f;
+        player.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
+        
     }
 
     private void setActiveChannelingProgress(Float progress) {
         this.activeChannelingProgress = progress;
     }
 
-    public void setSimulacraReadiness(ResourceLocation id, float readiness) {
-        simulacraReadiness.put(id, Mth.clamp(readiness, 0f, 1f));
-    }
-
     // --- Logic ---
 
-    public void tick(ServerPlayer player, Level level) {
+    public void tick(LivingEntity player, Level level) {
         // Tick channeling first
         if (activeChanneling != null) {
             activeChanneling.tick(player, level, this::onChannelExpire);
@@ -287,10 +342,10 @@ public class PlayerSimulacraAttachment {
             ).apply(instance, (maybeActive, progress, simulacraMap, readinessMap) -> {
                 PlayerSimulacraAttachment att = new PlayerSimulacraAttachment();
                 maybeActive.ifPresent(slot -> {
-                    att.setActiveChanneling(slot.getSpell(),
+                    att.activeChanneling = new ChannelingSpellslot(slot.getStack(),
                             slot.getThreshold(),
                             slot.getMaxLifetime(),
-                            slot.getStack());
+                            slot.getSpell());
                     att.getActiveChanneling().setLifetime(slot.getLifetime());
                 });
                 att.setActiveChannelingProgress(progress);

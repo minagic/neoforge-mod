@@ -30,6 +30,7 @@ public class SimulacrumSpellSlot extends SpellSlot {
             Spell spell
     ) {
         super(spell);
+        this.stack = stack;
         this.threshold = threshold;
         this.maxLifetime = maxLifetime;
     }
@@ -77,14 +78,14 @@ public class SimulacrumSpellSlot extends SpellSlot {
         if (maxLifetime == 0) {
             // Expire the spell slot
             System.out.println("[SimulacrumSpellSlot] No spell lifetime found, expiring spell slot for spell: " + getSpell().getString());
-            getSpell().postCast(ctx, true, false); 
+            getSpell().postCast(ctx);
             // when the slot expires, we apply cooldown,
             // but not mana cost
             onExpireCallback.accept(ModSpells.getId(getSpell()));
             return;
         }
 
-        this.getSpell().tick(ctx);
+        this.getSpell().onTick(ctx);
 
         if (lifetime == threshold) {
             lifetime = 0;
@@ -95,6 +96,13 @@ public class SimulacrumSpellSlot extends SpellSlot {
 
         System.out.println("[SimulacrumSpellSlot] SPELL TICK COMPLETED. Lifetime: " + lifetime + " / " + threshold + ", MaxLifetime: " + maxLifetime) ;
     }
+
+    public void exitSpellSlot(LivingEntity player, Level level) {
+        SpellCastContext ctx = new SpellCastContext(player, level, stack);
+        getSpell().onExitSimulacrum(ctx);
+    }
+
+    // CODEC
 
     public static final Codec<ItemStack> SAFE_ITEMSTACK =
             ItemStack.CODEC.optionalFieldOf("stack", ItemStack.EMPTY).codec();
