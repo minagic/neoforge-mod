@@ -150,7 +150,7 @@ public class PlayerSimulacraAttachment {
     public void tick(LivingEntity player, Level level) {
         // Tick channeling first
         if (activeChanneling != null) {
-            activeChanneling.tick(player, level, this::onChannelExpire);
+            activeChanneling.tick(player, level);
             if (activeChanneling == null) { // in case it expired
                 this.activeChannelingProgress = 0f; // Reset progress on expire
             }
@@ -179,7 +179,7 @@ public class PlayerSimulacraAttachment {
 
         for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : backgroundSimulacra.entrySet()) {
             SimulacrumSpellSlot slot = entry.getValue();
-            slot.tick(player, level, this::onBackgroundExpire);
+            slot.tick(player, level);
             float readiness = slot.getMaxLifetime() == 0
                     ? 0f
                     :
@@ -190,15 +190,15 @@ public class PlayerSimulacraAttachment {
         }
     }
 
-    private void onChannelExpire(ResourceLocation spellId) {
-        System.out.println("[PlayerSimulacraAttachment] Channeling spell expired: " + spellId);
-        this.activeChanneling = null;
+    private void onChannelExpire(LivingEntity player, ResourceLocation spellId) {
+        if (player.level().isClientSide()) {return;}
+        clearChanneling(player, player.level());
     }
 
-    private void onBackgroundExpire(ResourceLocation spellId) {
+    private void onBackgroundExpire(LivingEntity player, ResourceLocation spellId) {
+        if (player.level().isClientSide()) {return;}
         System.out.println("[PlayerSimulacraAttachment] Background simulacrum expired: " + spellId);
-        backgroundSimulacra.remove(spellId);
-        simulacraReadiness.remove(spellId);
+        removeSimulacrum(player, player.level(), spellId);
     }
 
     // Rendering

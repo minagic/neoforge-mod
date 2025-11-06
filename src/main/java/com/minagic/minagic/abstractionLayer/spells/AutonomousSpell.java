@@ -20,20 +20,28 @@ import static com.ibm.icu.text.PluralRules.Operand.c;
 public class AutonomousSpell extends Spell {
 
     @Override
-    public LivingEntity preCast(SpellCastContext context) {return checkContext(context, true, true, getManaCost(), true);}
+    public final boolean preStart(SpellCastContext context) {return checkContext(context, true, true, 0, true, false);}
 
     @Override
-    public LivingEntity preExitSimulacrum(SpellCastContext context) {return checkContext(context, true, false, 0, false);}
+    public final boolean preTick(SpellCastContext context) {return false; }
 
     @Override
-    public LivingEntity preTick(SpellCastContext context) {return checkContext(context, true, false, 0, false);}
+    public final boolean preStop(SpellCastContext context) {return false; }
 
     @Override
-    public LivingEntity preStart(SpellCastContext context) {return checkContext(context, true, true, 0, true);}
+    public final boolean preCast(SpellCastContext context) {return checkContext(context, true, true, getManaCost(), true, false);}
 
     @Override
-    public LivingEntity preStop(SpellCastContext context) {return checkContext(context, true, false, 0, false); }
+    public final boolean preExitSimulacrum(SpellCastContext context) {return false; }
 
+    @Override
+    public final void postStart(SpellCastContext context) {}
+
+    @Override
+    public final void postTick(SpellCastContext context) {}
+
+    @Override
+    public final void postStop(SpellCastContext context) {}
 
     @Override
     public final void postCast(SpellCastContext context) {
@@ -45,19 +53,11 @@ public class AutonomousSpell extends Spell {
         applyMagicCosts(context, getCooldownTicks(), 0);
     }
 
-    @Override
-    public final void postTick(SpellCastContext context) {}
-
 
     @Override
-    public void onStart(SpellCastContext context) {
-        LivingEntity player = preStart(context);
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
-
+    public final void start(SpellCastContext context) {
         // Get player simulacra attachment
-        PlayerSimulacraAttachment sim = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
+        PlayerSimulacraAttachment sim = context.caster.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
         // Toggle logic: if already active, remove; else add
         var existing = sim.getBackgroundSimulacra().get(ModSpells.getId(this));
@@ -67,9 +67,6 @@ public class AutonomousSpell extends Spell {
         } else {
             PlayerSimulacraAttachment.addSimulacrum( context.caster, context.level, this, getSimulacrumThreshold(), getMaxLifetime(), context.stack);
         }
-
-
-
     }
 
     @Override
@@ -78,8 +75,11 @@ public class AutonomousSpell extends Spell {
     }
 
     @Override
-    public final void onStop(SpellCastContext context) {
+    public final void stop(SpellCastContext context) {
         // No-op for autonomous spells
     }
+
+    @Override
+    public final void exitSimulacrum(SpellCastContext context) {}
 
 }

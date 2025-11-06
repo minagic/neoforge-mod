@@ -3,6 +3,7 @@ package com.minagic.minagic.abstractionLayer;
 import com.minagic.minagic.abstractionLayer.gui.SpellEditorScreen;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.capabilities.PlayerClass;
+import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.packets.SpellWritePacket;
 import com.minagic.minagic.packets.SyncSpellcastingDataPacket;
 import com.minagic.minagic.registries.ModAttachments;
@@ -59,8 +60,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     public void cycleSlotUp(Optional<Player> player, ItemStack stack) {
         if (player.isEmpty()) {return;} // player should not be empty
-        releaseUsing(stack, player.get().level(), player.get(), 0); // stop using the item if in use
-
+        PlayerSimulacraAttachment.clearChanneling(player.get(), player.get().level());
 
         T data = getData(stack);
 
@@ -83,8 +83,13 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     public void cycleSlotDown(Optional<Player> player, ItemStack stack) {
         if (player.isEmpty()) return; // player should not be empty
+        PlayerSimulacraAttachment.clearChanneling(player.get(), player.get().level());
+
+        if (player.get().isUsingItem()){
+            releaseUsing(stack, player.get().level(), player.get(), 0); // stop using the item
+        }
+
         T data = getData(stack);
-        releaseUsing(stack, player.get().level(), player.get(), 0);
         int newSlot = Math.floorMod(data.getCurrentSlot() - 1, data.getSlots().size());
         data.setCurrentSlot(newSlot);
 

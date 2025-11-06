@@ -3,6 +3,7 @@ package com.minagic.minagic.spellCasting.spellslots;
 import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
 import com.minagic.minagic.abstractionLayer.spells.ChanneledAutonomousSpell;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSpellCooldowns;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
@@ -15,13 +16,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class SimulacrumSpellSlot extends SpellSlot {
-    private int lifetime = 0;
-    private int threshold;
-    private int maxLifetime; // -1 means no limit
-    private ItemStack stack = ItemStack.EMPTY;
+    protected int lifetime = 0;
+    protected int threshold;
+    protected int maxLifetime; // -1 means no limit
+    protected ItemStack stack = ItemStack.EMPTY;
 
     public SimulacrumSpellSlot(
             ItemStack stack,
@@ -70,18 +72,16 @@ public class SimulacrumSpellSlot extends SpellSlot {
         this.stack = stack;
     }
 
-    public void tick(LivingEntity player, Level level, Consumer<ResourceLocation> onExpireCallback) {
+    public void tick(LivingEntity player, Level level) {
         System.out.println("[SimulacrumSpellSlot] Ticking simulacrum spell slot for spell: " + getSpell().getString());
         lifetime ++;
         SpellCastContext ctx = new SpellCastContext(player, level, stack);
         ctx.simulacrtumLifetime = lifetime;
         if (maxLifetime == 0) {
-            // Expire the spell slot
-            System.out.println("[SimulacrumSpellSlot] No spell lifetime found, expiring spell slot for spell: " + getSpell().getString());
-            getSpell().postCast(ctx);
-            // when the slot expires, we apply cooldown,
-            // but not mana cost
-            onExpireCallback.accept(ModSpells.getId(getSpell()));
+            if (this instanceof ChannelingSpellslot){
+                PlayerSimulacraAttachment.clearChanneling(player, level);
+            }
+            PlayerSimulacraAttachment.removeSimulacrum(player, level, ModSpells.getId(getSpell()));
             return;
         }
 

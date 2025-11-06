@@ -1,6 +1,8 @@
 package com.minagic.minagic.spellCasting.spellslots;
 
 import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
@@ -9,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ChannelingSpellslot extends SimulacrumSpellSlot {
@@ -22,14 +25,30 @@ public class ChannelingSpellslot extends SimulacrumSpellSlot {
     }
 
     @Override
-    public void tick(LivingEntity player, Level level, Consumer<ResourceLocation> onExpireCallback) {
+    public void tick(LivingEntity player, Level level) {
 
-        super.tick(player, level, onExpireCallback);
-        // if we have gone full cycle and reset lifetime to 0, expire the spell slot
-        if (getLifetime() == 0) {
-            // Expire the spell slot
-            onExpireCallback.accept(this.getSpellId());
+        if (!ItemStack.isSameItem(getStack(), player.getMainHandItem()) &&
+                !ItemStack.isSameItem(getStack(), player.getOffhandItem())) {
+            PlayerSimulacraAttachment.clearChanneling(player, level);
+            return;
         }
+
+        lifetime ++;
+        SpellCastContext ctx = new SpellCastContext(player, level, stack);
+        ctx.simulacrtumLifetime = lifetime;
+        if (maxLifetime == 0) {
+            PlayerSimulacraAttachment.clearChanneling(player, level);
+            return;
+        }
+
+        this.getSpell().onTick(ctx);
+
+        if (lifetime == threshold) {
+            lifetime = 0;
+            getSpell().onCast(ctx);
+        }
+
+        maxLifetime --;
     }
 
     public static final Codec<ChannelingSpellslot> CODEC =

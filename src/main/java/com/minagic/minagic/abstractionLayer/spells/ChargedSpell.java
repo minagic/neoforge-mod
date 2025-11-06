@@ -2,6 +2,7 @@ package com.minagic.minagic.abstractionLayer.spells;
 
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,7 +16,7 @@ public class ChargedSpell extends Spell {
 
     @Override
     public int getMaxLifetime() {
-        return 100; // Default max lifetime for charged spells
+        return 0; // Default max lifetime for charged spells
     }
 
     @Override
@@ -30,74 +31,95 @@ public class ChargedSpell extends Spell {
 
     @Override
     public int getManaCost() {
-        return 10; // Default mana cost for charged spells
+        return 0; // Default mana cost for charged spells
     }
 
-    // Lifecycle methods
+    // implement pre* methods
     @Override
-    public void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context);
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
-
-        PlayerSimulacraAttachment.setActiveChanneling(context.caster, context.level, this, getSimulacrumThreshold(), -1, context.stack);
+    public final boolean preStart(SpellCastContext context) {
+        return checkContext(context, true, true, 0, true, false);
     }
 
     @Override
-    public void tick(SpellCastContext context) {
-        chargeTime = context.simulacrtumLifetime == -1 ? chargeTime + 1 : context.simulacrtumLifetime;
+    public final boolean preTick(SpellCastContext context) {
+        return checkContext(context, true, false, 0, true, true);
     }
 
     @Override
-    public final void onStop(SpellCastContext context) {
-        LivingEntity player = preCast(context);
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
-
-        PlayerSimulacraAttachment.clearChanneling(context.caster, context.level);
+    public final boolean preStop(SpellCastContext context) {
+        return checkContext(context, true, false, 0, true, false);
     }
 
     @Override
-    public void exitSimulacrum(SpellCastContext context) {
-        onCast(context);
-
-    }
-
-    // implement pre and post methods
-    @Override
-    public LivingEntity preCast(SpellCastContext context) {
-        return checkContext(context, true, true, getManaCost(), true);
+    public final boolean preExitSimulacrum(SpellCastContext context) {
+        return checkContext(context, true, false, 0, true, false);
     }
 
     @Override
-    public void postCast(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), getManaCost()*(getChargeTime()/getMaxLifetime()));
+    public final boolean preCast(SpellCastContext context) {
+        return checkContext(context, true, true, getManaCost(), true, false);
     }
 
+    // implement post* methods
+
     @Override
-    public void postTick(SpellCastContext context) {
+    public final void postStart(SpellCastContext context) {
         // no-op
     }
 
     @Override
-    public LivingEntity preTick(SpellCastContext context) {
-        if (context.simulacrtumLifetime == -1) {
-            return null;
-        }
-
-        return checkContext(context, true, false, 0, false);
+    public final void postTick(SpellCastContext context) {
+        // no-op
     }
 
     @Override
-    public void postExitSimulacrum(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), 0);
+    public final void postStop(SpellCastContext context) {
+        // no-op
     }
 
+    @Override
+    public final void postExitSimulacrum(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), 0); // when dropped only apply cooldown
+    }
+
+    @Override
+    public final void postCast(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), getManaCost());
+        PlayerSimulacraAttachment.clearChanneling(context.caster, context.level);
+    }
+
+    // lifecycle methods
+    @Override
+    public final void start(SpellCastContext context) {
+        PlayerSimulacraAttachment.setActiveChanneling(
+                context.caster,
+                context.level,
+                this,
+                0,
+                getMaxLifetime(),
+                context.stack
+        );
+    }
+
+    @Override
+    public void tick(SpellCastContext context) {
+        System.out.println("Charging spell: " + getString() + " | Charge time: " + chargeTime);
+        chargeTime = context.simulacrtumLifetime;
+    }
+
+    @Override
+    public final void stop(SpellCastContext context) {
+        onCast(context);
+        PlayerSimulacraAttachment.clearChanneling(
+                context.caster,
+                context.level
+        );
 
 
+    }
 
+    @Override
+    public final void exitSimulacrum(SpellCastContext context) {}
 
 
 }

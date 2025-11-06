@@ -8,7 +8,9 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
-
+// An abstract class representing a spell with casting lifecycle methods and validation.
+// on* methods are called by the spellcasting system
+// pre* and post* methods are called automatically by the on* methods
 public abstract class Spell {
 
     // ENUM: reasons a spell cast might fail due to caster issues
@@ -127,75 +129,71 @@ public abstract class Spell {
     // CASTING LIFECYCLE METHODS
 
     // returns the caster if all checks pass, null otherwise
-    // spell.onCast calls this automatically
-    public @Nullable LivingEntity preCast(SpellCastContext context) {
-        return checkContext(context, true, true, getManaCost(), true);
+    // pre* methods, called by on* methods before * methods
+    public boolean preCast(SpellCastContext context) {
+        return false;
     }
 
-    public @Nullable LivingEntity preExitSimulacrum(SpellCastContext context){
-        return checkContext(context, true, false, 0, true);
+    public boolean preExitSimulacrum(SpellCastContext context){
+        return false;
     }
 
-    public @Nullable LivingEntity preTick(SpellCastContext context) {
-        return checkContext(context, true, false, 0, true);
+    public boolean preTick(SpellCastContext context) {
+        return false;
     }
 
-    public @Nullable LivingEntity preStart(SpellCastContext context) {
-        return checkContext(context, true, true,0, true);
+    public boolean preStart(SpellCastContext context) {
+        return false;
     }
 
-    public @Nullable LivingEntity preStop(SpellCastContext context) {
-        return checkContext(context, true, false,0, true);
+    public boolean preStop(SpellCastContext context) {
+        return false;
     }
-    // pre cast helper
 
-    protected LivingEntity checkContext(SpellCastContext context,
+    // pre* helper
+    protected boolean checkContext(SpellCastContext context,
                                         boolean checkCaster,
                                         boolean checkCooldown,
-                                        int checkMana, boolean checkSpellcastingItem){
+                                        int checkMana,
+                                        boolean checkSpellcastingItem,
+                                        boolean checkSimulacraLifetime) {
         if (context.level.isClientSide()) {
-            return null; // NEVER EVER CAST ON THE CLIENT
+            return false; // NEVER EVER CAST ON THE CLIENT
         }
 
         if (checkSpellcastingItem && !validateItem(context)) {
-            return null;
+            return false;
         }
 
         if (checkCaster && !validateCaster(context)) {
-            return null;
+            return false;
         }
 
         if (checkCooldown && !validateCooldown(context)) {
-            return null;
+            return false;
         }
 
-        if (checkMana >0 && !validateMana(context, checkMana)) {
-            return null;
+        if (checkSimulacraLifetime && context.simulacrtumLifetime != -1) {
+            return false;
         }
 
-        return context.caster;
+        return checkMana <= 0 || validateMana(context, checkMana);
     }
 
 
-    // called after spell casting logic to apply cooldowns and mana costs
-    public void postCast(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), getManaCost());
-    }
-
-    public void postExitSimulacrum(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), 0);
-    }
-
-    public void postTick(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), 0);
-    }
+    // post* methods, called by on* methods after * methods
 
     public void postStart(SpellCastContext context) {}
 
+    public void postTick(SpellCastContext context) {}
+
     public void postStop(SpellCastContext context) {}
 
+    public void postCast(SpellCastContext context) {}
 
-    // post cast helper to apply cooldowns and mana costs
+    public void postExitSimulacrum(SpellCastContext context) {}
+
+    // post* helper to apply cooldowns and mana costs
     protected void applyMagicCosts(SpellCastContext context, int applyCooldown, int applyManaCost) {
         if (applyCooldown > 0) {
             var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
@@ -211,54 +209,42 @@ public abstract class Spell {
     }
 
 
+    // on* methods, called by the spellcasting system to drive the spell lifecycle
     // this is called when spell casting item is used (RMB press)
     public void onStart(SpellCastContext context) {
-        onCast(context);
+        if(!preStart(context)) return;
+        start(context);
+        postStart(context);
     }
 
     // this is called every tick while in simulacrum / channeling spell slot
     public void onTick(SpellCastContext context){
-        if (context.simulacrtumLifetime!=-1) {
-            LivingEntity caster = preTick(context);
-            if (caster == null) {
-                return; // Pre-cast checks failed
-            }
-            context.caster = caster;
-            tick(context); // guarantee a living entity
-            postTick(context);
-        }
+        if (!preTick(context)) return;
+        tick(context);
+        postTick(context);
     }
 
     // this is called when spell casting item is released (RMB release)
     public void onStop(SpellCastContext context) {
-        // No-op by default
+        if (!preStop(context)) return;
+        stop(context);
+        postStop(context);
     }
 
     // this is called to perform the actual spell casting logic (after pre-cast checks)
     // can be called directly from onStart, tick, or onStop as needed
     // WILL be called when simulacrum or channelling spell slot reaches its threshold
     public void onCast(SpellCastContext context) {
-        System.out.println("onCast called for spell: " + getString());
-        LivingEntity caster = preCast(context);
-        if (caster == null) {
-            return; // Pre-cast checks failed
-        }
-        context.caster = caster;
-        System.out.println("cast will called for spell: " + getString());
-        cast(context); // guarantee a living entity
+        if (!preCast(context)) return;
+        cast(context);
         postCast(context);
     }
 
 
     // this is called when simulacrum spell slot is exited (lifetime exceeded, or manually removed)
     public void onExitSimulacrum(SpellCastContext context){
-        LivingEntity caster = preExitSimulacrum(context);
-        if (caster == null) {
-            return; // Pre-cast checks failed
-        }
-
-        context.caster = caster;
-        exitSimulacrum(context); // guarantee a living entity
+        if (!preExitSimulacrum(context)) return;
+        exitSimulacrum(context);
         postExitSimulacrum(context);
     }
 
@@ -267,17 +253,16 @@ public abstract class Spell {
 
     // the main spell logic goes here
     // the context.caster is guaranteed to be non-null here
-    protected void cast(SpellCastContext context) {
-        System.out.println("No spell");
-    }
 
-    protected void exitSimulacrum(SpellCastContext context){
-        System.out.println("No spell exit simulacrum");
-    }
+    protected void start(SpellCastContext context){}
 
-    protected void tick(SpellCastContext context){
-        System.out.println("No spell simulacrum tick");
-    }
+    protected void tick(SpellCastContext context){}
+
+    protected void stop(SpellCastContext context){}
+
+    protected void cast(SpellCastContext context) {}
+
+    protected void exitSimulacrum(SpellCastContext context){}
 
 
     // this returns a string name for this spell (for display / logging purposes)

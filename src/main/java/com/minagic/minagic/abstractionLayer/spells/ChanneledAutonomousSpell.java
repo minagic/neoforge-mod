@@ -37,45 +37,33 @@ public class ChanneledAutonomousSpell extends Spell {
 
     // lifecycle like of channelled spell
 
-    @Override
-    public final void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context);
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
-
-        PlayerSimulacraAttachment.addSimulacrum(context.caster, context.level, this, getSimulacrumThreshold(), -1, context.stack);
-
-    }
+    // pre* methods
 
     @Override
-    public final void tick(SpellCastContext context) {
-        // no-op
-    }
+    public final boolean preStart(SpellCastContext context) {return checkContext(context, true, true, 0, true, false); }
 
     @Override
-    public final void onStop(SpellCastContext context) {
-        LivingEntity player = preStop(context);
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
-        context.caster = player;
-        PlayerSimulacraAttachment.removeSimulacrum(context.caster, context.level, ModSpells.getId(this));
-
-    }
+    public final boolean preTick(SpellCastContext context) {return false;}
 
     @Override
-    public LivingEntity preCast(SpellCastContext context) {return checkContext(context, true, true, getManaCost(), true);}
+    public final boolean preStop(SpellCastContext context) {return checkContext(context, true, false, 0, true, false); }
 
     @Override
-    public LivingEntity preExitSimulacrum(SpellCastContext context) {return checkContext(context, true, false, 0, false);}
+    public final boolean preExitSimulacrum(SpellCastContext context) {return false;}
 
     @Override
-    public LivingEntity preTick(SpellCastContext context) {return null;}
+    public final boolean preCast(SpellCastContext context) {return checkContext(context, true, true, getManaCost(), true, false);}
+
+    // post* methods
 
     @Override
-    public LivingEntity preStop(SpellCastContext context) {return checkContext(context, true, false, 0, false); }
+    public final void postStart(SpellCastContext context) {}
 
+    @Override
+    public final void postTick(SpellCastContext context) {}
+
+    @Override
+    public final void postStop(SpellCastContext context) {}
 
     @Override
     public final void postCast(SpellCastContext context) {
@@ -88,6 +76,23 @@ public class ChanneledAutonomousSpell extends Spell {
     }
 
     @Override
-    public final void postTick(SpellCastContext context) {}
+    public final void start(SpellCastContext context) {
+        PlayerSimulacraAttachment.setActiveChanneling(context.caster, context.level, this, getSimulacrumThreshold(), -1, context.stack);
+
+    }
+
+    @Override
+    public final void tick(SpellCastContext context) {
+        // no-op
+    }
+
+    @Override
+    public final void stop(SpellCastContext context) {
+        PlayerSimulacraAttachment.clearChanneling(context.caster, context.level);
+
+    }
+
+    @Override
+    public final void exitSimulacrum(SpellCastContext context) {}
 
 }
