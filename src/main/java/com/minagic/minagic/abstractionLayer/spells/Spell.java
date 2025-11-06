@@ -171,6 +171,8 @@ public abstract class Spell {
 
         if (context.target.asLivingEntity() == null) return false;
 
+        if (!(context.target.isAlive() && context.caster.isAlive())) return false;
+
 
 
         if (context.level().isClientSide()) {

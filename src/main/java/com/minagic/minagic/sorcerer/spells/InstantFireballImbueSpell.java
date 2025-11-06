@@ -25,11 +25,12 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
             return; // fail silently or add a "no target" message
         }
 
+        ctx.caster = target;
         // Fancy particle line
         spawnBeamParticles(caster, target);
 
         // Apply the forced fireball barrage
-        applyForcedFireballBarrage(target, ctx);
+        applyForcedFireballBarrage(caster, ctx);
     }
 
     @Override

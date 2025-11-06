@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -24,7 +25,7 @@ public final class Mana {
 
     public Mana() {}
 
-    public void tick(Player player) {
+    public void tick(LivingEntity player) {
         // --- Retrieve Player Class Info ---
         PlayerClass pc = player.getData(ModAttachments.PLAYER_CLASS);
 
@@ -47,7 +48,10 @@ public final class Mana {
 
     }
 
-    private int computeMaxMana(Player player, PlayerClass pc) {
+    private int computeMaxMana(LivingEntity player, PlayerClass pc) {
+        if (!(player instanceof Player)) {
+            return 1000; // Non-player entities have a lot of mana
+        }
         int base = switch (pc.getMainClass()) {
             case SORCERER -> 120;
             case CLERIC -> 100;

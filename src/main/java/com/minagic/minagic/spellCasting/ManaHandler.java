@@ -4,16 +4,21 @@ import com.minagic.minagic.capabilities.Mana;
 import com.minagic.minagic.capabilities.PlayerSpellCooldowns;
 import com.minagic.minagic.registries.ModAttachments;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 public class ManaHandler {
     @SubscribeEvent
-    public void onPlayerTick(PlayerTickEvent.Pre event) {
-        if (!(event.getEntity() instanceof ServerPlayer serverPlayer)) return;
-        Mana mana = serverPlayer.getData(ModAttachments.MANA.get());
-        mana.tick(serverPlayer);
-        serverPlayer.setData(ModAttachments.MANA.get(), mana);
+    public void onPlayerTick(EntityTickEvent.Pre event) {
+        LivingEntity entity = event.getEntity().asLivingEntity();
+        if (entity == null || entity.level().isClientSide()) return;
+
+        Mana mana = entity.getData(ModAttachments.MANA.get());
+        mana.tick(entity);
+        System.out.println("[Minagic] Ticked mana for entity: " + entity.getName().getString() + " | Current Mana: " + mana.getMana() + "/" + mana.getMaxMana());
+        entity.setData(ModAttachments.MANA.get(), mana);
     }
 }
