@@ -1,6 +1,7 @@
 package com.minagic.minagic.abstractionLayer.spells;
 
 import com.minagic.minagic.capabilities.Mana;
+import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSpellCooldowns;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
@@ -15,7 +16,7 @@ public class ChanneledAutonomousSpell extends Spell {
     }
 
     @Override
-    public final int getSimulacrumThreshold() {
+    public int getSimulacrumThreshold() {
         return 0; // Channeled autonomous cannot be autocast by simulacra
     }
 
@@ -31,77 +32,67 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public int getCooldownTicks() {
-        return 3; // default cooldown
+        return 30; // default cooldown
     }
 
     // lifecycle like of channelled spell
 
-    @Override
-    public final void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context, true);
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
+    // pre* methods
 
-        var data = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
-        if (data.getActiveChanneling()!=null && ModSpells.getId(data.getActiveChanneling().getSpell()) != ModSpells.getId(this)) {
-            data.setActiveChanneling(this, getSimulacrumThreshold(), -1, context.stack);
-        }
-        else if (data.getActiveChanneling()==null) {
-            data.setActiveChanneling(this, getSimulacrumThreshold(), -1, context.stack);
-        }
-        player.setData(ModAttachments.PLAYER_SIMULACRA.get(), data);
+    @Override
+    public final boolean preStart(SpellCastContext context) {return checkContext(context, true, true, 0, true, false); }
+
+    @Override
+    public final boolean preTick(SpellCastContext context) {return false;}
+
+    @Override
+    public final boolean preStop(SpellCastContext context) {return checkContext(context, true, false, 0, true, false); }
+
+    @Override
+    public final boolean preExitSimulacrum(SpellCastContext context) {return false;}
+
+    @Override
+    public final boolean preCast(SpellCastContext context) {return checkContext(context, true, true, getManaCost(), true, false);}
+
+    // post* methods
+
+    @Override
+    public final void postStart(SpellCastContext context) {}
+
+    @Override
+    public final void postTick(SpellCastContext context) {}
+
+    @Override
+    public final void postStop(SpellCastContext context) {}
+
+    @Override
+    public final void postCast(SpellCastContext context) {
+        applyMagicCosts(context, 0, getManaCost());
+    }
+
+    @Override
+    public final void postExitSimulacrum(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), 0);
+    }
+
+    @Override
+    public final void start(SpellCastContext context) {
+        PlayerSimulacraAttachment.setActiveChanneling(context, this, getSimulacrumThreshold(), -1);
+
     }
 
     @Override
     public final void tick(SpellCastContext context) {
-        if (context.simulacrtumLifetime==-1) {
-            throw new IllegalStateException("Channeled autonomous spell tick can only be called from simulacra");
-        }
-        cast(context);
+        // no-op
     }
 
     @Override
-    public final void onStop(SpellCastContext context) {
-        LivingEntity player = preCast(context, false);
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
+    public final void stop(SpellCastContext context) {
+        PlayerSimulacraAttachment.clearChanneling(context.target);
 
-        PlayerSpellCooldowns cooldowns = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
-        var data = player.getData(ModAttachments.PLAYER_SIMULACRA);
-
-        data.clearChanneling();
-        cooldowns.setCooldown(ModSpells.getId(this), getCooldownTicks());
-
-        player.setData(ModAttachments.PLAYER_SIMULACRA, data);
-        player.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS, cooldowns);
     }
 
     @Override
-    public final String magicPrerequisitesHelper(SpellCastContext context) {
-        Mana mana = context.caster.getData(ModAttachments.MANA.get());
-        if (mana.getMana() < getManaCost()) {
-            return "Not enough mana to sustain " + getString() + ".";
-        } else {
-            PlayerSpellCooldowns cd = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-            if (cd != null) {
-                int cooldown = cd.getCooldown(ModSpells.getId(this));
-                if (cooldown > 0) {
-                    return "Spell " + getString() + " is on cooldown for " + cooldown + " more ticks.";
-                }
-            }
-
-            return "";
-        }
-    }
-
-    public final void applyMagicCosts(SpellCastContext context) {
-        // only drain mana
-        var mana = context.caster.getData(ModAttachments.MANA.get());
-        mana.drainMana(getManaCost());
-    }
-
-
+    public final void exitSimulacrum(SpellCastContext context) {}
 
 }

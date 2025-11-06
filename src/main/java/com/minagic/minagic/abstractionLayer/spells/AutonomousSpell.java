@@ -10,6 +10,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 
+import static com.ibm.icu.text.PluralRules.Operand.c;
+
 /**
  * A simple self-managed spell that automatically attaches or detaches itself
  * as a background simulacrum when cast. Runs indefinitely (maxLifetime = -1)
@@ -18,30 +20,55 @@ import net.minecraft.world.entity.LivingEntity;
 public class AutonomousSpell extends Spell {
 
     @Override
-    public void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context);
+    public final boolean preStart(SpellCastContext context) {return checkContext(context, true, true, 0, true, false);}
 
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
+    @Override
+    public final boolean preTick(SpellCastContext context) {return false; }
 
+    @Override
+    public final boolean preStop(SpellCastContext context) {return false; }
+
+    @Override
+    public final boolean preCast(SpellCastContext context) {return checkContext(context, true, true, getManaCost(), true, false);}
+
+    @Override
+    public final boolean preExitSimulacrum(SpellCastContext context) {return checkContext(context, true, false, 0, true, false); }
+
+    @Override
+    public final void postStart(SpellCastContext context) {}
+
+    @Override
+    public final void postTick(SpellCastContext context) {}
+
+    @Override
+    public final void postStop(SpellCastContext context) {}
+
+    @Override
+    public final void postCast(SpellCastContext context) {
+        applyMagicCosts(context, 0, getManaCost());
+    }
+
+    @Override
+    public final void postExitSimulacrum(SpellCastContext context) {
+        System.out.println("AutonomousSpell.postExitSimulacrum called");
+        applyMagicCosts(context, getCooldownTicks(), 0);
+    }
+
+
+    @Override
+    public final void start(SpellCastContext context) {
         // Get player simulacra attachment
-        PlayerSimulacraAttachment sim = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
-        PlayerSpellCooldowns cooldowns = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
+        PlayerSimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
         // Toggle logic: if already active, remove; else add
         var existing = sim.getBackgroundSimulacra().get(ModSpells.getId(this));
 
         if (existing != null) {
-            sim.removeSimulacrum(ModSpells.getId(this));
-            cooldowns.setCooldown(ModSpells.getId(this), getCooldownTicks());
+            PlayerSimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
         } else {
-            sim.addSimulacrum( this, getSimulacrumThreshold(), getMaxLifetime(), context.stack);
+            PlayerSimulacraAttachment.addSimulacrum(context, this, getSimulacrumThreshold(), getMaxLifetime());
         }
 
-        // Save attachment back (important for NeoForge data sync)
-        player.setData(ModAttachments.PLAYER_SIMULACRA.get(), sim);
-        player.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS, cooldowns);
     }
 
     @Override
@@ -50,33 +77,11 @@ public class AutonomousSpell extends Spell {
     }
 
     @Override
-    public final void onStop(SpellCastContext context) {
+    public final void stop(SpellCastContext context) {
         // No-op for autonomous spells
     }
 
-
-    // Magic cost methods
     @Override
-    public final String magicPrerequisitesHelper(SpellCastContext context) {
-        Mana mana = context.caster.getData(ModAttachments.MANA.get());
-        if (mana.getMana() < getManaCost()) {
-            return "Not enough mana to sustain " + getString() + ".";
-        } else {
-            PlayerSpellCooldowns cd = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-            if (cd != null) {
-                int cooldown = cd.getCooldown(ModSpells.getId(this));
-                if (cooldown > 0) {
-                    return "Spell " + getString() + " is on cooldown for " + cooldown + " more ticks.";
-                }
-            }
+    public final void exitSimulacrum(SpellCastContext context) {}
 
-            return "";
-        }
-    }
-
-    public final void applyMagicCosts(SpellCastContext context) {
-        // only drain mana
-        var mana = context.caster.getData(ModAttachments.MANA.get());
-        mana.drainMana(getManaCost());
-    }
 }

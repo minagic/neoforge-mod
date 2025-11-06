@@ -3,17 +3,25 @@ package com.minagic.minagic.spellCasting;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 public class PlayerSimulacraHandler {
     @SubscribeEvent
-    public void onPlayerTick(PlayerTickEvent.Pre event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        var sim = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
-        sim.tick(player, player.level());
-        player.setData(ModAttachments.PLAYER_SIMULACRA.get(), sim);
+    public void onEntityTick(EntityTickEvent.Pre event) {
+        if (event.getEntity().level().isClientSide()) return;
+        LivingEntity entity = event.getEntity().asLivingEntity();
+        if (entity == null) return;
+        var sim = entity.getData(ModAttachments.PLAYER_SIMULACRA.get());
+        sim.resolveAllContexts(entity.level());
+        sim.tick();
+        //System.out.println("[Minagic] Ticked simulacra for entity: " + entity.getName().getString());
+        // dump active simulacra
+        //sim.dump("[DEBUG]", entity);
+        entity.setData(ModAttachments.PLAYER_SIMULACRA.get(), sim);
         // Re-apply *only* when actually changed (or every N ticks)
         //player.setData(ModAttachments.PLAYER_SIMULACRA.get(), PlayerSimulacraAttachment.copy(sim));
     }

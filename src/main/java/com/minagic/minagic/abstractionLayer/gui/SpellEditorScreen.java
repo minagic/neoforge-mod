@@ -48,7 +48,7 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
         }
     }
     protected List<Spell> getAvailableSpells(Player player, ItemStack stack) {
-        return SpellRegistry.getSpells(player, player.level(), stack);
+        return SpellRegistry.getSpells(player, stack);
     }
 
     @Override

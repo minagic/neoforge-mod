@@ -8,20 +8,17 @@ public class AutonomousDevSpell extends AutonomousSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        LivingEntity player = preCast(context);
-        if (player == null) return;
 
         System.out.println("[AutonomousDevSpell] 🔄 Tick fired for "
                 + context.caster.getName().getString());
 
-        applyMagicCosts(context);
     }
 
     @Override
-    public int getManaCost() { return 1; }
+    public int getManaCost() { return 40; }
 
     @Override
-    public int getCooldownTicks() { return 0; }
+    public int getCooldownTicks() { return 10; }
 
     @Override
     public int getSimulacrumThreshold() { return 20; } // once per second

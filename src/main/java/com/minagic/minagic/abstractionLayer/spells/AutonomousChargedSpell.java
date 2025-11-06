@@ -5,9 +5,89 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 
 //// An abstract class representing spells that are charged up over time before being released.
 public class AutonomousChargedSpell extends Spell {
+
+    @Override
+    public final boolean preCast(SpellCastContext context) {
+        return checkContext(context, true, true, getManaCost(), true, false);
+    }
+
+    @Override
+    public final boolean preExitSimulacrum(SpellCastContext context) {
+        return false;
+    }
+
+    @Override
+    public final boolean preTick(SpellCastContext context) {
+        return false;
+    }
+
+    @Override
+    public final boolean preStart(SpellCastContext context) {
+        return checkContext(context, true, true, 0, true, false);
+    }
+
+    @Override
+    public final boolean preStop(SpellCastContext context) {
+        return false;
+    }
+
+
+
+    @Override
+    public final void postStart(SpellCastContext context) {}
+
+    @Override
+    public final void postTick(SpellCastContext context) {}
+
+    @Override
+    public final void postStop(SpellCastContext context) {}
+
+    @Override
+    public final void postCast(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), getManaCost());
+    }
+
+    @Override
+    public final void postExitSimulacrum(SpellCastContext context) {}
+
+
+
+    // lifecycle methods
+    @Override
+    public final void start(SpellCastContext context) {
+
+        // Get player simulacra attachment
+        PlayerSimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
+
+        // Toggle logic: if already active, remove; else add
+        var existing = sim.getBackgroundSimulacra().get(ModSpells.getId(this));
+
+        if (existing != null) {
+            PlayerSimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
+        } else {
+            PlayerSimulacraAttachment.addSimulacrum(context, this, getSimulacrumThreshold(), getMaxLifetime());
+        }
+    }
+
+    @Override
+    public  final void tick(SpellCastContext context) {
+        // No-op for autonomous charged spells
+    }
+
+    @Override
+    public final void stop(SpellCastContext context) {
+        // No-op for autonomous charged spells
+    }
+
+    @Override
+    public final void exitSimulacrum(SpellCastContext context) {
+        // no-op
+    }
+
     @Override
     public final int getMaxLifetime(){
         return getSimulacrumThreshold();
@@ -17,7 +97,7 @@ public class AutonomousChargedSpell extends Spell {
 
     @Override
     public int getCooldownTicks(){
-        return 10; // default cooldown
+        return 0; // default cooldown
     }
 
     @Override
@@ -27,41 +107,9 @@ public class AutonomousChargedSpell extends Spell {
 
     @Override
     public int getManaCost() {
-        return 15; // default mana cost
+        return 0; // default mana cost
     }
 
-    // lifecycle methods
-    @Override
-    public final void onStart(SpellCastContext context) {
-        LivingEntity player = preCast(context, false);
 
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
 
-        // Get player simulacra attachment
-        PlayerSimulacraAttachment sim = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
-
-        // Toggle logic: if already active, remove; else add
-        var existing = sim.getBackgroundSimulacra().get(ModSpells.getId(this));
-
-        if (existing != null) {
-            sim.removeSimulacrum(ModSpells.getId(this));
-        } else {
-            sim.addSimulacrum( this, getSimulacrumThreshold(), getMaxLifetime(), context.stack);
-        }
-
-        // Save attachment back (important for NeoForge data sync)
-        player.setData(ModAttachments.PLAYER_SIMULACRA.get(), sim);
-    }
-
-    @Override
-    public  final void tick(SpellCastContext context) {
-        // No-op for autonomous charged spells
-    }
-
-    @Override
-    public final void onStop(SpellCastContext context) {
-        // No-op for autonomous charged spells
-    }
 }

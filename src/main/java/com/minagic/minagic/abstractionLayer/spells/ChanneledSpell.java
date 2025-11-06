@@ -1,5 +1,6 @@
 package com.minagic.minagic.abstractionLayer.spells;
 
+import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -13,44 +14,85 @@ public class ChanneledSpell extends Spell {
         return -1; // Channeled spells have no max lifetime
     }
 
+    @Override
+    public final boolean preStart(SpellCastContext context) {
+        return checkContext(context, true, true, 0, true, false);
+    }
+
+    @Override
+    public final boolean preTick(SpellCastContext context) {
+        return false;
+    }
+
+
+    @Override
+    public final boolean preStop(SpellCastContext context) {
+        return checkContext(context, true, false, 0, true, false);
+    }
+
+
+    @Override
+    public final boolean preCast(SpellCastContext context) {
+        return checkContext(context, true, true, getManaCost(), true, false);
+    }
+
+
+    @Override
+    public final boolean preExitSimulacrum(SpellCastContext context) {
+        return checkContext(context, true, false, 0, true, false);
+    }
+
+    @Override
+    public final void postStart(SpellCastContext context) {
+        // no-op
+    }
+
+    @Override
+    public final void postTick(SpellCastContext context) {
+        // no-op
+    }
+
+    @Override
+    public final void postStop(SpellCastContext context) {
+        // no-op
+    }
+
+    @Override
+    public final void postCast(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), getManaCost());
+        PlayerSimulacraAttachment.clearChanneling(context.target);
+    }
+
+
+    @Override
+    public final void postExitSimulacrum(SpellCastContext context) {
+        applyMagicCosts(context, getCooldownTicks(), 0);
+    }
 
     // Lifecycle methods
-    @Override
-    public final void onStart(SpellCastContext context) {
-        System.out.println("[ChanneledSpell] onStart called for spell: " + getString());
-        LivingEntity player = preCast(context, true);
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
-        System.out.println("[ChanneledSpell] onStart passed preCast check, prerequisites output " +( magicPrerequisitesHelper(context) == "" ? "no output" : magicPrerequisitesHelper(context))+  " for spell " + getString());
-        var data = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
-        if (data.getActiveChanneling()!=null && ModSpells.getId(data.getActiveChanneling().getSpell()) != ModSpells.getId(this)) {
-            System.out.println("[ChanneledSpell] onStart found existing different channelling spell, clearing it for spell: " + getString());
-            data.setActiveChanneling(this, getSimulacrumThreshold(), -1, context.stack);
-        }
-        else if (data.getActiveChanneling()==null) {
-            data.setActiveChanneling(this, getSimulacrumThreshold(), -1, context.stack);
-        }
-        player.setData(ModAttachments.PLAYER_SIMULACRA.get(), data);
 
+
+    @Override
+    public final void start(SpellCastContext context) {
+        PlayerSimulacraAttachment.setActiveChanneling(
+                context,
+                this,
+                getSimulacrumThreshold(),
+                -1);
     }
 
     @Override
     public final void tick(SpellCastContext context) {
         // no-op for channeled spells
     }
-
-    public final void onStop(SpellCastContext context) {
-        LivingEntity player = preCast(context);
-        if (player == null) {
-            return; // Pre-cast checks failed
-        }
-        var data = player.getData(ModAttachments.PLAYER_SIMULACRA);
-        data.clearChanneling();
-        player.setData(ModAttachments.PLAYER_SIMULACRA, data);
+    @Override
+    public final void stop(SpellCastContext context) {
+        PlayerSimulacraAttachment.clearChanneling(context.target);
     }
 
-
-
+    @Override
+    public final void exitSimulacrum(SpellCastContext context) {
+        // no-op for channeled spells
+    }
 
 }

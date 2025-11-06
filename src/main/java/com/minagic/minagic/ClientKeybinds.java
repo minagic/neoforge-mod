@@ -7,7 +7,6 @@ import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
 
 public class ClientKeybinds {
-    public static final String CATEGORY = "key.categories.minagic";
     public static KeyMapping CYCLE_SPELL;
     public static KeyMapping CYCLE_SPELL_DOWN;
     public static KeyMapping SHOW_SPELL_HUD;

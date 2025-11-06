@@ -14,6 +14,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.server.command.EnumArgument;
 
 import java.util.Arrays;
@@ -25,7 +27,7 @@ public class SetClassCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("setclass")
                 .requires(source -> source.hasPermission(2))
-                .then(Commands.argument("player", EntityArgument.player())
+                .then(Commands.argument("player", EntityArgument.entities())
                         .then(Commands.argument("main", EnumArgument.enumArgument(PlayerClassEnum.class))
                                 .executes(ctx -> apply(ctx, false, false))
                                 .then(Commands.argument("deity", EnumArgument.enumArgument(Deity.class))
@@ -40,7 +42,6 @@ public class SetClassCommand {
     }
 
     private static int apply(CommandContext<CommandSourceStack> ctx, boolean withDeity, boolean withSubclasses) throws CommandSyntaxException {
-        ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
         PlayerClassEnum main = ctx.getArgument("main", PlayerClassEnum.class);
 
         PlayerClass pc = new PlayerClass();
@@ -80,9 +81,14 @@ public class SetClassCommand {
             }
         }
 
-        player.setData(ModAttachments.PLAYER_CLASS, pc);
-        ctx.getSource().sendSuccess(() ->
-                Component.literal("Updated class of " + player.getName().getString() + " to " + main.name()), true);
+        for(Entity entity : EntityArgument.getEntities(ctx, "player")) {
+            entity.setData(ModAttachments.PLAYER_CLASS, pc);
+            ctx.getSource().sendSuccess(() ->
+                    Component.literal("Updated class of " + entity.getName().getString() + " to " + main.name()), true);
+        }
+
+
+
         return 1;
     }
 }

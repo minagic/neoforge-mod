@@ -3,6 +3,7 @@ package com.minagic.minagic.spellCasting.spellslots;
 import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
 import com.minagic.minagic.abstractionLayer.spells.ChanneledAutonomousSpell;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSpellCooldowns;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
@@ -11,28 +12,64 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class SimulacrumSpellSlot extends SpellSlot {
-    private int lifetime = 0;
-    private int threshold;
-    private int maxLifetime; // -1 means no limit
-    private ItemStack stack = ItemStack.EMPTY;
+    // COLD STATE
+    public UUID casterUUID;
+    public UUID targetUUID;
+    protected ItemStack stack;
+
+    // NUMERIC STATE
+    protected int lifetime = 0;
+    protected int threshold;
+    protected int maxLifetime; // -1 means no limit
+
+    // HOT STATE
+    public SpellCastContext context;
 
     public SimulacrumSpellSlot(
             ItemStack stack,
+            UUID targetUUID,
+            UUID casterUUID,
             int threshold,
             int maxLifetime,
             Spell spell
     ) {
         super(spell);
+        this.stack = stack;
         this.threshold = threshold;
         this.maxLifetime = maxLifetime;
+        this.targetUUID = targetUUID;
+        this.casterUUID = casterUUID;
     }
+
+    public SimulacrumSpellSlot(
+            SpellCastContext context,
+            int threshold,
+            int maxLifetime,
+            Spell spell
+    ) {
+        super(spell);
+        this.stack = context.stack;
+        this.casterUUID = context.caster.getUUID();
+        if (context.target != null) {
+            this.targetUUID = context.target.getUUID();
+        } else {
+            this.targetUUID = context.caster.getUUID();
+        }
+        this.threshold = threshold;
+        this.maxLifetime = maxLifetime;
+        this.context = context;
+    }
+
 
     // Getters
 
@@ -45,7 +82,6 @@ public class SimulacrumSpellSlot extends SpellSlot {
     public int getLifetime() {
         return lifetime;
     }
-
     public ItemStack getStack() {
         return stack;
     }
@@ -69,32 +105,40 @@ public class SimulacrumSpellSlot extends SpellSlot {
         this.stack = stack;
     }
 
-    public void tick(LivingEntity player, Level level, Consumer<ResourceLocation> onExpireCallback) {
-        System.out.println("[SimulacrumSpellSlot] Ticking simulacrum spell slot for spell: " + getSpell().getString());
-        if (maxLifetime == 0) {
-            // Expire the spell slot
-            System.out.println("[SimulacrumSpellSlot] No spell lifetime found, expiring spell slot for spell: " + getSpell().getString());
-            // TODO: figure out a more elegant way to handle cooldowns for autonomous spells
-            if (getSpell() instanceof AutonomousSpell || getSpell() instanceof ChanneledAutonomousSpell) {
-                System.out.println("[SimulacrumSpellSlot] Applying cooldown for autonomous spell: " + getSpell().getString());
-                PlayerSpellCooldowns cd = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
-                cd.setCooldown(ModSpells.getId(getSpell()), getSpell().getCooldownTicks());
-                player.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS, cd);
+    // Lifecycle methods
 
+    public void resolveContext(Level level) {
+        if (context != null) {return;} // optimization: context already resolved
+        if (level.isClientSide()) {return;} // context resolution only on server side
+        Entity caster = level.getEntity(casterUUID);
+        Entity target = level.getEntity(targetUUID);
+
+        if (caster instanceof LivingEntity livingCaster) {
+            if (target instanceof LivingEntity livingTarget) {
+                context = new SpellCastContext(livingCaster, stack, livingTarget);
+            } else {
+                context = new SpellCastContext(livingCaster, stack);
             }
-            onExpireCallback.accept(ModSpells.getId(getSpell()));
+        }
+    }
 
+    public void tick() {
+        if (context == null) return;
+        LivingEntity target = context.target;
+
+        System.out.println("[SimulacrumSpellSlot] Ticking simulacrum spell slot for spell: " + getSpell().getString());
+        lifetime ++;
+        context.simulacrtumLifetime = lifetime;
+        if (maxLifetime == 0) {
+            PlayerSimulacraAttachment.removeSimulacrum(target, ModSpells.getId(getSpell()));
             return;
         }
 
-        lifetime ++;
-        SpellCastContext ctx = new SpellCastContext(player, level, stack);
-        ctx.simulacrtumLifetime = lifetime;
-        this.getSpell().tick(ctx);
+        this.getSpell().onTick(context);
 
         if (lifetime == threshold) {
             lifetime = 0;
-            getSpell().cast(ctx);
+            getSpell().onCast(context);
         }
 
         maxLifetime --;
@@ -102,17 +146,35 @@ public class SimulacrumSpellSlot extends SpellSlot {
         System.out.println("[SimulacrumSpellSlot] SPELL TICK COMPLETED. Lifetime: " + lifetime + " / " + threshold + ", MaxLifetime: " + maxLifetime) ;
     }
 
+    public void exitSpellSlot() {
+//        System.out.println("exitSpellSlot called for spell: " + getSpell().getString());
+//        System.out.println("Dump: casterUUID=" + casterUUID + ", targetUUID=" + targetUUID + ", lifetime=" + lifetime + ", maxLifetime=" + maxLifetime);
+//        System.out.println("Stack: " + stack);
+//        System.out.println("context: " + context);
+//        System.out.println("lifetime: " + lifetime);
+        if (context == null) return;
+        context.simulacrtumLifetime = lifetime;
+        getSpell().onExitSimulacrum(context);
+    }
+
+    // CODEC
+
     public static final Codec<ItemStack> SAFE_ITEMSTACK =
             ItemStack.CODEC.optionalFieldOf("stack", ItemStack.EMPTY).codec();
 
+    public static final Codec<UUID> UUID_CODEC =
+            Codec.STRING.xmap(UUID::fromString, UUID::toString);
+
     public static final Codec<SimulacrumSpellSlot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             SAFE_ITEMSTACK.fieldOf("stack").forGetter(SimulacrumSpellSlot::getStack),
+            UUID_CODEC.fieldOf("caster_uuid").forGetter(slot -> slot.casterUUID),
+            UUID_CODEC.fieldOf("target_uuid").forGetter(slot -> slot.targetUUID),
             Codec.INT.fieldOf("threshold").forGetter(SimulacrumSpellSlot::getThreshold),
             Codec.INT.fieldOf("max_lifetime").forGetter(SimulacrumSpellSlot::getMaxLifetime),
             Codec.INT.optionalFieldOf("lifetime", 0).forGetter(SimulacrumSpellSlot::getLifetime),
             ModSpells.SPELL_CODEC.fieldOf("spell").forGetter(SimulacrumSpellSlot::getSpell)
-    ).apply(instance, (stack, threshold, maxLifetime, lifetime, spell) -> {
-        SimulacrumSpellSlot slot = new SimulacrumSpellSlot(stack, threshold, maxLifetime, spell);
+    ).apply(instance, (stack, casterUUID, targetUUID, threshold, maxLifetime, lifetime, spell) -> {
+        SimulacrumSpellSlot slot = new SimulacrumSpellSlot(stack, casterUUID, targetUUID, threshold, maxLifetime, spell);
         slot.setLifetime(lifetime);
         return slot;
     }));

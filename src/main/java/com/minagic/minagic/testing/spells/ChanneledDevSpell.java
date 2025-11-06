@@ -10,12 +10,8 @@ public class ChanneledDevSpell extends ChanneledSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        LivingEntity player = preCast(context);
-        if (player == null) return;
 
         System.out.println("[ChanneledDevSpell] 🔫 Pew! " + context.caster.getName().getString());
-
-        applyMagicCosts(context);
     }
 
     @Override
