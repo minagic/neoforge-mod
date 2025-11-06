@@ -48,11 +48,9 @@ public class ChannelingSpellslot extends SimulacrumSpellSlot {
             return;
         }
 
-
-
         lifetime ++;
-
         context.simulacrtumLifetime = lifetime;
+
         if (maxLifetime == 0) {
             PlayerSimulacraAttachment.clearChanneling(target);
             return;
@@ -61,10 +59,11 @@ public class ChannelingSpellslot extends SimulacrumSpellSlot {
         this.getSpell().onTick(context);
 
         if (lifetime == threshold) {
-            lifetime = 0;
-            getSpell().onCast(context);
-        }
 
+            getSpell().onCast(context);
+            lifetime = 0;
+        }
+        context.simulacrtumLifetime = lifetime;
         maxLifetime --;
     }
 

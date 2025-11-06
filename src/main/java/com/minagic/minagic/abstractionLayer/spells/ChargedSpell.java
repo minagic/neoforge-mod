@@ -57,7 +57,7 @@ public class ChargedSpell extends Spell {
 
     @Override
     public final boolean preCast(SpellCastContext context) {
-        return checkContext(context, true, true, getManaCost(), true, false);
+        return checkContext(context, true, true, getManaCost(), true, true);
     }
 
     // implement post* methods
@@ -107,7 +107,7 @@ public class ChargedSpell extends Spell {
 
     @Override
     public final void stop(SpellCastContext context) {
-        onCast(context);
+
         PlayerSimulacraAttachment.clearChanneling(
                 context.target
         );
@@ -116,7 +116,9 @@ public class ChargedSpell extends Spell {
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context) {}
+    public final void exitSimulacrum(SpellCastContext context) {
+        onCast(context);
+    }
 
 
 }

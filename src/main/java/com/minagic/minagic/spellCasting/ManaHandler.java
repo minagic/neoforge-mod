@@ -18,7 +18,7 @@ public class ManaHandler {
 
         Mana mana = entity.getData(ModAttachments.MANA.get());
         mana.tick(entity);
-        System.out.println("[Minagic] Ticked mana for entity: " + entity.getName().getString() + " | Current Mana: " + mana.getMana() + "/" + mana.getMaxMana());
+        //System.out.println("[Minagic] Ticked mana for entity: " + entity.getName().getString() + " | Current Mana: " + mana.getMana() + "/" + mana.getMaxMana());
         entity.setData(ModAttachments.MANA.get(), mana);
     }
 }

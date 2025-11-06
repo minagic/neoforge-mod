@@ -18,9 +18,9 @@ public class PlayerSimulacraHandler {
         var sim = entity.getData(ModAttachments.PLAYER_SIMULACRA.get());
         sim.resolveAllContexts(entity.level());
         sim.tick();
-        System.out.println("[Minagic] Ticked simulacra for entity: " + entity.getName().getString());
+        //System.out.println("[Minagic] Ticked simulacra for entity: " + entity.getName().getString());
         // dump active simulacra
-        sim.dump("[DEBUG]", entity);
+        //sim.dump("[DEBUG]", entity);
         entity.setData(ModAttachments.PLAYER_SIMULACRA.get(), sim);
         // Re-apply *only* when actually changed (or every N ticks)
         //player.setData(ModAttachments.PLAYER_SIMULACRA.get(), PlayerSimulacraAttachment.copy(sim));

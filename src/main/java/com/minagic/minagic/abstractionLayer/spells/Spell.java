@@ -191,7 +191,7 @@ public abstract class Spell {
             return false;
         }
 
-        if (checkSimulacraLifetime && context.simulacrtumLifetime != -1) {
+        if (checkSimulacraLifetime && context.simulacrtumLifetime == -1) {
             return false;
         }
 

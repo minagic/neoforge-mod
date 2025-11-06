@@ -147,11 +147,13 @@ public class SimulacrumSpellSlot extends SpellSlot {
     }
 
     public void exitSpellSlot() {
-        System.out.println("exitSpellSlot called for spell: " + getSpell().getString());
-        System.out.println("Dump: casterUUID=" + casterUUID + ", targetUUID=" + targetUUID + ", lifetime=" + lifetime + ", maxLifetime=" + maxLifetime);
-        System.out.println("Stack: " + stack);
-        System.out.println("context: " + context);
+//        System.out.println("exitSpellSlot called for spell: " + getSpell().getString());
+//        System.out.println("Dump: casterUUID=" + casterUUID + ", targetUUID=" + targetUUID + ", lifetime=" + lifetime + ", maxLifetime=" + maxLifetime);
+//        System.out.println("Stack: " + stack);
+//        System.out.println("context: " + context);
+//        System.out.println("lifetime: " + lifetime);
         if (context == null) return;
+        context.simulacrtumLifetime = lifetime;
         getSpell().onExitSimulacrum(context);
     }
 
