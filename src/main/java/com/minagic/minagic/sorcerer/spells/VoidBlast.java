@@ -44,7 +44,7 @@ public class VoidBlast extends InstanteneousSpell {
     @Override
     public void cast(SpellCastContext context) {
         LivingEntity player = context.caster;
-        Level level = context.level;
+        Level level = context.level();
 
 
         Vec3 look = player.getLookAngle();

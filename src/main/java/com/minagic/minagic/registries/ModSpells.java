@@ -4,6 +4,7 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.sorcerer.spells.EventHorizon;
 import com.minagic.minagic.sorcerer.spells.FireballBarrage;
+import com.minagic.minagic.sorcerer.spells.InstantFireballImbueSpell;
 import com.minagic.minagic.sorcerer.spells.VoidBlast;
 import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spells.Fireball;
@@ -30,6 +31,7 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_charged_autonomous"), new AutonomousChargedDevSpell());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_channeled_autonomous"), new ChanneledAutonomousDevSpell());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_autonomous"), new AutonomousDevSpell());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "imbue_fireball"), new InstantFireballImbueSpell());
     }
     public static @Nullable Spell get(ResourceLocation id) {
         return SpellRegistry.getSpell(id);
@@ -43,4 +45,5 @@ public final class ModSpells {
             ModSpells::get,
             ModSpells::getId
     );
+
 }

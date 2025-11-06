@@ -18,7 +18,7 @@ public class AutonomousDevSpell extends AutonomousSpell {
     public int getManaCost() { return 40; }
 
     @Override
-    public int getCooldownTicks() { return 0; }
+    public int getCooldownTicks() { return 10; }
 
     @Override
     public int getSimulacrumThreshold() { return 20; } // once per second

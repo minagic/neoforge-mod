@@ -11,7 +11,7 @@ import java.util.List;
 // StaffData.java
 public class StaffData extends SpellcastingItemData {
 
-    public static final int DEFAULT_SIZE = 5;
+    public static final int DEFAULT_SIZE = 10;
 
     public StaffData() {
         System.out.println("Creating a default StaffData with "+DEFAULT_SIZE+" slots.");

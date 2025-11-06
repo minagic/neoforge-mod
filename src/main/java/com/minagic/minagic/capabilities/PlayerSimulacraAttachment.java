@@ -8,12 +8,12 @@ import com.minagic.minagic.spellCasting.spellslots.ChannelingSpellslot;
 import com.minagic.minagic.spellCasting.spellslots.SimulacrumSpellSlot;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.Hash;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
@@ -24,6 +24,7 @@ import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Holds all simulacrum spell data for a player.
@@ -59,36 +60,37 @@ public class PlayerSimulacraAttachment {
     }
     // --- Setters ---
 
-    public static void setActiveChanneling(LivingEntity entity, Level level, Spell spell, int threshold, int maxLifetime, ItemStack stack) {
+    public static void setActiveChanneling(SpellCastContext context, Spell spell, int threshold, int maxLifetime) {
+        LivingEntity entity = context.target;
         if (entity == null) return;
 
         PlayerSimulacraAttachment attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA);
         // Remove existing channeling if any
         if (attachment.getActiveChanneling() != null) {
-            PlayerSimulacraAttachment.clearChanneling(entity, level);
+            PlayerSimulacraAttachment.clearChanneling(entity);
         }
         attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA); // Refresh after clearing
-        attachment.activeChanneling = new ChannelingSpellslot(stack.copy(), threshold, maxLifetime, spell);
+        attachment.activeChanneling = new ChannelingSpellslot(context, threshold, maxLifetime, spell);
         entity.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
-    public static void addSimulacrum(LivingEntity entity, Level level, Spell spell, int threshold, int maxLifetime, ItemStack stack) {
-        if (entity == null) return;
+    public static void addSimulacrum(SpellCastContext context, Spell spell, int threshold, int maxLifetime) {
+        if (context.target == null) return;
 
         System.out.println("[PlayerSimulacraAttachment] Adding simulacrum spell: " + spell.getString());
-        System.out.println("[PlayerSimulacraAttachment] Current itemStack source: " + stack.getItem());
+        System.out.println("[PlayerSimulacraAttachment] Current itemStack source: " + context.stack.getItem());
 
-        PlayerSimulacraAttachment attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA);
+        PlayerSimulacraAttachment attachment = context.target.getData(ModAttachments.PLAYER_SIMULACRA);
 
         attachment.backgroundSimulacra.put(
                 ModSpells.getId(spell),
-                new SimulacrumSpellSlot(stack, threshold, maxLifetime, spell)
+                new SimulacrumSpellSlot(context, threshold, maxLifetime, spell)
         );
         attachment.simulacraReadiness.put(ModSpells.getId(spell), 0f);
-        entity.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
+        context.target.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
-    public static void removeSimulacrum(LivingEntity player, Level level, ResourceLocation id) {
+    public static void removeSimulacrum(LivingEntity player, ResourceLocation id) {
         // cast onExit
         PlayerSimulacraAttachment attachment = player.getData(ModAttachments.PLAYER_SIMULACRA);
         Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = attachment.getBackgroundSimulacra();
@@ -97,7 +99,7 @@ public class PlayerSimulacraAttachment {
 
         SimulacrumSpellSlot slot = backgroundSimulacra.get(id);
         if (slot != null) {
-            slot.exitSpellSlot(player, level);
+            slot.exitSpellSlot();
         }
 
         backgroundSimulacra.remove(id);
@@ -110,14 +112,14 @@ public class PlayerSimulacraAttachment {
         player.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
-    public static void clearSimulacra(LivingEntity player, Level level) {
+    public static void clearSimulacra(LivingEntity player) {
         // cast onExit for all background simulacra
         PlayerSimulacraAttachment attachment = player.getData(ModAttachments.PLAYER_SIMULACRA);
         Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = attachment.getBackgroundSimulacra();
         Map<ResourceLocation, Float> simulacraReadiness = attachment.getSimulacraReadiness();
 
         for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : backgroundSimulacra.entrySet()) {
-            entry.getValue().exitSpellSlot(player, level);
+            entry.getValue().exitSpellSlot();
         }
 
         backgroundSimulacra.clear();
@@ -128,16 +130,16 @@ public class PlayerSimulacraAttachment {
         player.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
-    public static void clearChanneling(LivingEntity player, Level level) {
-        PlayerSimulacraAttachment attachment = player.getData(ModAttachments.PLAYER_SIMULACRA);
+    public static void clearChanneling(LivingEntity target) {
+        PlayerSimulacraAttachment attachment = target.getData(ModAttachments.PLAYER_SIMULACRA);
         ChannelingSpellslot channeling = attachment.getActiveChanneling();
         if (channeling != null) {
-            channeling.exitSpellSlot(player, level);
+            channeling.exitSpellSlot();
         }
 
         attachment.activeChanneling = null;
         attachment.activeChannelingProgress = 0f;
-        player.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
+        target.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
         
     }
 
@@ -147,10 +149,19 @@ public class PlayerSimulacraAttachment {
 
     // --- Logic ---
 
-    public void tick(LivingEntity player, Level level) {
+    public void resolveAllContexts(Level level) {
+        if (activeChanneling != null) {
+            activeChanneling.resolveContext(level);
+        }
+        for (SimulacrumSpellSlot slot : backgroundSimulacra.values()) {
+            slot.resolveContext(level);
+        }
+    }
+
+    public void tick() {
         // Tick channeling first
         if (activeChanneling != null) {
-            activeChanneling.tick(player, level);
+            activeChanneling.tick();
             if (activeChanneling == null) { // in case it expired
                 this.activeChannelingProgress = 0f; // Reset progress on expire
             }
@@ -179,7 +190,7 @@ public class PlayerSimulacraAttachment {
 
         for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : backgroundSimulacra.entrySet()) {
             SimulacrumSpellSlot slot = entry.getValue();
-            slot.tick(player, level);
+            slot.tick();
             float readiness = slot.getMaxLifetime() == 0
                     ? 0f
                     :
@@ -192,13 +203,13 @@ public class PlayerSimulacraAttachment {
 
     private void onChannelExpire(LivingEntity player, ResourceLocation spellId) {
         if (player.level().isClientSide()) {return;}
-        clearChanneling(player, player.level());
+        clearChanneling(player);
     }
 
     private void onBackgroundExpire(LivingEntity player, ResourceLocation spellId) {
         if (player.level().isClientSide()) {return;}
         System.out.println("[PlayerSimulacraAttachment] Background simulacrum expired: " + spellId);
-        removeSimulacrum(player, player.level(), spellId);
+        removeSimulacrum(player, spellId);
     }
 
     // Rendering
@@ -263,6 +274,112 @@ public class PlayerSimulacraAttachment {
         }
     }
 
+    public void dump(String prefix, LivingEntity owner) {
+        System.out.println(prefix + "==== PlayerSimulacraAttachment ====");
+
+        System.out.println(prefix + "Owner: " + safe(owner));
+        System.out.println(prefix + "Owner UUID: " + safe(owner != null ? owner.getUUID() : null));
+
+        System.out.println(prefix + "Active Channeling: " + safe(activeChanneling));
+        System.out.println(prefix + "Active Channeling Progress: " + activeChannelingProgress);
+
+        System.out.println(prefix + "Background Simulacra: "
+                + (backgroundSimulacra == null ? "null" : backgroundSimulacra.size()));
+        if (backgroundSimulacra != null) {
+            for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> e : backgroundSimulacra.entrySet()) {
+                System.out.println(prefix + "  Key: " + e.getKey());
+                dumpSlot(e.getValue(), prefix + "    ", owner);
+            }
+        }
+
+        System.out.println(prefix + "Simulacra Readiness: "
+                + (simulacraReadiness == null ? "null" : simulacraReadiness.size()));
+        if (simulacraReadiness != null) {
+            for (var e : simulacraReadiness.entrySet()) {
+                System.out.println(prefix + "  " + e.getKey() + " = " + e.getValue());
+            }
+        }
+
+        System.out.println(prefix + "==== END PlayerSimulacraAttachment ====\n");
+    }
+
+    private void dumpSlot(SimulacrumSpellSlot slot, String prefix, LivingEntity owner) {
+        if (slot == null) {
+            System.out.println(prefix + "Slot: null");
+            return;
+        }
+
+        System.out.println(prefix + "SimulacrumSpellSlot:");
+        System.out.println(prefix + "  Spell: " + safe(slot.getSpell()));
+        System.out.println(prefix + "  Lifetime: " + slot.getLifetime());
+        System.out.println(prefix + "  Threshold: " + slot.getThreshold());
+        System.out.println(prefix + "  MaxLifetime: " + slot.getMaxLifetime());
+
+        System.out.println(prefix + "  casterUUID: " + safe(slot.casterUUID));
+        System.out.println(prefix + "  targetUUID: " + safe(slot.targetUUID));
+
+        // Check UUID resolution
+        if (owner != null && owner.level() != null) {
+            LivingEntity caster = tryResolve(slot.casterUUID, owner.level());
+            LivingEntity target = tryResolve(slot.targetUUID, owner.level());
+
+            System.out.println(prefix + "  Resolved caster: " + safe(caster));
+            System.out.println(prefix + "  Resolved target: " + safe(target));
+        }
+
+        System.out.println(prefix + "  stack: " + safe(slot.getStack()));
+
+        System.out.println(prefix + "  HOT STATE:");
+        dumpContext(slot.context, prefix + "    ");
+    }
+
+    private void dumpContext(SpellCastContext ctx, String prefix) {
+        if (ctx == null) {
+            System.out.println(prefix + "null");
+            return;
+        }
+
+        System.out.println(prefix + "SpellCastContext:");
+        System.out.println(prefix + "  caster: " + safe(ctx.caster));
+        System.out.println(prefix + "    caster UUID: "
+                + safe(ctx.caster != null ? ctx.caster.getUUID() : null));
+
+        System.out.println(prefix + "  target: " + safe(ctx.target));
+        System.out.println(prefix + "    target UUID: "
+                + safe(ctx.target != null ? ctx.target.getUUID() : null));
+
+        System.out.println(prefix + "  stack: " + safe(ctx.stack));
+        System.out.println(prefix + "  simulacrumLifetime: " + ctx.simulacrtumLifetime);
+
+        // Level safety
+        System.out.println(prefix + "  level(): "
+                + safe(ctx.caster != null ? ctx.caster.level() : null));
+
+        // Validity warnings
+        if (ctx.caster == null && ctx.target != null)
+            System.out.println(prefix + "  !! WARNING: caster null but target present");
+
+        if (ctx.target == null && ctx.caster != null)
+            System.out.println(prefix + "  !! WARNING: target null but caster present");
+
+        if (ctx.stack == null)
+            System.out.println(prefix + "  !! WARNING: stack is NULL");
+    }
+
+    private String safe(Object o) {
+        try {
+            return String.valueOf(o);
+        } catch (Throwable t) {
+            return "<ERR:" + t + ">";
+        }
+    }
+
+    private LivingEntity tryResolve(UUID id, Level level) {
+        if (id == null || level == null) return null;
+        Entity e = ((ServerLevel) level).getEntity(id);
+        return (e instanceof LivingEntity le) ? le : null;
+    }
+
     // --- Serializer ---
     public static class Serializer implements IAttachmentSerializer<PlayerSimulacraAttachment> {
         private static final String KEY_ACTIVE = "active";
@@ -282,6 +399,8 @@ public class PlayerSimulacraAttachment {
                 } else {
                     att.activeChanneling = new ChannelingSpellslot(
                             slot.getStack(),
+                            slot.casterUUID,
+                            slot.targetUUID,
                             slot.getThreshold(),
                             slot.getMaxLifetime(),
                             slot.getSpell()
@@ -343,6 +462,8 @@ public class PlayerSimulacraAttachment {
                 PlayerSimulacraAttachment att = new PlayerSimulacraAttachment();
                 maybeActive.ifPresent(slot -> {
                     att.activeChanneling = new ChannelingSpellslot(slot.getStack(),
+                            slot.casterUUID,
+                            slot.targetUUID,
                             slot.getThreshold(),
                             slot.getMaxLifetime(),
                             slot.getSpell());

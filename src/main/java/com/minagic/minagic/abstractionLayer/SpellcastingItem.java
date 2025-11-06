@@ -60,7 +60,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     public void cycleSlotUp(Optional<Player> player, ItemStack stack) {
         if (player.isEmpty()) {return;} // player should not be empty
-        PlayerSimulacraAttachment.clearChanneling(player.get(), player.get().level());
+        PlayerSimulacraAttachment.clearChanneling(player.get());
 
         T data = getData(stack);
 
@@ -83,7 +83,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     public void cycleSlotDown(Optional<Player> player, ItemStack stack) {
         if (player.isEmpty()) return; // player should not be empty
-        PlayerSimulacraAttachment.clearChanneling(player.get(), player.get().level());
+        PlayerSimulacraAttachment.clearChanneling(player.get());
 
         if (player.get().isUsingItem()){
             releaseUsing(stack, player.get().level(), player.get(), 0); // stop using the item
@@ -162,7 +162,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         ItemStack stack = player.getItemInHand(hand);
         T data = getData(stack);
 
-        SpellCastContext context = new SpellCastContext(serverPlayer, level, player.getItemInHand(hand));
+        SpellCastContext context = new SpellCastContext(serverPlayer, player.getItemInHand(hand));
 
         data.getActive().onStart(context);
         serverPlayer.startUsingItem(hand);
@@ -191,7 +191,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         }
         T data = getData(stack);
 
-        SpellCastContext context = new SpellCastContext(serverPlayer, level, player.getItemInHand(player.getUsedItemHand()));
+        SpellCastContext context = new SpellCastContext(serverPlayer, player.getItemInHand(player.getUsedItemHand()));
         data.getActive().onStop(context);
         setData(stack, data);
 

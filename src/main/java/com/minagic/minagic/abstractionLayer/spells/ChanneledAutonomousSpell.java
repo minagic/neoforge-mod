@@ -77,7 +77,7 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public final void start(SpellCastContext context) {
-        PlayerSimulacraAttachment.setActiveChanneling(context.caster, context.level, this, getSimulacrumThreshold(), -1, context.stack);
+        PlayerSimulacraAttachment.setActiveChanneling(context, this, getSimulacrumThreshold(), -1);
 
     }
 
@@ -88,7 +88,7 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public final void stop(SpellCastContext context) {
-        PlayerSimulacraAttachment.clearChanneling(context.caster, context.level);
+        PlayerSimulacraAttachment.clearChanneling(context.target);
 
     }
 

@@ -56,7 +56,7 @@ public class Fireball extends InstanteneousSpell {
     @Override
     public void cast(SpellCastContext context) {
 
-        Level level = context.level;
+        Level level = context.level();
         LivingEntity player = context.caster;
 
 

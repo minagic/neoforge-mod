@@ -60,7 +60,7 @@ public class ChanneledSpell extends Spell {
     @Override
     public final void postCast(SpellCastContext context) {
         applyMagicCosts(context, getCooldownTicks(), getManaCost());
-        PlayerSimulacraAttachment.clearChanneling(context.caster, context.level);
+        PlayerSimulacraAttachment.clearChanneling(context.target);
     }
 
 
@@ -75,12 +75,10 @@ public class ChanneledSpell extends Spell {
     @Override
     public final void start(SpellCastContext context) {
         PlayerSimulacraAttachment.setActiveChanneling(
-                context.caster,
-                context.level,
+                context,
                 this,
                 getSimulacrumThreshold(),
-                -1
-                , context.stack);
+                -1);
     }
 
     @Override
@@ -89,7 +87,7 @@ public class ChanneledSpell extends Spell {
     }
     @Override
     public final void stop(SpellCastContext context) {
-        PlayerSimulacraAttachment.clearChanneling(context.caster, context.level);
+        PlayerSimulacraAttachment.clearChanneling(context.target);
     }
 
     @Override

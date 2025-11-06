@@ -11,41 +11,58 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class ChannelingSpellslot extends SimulacrumSpellSlot {
     public ChannelingSpellslot(
             ItemStack stack,
+            UUID targetUUID,
+            UUID casterUUID,
             int threshold,
             int maxLifetime,
             Spell spell
     ) {
-        super(stack, threshold, maxLifetime, spell);
+        super(stack, targetUUID, casterUUID, threshold, maxLifetime, spell);
+    }
+
+    public ChannelingSpellslot(
+            SpellCastContext context,
+            int threshold,
+            int maxLifetime,
+            Spell spell
+    ) {
+        super(context, threshold, maxLifetime, spell);
     }
 
     @Override
-    public void tick(LivingEntity player, Level level) {
+    public void tick() {
 
-        if (!ItemStack.isSameItem(getStack(), player.getMainHandItem()) &&
-                !ItemStack.isSameItem(getStack(), player.getOffhandItem())) {
-            PlayerSimulacraAttachment.clearChanneling(player, level);
+        if (context == null)return;
+        LivingEntity target = context.target;
+
+        if (!ItemStack.isSameItem(getStack(), target.getMainHandItem()) &&
+                !ItemStack.isSameItem(getStack(), target.getOffhandItem())) {
+            PlayerSimulacraAttachment.clearChanneling(target);
             return;
         }
+
+
 
         lifetime ++;
-        SpellCastContext ctx = new SpellCastContext(player, level, stack);
-        ctx.simulacrtumLifetime = lifetime;
+
+        context.simulacrtumLifetime = lifetime;
         if (maxLifetime == 0) {
-            PlayerSimulacraAttachment.clearChanneling(player, level);
+            PlayerSimulacraAttachment.clearChanneling(target);
             return;
         }
 
-        this.getSpell().onTick(ctx);
+        this.getSpell().onTick(context);
 
         if (lifetime == threshold) {
             lifetime = 0;
-            getSpell().onCast(ctx);
+            getSpell().onCast(context);
         }
 
         maxLifetime --;
@@ -55,6 +72,8 @@ public class ChannelingSpellslot extends SimulacrumSpellSlot {
             SimulacrumSpellSlot.CODEC.xmap(
                     slot -> new ChannelingSpellslot(
                             slot.getStack(),
+                            slot.targetUUID,
+                            slot.casterUUID,
                             slot.getThreshold(),
                             slot.getMaxLifetime(),
                             slot.getSpell()

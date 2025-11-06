@@ -11,7 +11,7 @@ public class InstantaneousDevSpell extends InstanteneousSpell {
     public void cast(SpellCastContext context) {
 
         System.out.println("[InstantaneousDevSpell] Cast by " + context.caster.getName().getString()
-                + " at " + context.level.dimension().location());
+                + " at " + context.level().dimension().location());
     }
 
     @Override

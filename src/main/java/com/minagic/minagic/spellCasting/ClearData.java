@@ -10,8 +10,8 @@ public class ClearData {
     @SubscribeEvent
     public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) return;
-        PlayerSimulacraAttachment.clearSimulacra(player, player.level());
-        PlayerSimulacraAttachment.clearChanneling(player, player.level());
+        PlayerSimulacraAttachment.clearSimulacra(player);
+        PlayerSimulacraAttachment.clearChanneling(player);
 
         System.out.println("[Minagic] Cleared player simulacra for logout: " + player.getName().getString());
 

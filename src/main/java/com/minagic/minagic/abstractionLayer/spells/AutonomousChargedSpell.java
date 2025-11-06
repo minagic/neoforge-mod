@@ -61,15 +61,15 @@ public class AutonomousChargedSpell extends Spell {
     public final void start(SpellCastContext context) {
 
         // Get player simulacra attachment
-        PlayerSimulacraAttachment sim = context.caster.getData(ModAttachments.PLAYER_SIMULACRA.get());
+        PlayerSimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
         // Toggle logic: if already active, remove; else add
         var existing = sim.getBackgroundSimulacra().get(ModSpells.getId(this));
 
         if (existing != null) {
-            PlayerSimulacraAttachment.removeSimulacrum(context.caster, context.level, ModSpells.getId(this));
+            PlayerSimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
         } else {
-            PlayerSimulacraAttachment.addSimulacrum(context.caster, context.level, this, getSimulacrumThreshold(), getMaxLifetime(), context.stack);
+            PlayerSimulacraAttachment.addSimulacrum(context, this, getSimulacrumThreshold(), getMaxLifetime());
         }
     }
 

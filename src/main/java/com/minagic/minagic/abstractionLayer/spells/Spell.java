@@ -157,7 +157,23 @@ public abstract class Spell {
                                         int checkMana,
                                         boolean checkSpellcastingItem,
                                         boolean checkSimulacraLifetime) {
-        if (context.level.isClientSide()) {
+        if (context.caster == null) return false; // No caster
+
+
+        if (context.level() == null) return false; // No level
+
+
+        if (context.caster.asLivingEntity() == null) return false; // Caster must be a living entity
+
+
+        if (context.target == null) return false; // No target
+
+
+        if (context.target.asLivingEntity() == null) return false;
+
+
+
+        if (context.level().isClientSide()) {
             return false; // NEVER EVER CAST ON THE CLIENT
         }
 
@@ -243,7 +259,9 @@ public abstract class Spell {
 
     // this is called when simulacrum spell slot is exited (lifetime exceeded, or manually removed)
     public void onExitSimulacrum(SpellCastContext context){
+        System.out.println("onExitSimulacrum called for spell: " + getString());
         if (!preExitSimulacrum(context)) return;
+        System.out.println("onExitSimulacrum called for spell: " + getString());
         exitSimulacrum(context);
         postExitSimulacrum(context);
     }

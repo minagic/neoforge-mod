@@ -85,19 +85,17 @@ public class ChargedSpell extends Spell {
     @Override
     public final void postCast(SpellCastContext context) {
         applyMagicCosts(context, getCooldownTicks(), getManaCost());
-        PlayerSimulacraAttachment.clearChanneling(context.caster, context.level);
+        PlayerSimulacraAttachment.clearChanneling(context.target);
     }
 
     // lifecycle methods
     @Override
     public final void start(SpellCastContext context) {
         PlayerSimulacraAttachment.setActiveChanneling(
-                context.caster,
-                context.level,
+                context,
                 this,
                 0,
-                getMaxLifetime(),
-                context.stack
+                getMaxLifetime()
         );
     }
 
@@ -111,8 +109,7 @@ public class ChargedSpell extends Spell {
     public final void stop(SpellCastContext context) {
         onCast(context);
         PlayerSimulacraAttachment.clearChanneling(
-                context.caster,
-                context.level
+                context.target
         );
 
 

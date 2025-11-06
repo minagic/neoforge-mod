@@ -17,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
  * A powerful spell that rapidly fires fireballs forward.
  * Intended for Celestial / Pyromancer classes.
  */
-public class FireballBarrage extends ChanneledAutonomousSpell {
+public class FireballBarrage extends AutonomousSpell {
 
     @Override
     public CastFailureReason canCast(SpellCastContext context) {
@@ -37,9 +37,9 @@ public class FireballBarrage extends ChanneledAutonomousSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        LivingEntity player = context.caster;
+        LivingEntity player = context.target;
 
-        Level level = context.level;
+        Level level = context.level();
 
         Vec3 look = player.getLookAngle();
         Vec3 spawnPos = player.getEyePosition().add(look.scale(0.5)); // spawn slightly in front of the player
