@@ -1,11 +1,8 @@
 package com.minagic.minagic.abstractionLayer.spells;
 
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
-import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModSpells;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
 
 public class ChanneledSpell extends Spell {
 
@@ -93,6 +90,16 @@ public class ChanneledSpell extends Spell {
     @Override
     public final void exitSimulacrum(SpellCastContext context) {
         // no-op for channeled spells
+    }
+
+    @Override
+    public final float progress(SimulacrumSpellData data) {
+        return data.lifetime()/data.threshold();
+    }
+
+    @Override
+    public final int color(float progress) {
+        return 0xFFFF00FF; // magenta for channeled spells
     }
 
 }

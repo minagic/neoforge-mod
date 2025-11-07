@@ -70,7 +70,7 @@ public class PlayerSimulacraAttachment {
             PlayerSimulacraAttachment.clearChanneling(entity);
         }
         attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA); // Refresh after clearing
-        attachment.activeChanneling = new ChannelingSpellslot(context, threshold, maxLifetime, spell);
+        attachment.activeChanneling = new ChannelingSpellslot(context, threshold, maxLifetime, maxLifetime, spell);
         entity.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
@@ -84,7 +84,7 @@ public class PlayerSimulacraAttachment {
 
         attachment.backgroundSimulacra.put(
                 ModSpells.getId(spell),
-                new SimulacrumSpellSlot(context, threshold, maxLifetime, spell)
+                new SimulacrumSpellSlot(context, threshold, maxLifetime, maxLifetime, spell)
         );
         attachment.simulacraReadiness.put(ModSpells.getId(spell), 0f);
         context.target.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
@@ -162,26 +162,7 @@ public class PlayerSimulacraAttachment {
         // Tick channeling first
         if (activeChanneling != null) {
             activeChanneling.tick();
-            if (activeChanneling == null) { // in case it expired
-                this.activeChannelingProgress = 0f; // Reset progress on expire
-            }
-            else {
-                if (this.activeChanneling.getThreshold() == 0 && this.activeChanneling.getMaxLifetime() == 0) {
-                    this.activeChannelingProgress = 0f;
-                }
-                else if (this.activeChanneling.getThreshold() == 0) {
-                    if (this.activeChanneling.getMaxLifetime() < 0) {
-                        this.activeChannelingProgress = 1f;
-                    }
-                    else {
-                        this.activeChannelingProgress = (float) this.activeChanneling.getLifetime() / this.activeChanneling.getSpell().getMaxLifetime();
-                    }
-                }
-                else {
-                    this.activeChannelingProgress = (float) this.activeChanneling.getLifetime() / this.activeChanneling.getThreshold();;
-                }
-
-            }
+            this.activeChannelingProgress = SimulacrumSpellData.fromSlot(activeChanneling).progress();
         }
 
         //System.out.println("[PlayerSimulacraAttachment] Tick of active channeling complete. Active channeling progress: " + this.activeChannelingProgress);
@@ -191,12 +172,7 @@ public class PlayerSimulacraAttachment {
         for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : backgroundSimulacra.entrySet()) {
             SimulacrumSpellSlot slot = entry.getValue();
             slot.tick();
-            float readiness = slot.getMaxLifetime() == 0
-                    ? 0f
-                    :
-                    slot.getLifetime() < 0
-                            ? 1f
-                            : (float) slot.getMaxLifetime() / slot.getSpell().getMaxLifetime();
+            float readiness = SimulacrumSpellData.fromSlot(slot).progress();
             simulacraReadiness.put(entry.getKey(), readiness);
         }
     }
@@ -238,7 +214,7 @@ public class PlayerSimulacraAttachment {
             // Background bar
             gui.fill(xRight - barWidth, y, xRight, y + barHeight, 0x80000000);
             // Progress bar
-            gui.fill(xRight - barWidth, y, xRight - barWidth + filled, y + barHeight, 0xFF3399FF);
+            gui.fill(xRight - barWidth, y, xRight - barWidth + filled, y + barHeight, SimulacrumSpellData.fromSlot(active).color(activeChannelingProgress));
 
             // Label
             gui.drawString(font, "[Channeling]", xRight - barWidth, y - 10, 0xFFCCCCCC, false);
@@ -262,7 +238,7 @@ public class PlayerSimulacraAttachment {
 
                 // Bar background and fill
                 gui.fill(xRight - barWidth, y, xRight, y + barHeight, 0x80222222);
-                gui.fill(xRight - barWidth, y, xRight - barWidth + filled, y + barHeight, 0xFFFFAA33);
+                gui.fill(xRight - barWidth, y, xRight - barWidth + filled, y + barHeight, SimulacrumSpellData.fromSlot(slot).color(readiness));
 
                 gui.drawString(font, spellName, xRight - barWidth, y + barHeight + 2, 0xFFFFFFFF, false);
                 yBottom -= spacing;
@@ -403,6 +379,7 @@ public class PlayerSimulacraAttachment {
                             slot.targetUUID,
                             slot.getThreshold(),
                             slot.getMaxLifetime(),
+                            slot.originalMaxLifetime,
                             slot.getSpell()
                     );
                 }
@@ -466,6 +443,7 @@ public class PlayerSimulacraAttachment {
                             slot.targetUUID,
                             slot.getThreshold(),
                             slot.getMaxLifetime(),
+                            slot.originalMaxLifetime,
                             slot.getSpell());
                     att.getActiveChanneling().setLifetime(slot.getLifetime());
                 });

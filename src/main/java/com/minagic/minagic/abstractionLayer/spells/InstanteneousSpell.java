@@ -1,5 +1,6 @@
 package com.minagic.minagic.abstractionLayer.spells;
 
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 
@@ -101,6 +102,16 @@ public class InstanteneousSpell extends Spell{
     @Override
     public final void exitSimulacrum(SpellCastContext context){
         // no-op
+    }
+
+    @Override
+    public final float progress(SimulacrumSpellData data){
+        return 0f; // instantaneous spells have no progress
+    }
+
+    @Override
+    public final int color(float progress){
+        return 0x00000000; // transparent
     }
 
 }

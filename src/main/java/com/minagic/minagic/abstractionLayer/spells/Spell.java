@@ -1,12 +1,11 @@
 package com.minagic.minagic.abstractionLayer.spells;
 
 import com.minagic.minagic.abstractionLayer.SpellcastingItem;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.world.entity.LivingEntity;
-import org.jetbrains.annotations.Nullable;
 
 // An abstract class representing a spell with casting lifecycle methods and validation.
 // on* methods are called by the spellcasting system
@@ -191,7 +190,7 @@ public abstract class Spell {
             return false;
         }
 
-        if (checkSimulacraLifetime && context.simulacrtumLifetime == -1) {
+        if (checkSimulacraLifetime && (context.simulacrtumLifetime == null || context.simulacrtumLifetime.remainingLifetime() == 0)) {
             return false;
         }
 
@@ -329,5 +328,14 @@ public abstract class Spell {
     @Override
     public int hashCode() {
         return this.getClass().hashCode();
+    }
+
+    // HUD
+    public float progress(SimulacrumSpellData data) {
+        return 0f;
+    }
+
+    public int color(float progress) {
+        return 0x00000000;
     }
 }

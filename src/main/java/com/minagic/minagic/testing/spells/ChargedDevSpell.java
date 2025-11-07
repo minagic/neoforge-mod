@@ -9,7 +9,7 @@ public class ChargedDevSpell extends ChargedSpell {
 
     @Override
     public void cast(SpellCastContext context) {
-        float chargeRatio = (float) context.simulacrtumLifetime / getMaxLifetime();
+        float chargeRatio = (float) context.simulacrtumLifetime.lifetime() / context.simulacrtumLifetime.maxLifetime();
         System.out.println("[ChargedDevSpell] ⚡ BOOM! ChargeRatio=" + chargeRatio
                 + " Player=" + context.caster.getName().getString());
     }

@@ -1,11 +1,10 @@
 package com.minagic.minagic.abstractionLayer.spells;
 
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.world.entity.LivingEntity;
-import org.jetbrains.annotations.Nullable;
 
 //// An abstract class representing spells that are charged up over time before being released.
 public class AutonomousChargedSpell extends Spell {
@@ -110,6 +109,16 @@ public class AutonomousChargedSpell extends Spell {
         return 0; // default mana cost
     }
 
+
+    @Override
+    public final float progress(SimulacrumSpellData data) {
+        return data.remainingLifetime() / data.maxLifetime();
+    }
+
+    @Override
+    public final int color(float progress) {
+        return 0xFFFFFFAA;
+    }
 
 
 }
