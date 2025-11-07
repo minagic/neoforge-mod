@@ -1,5 +1,6 @@
 package com.minagic.minagic.spellCasting;
 
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -10,7 +11,7 @@ public class SpellCastContext {
     public LivingEntity caster;
     public LivingEntity target;
     public ItemStack stack;
-    public int simulacrtumLifetime = -1;
+    public SimulacrumSpellData simulacrtumLifetime = null;
 
 
     public SpellCastContext(LivingEntity caster, ItemStack stack) {

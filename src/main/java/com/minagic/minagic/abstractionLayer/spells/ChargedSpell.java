@@ -1,11 +1,8 @@
 package com.minagic.minagic.abstractionLayer.spells;
 
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
-import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModSpells;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
 
 public class ChargedSpell extends Spell {
     private int chargeTime = 0;
@@ -102,7 +99,7 @@ public class ChargedSpell extends Spell {
     @Override
     public void tick(SpellCastContext context) {
         System.out.println("Charging spell: " + getString() + " | Charge time: " + chargeTime);
-        chargeTime = context.simulacrtumLifetime;
+        //chargeTime = context.simulacrtumLifetime.lifetime();
     }
 
     @Override
@@ -120,5 +117,19 @@ public class ChargedSpell extends Spell {
         onCast(context);
     }
 
+    // HUD
+    @Override
+    public final float progress(SimulacrumSpellData data) {
+        return data.lifetime() / Math.max(1, data.maxLifetime() );
+    }
+
+    @Override
+    public final int color(float progress) {
+        if (progress >= 0.8) {
+            return 0xFFFF0000 ; // Red when approaching limit
+        } else {
+            return 0xFF0000FF; // Blue when charging
+        }
+    }
 
 }

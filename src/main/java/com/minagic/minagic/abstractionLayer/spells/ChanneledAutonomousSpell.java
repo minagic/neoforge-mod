@@ -1,13 +1,8 @@
 package com.minagic.minagic.abstractionLayer.spells;
 
-import com.minagic.minagic.capabilities.Mana;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
-import com.minagic.minagic.capabilities.PlayerSpellCooldowns;
-import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModSpells;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
 
 public class ChanneledAutonomousSpell extends Spell {
     @Override
@@ -94,5 +89,19 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public final void exitSimulacrum(SpellCastContext context) {}
+
+    @Override
+    public final float progress(SimulacrumSpellData data) {
+        if (data.maxLifetime() <= 0) {
+            return 1f;
+        }
+        return data.remainingLifetime() / data.maxLifetime();
+    }
+
+    @Override
+    public final int color(float progress) {
+        return 0xFFAAAAFF;
+    }
+
 
 }
