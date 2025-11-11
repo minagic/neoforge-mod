@@ -338,4 +338,11 @@ public abstract class Spell {
     public int color(float progress) {
         return 0x00000000;
     }
+    protected SpellCastContext inverted(SpellCastContext ctx) {
+        return new SpellCastContext(
+                ctx.target,     // new caster
+                ctx.stack,
+                ctx.caster      // new target
+        );
+    }
 }

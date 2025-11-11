@@ -58,7 +58,7 @@ public class AOEHit {
         }
         for (Entity target : targets) {
             MinagicDamage damage = new MinagicDamage(source, target.asLivingEntity(), directSource, baseDamage, tags);
-            damage.hurt(serverLevel);
+            //damage.hurt(serverLevel);
         }
     }
 }

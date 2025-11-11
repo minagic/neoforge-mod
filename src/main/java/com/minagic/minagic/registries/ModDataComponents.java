@@ -2,6 +2,7 @@ package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
+import com.minagic.minagic.druid.HornData;
 import com.minagic.minagic.sorcerer.StaffData;
 import com.minagic.minagic.wizard.WizardWandData;
 import net.minecraft.core.component.DataComponentType;
@@ -33,6 +34,15 @@ public final class ModDataComponents {
                     DataComponentType.<WizardWandData>builder()
                             .persistent(WizardWandData.CODEC)
                             .networkSynchronized(ByteBufCodecs.fromCodec(WizardWandData.CODEC))
+                            .build()
+            );
+
+    // DRUID
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<HornData>> DRUID_HORN_DATA =
+            COMPONENTS.register("druid_horn_data", () ->
+                    DataComponentType.<HornData>builder()
+                            .persistent(HornData.CODEC)
+                            .networkSynchronized(ByteBufCodecs.fromCodec(HornData.CODEC))
                             .build()
             );
 
