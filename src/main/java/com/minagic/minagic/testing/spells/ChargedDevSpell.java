@@ -25,4 +25,9 @@ public class ChargedDevSpell extends ChargedSpell {
 
     @Override
     public String getString() { return "ChargedDevSpell"; }
+
+    @Override
+    public CastFailureReason canCast(SpellCastContext context) {
+        return CastFailureReason.CASTER_CLASS_MISMATCH;
+    }
 }

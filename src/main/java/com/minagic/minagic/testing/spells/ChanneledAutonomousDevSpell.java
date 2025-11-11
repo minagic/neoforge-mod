@@ -24,4 +24,9 @@ public class ChanneledAutonomousDevSpell extends ChanneledAutonomousSpell {
 
     @Override
     public String getString() { return "ChanneledAutonomousDevSpell"; }
+
+    @Override
+    public CastFailureReason canCast(SpellCastContext context) {
+        return CastFailureReason.CASTER_CLASS_MISMATCH;
+    }
 }

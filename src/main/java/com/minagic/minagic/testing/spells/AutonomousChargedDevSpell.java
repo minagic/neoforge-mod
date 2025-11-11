@@ -24,4 +24,9 @@ public class AutonomousChargedDevSpell extends AutonomousChargedSpell {
 
     @Override
     public String getString() { return "AutonomousChargedDevSpell"; }
+
+    @Override
+    public CastFailureReason canCast(SpellCastContext context) {
+        return CastFailureReason.CASTER_CLASS_MISMATCH;
+    }
 }

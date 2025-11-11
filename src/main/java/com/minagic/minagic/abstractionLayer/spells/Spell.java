@@ -2,10 +2,13 @@ package com.minagic.minagic.abstractionLayer.spells;
 
 import com.minagic.minagic.abstractionLayer.SpellcastingItem;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SpellMetadata;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+
+import java.util.List;
 
 // An abstract class representing a spell with casting lifecycle methods and validation.
 // on* methods are called by the spellcasting system
@@ -21,27 +24,9 @@ public abstract class Spell {
         OK
     }
 
-    // helper methods
-    // ────────────────────────────────────────────────
-// Helper: ensure caster exists and can use the spell
-// ────────────────────────────────────────────────
-    protected boolean validateCaster(SpellCastContext context) {
-        if (context.caster == null) {
-            return false; // no caster
-        }
+    //SpellEngine Integrity Protection
+    //ALWAYS USE IN pre* CHECKS
 
-        CastFailureReason reason = canCast(context);
-        if (reason != CastFailureReason.OK) {
-            handleCastFailure(context, reason);
-            return false;
-        }
-
-        return true;
-    }
-
-    // ────────────────────────────────────────────────
-    // Helper: send HUD feedback for class/subclass/level issues
-    // ────────────────────────────────────────────────
     protected void handleCastFailure(SpellCastContext context, CastFailureReason reason) {
         var playerClass = context.caster.getData(ModAttachments.PLAYER_CLASS)
                 .getMainClass();
@@ -64,9 +49,41 @@ public abstract class Spell {
         }
     }
 
-    // ────────────────────────────────────────────────
-    // Helper: ensure spell cooldown is available
-    // ────────────────────────────────────────────────
+    protected boolean validateContext(SpellCastContext context) {
+        if (context.caster == null) return false; // No caster
+
+
+        if (context.level() == null) return false; // No level
+
+
+        if (context.caster.asLivingEntity() == null) return false; // Caster must be a living entity
+
+
+        if (context.target == null) return false; // No target
+
+
+        if (context.target.asLivingEntity() == null) return false;
+
+        if (!(context.target.isAlive() && context.caster.isAlive())) return false;
+
+
+        return !context.level().isClientSide(); // NEVER EVER CAST ON THE CLIENT
+    }
+
+    protected boolean validateCaster(SpellCastContext context) {
+        if (context.caster == null) {
+            return false; // no caster
+        }
+
+        CastFailureReason reason = canCast(context);
+        if (reason != CastFailureReason.OK) {
+            handleCastFailure(context, reason);
+            return false;
+        }
+
+        return true;
+    }
+
     protected boolean validateCooldown(SpellCastContext context) {
         var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
         if (cooldowns.getCooldown(ModSpells.getId(this)) > 0) {
@@ -82,9 +99,6 @@ public abstract class Spell {
         return true;
     }
 
-    // ────────────────────────────────────────────────
-// Helper: ensure caster has sufficient mana
-// ────────────────────────────────────────────────
     protected boolean validateMana(SpellCastContext context, int manaCost) {
         var mana = context.caster.getData(ModAttachments.MANA.get());
         if (mana.getMana() < manaCost) {
@@ -125,76 +139,39 @@ public abstract class Spell {
         return true;
     }
 
+    protected boolean validateSimulacrum(SpellCastContext context) {
+        return !(context.simulacrtumLifetime == null || context.simulacrtumLifetime.remainingLifetime() == 0);
+    }
+
+    protected boolean validateMetadata(SpellCastContext context, List<String> keys) {
+        for (String key : keys) {
+            if (!SpellMetadata.has(context.target, this, key)) return false;
+        }
+        return true;
+    }
+
     // CASTING LIFECYCLE METHODS
 
     // returns the caster if all checks pass, null otherwise
     // pre* methods, called by on* methods before * methods
     public boolean preCast(SpellCastContext context) {
-        return false;
+        return validateContext(context);
     }
 
     public boolean preExitSimulacrum(SpellCastContext context){
-        return false;
+        return validateContext(context);
     }
 
     public boolean preTick(SpellCastContext context) {
-        return false;
+        return validateContext(context);
     }
 
     public boolean preStart(SpellCastContext context) {
-        return false;
+        return validateContext(context);
     }
 
     public boolean preStop(SpellCastContext context) {
-        return false;
-    }
-
-    // pre* helper
-    protected boolean checkContext(SpellCastContext context,
-                                        boolean checkCaster,
-                                        boolean checkCooldown,
-                                        int checkMana,
-                                        boolean checkSpellcastingItem,
-                                        boolean checkSimulacraLifetime) {
-        if (context.caster == null) return false; // No caster
-
-
-        if (context.level() == null) return false; // No level
-
-
-        if (context.caster.asLivingEntity() == null) return false; // Caster must be a living entity
-
-
-        if (context.target == null) return false; // No target
-
-
-        if (context.target.asLivingEntity() == null) return false;
-
-        if (!(context.target.isAlive() && context.caster.isAlive())) return false;
-
-
-
-        if (context.level().isClientSide()) {
-            return false; // NEVER EVER CAST ON THE CLIENT
-        }
-
-        if (checkSpellcastingItem && !validateItem(context)) {
-            return false;
-        }
-
-        if (checkCaster && !validateCaster(context)) {
-            return false;
-        }
-
-        if (checkCooldown && !validateCooldown(context)) {
-            return false;
-        }
-
-        if (checkSimulacraLifetime && (context.simulacrtumLifetime == null || context.simulacrtumLifetime.remainingLifetime() == 0)) {
-            return false;
-        }
-
-        return checkMana <= 0 || validateMana(context, checkMana);
+        return validateContext(context);
     }
 
 
@@ -210,19 +187,16 @@ public abstract class Spell {
 
     public void postExitSimulacrum(SpellCastContext context) {}
 
-    // post* helper to apply cooldowns and mana costs
-    protected void applyMagicCosts(SpellCastContext context, int applyCooldown, int applyManaCost) {
-        if (applyCooldown > 0) {
-            var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-            cooldowns.setCooldown(ModSpells.getId(this), applyCooldown);
-            context.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
-        }
+    public void applyCooldown(SpellCastContext context, int cooldown) {
+        var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
+        cooldowns.setCooldown(ModSpells.getId(this), cooldown);
+        context.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
+    }
 
-        if (applyManaCost > 0) {
-            var mana = context.caster.getData(ModAttachments.MANA.get());
-            mana.drainMana(applyManaCost);
-            context.caster.setData(ModAttachments.MANA.get(), mana);
-        }
+    public void drainMana(SpellCastContext context, int manaCost) {
+        var mana = context.caster.getData(ModAttachments.MANA.get());
+        mana.drainMana(manaCost);
+        context.caster.setData(ModAttachments.MANA.get(), mana);
     }
 
 
@@ -340,9 +314,9 @@ public abstract class Spell {
     }
     protected SpellCastContext inverted(SpellCastContext ctx) {
         return new SpellCastContext(
-                ctx.target,     // new caster
+                ctx.target,
                 ctx.stack,
-                ctx.caster      // new target
+                ctx.caster
         );
     }
 }

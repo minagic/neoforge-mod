@@ -13,7 +13,10 @@ public class ChanneledSpell extends Spell {
 
     @Override
     public final boolean preStart(SpellCastContext context) {
-        return checkContext(context, true, true, 0, true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateItem(context);
     }
 
     @Override
@@ -24,19 +27,27 @@ public class ChanneledSpell extends Spell {
 
     @Override
     public final boolean preStop(SpellCastContext context) {
-        return checkContext(context, true, false, 0, true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context);
     }
 
 
     @Override
     public final boolean preCast(SpellCastContext context) {
-        return checkContext(context, true, true, getManaCost(), true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateMana(context, getManaCost()) &&
+                validateItem(context);
     }
 
 
     @Override
     public final boolean preExitSimulacrum(SpellCastContext context) {
-        return checkContext(context, true, false, 0, true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context);
     }
 
     @Override
@@ -56,14 +67,15 @@ public class ChanneledSpell extends Spell {
 
     @Override
     public final void postCast(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), getManaCost());
+        applyCooldown(context, getCooldownTicks());
+        drainMana(context, getManaCost());
         PlayerSimulacraAttachment.clearChanneling(context.target);
     }
 
 
     @Override
     public final void postExitSimulacrum(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), 0);
+        applyCooldown(context, getCooldownTicks());
     }
 
     // Lifecycle methods

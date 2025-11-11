@@ -25,4 +25,9 @@ public class ChanneledDevSpell extends ChanneledSpell {
 
     @Override
     public String getString() { return "ChanneledDevSpell"; }
+
+    @Override
+    public CastFailureReason canCast(SpellCastContext context) {
+        return CastFailureReason.CASTER_CLASS_MISMATCH;
+    }
 }

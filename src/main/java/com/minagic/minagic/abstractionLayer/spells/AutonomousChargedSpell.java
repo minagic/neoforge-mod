@@ -11,7 +11,11 @@ public class AutonomousChargedSpell extends Spell {
 
     @Override
     public final boolean preCast(SpellCastContext context) {
-        return checkContext(context, true, true, getManaCost(), true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateMana(context, getManaCost()) &&
+                validateItem(context);
     }
 
     @Override
@@ -26,7 +30,10 @@ public class AutonomousChargedSpell extends Spell {
 
     @Override
     public final boolean preStart(SpellCastContext context) {
-        return checkContext(context, true, true, 0, true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateItem(context);
     }
 
     @Override
@@ -47,7 +54,8 @@ public class AutonomousChargedSpell extends Spell {
 
     @Override
     public final void postCast(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), getManaCost());
+        applyCooldown(context, getManaCost());
+        drainMana(context, getManaCost());
     }
 
     @Override

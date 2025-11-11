@@ -35,19 +35,33 @@ public class ChanneledAutonomousSpell extends Spell {
     // pre* methods
 
     @Override
-    public final boolean preStart(SpellCastContext context) {return checkContext(context, true, true, 0, true, false); }
+    public final boolean preStart(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateItem(context);
+    }
 
     @Override
     public final boolean preTick(SpellCastContext context) {return false;}
 
     @Override
-    public final boolean preStop(SpellCastContext context) {return checkContext(context, true, false, 0, true, false); }
+    public final boolean preStop(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateItem(context); }
 
     @Override
     public final boolean preExitSimulacrum(SpellCastContext context) {return false;}
 
     @Override
-    public final boolean preCast(SpellCastContext context) {return checkContext(context, true, true, getManaCost(), true, false);}
+    public final boolean preCast(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateMana(context, getManaCost()) &&
+                validateItem(context);}
 
     // post* methods
 
@@ -62,12 +76,13 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public final void postCast(SpellCastContext context) {
-        applyMagicCosts(context, 0, getManaCost());
+        drainMana(context, getManaCost());
     }
 
     @Override
     public final void postExitSimulacrum(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), 0);
+
+        applyCooldown(context, getCooldownTicks());
     }
 
     @Override

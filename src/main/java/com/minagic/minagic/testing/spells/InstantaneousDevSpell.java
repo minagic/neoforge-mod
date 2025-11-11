@@ -22,4 +22,9 @@ public class InstantaneousDevSpell extends InstanteneousSpell {
 
     @Override
     public String getString() { return "InstantaneousDevSpell"; }
+
+    @Override
+    public CastFailureReason canCast(SpellCastContext context) {
+        return CastFailureReason.CASTER_CLASS_MISMATCH;
+    }
 }

@@ -55,7 +55,11 @@ public class InstanteneousSpell extends Spell{
 
     @Override
     public final boolean preCast(SpellCastContext context){
-        return checkContext(context, true, true, getManaCost(), true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context) &&
+                validateCooldown(context) &&
+                validateMana(context, getManaCost());
     }
 
     // post* methods
@@ -80,7 +84,8 @@ public class InstanteneousSpell extends Spell{
 
     @Override
     public final void postCast(SpellCastContext context){
-        applyMagicCosts(context, getCooldownTicks(), getManaCost());
+        applyCooldown(context, getCooldownTicks());
+        drainMana(context, getManaCost());
     }
 
     // lifecycle methods

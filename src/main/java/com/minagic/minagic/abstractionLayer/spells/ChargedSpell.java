@@ -34,27 +34,42 @@ public class ChargedSpell extends Spell {
     // implement pre* methods
     @Override
     public final boolean preStart(SpellCastContext context) {
-        return checkContext(context, true, true, 0, true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateItem(context);
     }
 
     @Override
     public final boolean preTick(SpellCastContext context) {
-        return checkContext(context, true, false, 0, true, true);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context) &&
+                validateSimulacrum(context);
     }
 
     @Override
     public final boolean preStop(SpellCastContext context) {
-        return checkContext(context, true, false, 0, true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context);
     }
 
     @Override
     public final boolean preExitSimulacrum(SpellCastContext context) {
-        return checkContext(context, true, false, 0, true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context);
     }
 
     @Override
     public final boolean preCast(SpellCastContext context) {
-        return checkContext(context, true, true, getManaCost(), true, true);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context) &&
+                validateCooldown(context) &&
+                validateMana(context, getManaCost()) &&
+                validateSimulacrum(context);
     }
 
     // implement post* methods
@@ -76,12 +91,13 @@ public class ChargedSpell extends Spell {
 
     @Override
     public final void postExitSimulacrum(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), 0); // when dropped only apply cooldown
+         applyCooldown(context, getCooldownTicks()); // when dropped only apply cooldown
     }
 
     @Override
     public final void postCast(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), getManaCost());
+        applyCooldown(context, getCooldownTicks());
+        drainMana(context, getManaCost());
         PlayerSimulacraAttachment.clearChanneling(context.target);
     }
 

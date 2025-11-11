@@ -112,7 +112,7 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
                 context,
                 new FireballBarrage(),
                 20, // threshold
-                1000 // max lifetime
+                200 // max lifetime
         );
 
     }

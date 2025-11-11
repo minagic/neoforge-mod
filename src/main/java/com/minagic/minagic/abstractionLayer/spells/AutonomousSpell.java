@@ -14,7 +14,12 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 public class AutonomousSpell extends Spell {
 
     @Override
-    public final boolean preStart(SpellCastContext context) {return checkContext(context, true, true, 0, true, false);}
+    public final boolean preStart(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateItem(context);
+    }
 
     @Override
     public final boolean preTick(SpellCastContext context) {return false; }
@@ -23,10 +28,19 @@ public class AutonomousSpell extends Spell {
     public final boolean preStop(SpellCastContext context) {return false; }
 
     @Override
-    public final boolean preCast(SpellCastContext context) {return checkContext(context, true, true, getManaCost(), true, false);}
+    public final boolean preCast(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateMana(context, getManaCost()) &&
+                validateItem(context);
+    }
 
     @Override
-    public final boolean preExitSimulacrum(SpellCastContext context) {return checkContext(context, true, false, 0, true, false); }
+    public final boolean preExitSimulacrum(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context); }
 
     @Override
     public final void postStart(SpellCastContext context) {}
@@ -39,13 +53,14 @@ public class AutonomousSpell extends Spell {
 
     @Override
     public final void postCast(SpellCastContext context) {
-        applyMagicCosts(context, 0, getManaCost());
+
+        drainMana(context, getManaCost());
     }
 
     @Override
     public final void postExitSimulacrum(SpellCastContext context) {
         System.out.println("AutonomousSpell.postExitSimulacrum called");
-        applyMagicCosts(context, getCooldownTicks(), 0);
+        applyCooldown(context, getManaCost());
     }
 
 
