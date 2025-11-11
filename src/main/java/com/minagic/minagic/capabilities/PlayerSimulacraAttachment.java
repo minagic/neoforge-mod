@@ -31,7 +31,6 @@ import java.util.UUID;
  * - One optional activeChannelling simulacrum
  * - Any number of backgroundSimulacra keyed by spell ID
  */
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class PlayerSimulacraAttachment {

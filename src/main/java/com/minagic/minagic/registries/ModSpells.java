@@ -2,6 +2,8 @@ package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.druid.spells.CircleOfLife;
+import com.minagic.minagic.druid.spells.OathOfLife;
 import com.minagic.minagic.sorcerer.spells.EventHorizon;
 import com.minagic.minagic.sorcerer.spells.FireballBarrage;
 import com.minagic.minagic.sorcerer.spells.InstantFireballImbueSpell;
@@ -32,6 +34,8 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_channeled_autonomous"), new ChanneledAutonomousDevSpell());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_autonomous"), new AutonomousDevSpell());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "imbue_fireball"), new InstantFireballImbueSpell());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "circle_of_life"), new CircleOfLife());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "oath_of_life"), new OathOfLife());
     }
     public static @Nullable Spell get(ResourceLocation id) {
         return SpellRegistry.getSpell(id);

@@ -25,12 +25,11 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
             return; // fail silently or add a "no target" message
         }
 
-        ctx.caster = target;
         // Fancy particle line
         spawnBeamParticles(caster, target);
 
         // Apply the forced fireball barrage
-        applyForcedFireballBarrage(caster, ctx);
+        applyForcedFireballBarrage(target, ctx);
     }
 
     @Override
@@ -112,8 +111,8 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
         PlayerSimulacraAttachment.addSimulacrum(
                 context,
                 new FireballBarrage(),
-                5, // threshold
-                200 // max lifetime
+                20, // threshold
+                1000 // max lifetime
         );
 
     }

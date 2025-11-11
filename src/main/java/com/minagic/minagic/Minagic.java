@@ -167,6 +167,7 @@ public class Minagic {
         if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(ModItems.SORCERER_STAFF);
             event.accept(ModItems.WIZARD_WAND);
+            event.accept(ModItems.DRUID_HORN);
         }
     }
 
