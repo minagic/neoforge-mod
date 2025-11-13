@@ -5,31 +5,16 @@ import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 public class ChargedSpell extends Spell {
-    private int chargeTime = 0;
+    public ChargedSpell() {
+        super(); // keep whatever superclass initialization you rely on
 
-    protected final int getChargeTime() {
-        return chargeTime;
+        this.manaCost = 0;               // default for charged spells
+        this.cooldown = 0;               // stays default unless you override elsewhere
+        this.spellName = "Charged Spell";
+        this.simulacraThreshold = 0;     // cannot be autocast
+        this.simulacraMaxLifetime = 0;   // default max lifetime for charged spells
     }
 
-    @Override
-    public int getMaxLifetime() {
-        return 0; // Default max lifetime for charged spells
-    }
-
-    @Override
-    public final int getSimulacrumThreshold() {
-        return 0; // Charged spells cannot be automatically cast
-    }
-
-    @Override
-    public String getString() {
-        return "Charged Spell";
-    }
-
-    @Override
-    public int getManaCost() {
-        return 0; // Default mana cost for charged spells
-    }
 
     // implement pre* methods
     @Override
@@ -114,7 +99,7 @@ public class ChargedSpell extends Spell {
 
     @Override
     public void tick(SpellCastContext context) {
-        System.out.println("Charging spell: " + getString() + " | Charge time: " + chargeTime);
+        //System.out.println("Charging spell: " + getString() + " | Charge time: " + chargeTime);
         //chargeTime = context.simulacrtumLifetime.lifetime();
     }
 

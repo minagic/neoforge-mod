@@ -7,6 +7,7 @@ import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.utilities.MathUtils;
 import com.minagic.minagic.utilities.SpellUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,8 +21,10 @@ import java.util.Set;
 
 // this will extend raw spell as this is an easier approach
 public class Banishment extends Spell {
-    private static final int manaCost = 5; // per target per tick of damage
-    private static final int cooldown = 20;
+    public Banishment() {
+        spellName = "Banishment";
+        cooldown = 20;
+    }
 
     // lifecycle
     @Override
@@ -59,7 +62,6 @@ public class Banishment extends Spell {
         return validateContext(context) &&
                 validateCaster(context) &&
                 validateCooldown(context) &&
-                validateMana(context, manaCost) &&
                 validateItem(context) &&
                 validateMetadata(context, List.of("bb_start", "bb_end"));
     }
@@ -81,8 +83,13 @@ public class Banishment extends Spell {
         }
 
         if (!SpellMetadata.has(context.target, this, "bb_end")){
-            SpellMetadata.setBlockPos(context.target, this, "bb_end", context.target.blockPosition());
+
+            BlockPos pos = context.target.blockPosition();
+            int manaCost = (int) MathUtils.areaBetween(SpellMetadata.getBlockPos(context.target, this, "bb_start"), pos);
+            if (!validateMana(context, manaCost) || manaCost == 0) return;
+            SpellMetadata.setBlockPos(context.target, this, "bb_end", pos);
             PlayerSimulacraAttachment.addSimulacrum(context, this, 1, -1);
+            drainMana(context, manaCost);
             return;
         }
 
@@ -151,7 +158,6 @@ public class Banishment extends Spell {
                     )
             );
             damage.hurt(level);
-            drainMana(context, manaCost);
         }
 
 
@@ -164,11 +170,6 @@ public class Banishment extends Spell {
         SpellMetadata.removeBlockPos(context.target, this, "bb_end");
         SpellMetadata.removeBlockPos(context.target, this, "bb_start");
         applyCooldown(context, cooldown);
-    }
-
-    @Override
-    public final String getString(){
-        return "Banishment";
     }
 
 

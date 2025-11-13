@@ -14,6 +14,15 @@ import java.util.List;
 // on* methods are called by the spellcasting system
 // pre* and post* methods are called automatically by the on* methods
 public abstract class Spell {
+    // properties
+    protected int cooldown = 0;
+    protected int manaCost = 0;
+    protected int simulacraThreshold = 0;
+    protected int simulacraMaxLifetime = -1;
+    protected String spellName = "No Spell";
+    protected boolean isTechnical = false;
+
+
 
     // ENUM: reasons a spell cast might fail due to caster issues
 
@@ -259,33 +268,31 @@ public abstract class Spell {
 
 
     // this returns a string name for this spell (for display / logging purposes)
-    public String getString() {
-        return "No Spell";
+    public final String getString() {
+        return spellName;
     }
 
     // MAGIC COST METHODS
     // post cast will set this many ticks of cooldown on the spell to the caster
-    public int getCooldownTicks() {
-        return 0;
+    public final int getCooldownTicks() {
+        return cooldown;
     }
 
     // post cast will drain this much mana from caster
-    public int getManaCost() {
-        return 0;
+    public final int getManaCost() {
+        return manaCost;
     }
 
     // Simulacrum activation threshold
     // Simulacrum spell slot will call spell.onCast() when this many ticks have passed
     // repeatedly
-    public int getSimulacrumThreshold(){
-        return 0; // No simulacrum by default
-    }
+    public final int getSimulacrumThreshold(){return simulacraThreshold;}
 
     // Simulacrum lifetime limit
     // Simulacrum spell slot will auto-expire after this many ticks
-    public int getMaxLifetime(){
-        return -1; // Infinite lifetime by default
-    }
+    public int getMaxLifetime(){return simulacraMaxLifetime;}
+
+    public final boolean isTechnical() {return isTechnical;}
 
     // CASTER VALIDATION METHODS
     // check if caster can use this spell

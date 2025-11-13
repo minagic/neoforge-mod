@@ -14,18 +14,16 @@ public class ChargedDevSpell extends ChargedSpell {
                 + " Player=" + context.caster.getName().getString());
     }
 
-    @Override
-    public int getManaCost() { return 30; }
+    public ChargedDevSpell() {
+        super();
 
-    @Override
-    public int getCooldownTicks() { return 60; } // ~3s
+        this.spellName = "ChargedDevSpell";
+        this.manaCost = 30;
+        this.cooldown = 60;
 
-    @Override
-    public int getMaxLifetime() { return 100; } // charge time (5s at 20 TPS)
-
-    @Override
-    public String getString() { return "ChargedDevSpell"; }
-
+        this.simulacraThreshold = 0;
+        this.simulacraMaxLifetime = 100; // charge time / max lifetime
+    }
     @Override
     public CastFailureReason canCast(SpellCastContext context) {
         return CastFailureReason.CASTER_CLASS_MISMATCH;

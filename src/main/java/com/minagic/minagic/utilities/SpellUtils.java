@@ -2,11 +2,17 @@ package com.minagic.minagic.utilities;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public class SpellUtils {
@@ -39,6 +45,43 @@ public class SpellUtils {
         );
 
         return level.getEntitiesOfClass(type, verticalColumn, filter);
+    }
+
+    public static <T extends Entity> List<T> findEntitiesInRadius(
+            Level level,
+            Vec3 center,
+            double radius,
+            Class<T> entityType,
+            @Nullable Predicate<T> filter,
+            @Nullable Set<Entity> exclusions
+    ) {
+        AABB box = new AABB(center, center).inflate(radius);
+
+        return level.getEntitiesOfClass(entityType, box, entity -> {
+            if (exclusions != null && exclusions.contains(entity)) return false;
+            if (filter != null && !filter.test(entity)) return false;
+            return entity.distanceToSqr(center) <= radius * radius;
+        });
+    }
+
+    public static boolean hasTheoreticalLineOfSight(Entity observer, Entity target) {
+        Level level = observer.level();
+
+        // Entity eye positions
+        Vec3 start = observer.getEyePosition();
+        Vec3 end = target.getEyePosition();
+
+        // Ray trace from observer to target
+        BlockHitResult result = level.clip(new ClipContext(
+                start,
+                end,
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
+                observer
+        ));
+
+        // If the result hit nothing or hit the target's bounding box, return true
+        return result.getType() == HitResult.Type.MISS || target.getBoundingBox().contains(result.getLocation());
     }
 
     public static boolean canSeeSky(Entity entity) {

@@ -5,10 +5,15 @@ import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 public class ChanneledSpell extends Spell {
+    public ChanneledSpell() {
+        super();
 
-    @Override
-    public final int getMaxLifetime() {
-        return -1; // Channeled spells have no max lifetime
+        this.spellName = "ChanneledAutonomousSpell";
+        this.manaCost = 20;
+        this.cooldown = 30;
+
+        this.simulacraThreshold = 0;
+        this.simulacraMaxLifetime = -1; // no max lifetime
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.druid.spells.CircleOfLife;
 import com.minagic.minagic.druid.spells.OathOfLife;
 import com.minagic.minagic.sorcerer.celestial.spells.Banishment;
+import com.minagic.minagic.sorcerer.celestial.spells.RadiantIllumination;
 import com.minagic.minagic.sorcerer.spells.EventHorizon;
 import com.minagic.minagic.sorcerer.spells.FireballBarrage;
 import com.minagic.minagic.sorcerer.spells.InstantFireballImbueSpell;
@@ -27,6 +28,8 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "fireball_barrage"), new FireballBarrage());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "event_horizon"), new EventHorizon());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "banishment"), new Banishment());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_illumination"), new RadiantIllumination());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_illumination_linder"), new RadiantIllumination.RadiantIlluminationBlinder());
         // register dev spells here
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_instnateneous"), new InstantaneousDevSpell());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_channeled"), new ChanneledDevSpell());

@@ -8,6 +8,24 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 
 //// An abstract class representing spells that are charged up over time before being released.
 public class AutonomousChargedSpell extends Spell {
+    public AutonomousChargedSpell() {
+        super();
+
+        this.spellName = "AutonomousChargedSpell";
+        this.manaCost = 0;
+        this.cooldown = 0;
+
+        // Lifetime equals threshold in original behavior:
+        // maxLifetime = simulacrumThreshold, but since you initialize by constructor,
+        // we set both here.
+        this.simulacraThreshold = 0;
+        this.simulacraMaxLifetime = this.simulacraThreshold;
+    }
+
+    @Override
+    public final int getMaxLifetime() {
+        return getSimulacrumThreshold();
+    }
 
     @Override
     public final boolean preCast(SpellCastContext context) {
@@ -93,28 +111,6 @@ public class AutonomousChargedSpell extends Spell {
     @Override
     public final void exitSimulacrum(SpellCastContext context) {
         // no-op
-    }
-
-    @Override
-    public final int getMaxLifetime(){
-        return getSimulacrumThreshold();
-        // lifetime equals threshold for autonomous charged spells.
-        // This will exit as soon as threshold is reached.
-    }
-
-    @Override
-    public int getCooldownTicks(){
-        return 0; // default cooldown
-    }
-
-    @Override
-    public String getString() {
-        return "Autonomous Charged Spell";
-    }
-
-    @Override
-    public int getManaCost() {
-        return 0; // default mana cost
     }
 
 

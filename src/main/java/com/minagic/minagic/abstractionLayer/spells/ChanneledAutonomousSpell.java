@@ -5,29 +5,15 @@ import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 public class ChanneledAutonomousSpell extends Spell {
-    @Override
-    public final int getMaxLifetime() {
-        return -1; // Channeled spells have no max lifetime
-    }
+    public ChanneledAutonomousSpell() {
+        super();
 
-    @Override
-    public int getSimulacrumThreshold() {
-        return 0; // Channeled autonomous cannot be autocast by simulacra
-    }
+        this.spellName = "ChanneledAutonomousSpell";
+        this.manaCost = 20;
+        this.cooldown = 30;
 
-    @Override
-    public String getString() {
-        return "Channeled Autonomous Spell";
-    }
-
-    @Override
-    public int getManaCost() {
-        return 20; // default mana cost
-    }
-
-    @Override
-    public int getCooldownTicks() {
-        return 30; // default cooldown
+        this.simulacraThreshold = 0;
+        this.simulacraMaxLifetime = -1; // no max lifetime
     }
 
     // lifecycle like of channelled spell

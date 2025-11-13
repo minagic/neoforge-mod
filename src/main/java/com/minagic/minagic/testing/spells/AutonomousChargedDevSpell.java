@@ -13,17 +13,16 @@ public class AutonomousChargedDevSpell extends AutonomousChargedSpell {
 
     }
 
-    @Override
-    public int getManaCost() { return 15; }
+    public AutonomousChargedDevSpell() {
+        super();
 
-    @Override
-    public int getCooldownTicks() { return 100; }
+        this.spellName = "AutonomousChargedDevSpell";
+        this.manaCost = 15;
+        this.cooldown = 100;
 
-    @Override
-    public int getSimulacrumThreshold() { return 60; } // 3s charge period
-
-    @Override
-    public String getString() { return "AutonomousChargedDevSpell"; }
+        this.simulacraThreshold = 60;
+        this.simulacraMaxLifetime = 60; // autonomous charged invariant
+    }
 
     @Override
     public CastFailureReason canCast(SpellCastContext context) {

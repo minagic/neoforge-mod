@@ -13,8 +13,15 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 
 public class Fireball extends InstanteneousSpell {
-    private final int cooldownTicks = 20 * 2; // 1 second cooldown
-    private final int manaCost = 30;
+
+    public Fireball() {
+        super();
+
+        this.spellName = "Fireball";
+        this.cooldown = 40;
+        this.manaCost = 30;
+        // manaCost and cooldown inherited / preset elsewhere
+    }
 
     @Override
     public CastFailureReason canCast(SpellCastContext context){
@@ -38,20 +45,6 @@ public class Fireball extends InstanteneousSpell {
         return CastFailureReason.OK;
     }
 
-    @Override
-    public int getCooldownTicks() {
-        return cooldownTicks;
-    }
-
-    @Override
-    public int getManaCost() {
-        return manaCost;
-    }
-
-    @Override
-    public String getString(){
-        return "Fireball";
-    }
 
     @Override
     public void cast(SpellCastContext context) {

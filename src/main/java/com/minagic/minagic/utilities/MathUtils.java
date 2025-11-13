@@ -4,6 +4,8 @@ package com.minagic.minagic.utilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
+import static java.lang.Math.abs;
+
 public class MathUtils {
     public static Vec3 blockPosToVec3(BlockPos pos) {
         return new Vec3(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
@@ -31,5 +33,12 @@ public class MathUtils {
      */
     public static Vec3 blockCornerToVec3(BlockPos pos) {
         return new Vec3(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public static double areaBetween(Vec3 vec1, Vec3 vec2) {
+        return abs((vec2.x  +1 - vec1.x) * (vec2.z +1 - vec1.z));
+    }
+    public static double areaBetween(BlockPos pos1, BlockPos pos2) {
+        return areaBetween(blockPosToVec3(pos1), blockPosToVec3(pos2));
     }
 }

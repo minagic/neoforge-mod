@@ -28,7 +28,7 @@ public class AutonomousSpell extends Spell {
     public final boolean preStop(SpellCastContext context) {return false; }
 
     @Override
-    public final boolean preCast(SpellCastContext context) {
+    public boolean preCast(SpellCastContext context) {
         return validateContext(context) &&
                 validateCaster(context) &&
                 validateCooldown(context) &&
@@ -52,7 +52,7 @@ public class AutonomousSpell extends Spell {
     public final void postStop(SpellCastContext context) {}
 
     @Override
-    public final void postCast(SpellCastContext context) {
+    public void postCast(SpellCastContext context) {
 
         drainMana(context, getManaCost());
     }

@@ -16,15 +16,15 @@ public class ChanneledAutonomousDevSpell extends ChanneledAutonomousSpell {
 
     }
 
-    @Override
-    public int getManaCost() { return 2; }
+    public ChanneledAutonomousDevSpell() {
+        super();
 
-    @Override
-    public int getSimulacrumThreshold() { return 5; } // once every 0.5s
+        this.spellName = "ChanneledAutonomousDevSpell";
+        this.manaCost = 2;
 
-    @Override
-    public String getString() { return "ChanneledAutonomousDevSpell"; }
-
+        this.simulacraThreshold = 5;       // once every 0.5 seconds
+        this.simulacraMaxLifetime = -1;    // channeled = infinite lifetime
+    }
     @Override
     public CastFailureReason canCast(SpellCastContext context) {
         return CastFailureReason.CASTER_CLASS_MISMATCH;
