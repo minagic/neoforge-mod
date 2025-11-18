@@ -8,24 +8,14 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.world.entity.LivingEntity;
 
 public class EventHorizon extends ChanneledSpell {
-    @Override
-    public String getString() {
-        return "Event Horizon";
-    }
+    public EventHorizon() {
+        super();
 
-    @Override
-    public int getManaCost() {
-        return 100;
-    }
-
-    @Override
-    public int getSimulacrumThreshold(){
-        return 100;
-    }
-
-    @Override
-    public int getCooldownTicks() {
-        return 10;
+        this.spellName = "Event Horizon";
+        this.manaCost = 100;
+        this.simulacraThreshold = 100;
+        this.cooldown = 10;
+        // simulacraMaxLifetime left to superclass default
     }
 
     @Override

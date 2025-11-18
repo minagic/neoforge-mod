@@ -53,7 +53,10 @@ public final class DamageTypes  {
             Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(modID, "unblockable"));
 
     public static final ResourceKey<DamageType> VOID = ResourceKey.create(
-            Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(modID, "void")
-    );
+            Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(modID, "void"));
+
+    public static final ResourceKey<DamageType> RADIANT = ResourceKey.create(
+            Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(modID, "radiant"));
+
 }   
 

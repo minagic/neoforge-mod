@@ -10,18 +10,15 @@ import net.minecraft.world.level.Level;
 public class SpellCastContext {
     public LivingEntity caster;
     public LivingEntity target;
-    public ItemStack stack;
     public SimulacrumSpellData simulacrtumLifetime = null;
 
 
-    public SpellCastContext(LivingEntity caster, ItemStack stack) {
-        this.stack = stack;
+    public SpellCastContext(LivingEntity caster) {
         this.caster = caster;
         this.target = caster;
     }
 
-    public SpellCastContext(LivingEntity caster, ItemStack stack, LivingEntity target) {
-        this.stack = stack;
+    public SpellCastContext(LivingEntity caster, LivingEntity target) {
         this.caster = caster;
         this.target = target;
     }

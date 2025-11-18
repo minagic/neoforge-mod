@@ -5,56 +5,56 @@ import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 public class ChargedSpell extends Spell {
-    private int chargeTime = 0;
+    public ChargedSpell() {
+        super(); // keep whatever superclass initialization you rely on
 
-    protected final int getChargeTime() {
-        return chargeTime;
+        this.manaCost = 0;               // default for charged spells
+        this.cooldown = 0;               // stays default unless you override elsewhere
+        this.spellName = "Charged Spell";
+        this.simulacraThreshold = 0;     // cannot be autocast
+        this.simulacraMaxLifetime = 0;   // default max lifetime for charged spells
     }
 
-    @Override
-    public int getMaxLifetime() {
-        return 0; // Default max lifetime for charged spells
-    }
-
-    @Override
-    public final int getSimulacrumThreshold() {
-        return 0; // Charged spells cannot be automatically cast
-    }
-
-    @Override
-    public String getString() {
-        return "Charged Spell";
-    }
-
-    @Override
-    public int getManaCost() {
-        return 0; // Default mana cost for charged spells
-    }
 
     // implement pre* methods
     @Override
     public final boolean preStart(SpellCastContext context) {
-        return checkContext(context, true, true, 0, true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateItem(context);
     }
 
     @Override
     public final boolean preTick(SpellCastContext context) {
-        return checkContext(context, true, false, 0, true, true);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context) &&
+                validateSimulacrum(context);
     }
 
     @Override
     public final boolean preStop(SpellCastContext context) {
-        return checkContext(context, true, false, 0, true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context);
     }
 
     @Override
     public final boolean preExitSimulacrum(SpellCastContext context) {
-        return checkContext(context, true, false, 0, true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context);
     }
 
     @Override
     public final boolean preCast(SpellCastContext context) {
-        return checkContext(context, true, true, getManaCost(), true, true);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context) &&
+                validateCooldown(context) &&
+                validateMana(context, getManaCost()) &&
+                validateSimulacrum(context);
     }
 
     // implement post* methods
@@ -76,12 +76,13 @@ public class ChargedSpell extends Spell {
 
     @Override
     public final void postExitSimulacrum(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), 0); // when dropped only apply cooldown
+         applyCooldown(context, getCooldownTicks()); // when dropped only apply cooldown
     }
 
     @Override
     public final void postCast(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), getManaCost());
+        applyCooldown(context, getCooldownTicks());
+        drainMana(context, getManaCost());
         PlayerSimulacraAttachment.clearChanneling(context.target);
     }
 
@@ -98,7 +99,7 @@ public class ChargedSpell extends Spell {
 
     @Override
     public void tick(SpellCastContext context) {
-        System.out.println("Charging spell: " + getString() + " | Charge time: " + chargeTime);
+        //System.out.println("Charging spell: " + getString() + " | Charge time: " + chargeTime);
         //chargeTime = context.simulacrtumLifetime.lifetime();
     }
 

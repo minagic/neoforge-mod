@@ -7,29 +7,15 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 /// An abstract class representing spells that take effect immediately upon casting.
 /// To use, extend this class and implement the cast method, as well as getManaCost, getCooldownTicks and getString.
 public class InstanteneousSpell extends Spell{
+    public InstanteneousSpell() {
+        super();
 
-    @Override
-    public final int getMaxLifetime(){
-        return 0; // instantaneous spells have no simulacra lifetime
-    }
+        this.spellName = "InstantaneousSpell";
+        this.manaCost = 0;
+        this.cooldown = 0;
 
-    @Override
-    public final int getSimulacrumThreshold(){return 0; // no simulacrum spell slots allowed
-    }
-
-    @Override
-    public int getCooldownTicks(){
-        return 0; // default cooldown
-    }
-
-    @Override
-    public String getString() {
-        return "Instantaneous Spell";
-    }
-
-    @Override
-    public int getManaCost() {
-        return 0; // default mana cost
+        this.simulacraThreshold = 0;
+        this.simulacraMaxLifetime = 0;
     }
 
     // pre* methods
@@ -55,7 +41,11 @@ public class InstanteneousSpell extends Spell{
 
     @Override
     public final boolean preCast(SpellCastContext context){
-        return checkContext(context, true, true, getManaCost(), true, false);
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context) &&
+                validateCooldown(context) &&
+                validateMana(context, getManaCost());
     }
 
     // post* methods
@@ -80,7 +70,8 @@ public class InstanteneousSpell extends Spell{
 
     @Override
     public final void postCast(SpellCastContext context){
-        applyMagicCosts(context, getCooldownTicks(), getManaCost());
+        applyCooldown(context, getCooldownTicks());
+        drainMana(context, getManaCost());
     }
 
     // lifecycle methods

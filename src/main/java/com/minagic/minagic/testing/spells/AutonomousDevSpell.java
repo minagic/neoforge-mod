@@ -14,15 +14,19 @@ public class AutonomousDevSpell extends AutonomousSpell {
 
     }
 
-    @Override
-    public int getManaCost() { return 40; }
+    public AutonomousDevSpell() {
+        super();
 
-    @Override
-    public int getCooldownTicks() { return 10; }
+        this.spellName = "AutonomousDevSpell";
+        this.manaCost = 40;
+        this.cooldown = 10;
 
-    @Override
-    public int getSimulacrumThreshold() { return 20; } // once per second
+        this.simulacraThreshold = 20;
+        this.simulacraMaxLifetime = -1; // autonomous invariant
+    }
 
-    @Override
-    public String getString() { return "AutonomousDevSpell"; }
+//    @Override
+//    public CastFailureReason canCast(SpellCastContext context) {
+//        return CastFailureReason.CASTER_CLASS_MISMATCH;
+//    }
 }

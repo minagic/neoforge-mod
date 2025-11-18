@@ -19,7 +19,15 @@ import net.minecraft.world.phys.Vec3;
  * Intended for Celestial / Pyromancer classes.
  */
 public class FireballBarrage extends InvertedAutonomousSpell {
+    public FireballBarrage() {
+        super();
 
+        this.spellName = "Fireball Barrage";
+        this.manaCost = 15;
+        this.cooldown = 200;
+        this.simulacraThreshold = 5;
+        // simulacraMaxLifetime left to superclass default
+    }
     @Override
     public CastFailureReason canCast(SpellCastContext context) {
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
@@ -55,24 +63,4 @@ public class FireballBarrage extends InvertedAutonomousSpell {
         // Apply mana cost & cooldown through your base class logic
     }
 
-    @Override
-    public int getManaCost() {
-        // Cost per shot; adjust for balance
-        return 15;
-    }
-
-    @Override
-    public int getCooldownTicks() {
-        return 200;
-    }
-
-    @Override
-    public int getSimulacrumThreshold() {
-        return 5;
-    }
-
-    @Override
-    public String getString() {
-        return "Fireball Barrage";
-    }
 }

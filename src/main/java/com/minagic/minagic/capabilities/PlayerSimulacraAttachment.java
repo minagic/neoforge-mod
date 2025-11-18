@@ -57,6 +57,11 @@ public class PlayerSimulacraAttachment {
     public Map<ResourceLocation, Float> getSimulacraReadiness() {
         return simulacraReadiness;
     }
+
+    public static Map<ResourceLocation, SimulacrumSpellSlot> getBackgroundSimulacra(LivingEntity entity) {
+        PlayerSimulacraAttachment attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA);
+        return attachment.getBackgroundSimulacra();
+    }
     // --- Setters ---
 
     public static void setActiveChanneling(SpellCastContext context, Spell spell, int threshold, int maxLifetime) {
@@ -77,7 +82,6 @@ public class PlayerSimulacraAttachment {
         if (context.target == null) return;
 
         System.out.println("[PlayerSimulacraAttachment] Adding simulacrum spell: " + spell.getString());
-        System.out.println("[PlayerSimulacraAttachment] Current itemStack source: " + context.stack.getItem());
 
         PlayerSimulacraAttachment attachment = context.target.getData(ModAttachments.PLAYER_SIMULACRA);
 
@@ -302,8 +306,6 @@ public class PlayerSimulacraAttachment {
             System.out.println(prefix + "  Resolved target: " + safe(target));
         }
 
-        System.out.println(prefix + "  stack: " + safe(slot.getStack()));
-
         System.out.println(prefix + "  HOT STATE:");
         dumpContext(slot.context, prefix + "    ");
     }
@@ -322,8 +324,6 @@ public class PlayerSimulacraAttachment {
         System.out.println(prefix + "  target: " + safe(ctx.target));
         System.out.println(prefix + "    target UUID: "
                 + safe(ctx.target != null ? ctx.target.getUUID() : null));
-
-        System.out.println(prefix + "  stack: " + safe(ctx.stack));
         System.out.println(prefix + "  simulacrumLifetime: " + ctx.simulacrtumLifetime);
 
         // Level safety
@@ -336,9 +336,6 @@ public class PlayerSimulacraAttachment {
 
         if (ctx.target == null && ctx.caster != null)
             System.out.println(prefix + "  !! WARNING: target null but caster present");
-
-        if (ctx.stack == null)
-            System.out.println(prefix + "  !! WARNING: stack is NULL");
     }
 
     private String safe(Object o) {
@@ -373,7 +370,6 @@ public class PlayerSimulacraAttachment {
                     att.activeChanneling = channeling;
                 } else {
                     att.activeChanneling = new ChannelingSpellslot(
-                            slot.getStack(),
                             slot.casterUUID,
                             slot.targetUUID,
                             slot.getThreshold(),
@@ -437,7 +433,7 @@ public class PlayerSimulacraAttachment {
             ).apply(instance, (maybeActive, progress, simulacraMap, readinessMap) -> {
                 PlayerSimulacraAttachment att = new PlayerSimulacraAttachment();
                 maybeActive.ifPresent(slot -> {
-                    att.activeChanneling = new ChannelingSpellslot(slot.getStack(),
+                    att.activeChanneling = new ChannelingSpellslot(
                             slot.casterUUID,
                             slot.targetUUID,
                             slot.getThreshold(),

@@ -15,6 +15,15 @@ import java.util.Optional;
 
 public class InstantFireballImbueSpell extends InstanteneousSpell {
 
+    public InstantFireballImbueSpell() {
+        super();
+
+        this.spellName = "Fireball Barrage Imbue";
+        this.manaCost = 20;
+        this.cooldown = 30;
+        // no simulacrum values provided → defaults apply
+    }
+
     @Override
     public void cast(SpellCastContext ctx) {
         LivingEntity caster = ctx.caster;
@@ -32,15 +41,6 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
         applyForcedFireballBarrage(target, ctx);
     }
 
-    @Override
-    public int getManaCost() {
-        return 20;
-    }
-
-    @Override
-    public int getCooldownTicks() {
-        return 30;
-    }
 
 
     // ============================================================
@@ -112,14 +112,8 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
                 context,
                 new FireballBarrage(),
                 20, // threshold
-                1000 // max lifetime
+                200 // max lifetime
         );
 
-    }
-
-
-    @Override
-    public String getString() {
-        return "Fireball Barrage Imbue";
     }
 }

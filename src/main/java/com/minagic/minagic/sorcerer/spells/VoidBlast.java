@@ -26,19 +26,13 @@ public class VoidBlast extends InstanteneousSpell {
         return CastFailureReason.OK;
     }
 
-    @Override
-    public String getString(){
-        return "Void Blast";
-    }
+    public VoidBlast() {
+        super();
 
-    @Override
-    public int getCooldownTicks() {
-        return 20 * 3; // 3 seconds cooldown
-    }
-
-    @Override
-    public int getManaCost() {
-        return 30;
+        this.spellName = "VoidBlast";
+        this.cooldown = 20 * 3; // 60 ticks
+        this.manaCost = 30;
+        // simulacrum values untouched
     }
 
     @Override

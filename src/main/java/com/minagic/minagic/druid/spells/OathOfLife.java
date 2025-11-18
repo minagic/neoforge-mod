@@ -13,29 +13,13 @@ import net.minecraft.world.entity.animal.Animal;
 import java.util.Set;
 
 public class OathOfLife extends AutonomousSpell {
-    @Override
-    public int getMaxLifetime() {
-        return 20; // lasts for 1 second (20 ticks)
-    }
-
-    @Override
-    public int getManaCost() {
-        return 8;
-    }
-
-    @Override
-    public int getCooldownTicks() {
-        return 0; // no cooldown
-    }
-
-    @Override
-    public int getSimulacrumThreshold() {
-        return 5; // can be cast by simulacra each 15 ticks
-    }
-
-    @Override
-    public String getString() {
-        return "Oath of Life";
+    public OathOfLife() {
+        this.manaCost = 8;
+        this.cooldown = 0;
+        this.spellName = "Oath of Life";
+        this.simulacraThreshold = 5;
+        this.simulacraMaxLifetime = 20; // 1 second (20 ticks)
+        this.isTechnical = true;
     }
 
     @Override

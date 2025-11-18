@@ -4,16 +4,16 @@ import com.minagic.minagic.capabilities.hudAlerts.HudAlert;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.gui.CooldownOverlay;
 import com.minagic.minagic.packets.MinagicNetwork;
-import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModItems;
-import com.minagic.minagic.registries.ModSpells;
+import com.minagic.minagic.registries.*;
+import com.minagic.minagic.sorcerer.celestial.spells.TracerBullet;
 import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
 import com.minagic.minagic.spellCasting.ClearData;
 import com.minagic.minagic.spellCasting.ManaHandler;
 import com.minagic.minagic.spellCasting.PlayerSimulacraHandler;
 import com.minagic.minagic.spellCasting.SpellCooldownHandler;
 import com.minagic.minagic.spells.FireballEntity;
-import com.minagic.minagic.registries.ModDataComponents;
+import com.minagic.minagic.utilities.EntityFreezer;
+import com.minagic.minagic.utilities.ModEvents;
 import com.minagic.minagic.utilities.WorldEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -49,6 +49,8 @@ public class Minagic {
     // Define mod id in a common place for everything to reference
     public static final String MODID = "minagic";
 
+
+
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
     // Create a Deferred Register to hold Blocks which will all be registered under the "minagic" namespace
@@ -80,6 +82,13 @@ public class Minagic {
                             .updateInterval(1) // Update interval
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":void_blast_entity"))));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<TracerBullet.TracerBulletProjectile>> TRACER_BULLET_PROJECTILE =
+            ENTITY_TYPES.register("tracer_bullet_projectile",
+                    () -> EntityType.Builder.<TracerBullet.TracerBulletProjectile>of(TracerBullet.TracerBulletProjectile::new, MobCategory.MISC)
+                            .sized(0.5F, 0.5F) // Size of the entity
+                            .clientTrackingRange(32) // Tracking range
+                            .updateInterval(1) // Update interval
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":void_blast_entity"))));
     // Creates a creative tab with the id "minagic:example_tab" for the example item, that is placed after the combat tab
 //    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
 //            .title(Component.translatable("itemGroup.minagic")) //The language key for the title of your CreativeModeTab
@@ -87,6 +96,8 @@ public class Minagic {
 //            .displayItems((parameters, output) -> {
 //                output.accept(ModItems.EFFECT_WAND.get()); // Add the effect wand to the tab
 //            }).build());
+
+    public static final  EntityFreezer ENTITY_FREEZER = new EntityFreezer();
 
     // Command registration method
     private void onRegisterCommands(RegisterCommandsEvent event) {
@@ -96,6 +107,8 @@ public class Minagic {
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public Minagic(IEventBus modEventBus, ModContainer modContainer) {
+
+
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
@@ -125,11 +138,14 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(new PlayerSimulacraHandler());
         NeoForge.EVENT_BUS.register(new ClearData());
         NeoForge.EVENT_BUS.register(new HudAlertManager());
+        NeoForge.EVENT_BUS.register(ENTITY_FREEZER);
+        NeoForge.EVENT_BUS.register(new ModEvents());
         //NeoForge.EVENT_BUS.register(new PlayerItemUsageCheck());
 
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
         ModAttachments.register(modEventBus);
+        ModParticles.PARTICLES.register(modEventBus);
 
 
 

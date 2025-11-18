@@ -13,29 +13,14 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.Level;
 
 public class CircleOfLife extends AutonomousSpell {
-    @Override
-    public int getMaxLifetime() {
-        return 1000; // lasts for 10 seconds (200 ticks)
-    }
-    @Override
-    public int getManaCost() {
-        return 5;
-    }
-
-    @Override
-    public int getCooldownTicks() {
-        return 200; // 10 seconds cooldown
+    public CircleOfLife() {
+        this.spellName = "Circle Of Life";
+        this.cooldown = 200;
+        this.simulacraMaxLifetime = 2000;
+        this.manaCost = 5;
+        this.simulacraThreshold = 10;
     }
 
-    @Override
-    public int getSimulacrumThreshold() {
-        return 10; // can be cast by simulacra each 10 ticks
-    }
-
-    @Override
-    public String getString() {
-        return "Circle of Life";
-    }
 
     @Override
     public void cast(SpellCastContext context) {
@@ -56,7 +41,6 @@ public class CircleOfLife extends AutonomousSpell {
             // Build a *fresh* context for each target
             SpellCastContext subCtx = new SpellCastContext(
                     context.caster,
-                    context.stack,
                     animal
             );
 

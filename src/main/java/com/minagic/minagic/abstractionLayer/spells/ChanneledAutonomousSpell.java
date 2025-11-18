@@ -5,29 +5,15 @@ import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 public class ChanneledAutonomousSpell extends Spell {
-    @Override
-    public final int getMaxLifetime() {
-        return -1; // Channeled spells have no max lifetime
-    }
+    public ChanneledAutonomousSpell() {
+        super();
 
-    @Override
-    public int getSimulacrumThreshold() {
-        return 0; // Channeled autonomous cannot be autocast by simulacra
-    }
+        this.spellName = "ChanneledAutonomousSpell";
+        this.manaCost = 20;
+        this.cooldown = 30;
 
-    @Override
-    public String getString() {
-        return "Channeled Autonomous Spell";
-    }
-
-    @Override
-    public int getManaCost() {
-        return 20; // default mana cost
-    }
-
-    @Override
-    public int getCooldownTicks() {
-        return 30; // default cooldown
+        this.simulacraThreshold = 0;
+        this.simulacraMaxLifetime = -1; // no max lifetime
     }
 
     // lifecycle like of channelled spell
@@ -35,19 +21,33 @@ public class ChanneledAutonomousSpell extends Spell {
     // pre* methods
 
     @Override
-    public final boolean preStart(SpellCastContext context) {return checkContext(context, true, true, 0, true, false); }
+    public final boolean preStart(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateItem(context);
+    }
 
     @Override
     public final boolean preTick(SpellCastContext context) {return false;}
 
     @Override
-    public final boolean preStop(SpellCastContext context) {return checkContext(context, true, false, 0, true, false); }
+    public final boolean preStop(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateItem(context); }
 
     @Override
     public final boolean preExitSimulacrum(SpellCastContext context) {return false;}
 
     @Override
-    public final boolean preCast(SpellCastContext context) {return checkContext(context, true, true, getManaCost(), true, false);}
+    public final boolean preCast(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateMana(context, getManaCost()) &&
+                validateItem(context);}
 
     // post* methods
 
@@ -62,12 +62,13 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public final void postCast(SpellCastContext context) {
-        applyMagicCosts(context, 0, getManaCost());
+        drainMana(context, getManaCost());
     }
 
     @Override
     public final void postExitSimulacrum(SpellCastContext context) {
-        applyMagicCosts(context, getCooldownTicks(), 0);
+
+        applyCooldown(context, getCooldownTicks());
     }
 
     @Override

@@ -14,15 +14,18 @@ public class ChanneledDevSpell extends ChanneledSpell {
         System.out.println("[ChanneledDevSpell] 🔫 Pew! " + context.caster.getName().getString());
     }
 
-    @Override
-    public int getManaCost() { return 40; }
+    public ChanneledDevSpell() {
+        super();
 
-    @Override
-    public int getCooldownTicks() { return 10; } // no delay
+        this.spellName = "ChanneledDevSpell";
+        this.manaCost = 40;
+        this.cooldown = 10;
 
+        this.simulacraThreshold = 5;       // fire every 5 ticks
+        this.simulacraMaxLifetime = -1;    // channeled = infinite lifetime
+    }
     @Override
-    public int getSimulacrumThreshold() { return 5; } // fire every 5 ticks
-
-    @Override
-    public String getString() { return "ChanneledDevSpell"; }
+    public CastFailureReason canCast(SpellCastContext context) {
+        return CastFailureReason.CASTER_CLASS_MISMATCH;
+    }
 }

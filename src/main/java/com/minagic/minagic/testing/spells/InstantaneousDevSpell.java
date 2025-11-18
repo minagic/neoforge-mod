@@ -14,12 +14,19 @@ public class InstantaneousDevSpell extends InstanteneousSpell {
                 + " at " + context.level().dimension().location());
     }
 
-    @Override
-    public int getManaCost() { return 10; }
+    public InstantaneousDevSpell() {
+        super();
+
+        this.spellName = "InstantaneousDevSpell";
+        this.manaCost = 10;
+        this.cooldown = 40;
+
+        this.simulacraThreshold = 0;
+        this.simulacraMaxLifetime = 0;
+    }
 
     @Override
-    public int getCooldownTicks() { return 40; } // 2 seconds
-
-    @Override
-    public String getString() { return "InstantaneousDevSpell"; }
+    public CastFailureReason canCast(SpellCastContext context) {
+        return CastFailureReason.CASTER_CLASS_MISMATCH;
+    }
 }

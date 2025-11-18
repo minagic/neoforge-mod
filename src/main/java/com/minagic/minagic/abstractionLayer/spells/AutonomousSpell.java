@@ -14,19 +14,33 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 public class AutonomousSpell extends Spell {
 
     @Override
-    public final boolean preStart(SpellCastContext context) {return checkContext(context, true, true, 0, true, false);}
+    public final boolean preStart(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateItem(context);
+    }
 
     @Override
-    public final boolean preTick(SpellCastContext context) {return false; }
+    public boolean preTick(SpellCastContext context) {return false; }
 
     @Override
     public final boolean preStop(SpellCastContext context) {return false; }
 
     @Override
-    public final boolean preCast(SpellCastContext context) {return checkContext(context, true, true, getManaCost(), true, false);}
+    public boolean preCast(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateCooldown(context) &&
+                validateMana(context, getManaCost()) &&
+                validateItem(context);
+    }
 
     @Override
-    public final boolean preExitSimulacrum(SpellCastContext context) {return checkContext(context, true, false, 0, true, false); }
+    public final boolean preExitSimulacrum(SpellCastContext context) {
+        return validateContext(context) &&
+                validateCaster(context) &&
+                validateItem(context); }
 
     @Override
     public final void postStart(SpellCastContext context) {}
@@ -38,19 +52,20 @@ public class AutonomousSpell extends Spell {
     public final void postStop(SpellCastContext context) {}
 
     @Override
-    public final void postCast(SpellCastContext context) {
-        applyMagicCosts(context, 0, getManaCost());
+    public void postCast(SpellCastContext context) {
+
+        drainMana(context, getManaCost());
     }
 
     @Override
     public final void postExitSimulacrum(SpellCastContext context) {
         System.out.println("AutonomousSpell.postExitSimulacrum called");
-        applyMagicCosts(context, getCooldownTicks(), 0);
+        applyCooldown(context, getManaCost());
     }
 
 
     @Override
-    public final void start(SpellCastContext context) {
+    public void start(SpellCastContext context) {
         // Get player simulacra attachment
         PlayerSimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
@@ -66,7 +81,7 @@ public class AutonomousSpell extends Spell {
     }
 
     @Override
-    public final void tick(SpellCastContext context) {
+    public void tick(SpellCastContext context) {
         // No-op for autonomous spells
     }
 

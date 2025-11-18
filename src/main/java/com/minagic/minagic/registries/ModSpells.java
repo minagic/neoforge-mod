@@ -4,10 +4,14 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
 import com.minagic.minagic.druid.spells.CircleOfLife;
 import com.minagic.minagic.druid.spells.OathOfLife;
+import com.minagic.minagic.sorcerer.celestial.spells.Banishment;
+import com.minagic.minagic.sorcerer.celestial.spells.RadiantIllumination;
+import com.minagic.minagic.sorcerer.celestial.spells.TracerBullet;
 import com.minagic.minagic.sorcerer.spells.EventHorizon;
 import com.minagic.minagic.sorcerer.spells.FireballBarrage;
 import com.minagic.minagic.sorcerer.spells.InstantFireballImbueSpell;
 import com.minagic.minagic.sorcerer.spells.VoidBlast;
+import com.minagic.minagic.sorcerer.voidbourne.spells.KineticNullificationField;
 import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spells.Fireball;
 import com.minagic.minagic.spells.NoneSpell;
@@ -25,6 +29,17 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "void_blast"), new VoidBlast());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "fireball_barrage"), new FireballBarrage());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "event_horizon"), new EventHorizon());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "banishment"), new Banishment());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_illumination"), new RadiantIllumination());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_illumination_linder"), new RadiantIllumination.RadiantIlluminationBlinder());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "kinetic_nullification_field"), new KineticNullificationField());
+
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "imbue_fireball"), new InstantFireballImbueSpell());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "circle_of_life"), new CircleOfLife());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "oath_of_life"), new OathOfLife());
+
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "tracer_bullet"), new TracerBullet());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "exposure"), new TracerBullet.Exposure());
 
         // register dev spells here
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_instnateneous"), new InstantaneousDevSpell());
@@ -33,9 +48,7 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_charged_autonomous"), new AutonomousChargedDevSpell());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_channeled_autonomous"), new ChanneledAutonomousDevSpell());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_autonomous"), new AutonomousDevSpell());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "imbue_fireball"), new InstantFireballImbueSpell());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "circle_of_life"), new CircleOfLife());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "oath_of_life"), new OathOfLife());
+
     }
     public static @Nullable Spell get(ResourceLocation id) {
         return SpellRegistry.getSpell(id);

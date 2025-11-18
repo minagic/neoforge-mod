@@ -18,7 +18,6 @@ import java.util.function.Consumer;
 
 public class ChannelingSpellslot extends SimulacrumSpellSlot {
     public ChannelingSpellslot(
-            ItemStack stack,
             UUID targetUUID,
             UUID casterUUID,
             int threshold,
@@ -26,7 +25,7 @@ public class ChannelingSpellslot extends SimulacrumSpellSlot {
             int originalMaxLifetime,
             Spell spell
     ) {
-        super(stack, targetUUID, casterUUID, threshold, maxLifetime, originalMaxLifetime, spell);
+        super(targetUUID, casterUUID, threshold, maxLifetime, originalMaxLifetime, spell);
     }
 
     public ChannelingSpellslot(
@@ -44,12 +43,6 @@ public class ChannelingSpellslot extends SimulacrumSpellSlot {
 
         if (context == null)return;
         LivingEntity target = context.target;
-
-        if (!ItemStack.isSameItem(getStack(), target.getMainHandItem()) &&
-                !ItemStack.isSameItem(getStack(), target.getOffhandItem())) {
-            PlayerSimulacraAttachment.clearChanneling(target);
-            return;
-        }
         System.out.println("Ticking channeling spellslot for spell: " + getSpell().getString()
                 + " on target: " + target.getName().getString());
         System.out.println("MaxLifetime: " + maxLifetime + ", Threshold: " + threshold);
@@ -75,7 +68,6 @@ public class ChannelingSpellslot extends SimulacrumSpellSlot {
     public static final Codec<ChannelingSpellslot> CODEC =
             SimulacrumSpellSlot.CODEC.xmap(
                     slot -> new ChannelingSpellslot(
-                            slot.getStack(),
                             slot.targetUUID,
                             slot.casterUUID,
                             slot.getThreshold(),

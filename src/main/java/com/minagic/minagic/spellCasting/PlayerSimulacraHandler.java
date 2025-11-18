@@ -11,7 +11,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 public class PlayerSimulacraHandler {
     @SubscribeEvent
-    public void onEntityTick(EntityTickEvent.Pre event) {
+    public void onEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity().level().isClientSide()) return;
         LivingEntity entity = event.getEntity().asLivingEntity();
         if (entity == null) return;
