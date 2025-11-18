@@ -10,7 +10,10 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -18,15 +21,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class SimulacrumSpellSlot extends SpellSlot {
     // COLD STATE
     public UUID casterUUID;
     public UUID targetUUID;
-    protected ItemStack stack;
 
     // NUMERIC STATE
     protected int lifetime = 0;
@@ -38,7 +42,6 @@ public class SimulacrumSpellSlot extends SpellSlot {
     public SpellCastContext context;
 
     public SimulacrumSpellSlot(
-            ItemStack stack,
             UUID targetUUID,
             UUID casterUUID,
             int threshold,
@@ -47,7 +50,6 @@ public class SimulacrumSpellSlot extends SpellSlot {
             Spell spell
     ) {
         super(spell);
-        this.stack = stack;
         this.threshold = threshold;
         this.maxLifetime = maxLifetime;
         this.targetUUID = targetUUID;
@@ -63,7 +65,6 @@ public class SimulacrumSpellSlot extends SpellSlot {
             Spell spell
     ) {
         super(spell);
-        this.stack = context.stack;
         this.casterUUID = context.caster.getUUID();
         if (context.target != null) {
             this.targetUUID = context.target.getUUID();
@@ -89,10 +90,6 @@ public class SimulacrumSpellSlot extends SpellSlot {
     public int getLifetime() {
         return lifetime;
     }
-    public ItemStack getStack() {
-        return stack;
-    }
-
 
     // Setters
 
@@ -108,9 +105,6 @@ public class SimulacrumSpellSlot extends SpellSlot {
         this.maxLifetime = maxLifetime;
     }
 
-    public void setStack(ItemStack stack) {
-        this.stack = stack;
-    }
 
     // Lifecycle methods
 
@@ -122,9 +116,9 @@ public class SimulacrumSpellSlot extends SpellSlot {
 
         if (caster instanceof LivingEntity livingCaster) {
             if (target instanceof LivingEntity livingTarget) {
-                context = new SpellCastContext(livingCaster, stack, livingTarget);
+                context = new SpellCastContext(livingCaster, livingTarget);
             } else {
-                context = new SpellCastContext(livingCaster, stack);
+                context = new SpellCastContext(livingCaster);
             }
         }
     }
@@ -167,13 +161,17 @@ public class SimulacrumSpellSlot extends SpellSlot {
     // CODEC
 
     public static final Codec<ItemStack> SAFE_ITEMSTACK =
-            ItemStack.CODEC.optionalFieldOf("stack", ItemStack.EMPTY).codec();
+            ItemStack.CODEC.comapFlatMap(
+                    stack -> stack.isEmpty() || BuiltInRegistries.ITEM.containsKey(BuiltInRegistries.ITEM.getKey(stack.getItem()))
+                            ? DataResult.success(stack)
+                            : DataResult.error(() -> "Invalid ItemStack in SimulacrumSpellSlot: " + stack),
+                    Function.identity()
+            );
 
     public static final Codec<UUID> UUID_CODEC =
             Codec.STRING.xmap(UUID::fromString, UUID::toString);
 
     public static final Codec<SimulacrumSpellSlot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            SAFE_ITEMSTACK.fieldOf("stack").forGetter(SimulacrumSpellSlot::getStack),
             UUID_CODEC.fieldOf("caster_uuid").forGetter(slot -> slot.casterUUID),
             UUID_CODEC.fieldOf("target_uuid").forGetter(slot -> slot.targetUUID),
             Codec.INT.fieldOf("threshold").forGetter(SimulacrumSpellSlot::getThreshold),
@@ -182,8 +180,8 @@ public class SimulacrumSpellSlot extends SpellSlot {
             Codec.INT.fieldOf("original_max_lifetime").forGetter(slot -> slot.originalMaxLifetime),
             ModSpells.SPELL_CODEC.fieldOf("spell").forGetter(SimulacrumSpellSlot::getSpell)
 
-    ).apply(instance, (stack, casterUUID, targetUUID, threshold, maxLifetime, originalMaxLifetime, lifetime, spell) -> {
-        SimulacrumSpellSlot slot = new SimulacrumSpellSlot(stack, casterUUID, targetUUID, threshold, maxLifetime, originalMaxLifetime, spell);
+    ).apply(instance, ( casterUUID, targetUUID, threshold, maxLifetime, originalMaxLifetime, lifetime, spell) -> {
+        SimulacrumSpellSlot slot = new SimulacrumSpellSlot(casterUUID, targetUUID, threshold, maxLifetime, originalMaxLifetime, spell);
         slot.setLifetime(lifetime);
         return slot;
     }));

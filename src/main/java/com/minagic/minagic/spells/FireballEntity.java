@@ -26,6 +26,7 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
         super(type, level);
         this.speed = SPEED;
         this.gravity = GRAVITY;
+        this.isEntityPiercing = false;
         this.setNoGravity(false);
     }
 

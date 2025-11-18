@@ -162,7 +162,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         ItemStack stack = player.getItemInHand(hand);
         T data = getData(stack);
 
-        SpellCastContext context = new SpellCastContext(serverPlayer, player.getItemInHand(hand));
+        SpellCastContext context = new SpellCastContext(serverPlayer);
 
         data.getActive().onStart(context);
         serverPlayer.startUsingItem(hand);
@@ -191,7 +191,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         }
         T data = getData(stack);
 
-        SpellCastContext context = new SpellCastContext(serverPlayer, player.getItemInHand(player.getUsedItemHand()));
+        SpellCastContext context = new SpellCastContext(serverPlayer);
         data.getActive().onStop(context);
         setData(stack, data);
 

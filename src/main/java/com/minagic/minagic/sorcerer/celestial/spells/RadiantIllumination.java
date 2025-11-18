@@ -2,7 +2,10 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
 import com.minagic.minagic.abstractionLayer.spells.ChargedSpell;
+import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellUtils;
 import com.minagic.minagic.utilities.VisualUtils;
@@ -35,6 +38,21 @@ public class RadiantIllumination extends ChargedSpell {
         VisualUtils.spawnRadialParticleRing(context.level(), context.target.position(), radius*32, density, ParticleTypes.END_ROD);
     }
 
+    @Override
+    public CastFailureReason canCast(SpellCastContext context) {
+        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
+            return CastFailureReason.CASTER_CLASS_MISMATCH;
+        }
+
+        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) == 0) {
+            return CastFailureReason.CASTER_SUBCLASS_MISMATCH;
+        }
+
+        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) < 5) {
+            return CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
+        }
+        return CastFailureReason.OK;
+    }
 
 
     @Override
@@ -55,13 +73,14 @@ public class RadiantIllumination extends ChargedSpell {
         for (LivingEntity target : targets) {
             SpellCastContext currentContext = new SpellCastContext(
                     context.caster,
-                    context.stack,
                     target
             );
             RadiantIlluminationBlinder blinder = new RadiantIlluminationBlinder();
             blinder.onStart(currentContext);
         }
     }
+
+
 
     public static class RadiantIlluminationBlinder extends AutonomousSpell {
         public RadiantIlluminationBlinder() {
@@ -105,8 +124,12 @@ public class RadiantIllumination extends ChargedSpell {
 
         @Override
         public final boolean preCast(SpellCastContext context){
-            return validateContext(context);
+            return validateContext(context) &&
+                    validateCaster(context) &&
+                    validateItem(context);
         }
+
+
 
         @Override
         public final void postCast(SpellCastContext context){

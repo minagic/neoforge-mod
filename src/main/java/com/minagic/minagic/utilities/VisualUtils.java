@@ -19,4 +19,28 @@ public class VisualUtils {
             world.sendParticles(particle, x, y, z, 1, 0, 0, 0, 0);
         }
     }
+
+    public static void createParticlesInSphere(ServerLevel level, Vec3 center, double radius, ParticleOptions options, int density) {
+        // Use spherical coordinates to generate evenly-ish spaced points on a sphere surface
+        double offset = 2.0 / density;
+        double increment = Math.PI * (3.0 - Math.sqrt(5.0)); // golden angle
+
+        for (int i = 0; i < density; i++) {
+            double y = i * offset - 1 + (offset / 2);
+            double r = Math.sqrt(1 - y * y);
+
+            double phi = i * increment;
+
+            double x = Math.cos(phi) * r;
+            double z = Math.sin(phi) * r;
+
+            // Scale to radius and translate to center
+            double px = center.x + x * radius;
+            double py = center.y + y * radius;
+            double pz = center.z + z * radius;
+
+            level.sendParticles(
+                    options, px, py, pz, 1, 0 , 0, 0, 0);
+        }
+    }
 }

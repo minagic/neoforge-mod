@@ -124,27 +124,6 @@ public abstract class Spell {
     }
 
     protected boolean validateItem(SpellCastContext context){
-        if (context.stack == null || context.stack.isEmpty()) {
-            HudAlertManager.addToEntity(
-                    context.caster,
-                    "Item to cast spell not found",
-                    0xFF555500,
-                    1,
-                    20
-            );
-            return false; // no spellcasting item
-        }
-
-        if (!(context.stack.getItem() instanceof SpellcastingItem<?>)) {
-            HudAlertManager.addToEntity(
-                    context.caster,
-                    "Item cannot perform spell casting",
-                    0xFF555500,
-                    1,
-                    20
-            );
-            return false; // item cannot perform spell casting
-        }
         return true;
     }
 
@@ -322,7 +301,6 @@ public abstract class Spell {
     protected SpellCastContext inverted(SpellCastContext ctx) {
         return new SpellCastContext(
                 ctx.target,
-                ctx.stack,
                 ctx.caster
         );
     }

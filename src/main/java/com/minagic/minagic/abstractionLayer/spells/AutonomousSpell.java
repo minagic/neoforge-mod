@@ -22,7 +22,7 @@ public class AutonomousSpell extends Spell {
     }
 
     @Override
-    public final boolean preTick(SpellCastContext context) {return false; }
+    public boolean preTick(SpellCastContext context) {return false; }
 
     @Override
     public final boolean preStop(SpellCastContext context) {return false; }
@@ -65,7 +65,7 @@ public class AutonomousSpell extends Spell {
 
 
     @Override
-    public final void start(SpellCastContext context) {
+    public void start(SpellCastContext context) {
         // Get player simulacra attachment
         PlayerSimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
@@ -81,7 +81,7 @@ public class AutonomousSpell extends Spell {
     }
 
     @Override
-    public final void tick(SpellCastContext context) {
+    public void tick(SpellCastContext context) {
         // No-op for autonomous spells
     }
 

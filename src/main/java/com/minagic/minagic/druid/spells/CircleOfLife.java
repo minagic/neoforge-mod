@@ -41,7 +41,6 @@ public class CircleOfLife extends AutonomousSpell {
             // Build a *fresh* context for each target
             SpellCastContext subCtx = new SpellCastContext(
                     context.caster,
-                    context.stack,
                     animal
             );
 
