@@ -28,56 +28,21 @@ public class AutonomousChargedSpell extends Spell {
     }
 
     @Override
-    public final boolean preCast(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateCooldown(context) &&
-                validateMana(context, getManaCost()) &&
-                validateItem(context);
+    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
+        return switch (phase) {
+            case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
+            case CAST -> validateCaster(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateItem(context);
+            case TICK, STOP, EXIT_SIMULACRUM -> false;
+        };
     }
 
     @Override
-    public final boolean preExitSimulacrum(SpellCastContext context) {
-        return false;
+    protected void after(SpellEventPhase phase, SpellCastContext context) {
+        if (phase == SpellEventPhase.CAST) {
+            applyCooldown(context, getManaCost());
+            drainMana(context, getManaCost());
+        }
     }
-
-    @Override
-    public final boolean preTick(SpellCastContext context) {
-        return false;
-    }
-
-    @Override
-    public final boolean preStart(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateCooldown(context) &&
-                validateItem(context);
-    }
-
-    @Override
-    public final boolean preStop(SpellCastContext context) {
-        return false;
-    }
-
-
-
-    @Override
-    public final void postStart(SpellCastContext context) {}
-
-    @Override
-    public final void postTick(SpellCastContext context) {}
-
-    @Override
-    public final void postStop(SpellCastContext context) {}
-
-    @Override
-    public final void postCast(SpellCastContext context) {
-        applyCooldown(context, getManaCost());
-        drainMana(context, getManaCost());
-    }
-
-    @Override
-    public final void postExitSimulacrum(SpellCastContext context) {}
 
 
 

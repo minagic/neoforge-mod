@@ -1,6 +1,7 @@
 package com.minagic.minagic.spellCasting.spellslots;
 
 import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
 import com.minagic.minagic.registries.ModSpells;
 
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -64,14 +65,14 @@ public class SpellSlot {
     public void onStart(SpellCastContext context) {
         resolveSpell();
         if (spell != null) {
-            spell.onStart(context);
+            spell.perform(SpellEventPhase.START, context);
         }
     }
 
     public void onStop(SpellCastContext context) {
         resolveSpell();
         if (spell != null) {
-            spell.onStop(context);
+            spell.perform(SpellEventPhase.STOP, context);
         }
     }
 

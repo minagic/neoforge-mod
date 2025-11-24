@@ -43,11 +43,11 @@ public class KineticNullificationField extends AutonomousSpell {
     }
 
     @Override
-    public final boolean preTick(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateItem(context) &&
-                validateSimulacrum(context);
+    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
+        if (phase == SpellEventPhase.TICK) {
+            return validateCaster(context) && validateItem(context) && validateSimulacrum(context);
+        }
+        return true;
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.minagic.minagic.spellCasting.spellslots;
 import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
 import com.minagic.minagic.abstractionLayer.spells.ChanneledAutonomousSpell;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSpellCooldowns;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
@@ -135,11 +136,11 @@ public class SimulacrumSpellSlot extends SpellSlot {
             return;
         }
 
-        this.getSpell().onTick(context);
+        this.getSpell().perform(SpellEventPhase.TICK, context);
 
         if (lifetime == threshold) {
             lifetime = 0;
-            getSpell().onCast(context);
+            getSpell().perform(SpellEventPhase.CAST, context);
         }
 
         maxLifetime --;
@@ -155,7 +156,7 @@ public class SimulacrumSpellSlot extends SpellSlot {
 //        System.out.println("lifetime: " + lifetime);
         if (context == null) return;
         context.simulacrtumLifetime = SimulacrumSpellData.fromSlot(this);
-        getSpell().onExitSimulacrum(context);
+        getSpell().perform(SpellEventPhase.EXIT_SIMULACRUM, context);
     }
 
     // CODEC

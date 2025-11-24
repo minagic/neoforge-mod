@@ -16,74 +16,28 @@ public class ChargedSpell extends Spell {
     }
 
 
-    // implement pre* methods
     @Override
-    public final boolean preStart(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateCooldown(context) &&
-                validateItem(context);
+    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
+        return switch (phase) {
+            case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
+            case TICK -> validateCaster(context) && validateItem(context) && validateSimulacrum(context);
+            case STOP, EXIT_SIMULACRUM -> validateCaster(context) && validateItem(context);
+            case CAST -> validateCaster(context) && validateItem(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateSimulacrum(context);
+        };
     }
 
     @Override
-    public final boolean preTick(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateItem(context) &&
-                validateSimulacrum(context);
-    }
-
-    @Override
-    public final boolean preStop(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateItem(context);
-    }
-
-    @Override
-    public final boolean preExitSimulacrum(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateItem(context);
-    }
-
-    @Override
-    public final boolean preCast(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateItem(context) &&
-                validateCooldown(context) &&
-                validateMana(context, getManaCost()) &&
-                validateSimulacrum(context);
-    }
-
-    // implement post* methods
-
-    @Override
-    public final void postStart(SpellCastContext context) {
-        // no-op
-    }
-
-    @Override
-    public final void postTick(SpellCastContext context) {
-        // no-op
-    }
-
-    @Override
-    public final void postStop(SpellCastContext context) {
-        // no-op
-    }
-
-    @Override
-    public final void postExitSimulacrum(SpellCastContext context) {
-         applyCooldown(context, getCooldownTicks()); // when dropped only apply cooldown
-    }
-
-    @Override
-    public final void postCast(SpellCastContext context) {
-        applyCooldown(context, getCooldownTicks());
-        drainMana(context, getManaCost());
-        PlayerSimulacraAttachment.clearChanneling(context.target);
+    protected void after(SpellEventPhase phase, SpellCastContext context) {
+        switch (phase) {
+            case CAST -> {
+                applyCooldown(context, getCooldownTicks());
+                drainMana(context, getManaCost());
+                PlayerSimulacraAttachment.clearChanneling(context.target);
+            }
+            case EXIT_SIMULACRUM -> applyCooldown(context, getCooldownTicks());
+            default -> {
+            }
+        }
     }
 
     // lifecycle methods
@@ -115,7 +69,7 @@ public class ChargedSpell extends Spell {
 
     @Override
     public final void exitSimulacrum(SpellCastContext context) {
-        onCast(context);
+        perform(SpellEventPhase.CAST, context);
     }
 
     // HUD

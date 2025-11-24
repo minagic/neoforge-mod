@@ -3,6 +3,7 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
 import com.minagic.minagic.abstractionLayer.spells.InstanteneousSpell;
+import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
@@ -115,7 +116,7 @@ public class TracerBullet extends InstanteneousSpell {
                         target
                 );
 
-                new Exposure().onStart(currentContext);
+                new Exposure().perform(SpellEventPhase.START, currentContext);
             }
             ServerLevel world = (ServerLevel) context.level();
             world.sendParticles(ParticleTypes.FALLING_NECTAR,
