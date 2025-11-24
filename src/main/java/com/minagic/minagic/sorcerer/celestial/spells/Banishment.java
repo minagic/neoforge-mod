@@ -44,33 +44,13 @@ public class Banishment extends Spell {
     }
 
     @Override
-    public final boolean preStart(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateCooldown(context) &&
-                validateItem(context);
-    }
-
-    @Override
-    public final boolean preTick(SpellCastContext context) {return false; }
-
-    @Override
-    public final boolean preStop(SpellCastContext context) {return false; }
-
-    @Override
-    public final boolean preCast(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateCooldown(context) &&
-                validateItem(context) &&
-                validateMetadata(context, List.of("bb_start", "bb_end"));
-    }
-
-    @Override
-    public final boolean preExitSimulacrum(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateItem(context);
+    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
+        return switch (phase) {
+            case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
+            case CAST -> validateCaster(context) && validateCooldown(context) && validateItem(context) && validateMetadata(context, List.of("bb_start", "bb_end"));
+            case EXIT_SIMULACRUM -> validateCaster(context) && validateItem(context);
+            case TICK, STOP -> false;
+        };
     }
 
 
@@ -163,13 +143,13 @@ public class Banishment extends Spell {
 
     }
 
-    public final void postStart(SpellCastContext context) {}
-    public final void postTick(SpellCastContext context) {}
-    public final void postStop(SpellCastContext context) {}
-    public final void postExitSimulacrum(SpellCastContext context) {
-        SpellMetadata.removeBlockPos(context.target, this, "bb_end");
-        SpellMetadata.removeBlockPos(context.target, this, "bb_start");
-        applyCooldown(context, cooldown);
+    @Override
+    protected void after(SpellEventPhase phase, SpellCastContext context) {
+        if (phase == SpellEventPhase.EXIT_SIMULACRUM) {
+            SpellMetadata.removeBlockPos(context.target, this, "bb_end");
+            SpellMetadata.removeBlockPos(context.target, this, "bb_start");
+            applyCooldown(context, cooldown);
+        }
     }
 
 

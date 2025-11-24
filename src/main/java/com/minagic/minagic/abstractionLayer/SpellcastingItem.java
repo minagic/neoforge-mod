@@ -2,6 +2,7 @@ package com.minagic.minagic.abstractionLayer;
 
 import com.minagic.minagic.abstractionLayer.gui.SpellEditorScreen;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.packets.SpellWritePacket;
@@ -164,7 +165,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
         SpellCastContext context = new SpellCastContext(serverPlayer);
 
-        data.getActive().onStart(context);
+        data.getActive().perform(SpellEventPhase.START, context);
         serverPlayer.startUsingItem(hand);
 
         return InteractionResult.SUCCESS;
@@ -192,7 +193,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         T data = getData(stack);
 
         SpellCastContext context = new SpellCastContext(serverPlayer);
-        data.getActive().onStop(context);
+        data.getActive().perform(SpellEventPhase.STOP, context);
         setData(stack, data);
 
         return true;

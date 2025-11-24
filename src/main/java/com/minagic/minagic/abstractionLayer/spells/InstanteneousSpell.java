@@ -18,66 +18,28 @@ public class InstanteneousSpell extends Spell{
         this.simulacraMaxLifetime = 0;
     }
 
-    // pre* methods
     @Override
-    public final boolean preStart(SpellCastContext context){
-       return true;
+    protected boolean before(SpellEventPhase phase, SpellCastContext context){
+        return switch (phase) {
+            case START -> true;
+            case STOP, EXIT_SIMULACRUM -> false;
+            case CAST -> validateCaster(context) && validateItem(context) && validateCooldown(context) && validateMana(context, getManaCost());
+            case TICK -> false;
+        };
     }
 
     @Override
-    public final boolean preTick(SpellCastContext context){
-        return false; // no-op
-    }
-
-    @Override
-    public final boolean preStop(SpellCastContext context){
-        return false; // no-op
-    }
-
-    @Override
-    public final boolean preExitSimulacrum(SpellCastContext context){
-        return false; // no-op
-    }
-
-    @Override
-    public final boolean preCast(SpellCastContext context){
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateItem(context) &&
-                validateCooldown(context) &&
-                validateMana(context, getManaCost());
-    }
-
-    // post* methods
-    @Override
-    public final void postStart(SpellCastContext context){
-        // no-op
-    }
-    @Override
-    public final void postTick(SpellCastContext context){
-        // no-op
-    }
-
-    @Override
-    public final void postStop(SpellCastContext context){
-        // no-op
-    }
-
-    @Override
-    public final void postExitSimulacrum(SpellCastContext context){
-        // no-op
-    }
-
-    @Override
-    public final void postCast(SpellCastContext context){
-        applyCooldown(context, getCooldownTicks());
-        drainMana(context, getManaCost());
+    protected void after(SpellEventPhase phase, SpellCastContext context){
+        if (phase == SpellEventPhase.CAST) {
+            applyCooldown(context, getCooldownTicks());
+            drainMana(context, getManaCost());
+        }
     }
 
     // lifecycle methods
     @Override
     public final void start(SpellCastContext context){
-        onCast(context);
+        perform(SpellEventPhase.CAST, context);
     }
 
     @Override

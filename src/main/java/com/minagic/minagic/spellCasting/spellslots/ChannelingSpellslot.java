@@ -1,6 +1,7 @@
 package com.minagic.minagic.spellCasting.spellslots;
 
 import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModSpells;
@@ -55,10 +56,10 @@ public class ChannelingSpellslot extends SimulacrumSpellSlot {
             return;
         }
 
-        this.getSpell().onTick(context);
+        this.getSpell().perform(SpellEventPhase.TICK, context);
 
         if (lifetime == threshold) {
-            getSpell().onCast(context);
+            getSpell().perform(SpellEventPhase.CAST, context);
             lifetime = 0;
         }
         context.simulacrtumLifetime = SimulacrumSpellData.fromSlot(this);

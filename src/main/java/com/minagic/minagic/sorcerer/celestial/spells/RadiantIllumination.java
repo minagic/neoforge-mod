@@ -2,6 +2,7 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
 import com.minagic.minagic.abstractionLayer.spells.ChargedSpell;
+import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
@@ -76,7 +77,7 @@ public class RadiantIllumination extends ChargedSpell {
                     target
             );
             RadiantIlluminationBlinder blinder = new RadiantIlluminationBlinder();
-            blinder.onStart(currentContext);
+            blinder.perform(SpellEventPhase.START, currentContext);
         }
     }
 
@@ -123,17 +124,11 @@ public class RadiantIllumination extends ChargedSpell {
         }
 
         @Override
-        public final boolean preCast(SpellCastContext context){
-            return validateContext(context) &&
-                    validateCaster(context) &&
-                    validateItem(context);
-        }
-
-
-
-        @Override
-        public final void postCast(SpellCastContext context){
-            // no-op
+        protected boolean before(SpellEventPhase phase, SpellCastContext context){
+            return switch (phase) {
+                case CAST -> validateCaster(context) && validateItem(context);
+                default -> true;
+            };
         }
 
     }

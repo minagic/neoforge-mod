@@ -18,57 +18,24 @@ public class ChanneledAutonomousSpell extends Spell {
 
     // lifecycle like of channelled spell
 
-    // pre* methods
-
     @Override
-    public final boolean preStart(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateCooldown(context) &&
-                validateItem(context);
+    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
+        return switch (phase) {
+            case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
+            case STOP -> validateCaster(context) && validateCooldown(context) && validateItem(context);
+            case CAST -> validateCaster(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateItem(context);
+            case TICK, EXIT_SIMULACRUM -> false;
+        };
     }
 
     @Override
-    public final boolean preTick(SpellCastContext context) {return false;}
-
-    @Override
-    public final boolean preStop(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateCooldown(context) &&
-                validateItem(context); }
-
-    @Override
-    public final boolean preExitSimulacrum(SpellCastContext context) {return false;}
-
-    @Override
-    public final boolean preCast(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateCooldown(context) &&
-                validateMana(context, getManaCost()) &&
-                validateItem(context);}
-
-    // post* methods
-
-    @Override
-    public final void postStart(SpellCastContext context) {}
-
-    @Override
-    public final void postTick(SpellCastContext context) {}
-
-    @Override
-    public final void postStop(SpellCastContext context) {}
-
-    @Override
-    public final void postCast(SpellCastContext context) {
-        drainMana(context, getManaCost());
-    }
-
-    @Override
-    public final void postExitSimulacrum(SpellCastContext context) {
-
-        applyCooldown(context, getCooldownTicks());
+    protected void after(SpellEventPhase phase, SpellCastContext context) {
+        switch (phase) {
+            case CAST -> drainMana(context, getManaCost());
+            case EXIT_SIMULACRUM -> applyCooldown(context, getCooldownTicks());
+            default -> {
+            }
+        }
     }
 
     @Override
