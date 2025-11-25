@@ -34,6 +34,9 @@ public class Config {
             .comment("A list of items to log on common setup.")
             .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), () -> "", Config::validateItemName);
 
+    public static final ModConfigSpec.ConfigValue<Boolean> ENABLE_DEV_SPELLS = BUILDER
+            .comment("Enable spells that are testing dev spells")
+            .define("enableDevSpells", false);
     static final ModConfigSpec SPEC = BUILDER.build();
 
     private static boolean validateItemName(final Object obj) {

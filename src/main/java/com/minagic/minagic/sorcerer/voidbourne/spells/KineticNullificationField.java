@@ -42,13 +42,6 @@ public class KineticNullificationField extends AutonomousSpell {
         return CastFailureReason.OK;
     }
 
-    @Override
-    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
-        if (phase == SpellEventPhase.TICK) {
-            return validateCaster(context) && validateItem(context) && validateSimulacrum(context);
-        }
-        return true;
-    }
 
     @Override
     public void tick(SpellCastContext context){
@@ -64,8 +57,6 @@ public class KineticNullificationField extends AutonomousSpell {
         for (Projectile projectile : targets) {
             System.out.println("Kinetic Nullification detected target: " + projectile);
             Minagic.ENTITY_FREEZER.freeze(projectile, (ServerLevel) context.level());
-//            projectile.setDeltaMovement(new Vec3(0, 1, 0));
-//            projectile.setNoGravity(true);
         }
 
         VisualUtils.createParticlesInSphere(

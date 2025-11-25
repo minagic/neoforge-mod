@@ -21,17 +21,16 @@ public class ChanneledAutonomousSpell extends Spell {
     @Override
     protected boolean before(SpellEventPhase phase, SpellCastContext context) {
         return switch (phase) {
-            case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
-            case STOP -> validateCaster(context) && validateCooldown(context) && validateItem(context);
-            case CAST -> validateCaster(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateItem(context);
-            case TICK, EXIT_SIMULACRUM -> false;
+            case START, STOP -> validateCaster(context) && validateCooldown(context) && validateItem(context);
+            case CAST, TICK -> validateCaster(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateItem(context);
+            case EXIT_SIMULACRUM -> validateCaster(context);
         };
     }
 
     @Override
     protected void after(SpellEventPhase phase, SpellCastContext context) {
         switch (phase) {
-            case CAST -> drainMana(context, getManaCost());
+            case TICK -> drainMana(context, getManaCost());
             case EXIT_SIMULACRUM -> applyCooldown(context, getCooldownTicks());
             default -> {
             }
@@ -39,24 +38,23 @@ public class ChanneledAutonomousSpell extends Spell {
     }
 
     @Override
-    public final void start(SpellCastContext context) {
+    public void start(SpellCastContext context) {
         PlayerSimulacraAttachment.setActiveChanneling(context, this, getSimulacrumThreshold(), -1);
 
     }
 
     @Override
-    public final void tick(SpellCastContext context) {
+    public void tick(SpellCastContext context) {
         // no-op
     }
 
     @Override
-    public final void stop(SpellCastContext context) {
+    public void stop(SpellCastContext context) {
         PlayerSimulacraAttachment.clearChanneling(context.target);
-
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context) {}
+    public void exitSimulacrum(SpellCastContext context) {}
 
     @Override
     public final float progress(SimulacrumSpellData data) {

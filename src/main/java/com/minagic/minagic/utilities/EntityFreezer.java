@@ -23,7 +23,7 @@ import net.minecraft.server.level.ServerLevel;
 
 public class EntityFreezer {
 
-    private static class Entry {
+    public static class Entry {
         Vec3 originalMotion;
         long lastSeenTick;
         Vec3 originalPosition;
@@ -39,6 +39,8 @@ public class EntityFreezer {
         public void add(){
             momentum = momentum.add(originalMotion);
         }
+
+        public Vec3 getOriginalMotion() {return originalMotion;}
     }
 
     // Tracks who is frozen and when they were last updated.
@@ -68,6 +70,10 @@ public class EntityFreezer {
         }
 
 
+    }
+
+    public Entry getStorageEntry(Entity entity) {
+        return frozen.get(entity);
     }
 
 
@@ -113,5 +119,7 @@ public class EntityFreezer {
         e.setPos(entry.originalPosition);
         e.hurtMarked = true;
     }
+
+
 
 }

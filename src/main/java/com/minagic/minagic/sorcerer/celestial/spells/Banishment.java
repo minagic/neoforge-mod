@@ -3,6 +3,7 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
