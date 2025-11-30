@@ -98,14 +98,6 @@ public class SimulacrumSpellSlot extends SpellSlot {
         this.lifetime = lifetime;
     }
 
-    public void setThreshold(Integer threshold) {
-        this.threshold = threshold;
-    }
-
-    public void setMaxLifetime(Integer maxLifetime) {
-        this.maxLifetime = maxLifetime;
-    }
-
 
     // Lifecycle methods
 

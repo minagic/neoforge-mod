@@ -75,7 +75,6 @@ public abstract class Spell {
 
         if (!(context.target.isAlive() && context.caster.isAlive())) return false;
 
-
         return !context.level().isClientSide(); // NEVER EVER CAST ON THE CLIENT
     }
 
@@ -154,8 +153,14 @@ public abstract class Spell {
 
 
     public void perform(SpellEventPhase phase, SpellCastContext context) {
-        if (!validateContext(context)) return;
-        if (!before(phase, context)) return;
+        if (!validateContext(context)) {
+            System.out.println("Performing "+ phase + " failed, invalid context");
+            return;
+        }
+        if (!before(phase, context)) {
+            System.out.println("Performing "+ phase + " failed, one or many prerequisites check failed");
+            return;
+        }
 
         switch (phase) {
             case START -> start(context);

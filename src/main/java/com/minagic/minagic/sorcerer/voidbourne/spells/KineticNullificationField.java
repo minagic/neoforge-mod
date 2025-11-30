@@ -5,16 +5,12 @@ import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.utilities.EntityFreezer;
 import com.minagic.minagic.utilities.SpellUtils;
 import com.minagic.minagic.utilities.VisualUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Set;

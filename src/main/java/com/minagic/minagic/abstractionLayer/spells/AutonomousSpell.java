@@ -17,9 +17,9 @@ public class AutonomousSpell extends Spell {
     protected boolean before(SpellEventPhase phase, SpellCastContext context) {
         return switch (phase) {
             case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
-            case CAST -> validateCaster(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateItem(context);
+            case TICK, CAST -> validateCaster(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateItem(context);
             case EXIT_SIMULACRUM -> validateCaster(context) && validateItem(context);
-            case TICK, STOP -> false;
+            case STOP -> false;
         };
     }
 
