@@ -79,15 +79,16 @@ public abstract class Spell {
     }
 
     protected boolean validateCaster(SpellCastContext context) {
-        if (context.caster == null) {
-            return false; // no caster
-        }
 
         CastFailureReason reason = canCast(context);
         if (reason != CastFailureReason.OK) {
             handleCastFailure(context, reason);
+            System.out.println("FAILURE REASON: " + reason);
             return false;
         }
+
+
+
 
         return true;
     }
@@ -102,6 +103,7 @@ public abstract class Spell {
                     1,
                     20
             );
+            System.out.println("FAILURE REASON: SPELL ON COOLDOWN");
             return false;
         }
         return true;
@@ -117,6 +119,7 @@ public abstract class Spell {
                     1,
                     20
             );
+            System.out.println("FAILURE REASON: INSUFFICIENT MANA");
             return false;
         }
         return true;
