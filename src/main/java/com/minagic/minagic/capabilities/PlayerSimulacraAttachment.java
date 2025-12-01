@@ -4,7 +4,6 @@ import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellCasting.spellslots.ChannelingSpellslot;
 import com.minagic.minagic.spellCasting.spellslots.SimulacrumSpellSlot;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -36,18 +35,13 @@ import org.jetbrains.annotations.NotNull;
 public class PlayerSimulacraAttachment {
 
     // --- Fields ---
-    private ChannelingSpellslot activeChanneling = null;
-    private float activeChannelingProgress = 0f;
+    private ResourceLocation activeChannelingSpellID = null;
     private Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = new HashMap<>();
     private Map<ResourceLocation, Float> simulacraReadiness = new HashMap<>();
 
     // --- Getters ---
-    public ChannelingSpellslot getActiveChanneling() {
-        return activeChanneling;
-    }
-
-    public float getActiveChannelingProgress() {
-        return activeChannelingProgress;
+    public SimulacrumSpellSlot getActiveChanneling() {
+        return backgroundSimulacra.get(activeChannelingSpellID);
     }
 
     public Map<ResourceLocation, SimulacrumSpellSlot> getBackgroundSimulacra() {
@@ -67,15 +61,15 @@ public class PlayerSimulacraAttachment {
     public static void setActiveChanneling(SpellCastContext context, Spell spell, int threshold, int maxLifetime) {
         LivingEntity entity = context.target;
         if (entity == null) return;
+        PlayerSimulacraAttachment.clearChanneling(entity);
+        PlayerSimulacraAttachment.addSimulacrum(context, spell, threshold, maxLifetime);
+        PlayerSimulacraAttachment.setActiveChannelingID(context, spell);
+    }
 
-        PlayerSimulacraAttachment attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA);
-        // Remove existing channeling if any
-        if (attachment.getActiveChanneling() != null) {
-            PlayerSimulacraAttachment.clearChanneling(entity);
-        }
-        attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA); // Refresh after clearing
-        attachment.activeChanneling = new ChannelingSpellslot(context, threshold, maxLifetime, maxLifetime, spell);
-        entity.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
+    public static void setActiveChannelingID(SpellCastContext context, Spell spell) {
+        PlayerSimulacraAttachment attachment = context.target.getData(ModAttachments.PLAYER_SIMULACRA);
+        attachment.activeChannelingSpellID = ModSpells.getId(spell);
+        context.target.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
     public static void addSimulacrum(SpellCastContext context, Spell spell, int threshold, int maxLifetime) {
@@ -135,60 +129,32 @@ public class PlayerSimulacraAttachment {
 
     public static void clearChanneling(LivingEntity target) {
         PlayerSimulacraAttachment attachment = target.getData(ModAttachments.PLAYER_SIMULACRA);
-        ChannelingSpellslot channeling = attachment.getActiveChanneling();
-        if (channeling != null) {
-            channeling.exitSpellSlot();
-        }
-
-        attachment.activeChanneling = null;
-        attachment.activeChannelingProgress = 0f;
+        ResourceLocation id = attachment.activeChannelingSpellID;
+        PlayerSimulacraAttachment.removeSimulacrum(target, id);
+        attachment.activeChannelingSpellID = null;
         target.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
-        
     }
-
-    private void setActiveChannelingProgress(Float progress) {
-        this.activeChannelingProgress = progress;
-    }
-
     // --- Logic ---
 
     public void resolveAllContexts(Level level) {
-        if (activeChanneling != null) {
-            activeChanneling.resolveContext(level);
-        }
+        System.out.println("[PlayerSimulacraAttachment] Resolving all contexts");
         for (SimulacrumSpellSlot slot : backgroundSimulacra.values()) {
             slot.resolveContext(level);
         }
+        System.out.println("[PlayerSimulacraAttachment] Resolved all contexts: OK");
     }
 
     public void tick() {
-        // Tick channeling first
-        if (activeChanneling != null) {
-            activeChanneling.tick();
-            this.activeChannelingProgress = SimulacrumSpellData.fromSlot(activeChanneling).progress();
-        }
-
-        //System.out.println("[PlayerSimulacraAttachment] Tick of active channeling complete. Active channeling progress: " + this.activeChannelingProgress);
 
         // Tick background simulacra
-
+        System.out.println("[PlayerSimulacraAttachment] Ticking all simulacra");
         for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : backgroundSimulacra.entrySet()) {
             SimulacrumSpellSlot slot = entry.getValue();
             slot.tick();
             float readiness = SimulacrumSpellData.fromSlot(slot).progress();
             simulacraReadiness.put(entry.getKey(), readiness);
         }
-    }
-
-    private void onChannelExpire(LivingEntity player, ResourceLocation spellId) {
-        if (player.level().isClientSide()) {return;}
-        clearChanneling(player);
-    }
-
-    private void onBackgroundExpire(LivingEntity player, ResourceLocation spellId) {
-        if (player.level().isClientSide()) {return;}
-        System.out.println("[PlayerSimulacraAttachment] Background simulacrum expired: " + spellId);
-        removeSimulacrum(player, spellId);
+        System.out.println("[PlayerSimulacraAttachment] Ticking complete");
     }
 
     // Rendering
@@ -206,9 +172,9 @@ public class PlayerSimulacraAttachment {
         int spacing = 14;
 
         // --- Active Channeling ---
-        ChannelingSpellslot active = att.getActiveChanneling();
+        SimulacrumSpellSlot active = att.getActiveChanneling();
         if (active != null) {
-            float progress = att.getActiveChannelingProgress();
+            float progress = att.getSimulacraReadiness().get(att.activeChannelingSpellID);
             String spellName = active.getSpell().getString();
 
             int filled = (int) (barWidth * progress);
@@ -217,7 +183,7 @@ public class PlayerSimulacraAttachment {
             // Background bar
             gui.fill(xRight - barWidth, y, xRight, y + barHeight, 0x80000000);
             // Progress bar
-            gui.fill(xRight - barWidth, y, xRight - barWidth + filled, y + barHeight, SimulacrumSpellData.fromSlot(active).color(activeChannelingProgress));
+            gui.fill(xRight - barWidth, y, xRight - barWidth + filled, y + barHeight, SimulacrumSpellData.fromSlot(active).color(progress));
 
             // Label
             gui.drawString(font, "[Channeling]", xRight - barWidth, y - 10, 0xFFCCCCCC, false);
@@ -231,6 +197,7 @@ public class PlayerSimulacraAttachment {
             yBottom -= (spacing);
 
             for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : att.getBackgroundSimulacra().entrySet()) {
+                if (entry.getKey().equals(att.activeChannelingSpellID)) continue; // skip active channeling
                 ResourceLocation id = entry.getKey();
                 SimulacrumSpellSlot slot = entry.getValue();
                 float readiness = att.getSimulacraReadiness().getOrDefault(id, 0f);
@@ -259,8 +226,8 @@ public class PlayerSimulacraAttachment {
         System.out.println(prefix + "Owner: " + safe(owner));
         System.out.println(prefix + "Owner UUID: " + safe(owner != null ? owner.getUUID() : null));
 
-        System.out.println(prefix + "Active Channeling: " + safe(activeChanneling));
-        System.out.println(prefix + "Active Channeling Progress: " + activeChannelingProgress);
+        System.out.println(prefix + "Active Channeling: " + safe(getActiveChanneling()));
+        System.out.println(prefix + "Active Channeling Progress: " + getSimulacraReadiness().get(activeChannelingSpellID));
 
         System.out.println(prefix + "Background Simulacra: "
                 + (backgroundSimulacra == null ? "null" : backgroundSimulacra.size()));
@@ -354,37 +321,23 @@ public class PlayerSimulacraAttachment {
 
     // --- Serializer ---
     public static class Serializer implements IAttachmentSerializer<PlayerSimulacraAttachment> {
-        private static final String KEY_ACTIVE = "active";
+        private static final String KEY_ACTIVE = "active_spell_id";
         private static final String KEY_SIMULACRA = "simulacra";
-        private static final String KEY_ACTIVE_PROGRESS = "progress";
         private static final String KEY_SIMULACRA_READINESS = "simulacra_readiness";
 
         // --- Core read ---
         @Override
         public @NotNull PlayerSimulacraAttachment read(@NotNull IAttachmentHolder holder, ValueInput input) {
+            System.out.println("INITIATING PHASE: READ");
             PlayerSimulacraAttachment att = new PlayerSimulacraAttachment();
-
-            // Active channeling
-            input.read(KEY_ACTIVE, SimulacrumSpellSlot.CODEC).ifPresent(slot -> {
-                if (slot instanceof ChannelingSpellslot channeling) {
-                    att.activeChanneling = channeling;
-                } else {
-                    att.activeChanneling = new ChannelingSpellslot(
-                            slot.casterUUID,
-                            slot.targetUUID,
-                            slot.getThreshold(),
-                            slot.getMaxLifetime(),
-                            slot.originalMaxLifetime,
-                            slot.getSpell()
-                    );
-                }
-            });
+            input.read(KEY_ACTIVE, ResourceLocation.CODEC).ifPresent(
+                    id -> att.activeChannelingSpellID = id
+            );
 
             // Background simulacra map
             input.read(KEY_SIMULACRA, Codec.unboundedMap(ResourceLocation.CODEC, SimulacrumSpellSlot.CODEC))
                     .ifPresent(map -> att.backgroundSimulacra.putAll(map));
 
-            input.read(KEY_ACTIVE_PROGRESS, Codec.FLOAT).ifPresent(progress -> att.activeChannelingProgress = progress);
             input.read(KEY_SIMULACRA_READINESS,
                             Codec.unboundedMap(ResourceLocation.CODEC, Codec.FLOAT))
                     .ifPresent(map -> att.getSimulacraReadiness().putAll(map));
@@ -395,11 +348,11 @@ public class PlayerSimulacraAttachment {
         // --- Core write ---
         @Override
         public boolean write(PlayerSimulacraAttachment attachment, @NotNull ValueOutput output) {
-            if (attachment.activeChanneling != null) {
-                output.store(KEY_ACTIVE, SimulacrumSpellSlot.CODEC, attachment.activeChanneling);
-            }
 
-            output.store(KEY_ACTIVE_PROGRESS, Codec.FLOAT, attachment.activeChannelingProgress);
+            System.out.println("INITIATING PHASE: WRITE");
+            if (attachment.activeChannelingSpellID != null) {
+                output.store(KEY_ACTIVE, ResourceLocation.CODEC, attachment.activeChannelingSpellID);
+            }
 
             if (!attachment.backgroundSimulacra.isEmpty()) {
                 output.store(KEY_SIMULACRA,
@@ -420,29 +373,18 @@ public class PlayerSimulacraAttachment {
     // --- CODEC ---
     public static final Codec<PlayerSimulacraAttachment> CODEC =
             RecordCodecBuilder.create(instance -> instance.group(
-                    ChannelingSpellslot.CODEC.optionalFieldOf("active_channeling")
-                            .forGetter(att -> Optional.ofNullable(att.getActiveChanneling())),
-                    Codec.FLOAT.fieldOf("active_channeling_progress")
-                            .forGetter(PlayerSimulacraAttachment::getActiveChannelingProgress),
+                    ResourceLocation.CODEC.optionalFieldOf("active_spell_id").forGetter(
+                            att -> Optional.ofNullable(att.activeChannelingSpellID)
+                    ),
                     Codec.unboundedMap(ResourceLocation.CODEC, SimulacrumSpellSlot.CODEC)
                             .optionalFieldOf("background_simulacra", Map.of())
                             .forGetter(PlayerSimulacraAttachment::getBackgroundSimulacra),
                     Codec.unboundedMap(ResourceLocation.CODEC, Codec.FLOAT)
                             .optionalFieldOf("simulacra_readiness", Map.of())
                             .forGetter(PlayerSimulacraAttachment::getSimulacraReadiness)
-            ).apply(instance, (maybeActive, progress, simulacraMap, readinessMap) -> {
+            ).apply(instance, ( activeSpellID, simulacraMap, readinessMap) -> {
                 PlayerSimulacraAttachment att = new PlayerSimulacraAttachment();
-                maybeActive.ifPresent(slot -> {
-                    att.activeChanneling = new ChannelingSpellslot(
-                            slot.casterUUID,
-                            slot.targetUUID,
-                            slot.getThreshold(),
-                            slot.getMaxLifetime(),
-                            slot.originalMaxLifetime,
-                            slot.getSpell());
-                    att.getActiveChanneling().setLifetime(slot.getLifetime());
-                });
-                att.setActiveChannelingProgress(progress);
+                activeSpellID.ifPresent(resourceLocation -> att.activeChannelingSpellID = resourceLocation);
                 att.getBackgroundSimulacra().putAll(simulacraMap);
                 att.getSimulacraReadiness().putAll(readinessMap);
                 return att;
