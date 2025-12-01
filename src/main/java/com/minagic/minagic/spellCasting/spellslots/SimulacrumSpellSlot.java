@@ -20,19 +20,19 @@ import java.util.function.Function;
 
 public class SimulacrumSpellSlot extends SpellSlot {
     // COLD STATE
-    public UUID casterUUID;
-    public UUID targetUUID;
-    public UUID hostId; // NEW — the actual entity hosting the simulacrum
+    private final UUID casterUUID;
+    private final UUID targetUUID;
+    private final UUID hostId; // NEW — the actual entity hosting the simulacrum
 
     // NUMERIC STATE
-    protected int lifetime = 0;
-    protected int threshold;
-    protected int maxLifetime; // -1 = no limit
-    public int originalMaxLifetime;
+    private int lifetime = 0;
+    private final int threshold;
+    private int maxLifetime; // -1 = no limit
+    private final int originalMaxLifetime;
 
     // HOT STATE
-    public SpellCastContext context;
-    public LivingEntity resolvedHostEntity; // runtime only
+    private SpellCastContext context;
+    private LivingEntity resolvedHostEntity; // runtime only
 
     // CONSTRUCTOR for deserialization
     public SimulacrumSpellSlot(
@@ -71,16 +71,6 @@ public class SimulacrumSpellSlot extends SpellSlot {
         this.maxLifetime = maxLifetime;
         this.originalMaxLifetime = originalMaxLifetime;
     }
-
-    // GETTERS
-    public int getThreshold() { return threshold; }
-    public int getMaxLifetime() { return maxLifetime; }
-    public int getLifetime() { return lifetime; }
-
-    public UUID getHostId() { return hostId; }
-
-    // SETTERS
-    public void setLifetime(int lifetime) { this.lifetime = lifetime; }
 
     // CONTEXT RESOLUTION
     public void resolveContext(Level level) {
@@ -121,7 +111,7 @@ public class SimulacrumSpellSlot extends SpellSlot {
         }
 
         lifetime++;
-        context.simulacrtumLifetime = SimulacrumSpellData.fromSlot(this);
+        context.simulacrtumLifetime = getSpellData();
         System.out.println("[SimulacrumSpellSlot] TICK START | Lifetime: " + lifetime + "/" + threshold + ", Max: " + maxLifetime);
         System.out.println("[SimulacrumSpellSlot] Resolved Host Entity: " + resolvedHostEntity + " | Host ID: " + hostId);
         if (maxLifetime == 0) {
@@ -141,9 +131,20 @@ public class SimulacrumSpellSlot extends SpellSlot {
         System.out.println("[SimulacrumSpellSlot] TICK COMPLETE | Lifetime: " + lifetime + "/" + threshold + ", Max: " + maxLifetime);
     }
 
+    public SimulacrumSpellData getSpellData() {
+        return new SimulacrumSpellData(
+                ModSpells.getId(getSpell()),
+                maxLifetime,
+                originalMaxLifetime,
+                lifetime,
+                threshold
+
+        );
+    }
+
     public void exitSpellSlot() {
         if (context == null) return;
-        context.simulacrtumLifetime = SimulacrumSpellData.fromSlot(this);
+        context.simulacrtumLifetime = getSpellData();
         getSpell().perform(SpellEventPhase.EXIT_SIMULACRUM, context);
     }
 
@@ -152,17 +153,17 @@ public class SimulacrumSpellSlot extends SpellSlot {
             Codec.STRING.xmap(UUID::fromString, UUID::toString);
 
     public static final Codec<SimulacrumSpellSlot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            UUID_CODEC.fieldOf("host_id").forGetter(SimulacrumSpellSlot::getHostId),
+            UUID_CODEC.fieldOf("host_id").forGetter(slot -> slot.hostId),
             UUID_CODEC.fieldOf("caster_uuid").forGetter(slot -> slot.casterUUID),
             UUID_CODEC.fieldOf("target_uuid").forGetter(slot -> slot.targetUUID),
-            Codec.INT.fieldOf("threshold").forGetter(SimulacrumSpellSlot::getThreshold),
-            Codec.INT.fieldOf("max_lifetime").forGetter(SimulacrumSpellSlot::getMaxLifetime),
-            Codec.INT.optionalFieldOf("lifetime", 0).forGetter(SimulacrumSpellSlot::getLifetime),
+            Codec.INT.fieldOf("threshold").forGetter(slot -> slot.threshold),
+            Codec.INT.fieldOf("max_lifetime").forGetter(slot -> slot.maxLifetime),
+            Codec.INT.optionalFieldOf("lifetime", 0).forGetter(slot -> slot.lifetime),
             Codec.INT.fieldOf("original_max_lifetime").forGetter(slot -> slot.originalMaxLifetime),
             ModSpells.SPELL_CODEC.fieldOf("spell").forGetter(SimulacrumSpellSlot::getSpell)
     ).apply(instance, (hostId, casterUUID, targetUUID, threshold, maxLifetime, lifetime, originalMaxLifetime, spell) -> {
         SimulacrumSpellSlot slot = new SimulacrumSpellSlot(hostId, targetUUID, casterUUID, threshold, maxLifetime, originalMaxLifetime, spell);
-        slot.setLifetime(lifetime);
+        slot.lifetime = lifetime;
         return slot;
     }));
 }

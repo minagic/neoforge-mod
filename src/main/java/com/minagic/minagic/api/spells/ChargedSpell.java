@@ -21,7 +21,7 @@ public class ChargedSpell extends Spell {
         return switch (phase) {
             case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
             case TICK -> validateCaster(context) && validateItem(context) && validateSimulacrum(context);
-            case STOP, EXIT_SIMULACRUM -> validateCaster(context) && validateItem(context);
+            case STOP, EXIT_SIMULACRUM -> validateCaster(context);
             case CAST -> validateCaster(context) && validateItem(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateSimulacrum(context);
         };
     }
@@ -43,7 +43,7 @@ public class ChargedSpell extends Spell {
     // lifecycle methods
     @Override
     public final void start(SpellCastContext context) {
-        SimulacraAttachment.setActiveChanneling(
+        SimulacraAttachment.setChanneling(
                 context.target,
                 context,
                 this,

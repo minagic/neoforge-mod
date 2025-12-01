@@ -26,29 +26,6 @@ public record SimulacrumSpellData(
             ).apply(instance, SimulacrumSpellData::new)
     );
 
-    // ===========
-    // Factory
-    // ===========
-    public static SimulacrumSpellData fromSlot(SimulacrumSpellSlot slot) {
-        if (slot == null) {
-            return new SimulacrumSpellData(
-                    ModSpells.getId(null), // RL for no spell
-                    0f,                    // remainingLifetime
-                    0f,                    // maxLifetime
-                    0f,                    // total elapsed lifetime
-                    0f                     // threshold
-            );
-
-        }
-
-        return new SimulacrumSpellData(
-                ModSpells.getId(slot.getSpell()),        // RL
-                slot.getMaxLifetime(),               // remainingLifetime
-                slot.originalMaxLifetime, // maxLifetime
-                slot.getLifetime(),                    // total elapsed lifetime
-                slot.getThreshold()                    // threshold
-        );
-    }
 
     // ===========
     // Derived fields
