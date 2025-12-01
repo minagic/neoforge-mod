@@ -4,7 +4,7 @@ import com.minagic.minagic.api.gui.SpellEditorScreen;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClass;
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.packets.SpellWritePacket;
 import com.minagic.minagic.packets.SyncSpellcastingDataPacket;
 import com.minagic.minagic.registries.ModAttachments;
@@ -61,7 +61,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     public void cycleSlotUp(Optional<Player> player, ItemStack stack) {
         if (player.isEmpty()) {return;} // player should not be empty
-        PlayerSimulacraAttachment.clearChanneling(player.get());
+        SimulacraAttachment.clearChanneling(player.get());
 
         T data = getData(stack);
 
@@ -84,7 +84,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     public void cycleSlotDown(Optional<Player> player, ItemStack stack) {
         if (player.isEmpty()) return; // player should not be empty
-        PlayerSimulacraAttachment.clearChanneling(player.get());
+        SimulacraAttachment.clearChanneling(player.get());
 
         if (player.get().isUsingItem()){
             releaseUsing(stack, player.get().level(), player.get(), 0); // stop using the item

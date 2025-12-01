@@ -32,7 +32,7 @@ import java.util.UUID;
  */
 import org.jetbrains.annotations.NotNull;
 
-public class PlayerSimulacraAttachment {
+public class SimulacraAttachment {
 
     // --- Fields ---
     private ResourceLocation activeChannelingSpellID = null;
@@ -53,7 +53,7 @@ public class PlayerSimulacraAttachment {
     }
 
     public static Map<ResourceLocation, SimulacrumSpellSlot> getBackgroundSimulacra(LivingEntity entity) {
-        PlayerSimulacraAttachment attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA);
+        SimulacraAttachment attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA);
         return attachment.getBackgroundSimulacra();
     }
     // --- Setters ---
@@ -61,13 +61,13 @@ public class PlayerSimulacraAttachment {
     public static void setActiveChanneling(SpellCastContext context, Spell spell, int threshold, int maxLifetime) {
         LivingEntity entity = context.target;
         if (entity == null) return;
-        PlayerSimulacraAttachment.clearChanneling(entity);
-        PlayerSimulacraAttachment.addSimulacrum(context, spell, threshold, maxLifetime);
-        PlayerSimulacraAttachment.setActiveChannelingID(context, spell);
+        SimulacraAttachment.clearChanneling(entity);
+        SimulacraAttachment.addSimulacrum(context, spell, threshold, maxLifetime);
+        SimulacraAttachment.setActiveChannelingID(context, spell);
     }
 
     public static void setActiveChannelingID(SpellCastContext context, Spell spell) {
-        PlayerSimulacraAttachment attachment = context.target.getData(ModAttachments.PLAYER_SIMULACRA);
+        SimulacraAttachment attachment = context.target.getData(ModAttachments.PLAYER_SIMULACRA);
         attachment.activeChannelingSpellID = ModSpells.getId(spell);
         context.target.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
@@ -75,9 +75,9 @@ public class PlayerSimulacraAttachment {
     public static void addSimulacrum(SpellCastContext context, Spell spell, int threshold, int maxLifetime) {
         if (context.target == null) return;
 
-        System.out.println("[PlayerSimulacraAttachment] Adding simulacrum spell: " + spell.getString());
+        System.out.println("[SimulacraAttachment] Adding simulacrum spell: " + spell.getString());
 
-        PlayerSimulacraAttachment attachment = context.target.getData(ModAttachments.PLAYER_SIMULACRA);
+        SimulacraAttachment attachment = context.target.getData(ModAttachments.PLAYER_SIMULACRA);
 
         attachment.backgroundSimulacra.put(
                 ModSpells.getId(spell),
@@ -89,7 +89,7 @@ public class PlayerSimulacraAttachment {
 
     public static void removeSimulacrum(LivingEntity player, ResourceLocation id) {
         // cast onExit
-        PlayerSimulacraAttachment attachment = player.getData(ModAttachments.PLAYER_SIMULACRA);
+        SimulacraAttachment attachment = player.getData(ModAttachments.PLAYER_SIMULACRA);
         Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = attachment.getBackgroundSimulacra();
         Map<ResourceLocation, Float> simulacraReadiness = attachment.getSimulacraReadiness();
 
@@ -111,7 +111,7 @@ public class PlayerSimulacraAttachment {
 
     public static void clearSimulacra(LivingEntity player) {
         // cast onExit for all background simulacra
-        PlayerSimulacraAttachment attachment = player.getData(ModAttachments.PLAYER_SIMULACRA);
+        SimulacraAttachment attachment = player.getData(ModAttachments.PLAYER_SIMULACRA);
         Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = attachment.getBackgroundSimulacra();
         Map<ResourceLocation, Float> simulacraReadiness = attachment.getSimulacraReadiness();
 
@@ -128,38 +128,38 @@ public class PlayerSimulacraAttachment {
     }
 
     public static void clearChanneling(LivingEntity target) {
-        PlayerSimulacraAttachment attachment = target.getData(ModAttachments.PLAYER_SIMULACRA);
+        SimulacraAttachment attachment = target.getData(ModAttachments.PLAYER_SIMULACRA);
         ResourceLocation id = attachment.activeChannelingSpellID;
-        PlayerSimulacraAttachment.removeSimulacrum(target, id);
+        SimulacraAttachment.removeSimulacrum(target, id);
         attachment.activeChannelingSpellID = null;
         target.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
     // --- Logic ---
 
     public void resolveAllContexts(Level level) {
-        System.out.println("[PlayerSimulacraAttachment] Resolving all contexts");
+        System.out.println("[SimulacraAttachment] Resolving all contexts");
         for (SimulacrumSpellSlot slot : backgroundSimulacra.values()) {
             slot.resolveContext(level);
         }
-        System.out.println("[PlayerSimulacraAttachment] Resolved all contexts: OK");
+        System.out.println("[SimulacraAttachment] Resolved all contexts: OK");
     }
 
     public void tick() {
 
         // Tick background simulacra
-        System.out.println("[PlayerSimulacraAttachment] Ticking all simulacra");
+        System.out.println("[SimulacraAttachment] Ticking all simulacra");
         for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : backgroundSimulacra.entrySet()) {
             SimulacrumSpellSlot slot = entry.getValue();
             slot.tick();
             float readiness = SimulacrumSpellData.fromSlot(slot).progress();
             simulacraReadiness.put(entry.getKey(), readiness);
         }
-        System.out.println("[PlayerSimulacraAttachment] Ticking complete");
+        System.out.println("[SimulacraAttachment] Ticking complete");
     }
 
     // Rendering
     public void render(GuiGraphics gui) {
-        PlayerSimulacraAttachment att = this; // or however you access it
+        SimulacraAttachment att = this; // or however you access it
 
         int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
@@ -221,7 +221,7 @@ public class PlayerSimulacraAttachment {
     }
 
     public void dump(String prefix, LivingEntity owner) {
-        System.out.println(prefix + "==== PlayerSimulacraAttachment ====");
+        System.out.println(prefix + "==== SimulacraAttachment ====");
 
         System.out.println(prefix + "Owner: " + safe(owner));
         System.out.println(prefix + "Owner UUID: " + safe(owner != null ? owner.getUUID() : null));
@@ -246,7 +246,7 @@ public class PlayerSimulacraAttachment {
             }
         }
 
-        System.out.println(prefix + "==== END PlayerSimulacraAttachment ====\n");
+        System.out.println(prefix + "==== END SimulacraAttachment ====\n");
     }
 
     private void dumpSlot(SimulacrumSpellSlot slot, String prefix, LivingEntity owner) {
@@ -320,16 +320,16 @@ public class PlayerSimulacraAttachment {
     }
 
     // --- Serializer ---
-    public static class Serializer implements IAttachmentSerializer<PlayerSimulacraAttachment> {
+    public static class Serializer implements IAttachmentSerializer<SimulacraAttachment> {
         private static final String KEY_ACTIVE = "active_spell_id";
         private static final String KEY_SIMULACRA = "simulacra";
         private static final String KEY_SIMULACRA_READINESS = "simulacra_readiness";
 
         // --- Core read ---
         @Override
-        public @NotNull PlayerSimulacraAttachment read(@NotNull IAttachmentHolder holder, ValueInput input) {
+        public @NotNull SimulacraAttachment read(@NotNull IAttachmentHolder holder, ValueInput input) {
             System.out.println("INITIATING PHASE: READ");
-            PlayerSimulacraAttachment att = new PlayerSimulacraAttachment();
+            SimulacraAttachment att = new SimulacraAttachment();
             input.read(KEY_ACTIVE, ResourceLocation.CODEC).ifPresent(
                     id -> att.activeChannelingSpellID = id
             );
@@ -347,7 +347,7 @@ public class PlayerSimulacraAttachment {
 
         // --- Core write ---
         @Override
-        public boolean write(PlayerSimulacraAttachment attachment, @NotNull ValueOutput output) {
+        public boolean write(SimulacraAttachment attachment, @NotNull ValueOutput output) {
 
             System.out.println("INITIATING PHASE: WRITE");
             if (attachment.activeChannelingSpellID != null) {
@@ -371,19 +371,19 @@ public class PlayerSimulacraAttachment {
     }
 
     // --- CODEC ---
-    public static final Codec<PlayerSimulacraAttachment> CODEC =
+    public static final Codec<SimulacraAttachment> CODEC =
             RecordCodecBuilder.create(instance -> instance.group(
                     ResourceLocation.CODEC.optionalFieldOf("active_spell_id").forGetter(
                             att -> Optional.ofNullable(att.activeChannelingSpellID)
                     ),
                     Codec.unboundedMap(ResourceLocation.CODEC, SimulacrumSpellSlot.CODEC)
                             .optionalFieldOf("background_simulacra", Map.of())
-                            .forGetter(PlayerSimulacraAttachment::getBackgroundSimulacra),
+                            .forGetter(SimulacraAttachment::getBackgroundSimulacra),
                     Codec.unboundedMap(ResourceLocation.CODEC, Codec.FLOAT)
                             .optionalFieldOf("simulacra_readiness", Map.of())
-                            .forGetter(PlayerSimulacraAttachment::getSimulacraReadiness)
+                            .forGetter(SimulacraAttachment::getSimulacraReadiness)
             ).apply(instance, ( activeSpellID, simulacraMap, readinessMap) -> {
-                PlayerSimulacraAttachment att = new PlayerSimulacraAttachment();
+                SimulacraAttachment att = new SimulacraAttachment();
                 activeSpellID.ifPresent(resourceLocation -> att.activeChannelingSpellID = resourceLocation);
                 att.getBackgroundSimulacra().putAll(simulacraMap);
                 att.getSimulacraReadiness().putAll(readinessMap);

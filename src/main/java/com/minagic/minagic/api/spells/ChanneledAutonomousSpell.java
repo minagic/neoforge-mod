@@ -1,6 +1,6 @@
 package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
@@ -39,7 +39,7 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public void start(SpellCastContext context) {
-        PlayerSimulacraAttachment.setActiveChanneling(context, this, getSimulacrumThreshold(), -1);
+        SimulacraAttachment.setActiveChanneling(context, this, getSimulacrumThreshold(), -1);
 
     }
 
@@ -50,7 +50,7 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public void stop(SpellCastContext context) {
-        PlayerSimulacraAttachment.clearChanneling(context.target);
+        SimulacraAttachment.clearChanneling(context.target);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
@@ -37,15 +37,15 @@ public class AutonomousSpell extends Spell {
     @Override
     public void start(SpellCastContext context) {
         // Get player simulacra attachment
-        PlayerSimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
+        SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
         // Toggle logic: if already active, remove; else add
         var existing = sim.getBackgroundSimulacra().get(ModSpells.getId(this));
 
         if (existing != null) {
-            PlayerSimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
+            SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
         } else {
-            PlayerSimulacraAttachment.addSimulacrum(context, this, getSimulacrumThreshold(), getMaxLifetime());
+            SimulacraAttachment.addSimulacrum(context, this, getSimulacrumThreshold(), getMaxLifetime());
         }
 
     }

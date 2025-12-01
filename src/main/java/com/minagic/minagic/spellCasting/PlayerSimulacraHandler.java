@@ -1,13 +1,9 @@
 package com.minagic.minagic.spellCasting;
 
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.registries.ModAttachments;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 public class PlayerSimulacraHandler {
     @SubscribeEvent
@@ -23,14 +19,14 @@ public class PlayerSimulacraHandler {
         //sim.dump("[DEBUG]", entity);
         entity.setData(ModAttachments.PLAYER_SIMULACRA.get(), sim);
         // Re-apply *only* when actually changed (or every N ticks)
-        //player.setData(ModAttachments.PLAYER_SIMULACRA.get(), PlayerSimulacraAttachment.copy(sim));
+        //player.setData(ModAttachments.PLAYER_SIMULACRA.get(), SimulacraAttachment.copy(sim));
     }
 
 //    @SubscribeEvent
 //    public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
 //        if (!(event.getEntity() instanceof ServerPlayer player)) return;
 //
-//        PlayerSimulacraAttachment simulacra = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
+//        SimulacraAttachment simulacra = player.getData(ModAttachments.PLAYER_SIMULACRA.get());
 //        if (simulacra == null) return;
 //
 //        // Clear all active simulacra to avoid memory leaks or ghost ticking

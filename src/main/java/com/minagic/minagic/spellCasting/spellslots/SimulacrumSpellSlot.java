@@ -2,7 +2,7 @@ package com.minagic.minagic.spellCasting.spellslots;
 
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -114,7 +114,7 @@ public class SimulacrumSpellSlot extends SpellSlot {
         lifetime ++;
         context.simulacrtumLifetime = SimulacrumSpellData.fromSlot(this);
         if (maxLifetime == 0) {
-            PlayerSimulacraAttachment.removeSimulacrum(target, ModSpells.getId(getSpell()));
+            SimulacraAttachment.removeSimulacrum(target, ModSpells.getId(getSpell()));
             return;
         }
 

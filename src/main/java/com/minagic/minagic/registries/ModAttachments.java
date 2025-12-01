@@ -39,11 +39,11 @@ public class ModAttachments {
                             .sync(ByteBufCodecs.fromCodec(Mana.CODEC))
                             .build()
             );
-    public static final Supplier<AttachmentType<PlayerSimulacraAttachment>> PLAYER_SIMULACRA =
+    public static final Supplier<AttachmentType<SimulacraAttachment>> PLAYER_SIMULACRA =
             ATTACHMENTS.register("player_simulacra", () ->
-                    AttachmentType.builder(PlayerSimulacraAttachment::new)
-                            .serialize(new PlayerSimulacraAttachment.Serializer())
-                            .sync(ByteBufCodecs.fromCodec(PlayerSimulacraAttachment.CODEC))
+                    AttachmentType.builder(SimulacraAttachment::new)
+                            .serialize(new SimulacraAttachment.Serializer())
+                            .sync(ByteBufCodecs.fromCodec(SimulacraAttachment.CODEC))
                             .build()
             );
 

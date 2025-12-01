@@ -1,6 +1,6 @@
 package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
@@ -32,7 +32,7 @@ public class ChanneledSpell extends Spell {
             case CAST -> {
                 applyCooldown(context, getCooldownTicks());
                 drainMana(context, getManaCost());
-                PlayerSimulacraAttachment.clearChanneling(context.target);
+                SimulacraAttachment.clearChanneling(context.target);
             }
             case EXIT_SIMULACRUM -> applyCooldown(context, getCooldownTicks());
             default -> {
@@ -45,7 +45,7 @@ public class ChanneledSpell extends Spell {
 
     @Override
     public final void start(SpellCastContext context) {
-        PlayerSimulacraAttachment.setActiveChanneling(
+        SimulacraAttachment.setActiveChanneling(
                 context,
                 this,
                 getSimulacrumThreshold(),
@@ -58,7 +58,7 @@ public class ChanneledSpell extends Spell {
     }
     @Override
     public final void stop(SpellCastContext context) {
-        PlayerSimulacraAttachment.clearChanneling(context.target);
+        SimulacraAttachment.clearChanneling(context.target);
     }
 
     @Override

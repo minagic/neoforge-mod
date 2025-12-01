@@ -2,7 +2,7 @@ package com.minagic.minagic.druid.spells;
 
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -44,7 +44,7 @@ public class CircleOfLife extends AutonomousSpell {
                     animal
             );
 
-            PlayerSimulacraAttachment.addSimulacrum(
+            SimulacraAttachment.addSimulacrum(
                     subCtx,
                     oath,
                     oath.getSimulacrumThreshold(),

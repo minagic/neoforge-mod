@@ -6,7 +6,7 @@ import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
@@ -160,11 +160,11 @@ public class TracerBullet extends InstanteneousSpell {
         @Override
         public void start(SpellCastContext context){
             // Get player simulacra attachment
-            PlayerSimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
+            SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
             var existing = sim.getBackgroundSimulacra().get(ModSpells.getId(this));
             if (existing != null) return;
-            PlayerSimulacraAttachment.addSimulacrum(context, this, getSimulacrumThreshold(), getMaxLifetime());
+            SimulacraAttachment.addSimulacrum(context, this, getSimulacrumThreshold(), getMaxLifetime());
         }
     }
 
