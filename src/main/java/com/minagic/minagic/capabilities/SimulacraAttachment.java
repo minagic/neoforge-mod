@@ -52,10 +52,6 @@ public class SimulacraAttachment {
         return simulacraReadiness;
     }
 
-    public static Map<ResourceLocation, SimulacrumSpellSlot> getBackgroundSimulacra(LivingEntity entity) {
-        SimulacraAttachment attachment = entity.getData(ModAttachments.PLAYER_SIMULACRA);
-        return attachment.getBackgroundSimulacra();
-    }
     // --- Setters ---
 
     public static void setActiveChanneling(SpellCastContext context, Spell spell, int threshold, int maxLifetime) {
@@ -103,8 +99,8 @@ public class SimulacraAttachment {
         simulacraReadiness.remove(id);
 
 
-        attachment.backgroundSimulacra = (backgroundSimulacra);
-        attachment.simulacraReadiness = (simulacraReadiness);
+        attachment.backgroundSimulacra = backgroundSimulacra;
+        attachment.simulacraReadiness = simulacraReadiness;
 
         player.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
