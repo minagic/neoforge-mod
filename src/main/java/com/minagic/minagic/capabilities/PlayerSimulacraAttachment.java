@@ -193,7 +193,7 @@ public class PlayerSimulacraAttachment {
         }
 
         // --- Simulacra List ---
-        if (!att.getBackgroundSimulacra().isEmpty()) {
+        if (!att.getBackgroundSimulacra().isEmpty() && !(att.backgroundSimulacra.size() == 1 && att.backgroundSimulacra.containsKey(att.activeChannelingSpellID))) {
             yBottom -= (spacing);
 
             for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : att.getBackgroundSimulacra().entrySet()) {
