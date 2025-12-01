@@ -57,7 +57,7 @@ public class Banishment extends Spell {
     public final void start(SpellCastContext context) {
         if (!SpellMetadata.has(context.target, this, "bb_start")){
             SpellMetadata.setBlockPos(context.target, this, "bb_start", context.target.blockPosition());
-            SimulacraAttachment.addSimulacrum(context, this, -1, 200);
+            SimulacraAttachment.addSimulacrum(context.target, context, this, -1, 200);
             return;
         }
 
@@ -67,7 +67,7 @@ public class Banishment extends Spell {
             int manaCost = (int) MathUtils.areaBetween(SpellMetadata.getBlockPos(context.target, this, "bb_start"), pos);
             if (!validateMana(context, manaCost) || manaCost == 0) return;
             SpellMetadata.setBlockPos(context.target, this, "bb_end", pos);
-            SimulacraAttachment.addSimulacrum(context, this, 1, -1);
+            SimulacraAttachment.addSimulacrum(context.target, context, this, 1, -1);
             drainMana(context, manaCost);
             return;
         }

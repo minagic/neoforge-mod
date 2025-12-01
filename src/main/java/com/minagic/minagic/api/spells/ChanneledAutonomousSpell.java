@@ -39,7 +39,7 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public void start(SpellCastContext context) {
-        SimulacraAttachment.setActiveChanneling(context, this, getSimulacrumThreshold(), -1);
+        SimulacraAttachment.setActiveChanneling(context.target, context, this, getSimulacrumThreshold(), -1);
 
     }
 

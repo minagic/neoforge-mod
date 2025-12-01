@@ -45,6 +45,7 @@ public class CircleOfLife extends AutonomousSpell {
             );
 
             SimulacraAttachment.addSimulacrum(
+                    subCtx.target,
                     subCtx,
                     oath,
                     oath.getSimulacrumThreshold(),

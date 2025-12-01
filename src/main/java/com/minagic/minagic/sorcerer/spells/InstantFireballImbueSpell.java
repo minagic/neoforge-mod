@@ -118,7 +118,8 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
         target.setData(ModAttachments.PLAYER_CLASS, targetClass);
         System.out.println("Applying forced fireball barrage to target: " + target);
         SimulacraAttachment.addSimulacrum(
-                context,
+                target,
+                new SpellCastContext(target, context.caster),
                 new FireballBarrage(),
                 20, // threshold
                 200 // max lifetime

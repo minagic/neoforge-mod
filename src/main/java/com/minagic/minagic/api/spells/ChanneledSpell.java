@@ -46,6 +46,7 @@ public class ChanneledSpell extends Spell {
     @Override
     public final void start(SpellCastContext context) {
         SimulacraAttachment.setActiveChanneling(
+                context.target,
                 context,
                 this,
                 getSimulacrumThreshold(),

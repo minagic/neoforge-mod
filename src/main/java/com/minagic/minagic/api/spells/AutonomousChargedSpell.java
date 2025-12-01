@@ -59,7 +59,7 @@ public class AutonomousChargedSpell extends Spell {
         if (existing != null) {
             SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
         } else {
-            SimulacraAttachment.addSimulacrum(context, this, getSimulacrumThreshold(), getMaxLifetime());
+            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getMaxLifetime());
         }
     }
 

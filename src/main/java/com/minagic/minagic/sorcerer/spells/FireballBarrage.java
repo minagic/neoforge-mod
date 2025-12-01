@@ -1,6 +1,6 @@
 package com.minagic.minagic.sorcerer.spells;
 
-import com.minagic.minagic.api.spells.InvertedAutonomousSpell;
+import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
  * A powerful spell that rapidly fires fireballs forward.
  * Intended for Celestial / Pyromancer classes.
  */
-public class FireballBarrage extends InvertedAutonomousSpell {
+public class FireballBarrage extends AutonomousSpell {
     public FireballBarrage() {
         super();
 

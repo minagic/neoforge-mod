@@ -19,7 +19,7 @@ public class AutonomousSpell extends Spell {
             case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
             case TICK, CAST -> validateCaster(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateItem(context);
             case EXIT_SIMULACRUM -> validateCaster(context) && validateItem(context);
-            case STOP -> false;
+            case STOP -> validateContext(context);
         };
     }
 
@@ -45,7 +45,7 @@ public class AutonomousSpell extends Spell {
         if (existing != null) {
             SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
         } else {
-            SimulacraAttachment.addSimulacrum(context, this, getSimulacrumThreshold(), getMaxLifetime());
+            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getMaxLifetime());
         }
 
     }
