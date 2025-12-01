@@ -1,6 +1,6 @@
 package com.minagic.minagic.sorcerer;
 
-import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
+import com.minagic.minagic.api.SpellcastingItemData;
 import com.minagic.minagic.spellCasting.spellslots.SpellSlot;
 import com.mojang.serialization.Codec;
 

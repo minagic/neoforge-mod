@@ -1,6 +1,6 @@
 package com.minagic.minagic.druid.spells;
 
-import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
+import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;

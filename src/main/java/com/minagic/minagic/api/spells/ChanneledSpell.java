@@ -1,4 +1,4 @@
-package com.minagic.minagic.abstractionLayer.spells;
+package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;

@@ -1,6 +1,5 @@
-package com.minagic.minagic.abstractionLayer.spells;
+package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.abstractionLayer.SpellcastingItem;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.capabilities.SpellMetadata;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;

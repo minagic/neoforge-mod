@@ -1,15 +1,12 @@
 package com.minagic.minagic.gui;
 
-import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.SpellcastingItem;
-import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.api.SpellcastingItem;
+import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModSpells;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;

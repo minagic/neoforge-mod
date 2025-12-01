@@ -1,13 +1,12 @@
 package com.minagic.minagic.packets;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.SpellcastingItem;
-import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
+import com.minagic.minagic.api.SpellcastingItem;
+import com.minagic.minagic.api.SpellcastingItemData;
 import com.minagic.minagic.registries.ModDataComponents;
 import com.minagic.minagic.sorcerer.StaffData;
 import com.minagic.minagic.wizard.WizardWandData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

@@ -1,10 +1,8 @@
 package com.minagic.minagic.testing.spells;
 
 import com.minagic.minagic.Config;
-import com.minagic.minagic.abstractionLayer.spells.InstanteneousSpell;
+import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
 
 public class InstantaneousDevSpell extends InstanteneousSpell {
 

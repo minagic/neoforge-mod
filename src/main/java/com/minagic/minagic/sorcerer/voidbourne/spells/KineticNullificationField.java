@@ -1,7 +1,7 @@
 package com.minagic.minagic.sorcerer.voidbourne.spells;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
+import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;

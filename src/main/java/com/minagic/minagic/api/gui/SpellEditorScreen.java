@@ -1,8 +1,8 @@
-package com.minagic.minagic.abstractionLayer.gui;
+package com.minagic.minagic.api.gui;
 
-import com.minagic.minagic.abstractionLayer.SpellcastingItem;
-import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
-import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.api.SpellcastingItem;
+import com.minagic.minagic.api.SpellcastingItemData;
+import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spellCasting.spellslots.SpellSlot;
 import net.minecraft.client.Minecraft;

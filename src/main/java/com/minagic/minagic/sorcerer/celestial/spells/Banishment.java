@@ -2,8 +2,8 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.MinagicDamage;
-import com.minagic.minagic.abstractionLayer.spells.Spell;
-import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
+import com.minagic.minagic.api.spells.Spell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
@@ -13,9 +13,7 @@ import com.minagic.minagic.utilities.SpellUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 import java.util.Set;

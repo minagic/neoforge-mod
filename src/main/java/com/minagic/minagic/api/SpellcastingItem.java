@@ -1,8 +1,8 @@
-package com.minagic.minagic.abstractionLayer;
+package com.minagic.minagic.api;
 
-import com.minagic.minagic.abstractionLayer.gui.SpellEditorScreen;
-import com.minagic.minagic.abstractionLayer.spells.Spell;
-import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
+import com.minagic.minagic.api.gui.SpellEditorScreen;
+import com.minagic.minagic.api.spells.Spell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.packets.SpellWritePacket;

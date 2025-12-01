@@ -1,6 +1,6 @@
 package com.minagic.minagic.capabilities;
 
-import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.mojang.datafixers.util.Pair;

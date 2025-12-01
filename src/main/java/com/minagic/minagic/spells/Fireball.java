@@ -1,6 +1,6 @@
 package com.minagic.minagic.spells;
 
-import com.minagic.minagic.abstractionLayer.spells.InstanteneousSpell;
+import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;

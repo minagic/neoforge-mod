@@ -1,10 +1,9 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
-import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
-import com.minagic.minagic.abstractionLayer.spells.ChargedSpell;
-import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
+import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.api.spells.ChargedSpell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -13,7 +12,6 @@ import com.minagic.minagic.utilities.VisualUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;

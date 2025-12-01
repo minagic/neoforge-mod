@@ -1,9 +1,9 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
-import com.minagic.minagic.abstractionLayer.spells.InstanteneousSpell;
-import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
+import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.api.spells.InstanteneousSpell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
@@ -14,7 +14,6 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;

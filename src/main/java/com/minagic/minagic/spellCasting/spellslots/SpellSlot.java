@@ -1,7 +1,7 @@
 package com.minagic.minagic.spellCasting.spellslots;
 
-import com.minagic.minagic.abstractionLayer.spells.Spell;
-import com.minagic.minagic.abstractionLayer.spells.SpellEventPhase;
+import com.minagic.minagic.api.spells.Spell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.registries.ModSpells;
 
 import com.minagic.minagic.spellCasting.SpellCastContext;

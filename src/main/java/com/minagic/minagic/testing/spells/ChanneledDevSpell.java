@@ -2,10 +2,8 @@ package com.minagic.minagic.testing.spells;
 
 
 import com.minagic.minagic.Config;
-import com.minagic.minagic.abstractionLayer.spells.ChanneledSpell;
+import com.minagic.minagic.api.spells.ChanneledSpell;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
 
 public class ChanneledDevSpell extends ChanneledSpell {
 

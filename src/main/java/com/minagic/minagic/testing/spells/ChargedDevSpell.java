@@ -1,10 +1,8 @@
 package com.minagic.minagic.testing.spells;
 
 import com.minagic.minagic.Config;
-import com.minagic.minagic.abstractionLayer.spells.ChargedSpell;
+import com.minagic.minagic.api.spells.ChargedSpell;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
 
 public class ChargedDevSpell extends ChargedSpell {
 

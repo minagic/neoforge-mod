@@ -2,13 +2,11 @@ package com.minagic.minagic.druid.spells;
 
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.MinagicDamage;
-import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
-import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.capabilities.Mana;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.animal.Animal;
 
 import java.util.Set;
 
