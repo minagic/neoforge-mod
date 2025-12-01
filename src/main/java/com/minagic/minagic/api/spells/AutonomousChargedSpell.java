@@ -54,9 +54,9 @@ public class AutonomousChargedSpell extends Spell {
         SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
         // Toggle logic: if already active, remove; else add
-        var existing = sim.getBackgroundSimulacra().get(ModSpells.getId(this));
+        boolean existing = sim.hasSpell(ModSpells.getId(this));
 
-        if (existing != null) {
+        if (existing) {
             SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
         } else {
             SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getMaxLifetime());

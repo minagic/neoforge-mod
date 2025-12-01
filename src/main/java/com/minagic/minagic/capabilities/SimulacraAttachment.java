@@ -17,13 +17,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Holds all simulacrum spell data for a player.
@@ -31,6 +29,7 @@ import java.util.UUID;
  * - Any number of backgroundSimulacra keyed by spell ID
  */
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SimulacraAttachment {
 
@@ -40,17 +39,19 @@ public class SimulacraAttachment {
     private Map<ResourceLocation, Float> simulacraReadiness = new HashMap<>();
 
     // --- Getters ---
-    public SimulacrumSpellSlot getActiveChanneling() {
-        return backgroundSimulacra.get(activeChannelingSpellID);
+
+    public boolean hasActiveChanneling() {
+        return activeChannelingSpellID != null && backgroundSimulacra.containsKey(activeChannelingSpellID);
     }
 
-    public Map<ResourceLocation, SimulacrumSpellSlot> getBackgroundSimulacra() {
-        return backgroundSimulacra;
+    public @Nullable ResourceLocation getActiveChannelingID() {
+        return activeChannelingSpellID;
     }
 
-    public Map<ResourceLocation, Float> getSimulacraReadiness() {
-        return simulacraReadiness;
+    public boolean hasSpell(ResourceLocation id) {
+        return backgroundSimulacra.containsKey(id);
     }
+
 
     // --- Setters ---
 
@@ -85,8 +86,8 @@ public class SimulacraAttachment {
     public static void removeSimulacrum(Entity host, ResourceLocation id) {
         // cast onExit
         SimulacraAttachment attachment = host.getData(ModAttachments.PLAYER_SIMULACRA);
-        Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = attachment.getBackgroundSimulacra();
-        Map<ResourceLocation, Float> simulacraReadiness = attachment.getSimulacraReadiness();
+        Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = attachment.backgroundSimulacra;
+        Map<ResourceLocation, Float> simulacraReadiness = attachment.simulacraReadiness;
 
 
         SimulacrumSpellSlot slot = backgroundSimulacra.get(id);
@@ -107,8 +108,8 @@ public class SimulacraAttachment {
     public static void clearSimulacra(Entity host) {
         // cast onExit for all background simulacra
         SimulacraAttachment attachment = host.getData(ModAttachments.PLAYER_SIMULACRA);
-        Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = attachment.getBackgroundSimulacra();
-        Map<ResourceLocation, Float> simulacraReadiness = attachment.getSimulacraReadiness();
+        Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = attachment.backgroundSimulacra;
+        Map<ResourceLocation, Float> simulacraReadiness = attachment.simulacraReadiness;
 
         for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : backgroundSimulacra.entrySet()) {
             entry.getValue().exitSpellSlot();
@@ -163,9 +164,9 @@ public class SimulacraAttachment {
         int spacing = 14;
 
         // --- Active Channeling ---
-        SimulacrumSpellSlot active = att.getActiveChanneling();
+        SimulacrumSpellSlot active = att.backgroundSimulacra.get(att.activeChannelingSpellID);
         if (active != null) {
-            float progress = att.getSimulacraReadiness().get(att.activeChannelingSpellID);
+            float progress = att.simulacraReadiness.get(att.activeChannelingSpellID);
             String spellName = active.getSpell().getString();
 
             int filled = (int) (barWidth * progress);
@@ -184,14 +185,14 @@ public class SimulacraAttachment {
         }
 
         // --- Simulacra List ---
-        if (!att.getBackgroundSimulacra().isEmpty() && !(att.backgroundSimulacra.size() == 1 && att.backgroundSimulacra.containsKey(att.activeChannelingSpellID))) {
+        if (!att.simulacraReadiness.isEmpty() && !(att.backgroundSimulacra.size() == 1 && att.backgroundSimulacra.containsKey(att.activeChannelingSpellID))) {
             yBottom -= (spacing);
 
-            for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : att.getBackgroundSimulacra().entrySet()) {
+            for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : att.backgroundSimulacra.entrySet()) {
                 if (entry.getKey().equals(att.activeChannelingSpellID)) continue; // skip active channeling
                 ResourceLocation id = entry.getKey();
                 SimulacrumSpellSlot slot = entry.getValue();
-                float readiness = att.getSimulacraReadiness().getOrDefault(id, 0f);
+                float readiness = att.simulacraReadiness.getOrDefault(id, 0f);
                 String spellName = slot.getSpell().getString();
 
                 int filled = (int) (barWidth * readiness);
@@ -217,8 +218,8 @@ public class SimulacraAttachment {
         System.out.println(prefix + "Owner: " + safe(owner));
         System.out.println(prefix + "Owner UUID: " + safe(owner != null ? owner.getUUID() : null));
 
-        System.out.println(prefix + "Active Channeling: " + safe(getActiveChanneling()));
-        System.out.println(prefix + "Active Channeling Progress: " + getSimulacraReadiness().get(activeChannelingSpellID));
+        System.out.println(prefix + "Active Channeling: " + safe(activeChannelingSpellID));
+        System.out.println(prefix + "Active Channeling Progress: " + simulacraReadiness.get(activeChannelingSpellID));
 
         System.out.println(prefix + "Background Simulacra: "
                 + (backgroundSimulacra == null ? "null" : backgroundSimulacra.size()));
@@ -330,7 +331,7 @@ public class SimulacraAttachment {
 
             input.read(KEY_SIMULACRA_READINESS,
                             Codec.unboundedMap(ResourceLocation.CODEC, Codec.FLOAT))
-                    .ifPresent(map -> att.getSimulacraReadiness().putAll(map));
+                    .ifPresent(map -> att.simulacraReadiness.putAll(map));
 
             return att;
         }
@@ -348,10 +349,10 @@ public class SimulacraAttachment {
                         attachment.backgroundSimulacra);
             }
 
-            if (!attachment.getSimulacraReadiness().isEmpty()) {
+            if (!attachment.simulacraReadiness.isEmpty()) {
                 output.store(KEY_SIMULACRA_READINESS,
                         Codec.unboundedMap(ResourceLocation.CODEC, Codec.FLOAT),
-                        attachment.getSimulacraReadiness());
+                        attachment.simulacraReadiness);
             }
 
             return true;
@@ -366,15 +367,15 @@ public class SimulacraAttachment {
                     ),
                     Codec.unboundedMap(ResourceLocation.CODEC, SimulacrumSpellSlot.CODEC)
                             .optionalFieldOf("background_simulacra", Map.of())
-                            .forGetter(SimulacraAttachment::getBackgroundSimulacra),
+                            .forGetter(att -> att.backgroundSimulacra),
                     Codec.unboundedMap(ResourceLocation.CODEC, Codec.FLOAT)
                             .optionalFieldOf("simulacra_readiness", Map.of())
-                            .forGetter(SimulacraAttachment::getSimulacraReadiness)
+                            .forGetter(att -> att.simulacraReadiness)
             ).apply(instance, ( activeSpellID, simulacraMap, readinessMap) -> {
                 SimulacraAttachment att = new SimulacraAttachment();
                 activeSpellID.ifPresent(resourceLocation -> att.activeChannelingSpellID = resourceLocation);
-                att.getBackgroundSimulacra().putAll(simulacraMap);
-                att.getSimulacraReadiness().putAll(readinessMap);
+                att.backgroundSimulacra.putAll(simulacraMap);
+                att.simulacraReadiness.putAll(readinessMap);
                 return att;
             }));
 }
