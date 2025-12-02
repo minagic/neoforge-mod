@@ -1,7 +1,7 @@
 package com.minagic.minagic.gui;
 
-import com.minagic.minagic.abstractionLayer.gui.SpellEditorScreen;
-import com.minagic.minagic.abstractionLayer.SpellcastingItem;
+import com.minagic.minagic.api.gui.SpellEditorScreen;
+import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.sorcerer.StaffData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;

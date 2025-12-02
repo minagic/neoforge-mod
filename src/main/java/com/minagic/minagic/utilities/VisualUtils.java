@@ -1,5 +1,6 @@
 package com.minagic.minagic.utilities;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -41,6 +42,34 @@ public class VisualUtils {
 
             level.sendParticles(
                     options, px, py, pz, 1, 0 , 0, 0, 0);
+        }
+    }
+
+    public static void createParticleRay(ServerLevel level, Vec3 start, Vec3 end, ParticleOptions options, int count) {
+        Vec3 direction = end.subtract(start);
+        double length = direction.length();
+        Vec3 step = direction.normalize().scale(length / count);
+
+        for (int i = 0; i <= count; i++) {
+            Vec3 pos = start.add(step.scale(i));
+            level.sendParticles(options, pos.x, pos.y, pos.z, 1, 0, 0, 0, 0);
+        }
+    }
+
+    public static void createParticleRayUntilBlock(ServerLevel level, Vec3 start, Vec3 direction, ParticleOptions options, int count) {
+        Vec3 normDir = direction.normalize();
+        double stepLength = 0.25; // Smaller = smoother ray, but more checks
+        Vec3 step = normDir.scale(stepLength);
+        Vec3 currentPos = start;
+
+        for (int i = 0; i < count; i++) {
+            BlockPos blockPos = BlockPos.containing(currentPos);
+            if (!level.isEmptyBlock(blockPos)) {
+                break; // Stop if we hit a non-air block
+            }
+
+            level.sendParticles(options, currentPos.x, currentPos.y, currentPos.z, 1, 0, 0, 0, 0);
+            currentPos = currentPos.add(step);
         }
     }
 }

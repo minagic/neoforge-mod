@@ -1,11 +1,10 @@
 package com.minagic.minagic.sorcerer.spells;
 
-import com.minagic.minagic.abstractionLayer.spells.ChanneledSpell;
+import com.minagic.minagic.api.spells.ChanneledSpell;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.world.entity.LivingEntity;
 
 public class EventHorizon extends ChanneledSpell {
     public EventHorizon() {

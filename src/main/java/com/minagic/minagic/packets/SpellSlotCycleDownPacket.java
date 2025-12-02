@@ -1,7 +1,7 @@
 package com.minagic.minagic.packets;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.SpellcastingItem;
+import com.minagic.minagic.api.SpellcastingItem;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

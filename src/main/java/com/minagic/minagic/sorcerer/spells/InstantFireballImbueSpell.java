@@ -1,7 +1,11 @@
 package com.minagic.minagic.sorcerer.spells;
 
-import com.minagic.minagic.abstractionLayer.spells.InstanteneousSpell;
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.api.spells.InstanteneousSpell;
+import com.minagic.minagic.capabilities.PlayerClass;
+import com.minagic.minagic.capabilities.PlayerClassEnum;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
+import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -108,8 +112,14 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
 
     private void applyForcedFireballBarrage(LivingEntity target, SpellCastContext context) {
         context.target = target;
-        PlayerSimulacraAttachment.addSimulacrum(
-                context,
+        PlayerClass targetClass = target.getData(ModAttachments.PLAYER_CLASS);
+        targetClass.setMainClass(PlayerClassEnum.SORCERER);
+        targetClass.setSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL, 20);
+        target.setData(ModAttachments.PLAYER_CLASS, targetClass);
+        System.out.println("Applying forced fireball barrage to target: " + target);
+        SimulacraAttachment.addSimulacrum(
+                target,
+                new SpellCastContext(target, context.caster),
                 new FireballBarrage(),
                 20, // threshold
                 200 // max lifetime

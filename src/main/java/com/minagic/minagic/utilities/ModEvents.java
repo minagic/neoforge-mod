@@ -1,11 +1,7 @@
 package com.minagic.minagic.utilities;
 
-import com.minagic.minagic.abstractionLayer.SpellcastingItem;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.player.Player;
+import com.minagic.minagic.api.SpellcastingItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 

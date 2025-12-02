@@ -1,8 +1,7 @@
 package com.minagic.minagic.testing.spells;
-import com.minagic.minagic.abstractionLayer.spells.AutonomousChargedSpell;
+import com.minagic.minagic.Config;
+import com.minagic.minagic.api.spells.AutonomousChargedSpell;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
 
 public class AutonomousChargedDevSpell extends AutonomousChargedSpell {
 
@@ -26,6 +25,6 @@ public class AutonomousChargedDevSpell extends AutonomousChargedSpell {
 
     @Override
     public CastFailureReason canCast(SpellCastContext context) {
-        return CastFailureReason.CASTER_CLASS_MISMATCH;
+        return Config.ENABLE_DEV_SPELLS.get() ? CastFailureReason.OK : CastFailureReason.CASTER_CLASS_MISMATCH;
     }
 }

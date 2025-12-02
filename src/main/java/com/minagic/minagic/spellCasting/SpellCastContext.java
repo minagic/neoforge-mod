@@ -24,7 +24,7 @@ public class SpellCastContext {
     }
 
     public Level level(){
-        return caster.level();
+        return target.level();
     }
 
 

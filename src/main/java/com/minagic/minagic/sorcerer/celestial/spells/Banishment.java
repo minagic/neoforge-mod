@@ -2,7 +2,8 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.MinagicDamage;
-import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.api.spells.Spell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
@@ -12,9 +13,7 @@ import com.minagic.minagic.utilities.SpellUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 import java.util.Set;
@@ -44,33 +43,13 @@ public class Banishment extends Spell {
     }
 
     @Override
-    public final boolean preStart(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateCooldown(context) &&
-                validateItem(context);
-    }
-
-    @Override
-    public final boolean preTick(SpellCastContext context) {return false; }
-
-    @Override
-    public final boolean preStop(SpellCastContext context) {return false; }
-
-    @Override
-    public final boolean preCast(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateCooldown(context) &&
-                validateItem(context) &&
-                validateMetadata(context, List.of("bb_start", "bb_end"));
-    }
-
-    @Override
-    public final boolean preExitSimulacrum(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateItem(context);
+    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
+        return switch (phase) {
+            case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
+            case CAST -> validateCaster(context) && validateCooldown(context) && validateItem(context) && validateMetadata(context, List.of("bb_start", "bb_end"));
+            case EXIT_SIMULACRUM -> validateCaster(context) && validateItem(context);
+            case TICK, STOP -> false;
+        };
     }
 
 
@@ -78,7 +57,7 @@ public class Banishment extends Spell {
     public final void start(SpellCastContext context) {
         if (!SpellMetadata.has(context.target, this, "bb_start")){
             SpellMetadata.setBlockPos(context.target, this, "bb_start", context.target.blockPosition());
-            PlayerSimulacraAttachment.addSimulacrum(context, this, -1, 200);
+            SimulacraAttachment.addSimulacrum(context.target, context, this, -1, 200);
             return;
         }
 
@@ -88,12 +67,12 @@ public class Banishment extends Spell {
             int manaCost = (int) MathUtils.areaBetween(SpellMetadata.getBlockPos(context.target, this, "bb_start"), pos);
             if (!validateMana(context, manaCost) || manaCost == 0) return;
             SpellMetadata.setBlockPos(context.target, this, "bb_end", pos);
-            PlayerSimulacraAttachment.addSimulacrum(context, this, 1, -1);
+            SimulacraAttachment.addSimulacrum(context.target, context, this, 1, -1);
             drainMana(context, manaCost);
             return;
         }
 
-        PlayerSimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
+        SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
 
     }
 
@@ -163,13 +142,13 @@ public class Banishment extends Spell {
 
     }
 
-    public final void postStart(SpellCastContext context) {}
-    public final void postTick(SpellCastContext context) {}
-    public final void postStop(SpellCastContext context) {}
-    public final void postExitSimulacrum(SpellCastContext context) {
-        SpellMetadata.removeBlockPos(context.target, this, "bb_end");
-        SpellMetadata.removeBlockPos(context.target, this, "bb_start");
-        applyCooldown(context, cooldown);
+    @Override
+    protected void after(SpellEventPhase phase, SpellCastContext context) {
+        if (phase == SpellEventPhase.EXIT_SIMULACRUM) {
+            SpellMetadata.removeBlockPos(context.target, this, "bb_end");
+            SpellMetadata.removeBlockPos(context.target, this, "bb_start");
+            applyCooldown(context, cooldown);
+        }
     }
 
 

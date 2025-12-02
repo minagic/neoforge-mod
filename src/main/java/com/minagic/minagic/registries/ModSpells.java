@@ -1,7 +1,7 @@
 package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.druid.spells.CircleOfLife;
 import com.minagic.minagic.druid.spells.OathOfLife;
 import com.minagic.minagic.sorcerer.celestial.spells.Banishment;

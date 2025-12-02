@@ -1,4 +1,4 @@
-package com.minagic.minagic.abstractionLayer;
+package com.minagic.minagic.api;
 
 import com.minagic.minagic.spellCasting.spellslots.SpellSlot;
 import com.mojang.serialization.Codec;

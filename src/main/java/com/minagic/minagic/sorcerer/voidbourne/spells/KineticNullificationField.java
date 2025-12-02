@@ -1,20 +1,16 @@
 package com.minagic.minagic.sorcerer.voidbourne.spells;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
+import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.utilities.EntityFreezer;
 import com.minagic.minagic.utilities.SpellUtils;
 import com.minagic.minagic.utilities.VisualUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Set;
@@ -42,13 +38,6 @@ public class KineticNullificationField extends AutonomousSpell {
         return CastFailureReason.OK;
     }
 
-    @Override
-    public final boolean preTick(SpellCastContext context) {
-        return validateContext(context) &&
-                validateCaster(context) &&
-                validateItem(context) &&
-                validateSimulacrum(context);
-    }
 
     @Override
     public void tick(SpellCastContext context){
@@ -64,8 +53,6 @@ public class KineticNullificationField extends AutonomousSpell {
         for (Projectile projectile : targets) {
             System.out.println("Kinetic Nullification detected target: " + projectile);
             Minagic.ENTITY_FREEZER.freeze(projectile, (ServerLevel) context.level());
-//            projectile.setDeltaMovement(new Vec3(0, 1, 0));
-//            projectile.setNoGravity(true);
         }
 
         VisualUtils.createParticlesInSphere(

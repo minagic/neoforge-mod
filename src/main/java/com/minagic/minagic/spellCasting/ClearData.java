@@ -1,6 +1,6 @@
 package com.minagic.minagic.spellCasting;
 
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
@@ -10,8 +10,8 @@ public class ClearData {
     @SubscribeEvent
     public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) return;
-        PlayerSimulacraAttachment.clearSimulacra(player);
-        PlayerSimulacraAttachment.clearChanneling(player);
+        SimulacraAttachment.clearSimulacra(player);
+        SimulacraAttachment.clearChanneling(player);
 
         System.out.println("[Minagic] Cleared player simulacra for logout: " + player.getName().getString());
 

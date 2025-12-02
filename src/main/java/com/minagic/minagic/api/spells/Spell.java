@@ -1,6 +1,5 @@
-package com.minagic.minagic.abstractionLayer.spells;
+package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.abstractionLayer.SpellcastingItem;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.capabilities.SpellMetadata;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
@@ -75,20 +74,20 @@ public abstract class Spell {
 
         if (!(context.target.isAlive() && context.caster.isAlive())) return false;
 
-
         return !context.level().isClientSide(); // NEVER EVER CAST ON THE CLIENT
     }
 
     protected boolean validateCaster(SpellCastContext context) {
-        if (context.caster == null) {
-            return false; // no caster
-        }
 
         CastFailureReason reason = canCast(context);
         if (reason != CastFailureReason.OK) {
             handleCastFailure(context, reason);
+            System.out.println("FAILURE REASON: " + reason);
             return false;
         }
+
+
+
 
         return true;
     }
@@ -103,6 +102,7 @@ public abstract class Spell {
                     1,
                     20
             );
+            System.out.println("FAILURE REASON: SPELL ON COOLDOWN");
             return false;
         }
         return true;
@@ -118,6 +118,7 @@ public abstract class Spell {
                     1,
                     20
             );
+            System.out.println("FAILURE REASON: INSUFFICIENT MANA");
             return false;
         }
         return true;
@@ -140,41 +141,6 @@ public abstract class Spell {
 
     // CASTING LIFECYCLE METHODS
 
-    // returns the caster if all checks pass, null otherwise
-    // pre* methods, called by on* methods before * methods
-    public boolean preCast(SpellCastContext context) {
-        return validateContext(context);
-    }
-
-    public boolean preExitSimulacrum(SpellCastContext context){
-        return validateContext(context);
-    }
-
-    public boolean preTick(SpellCastContext context) {
-        return validateContext(context);
-    }
-
-    public boolean preStart(SpellCastContext context) {
-        return validateContext(context);
-    }
-
-    public boolean preStop(SpellCastContext context) {
-        return validateContext(context);
-    }
-
-
-    // post* methods, called by on* methods after * methods
-
-    public void postStart(SpellCastContext context) {}
-
-    public void postTick(SpellCastContext context) {}
-
-    public void postStop(SpellCastContext context) {}
-
-    public void postCast(SpellCastContext context) {}
-
-    public void postExitSimulacrum(SpellCastContext context) {}
-
     public void applyCooldown(SpellCastContext context, int cooldown) {
         var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
         cooldowns.setCooldown(ModSpells.getId(this), cooldown);
@@ -188,46 +154,32 @@ public abstract class Spell {
     }
 
 
-    // on* methods, called by the spellcasting system to drive the spell lifecycle
-    // this is called when spell casting item is used (RMB press)
-    public void onStart(SpellCastContext context) {
-        if(!preStart(context)) return;
-        start(context);
-        postStart(context);
+    public void perform(SpellEventPhase phase, SpellCastContext context) {
+        if (!validateContext(context)) {
+            System.out.println("Performing "+ phase + " failed, invalid context");
+            return;
+        }
+        if (!before(phase, context)) {
+            System.out.println("Performing "+ phase + " failed, one or many prerequisites check failed");
+            return;
+        }
+
+        switch (phase) {
+            case START -> start(context);
+            case STOP -> stop(context);
+            case EXIT_SIMULACRUM -> exitSimulacrum(context);
+            case CAST -> cast(context);
+            case TICK -> tick(context);
+        }
+
+        after(phase, context);
     }
 
-    // this is called every tick while in simulacrum / channeling spell slot
-    public void onTick(SpellCastContext context){
-        if (!preTick(context)) return;
-        tick(context);
-        postTick(context);
+    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
+        return true;
     }
 
-    // this is called when spell casting item is released (RMB release)
-    public void onStop(SpellCastContext context) {
-        if (!preStop(context)) return;
-        stop(context);
-        postStop(context);
-    }
-
-    // this is called to perform the actual spell casting logic (after pre-cast checks)
-    // can be called directly from onStart, tick, or onStop as needed
-    // WILL be called when simulacrum or channelling spell slot reaches its threshold
-    public void onCast(SpellCastContext context) {
-        if (!preCast(context)) return;
-        cast(context);
-        postCast(context);
-    }
-
-
-    // this is called when simulacrum spell slot is exited (lifetime exceeded, or manually removed)
-    public void onExitSimulacrum(SpellCastContext context){
-        System.out.println("onExitSimulacrum called for spell: " + getString());
-        if (!preExitSimulacrum(context)) return;
-        System.out.println("onExitSimulacrum called for spell: " + getString());
-        exitSimulacrum(context);
-        postExitSimulacrum(context);
-    }
+    protected void after(SpellEventPhase phase, SpellCastContext context) {}
 
 
     // OVERRIDES TO DEFINE SPELL BEHAVIOR
@@ -263,7 +215,7 @@ public abstract class Spell {
     }
 
     // Simulacrum activation threshold
-    // Simulacrum spell slot will call spell.onCast() when this many ticks have passed
+    // Simulacrum spell slot will call spell.perform(CAST, ...) when this many ticks have passed
     // repeatedly
     public final int getSimulacrumThreshold(){return simulacraThreshold;}
 

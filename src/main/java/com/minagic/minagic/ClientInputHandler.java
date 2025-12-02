@@ -1,8 +1,7 @@
 package com.minagic.minagic;
 
 //import com.minagic.minagic.gui.StaffSpellScreen;
-import com.minagic.minagic.abstractionLayer.SpellcastingItem;
-import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
+import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.packets.SpellSlotCycleDownPacket;
 import com.minagic.minagic.packets.SpellSlotCyclePacket;
 import net.minecraft.client.Minecraft;

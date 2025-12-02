@@ -1,6 +1,6 @@
-package com.minagic.minagic.abstractionLayer.gui;
+package com.minagic.minagic.api.gui;
 
-import com.minagic.minagic.abstractionLayer.spells.Spell;
+import com.minagic.minagic.api.spells.Spell;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;

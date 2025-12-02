@@ -1,7 +1,6 @@
 package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.SpellcastingItemData;
 import com.minagic.minagic.druid.HornData;
 import com.minagic.minagic.sorcerer.StaffData;
 import com.minagic.minagic.wizard.WizardWandData;
@@ -13,7 +12,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public final class ModDataComponents {

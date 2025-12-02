@@ -1,7 +1,7 @@
 package com.minagic.minagic.spells;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.SpellcastingItem;
+import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.registries.ModSpells;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;

@@ -1,11 +1,12 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
-import com.minagic.minagic.abstractionLayer.spells.InstanteneousSpell;
+import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.api.spells.InstanteneousSpell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
@@ -13,7 +14,6 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -115,7 +115,7 @@ public class TracerBullet extends InstanteneousSpell {
                         target
                 );
 
-                new Exposure().onStart(currentContext);
+                new Exposure().perform(SpellEventPhase.START, currentContext);
             }
             ServerLevel world = (ServerLevel) context.level();
             world.sendParticles(ParticleTypes.FALLING_NECTAR,
@@ -159,12 +159,12 @@ public class TracerBullet extends InstanteneousSpell {
 
         @Override
         public void start(SpellCastContext context){
-            // Get player simulacra attachment
-            PlayerSimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
+            // Get target's simulacra attachment
+            SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
-            var existing = sim.getBackgroundSimulacra().get(ModSpells.getId(this));
-            if (existing != null) return;
-            PlayerSimulacraAttachment.addSimulacrum(context, this, getSimulacrumThreshold(), getMaxLifetime());
+            boolean existing = sim.hasSpell(ModSpells.getId(this));
+            if (existing) return;
+            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getMaxLifetime());
         }
     }
 

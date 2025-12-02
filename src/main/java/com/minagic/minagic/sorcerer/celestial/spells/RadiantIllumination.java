@@ -1,9 +1,9 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
-import com.minagic.minagic.abstractionLayer.spells.AutonomousSpell;
-import com.minagic.minagic.abstractionLayer.spells.ChargedSpell;
+import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.api.spells.ChargedSpell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.PlayerSimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -12,7 +12,6 @@ import com.minagic.minagic.utilities.VisualUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -76,7 +75,7 @@ public class RadiantIllumination extends ChargedSpell {
                     target
             );
             RadiantIlluminationBlinder blinder = new RadiantIlluminationBlinder();
-            blinder.onStart(currentContext);
+            blinder.perform(SpellEventPhase.START, currentContext);
         }
     }
 
@@ -123,17 +122,11 @@ public class RadiantIllumination extends ChargedSpell {
         }
 
         @Override
-        public final boolean preCast(SpellCastContext context){
-            return validateContext(context) &&
-                    validateCaster(context) &&
-                    validateItem(context);
-        }
-
-
-
-        @Override
-        public final void postCast(SpellCastContext context){
-            // no-op
+        protected boolean before(SpellEventPhase phase, SpellCastContext context){
+            return switch (phase) {
+                case CAST -> validateCaster(context) && validateItem(context);
+                default -> true;
+            };
         }
 
     }
