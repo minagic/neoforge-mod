@@ -4,6 +4,7 @@ import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.world.entity.LivingEntity;
@@ -37,7 +38,7 @@ public class VoidBlast extends InstanteneousSpell {
     }
 
     @Override
-    public void cast(SpellCastContext context) {
+    public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         LivingEntity player = context.caster;
         Level level = context.level();
 

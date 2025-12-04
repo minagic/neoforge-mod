@@ -5,6 +5,7 @@ import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellUtils;
@@ -41,7 +42,7 @@ public class KineticNullificationField extends AutonomousSpell {
 
 
     @Override
-    public void tick(SpellCastContext context){
+    public void tick(SpellCastContext context, SimulacrumSpellData simulacrumData){
         System.out.println("KineticNullificationField tick");
         List<Projectile> targets = SpellUtils.findEntitiesInRadius(
                 context.level(),

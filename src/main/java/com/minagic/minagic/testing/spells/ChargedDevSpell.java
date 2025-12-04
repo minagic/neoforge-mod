@@ -3,13 +3,14 @@ package com.minagic.minagic.testing.spells;
 import com.minagic.minagic.Config;
 import com.minagic.minagic.api.spells.ChargedSpell;
 import com.minagic.minagic.api.spells.SpellValidator;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 public class ChargedDevSpell extends ChargedSpell {
 
     @Override
-    public void cast(SpellCastContext context) {
-        float chargeRatio = (float) context.simulacrtumLifetime.lifetime() / context.simulacrtumLifetime.maxLifetime();
+    public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+        float chargeRatio = (float) simulacrumData.lifetime() / simulacrumData.maxLifetime();
         System.out.println("[ChargedDevSpell] ⚡ BOOM! ChargeRatio=" + chargeRatio
                 + " Player=" + context.caster.getName().getString());
     }
