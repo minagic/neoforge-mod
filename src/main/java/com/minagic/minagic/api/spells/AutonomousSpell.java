@@ -6,6 +6,7 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellValidationResult;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A simple self-managed spell that automatically attaches or detaches itself
@@ -15,7 +16,7 @@ import com.minagic.minagic.utilities.SpellValidationResult;
 public class AutonomousSpell extends Spell implements ISimulacrumSpell {
 
     @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context) {
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         SpellValidationResult result = SpellValidationResult.OK;
 
         switch (phase) {
@@ -43,7 +44,7 @@ public class AutonomousSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context) {
+    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         switch (phase) {
             case CAST -> drainMana(context, getManaCost());
             case EXIT_SIMULACRUM -> applyCooldown(context, getManaCost());
@@ -54,7 +55,7 @@ public class AutonomousSpell extends Spell implements ISimulacrumSpell {
 
 
     @Override
-    public void start(SpellCastContext context) {
+    public void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         // Get player simulacra attachment
         SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
@@ -70,17 +71,17 @@ public class AutonomousSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public void tick(SpellCastContext context) {
+    public void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         // No-op for autonomous spells
     }
 
     @Override
-    public final void stop(SpellCastContext context) {
+    public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         // No-op for autonomous spells
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context) {}
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
 
     @Override
     public int getSimulacrumThreshold() {

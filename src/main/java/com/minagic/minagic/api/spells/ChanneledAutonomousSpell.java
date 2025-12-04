@@ -4,6 +4,7 @@ import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellValidationResult;
+import org.jetbrains.annotations.Nullable;
 
 public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell {
     public ChanneledAutonomousSpell() {
@@ -20,7 +21,7 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
     // lifecycle like of channelled spell
 
     @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context) {
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         SpellValidationResult result = SpellValidationResult.OK;
 
         switch (phase) {
@@ -46,7 +47,7 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
     }
 
     @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context) {
+    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         switch (phase) {
             case TICK -> drainMana(context, getManaCost());
             case EXIT_SIMULACRUM -> applyCooldown(context, getCooldownTicks());
@@ -56,23 +57,23 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
     }
 
     @Override
-    public void start(SpellCastContext context) {
+    public void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         SimulacraAttachment.setChanneling(context.target, context, this, getSimulacrumThreshold(), -1);
 
     }
 
     @Override
-    public void tick(SpellCastContext context) {
+    public void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         // no-op
     }
 
     @Override
-    public void stop(SpellCastContext context) {
+    public void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         SimulacraAttachment.clearChanneling(context.target);
     }
 
     @Override
-    public void exitSimulacrum(SpellCastContext context) {}
+    public void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
 
 
     @Override

@@ -5,6 +5,7 @@ import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.core.particles.ParticleTypes;
@@ -24,7 +25,7 @@ public class CircleOfLife extends AutonomousSpell {
 
 
     @Override
-    public void cast(SpellCastContext context) {
+    public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         OathOfLife oath = new OathOfLife();
 
         var entities = context.level().getEntitiesOfClass(

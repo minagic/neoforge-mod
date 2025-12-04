@@ -6,6 +6,7 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellValidationResult;
+import org.jetbrains.annotations.Nullable;
 
 //// An abstract class representing spells that are charged up over time before being released.
 public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
@@ -34,7 +35,7 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context) {
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         SpellValidationResult result = SpellValidationResult.OK;
         switch (phase) {
             case START -> {
@@ -59,7 +60,7 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context) {
+    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         if (phase == SpellEventPhase.CAST) {
             applyCooldown(context, getManaCost());
             drainMana(context, getManaCost());
@@ -70,7 +71,7 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
 
     // lifecycle methods
     @Override
-    public final void start(SpellCastContext context) {
+    public final void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
 
         // Get player simulacra attachment
         SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
@@ -86,17 +87,17 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public  final void tick(SpellCastContext context) {
+    public  final void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         // No-op for autonomous charged spells
     }
 
     @Override
-    public final void stop(SpellCastContext context) {
+    public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         // No-op for autonomous charged spells
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context) {
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         // no-op
     }
 

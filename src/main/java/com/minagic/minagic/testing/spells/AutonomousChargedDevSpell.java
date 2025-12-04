@@ -2,12 +2,13 @@ package com.minagic.minagic.testing.spells;
 import com.minagic.minagic.Config;
 import com.minagic.minagic.api.spells.AutonomousChargedSpell;
 import com.minagic.minagic.api.spells.SpellValidator;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 public class AutonomousChargedDevSpell extends AutonomousChargedSpell {
 
     @Override
-    public void cast(SpellCastContext context) {
+    public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         System.out.println("[AutonomousChargedDevSpell] 💥 Detonated after delay! "
                 + context.caster.getName().getString());
 

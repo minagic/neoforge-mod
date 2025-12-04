@@ -4,6 +4,7 @@ import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.capabilities.Mana;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.server.level.ServerLevel;
@@ -21,7 +22,7 @@ public class OathOfLife extends AutonomousSpell {
     }
 
     @Override
-    public void cast(SpellCastContext context) {
+    public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         // identify caster's mana percentage
         Mana mana = context.caster.getData(ModAttachments.MANA);
         float manaPercentage = mana.getMana() / (float) mana.getMaxMana();

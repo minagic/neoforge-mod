@@ -4,6 +4,7 @@ import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellValidationResult;
+import org.jetbrains.annotations.Nullable;
 
 public class ChanneledSpell extends Spell implements ISimulacrumSpell {
     public ChanneledSpell() {
@@ -18,7 +19,7 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context) {
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         SpellValidationResult result = SpellValidationResult.OK;
 
         switch (phase) {
@@ -32,7 +33,7 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
                 result = result
                         .and(SpellValidator.validateCaster(this, context))
                         .and(SpellValidator.validateItem(this, context))
-                        .and(SpellValidator.validateSimulacrum(context));
+                        .and(SpellValidator.validateSimulacrum(simulacrumData));
             }
             case CAST -> {
                 result = result
@@ -40,7 +41,7 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
                         .and(SpellValidator.validateCooldown(this, context))
                         .and(SpellValidator.validateMana(this, context, getManaCost()))
                         .and(SpellValidator.validateItem(this, context))
-                        .and(SpellValidator.validateSimulacrum(context));
+                        .and(SpellValidator.validateSimulacrum(simulacrumData));
             }
             case TICK -> {
                 result = result.and(SpellValidationResult.INVALID_PHASE);
@@ -50,7 +51,7 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context) {
+    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         switch (phase) {
             case CAST -> {
                 applyCooldown(context, getCooldownTicks());
@@ -67,7 +68,7 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
 
 
     @Override
-    public final void start(SpellCastContext context) {
+    public final void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         SimulacraAttachment.setChanneling(
                 context.target,
                 context,
@@ -77,16 +78,16 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public final void tick(SpellCastContext context) {
+    public final void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         // no-op for channeled spells
     }
     @Override
-    public final void stop(SpellCastContext context) {
+    public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         SimulacraAttachment.clearChanneling(context.target);
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context) {
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         // no-op for channeled spells
     }
 

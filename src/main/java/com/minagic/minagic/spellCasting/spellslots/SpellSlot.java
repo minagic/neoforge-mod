@@ -65,14 +65,14 @@ public class SpellSlot {
     public void onStart(SpellCastContext context) {
         resolveSpell();
         if (spell != null) {
-            spell.perform(SpellEventPhase.START, context);
+            spell.perform(SpellEventPhase.START, context, null);
         }
     }
 
     public void onStop(SpellCastContext context) {
         resolveSpell();
         if (spell != null) {
-            spell.perform(SpellEventPhase.STOP, context);
+            spell.perform(SpellEventPhase.STOP, context, null);
         }
     }
 

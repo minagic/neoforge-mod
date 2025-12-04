@@ -1,10 +1,7 @@
 package com.minagic.minagic.sorcerer.spells;
 
 import com.minagic.minagic.api.spells.InstanteneousSpell;
-import com.minagic.minagic.capabilities.PlayerClass;
-import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.SimulacraAttachment;
-import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.core.particles.ParticleTypes;
@@ -29,7 +26,7 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
     }
 
     @Override
-    public void cast(SpellCastContext ctx) {
+    public void cast(SpellCastContext ctx, SimulacrumSpellData simulacrumData) {
         LivingEntity caster = ctx.caster;
 
         // Compute target yourself (raycast)

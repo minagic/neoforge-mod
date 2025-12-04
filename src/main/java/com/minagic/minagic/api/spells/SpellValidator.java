@@ -1,11 +1,13 @@
 package com.minagic.minagic.api.spells;
 
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.capabilities.SpellMetadata;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellValidationResult;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -39,8 +41,11 @@ public class SpellValidator {
         return SpellValidationResult.OK;
     }
 
-    public static SpellValidationResult validateSimulacrum(SpellCastContext context) {
-        if (context.simulacrtumLifetime == null || context.simulacrtumLifetime.remainingLifetime() == 0) {
+    public static SpellValidationResult validateSimulacrum(@Nullable SimulacrumSpellData simulacrumData) {
+        if (simulacrumData == null) {
+            return SpellValidationResult.internalFail("Simulacrum data is null");
+        }
+        if (simulacrumData.remainingLifetime() == 0) {
             return SpellValidationResult.internalFail("Simulacrum expired.");
         }
         return SpellValidationResult.OK;

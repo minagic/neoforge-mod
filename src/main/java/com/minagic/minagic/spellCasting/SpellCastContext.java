@@ -11,7 +11,6 @@ import net.minecraft.world.level.Level;
 public class SpellCastContext {
     public LivingEntity caster;
     public LivingEntity target;
-    public SimulacrumSpellData simulacrtumLifetime = null;
 
 
     public SpellCastContext(LivingEntity caster) {
