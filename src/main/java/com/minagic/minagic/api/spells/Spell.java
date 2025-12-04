@@ -10,8 +10,6 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import java.util.List;
 
 // An abstract class representing a spell with casting lifecycle methods and validation.
-// on* methods are called by the spellcasting system
-// pre* and post* methods are called automatically by the on* methods
 public abstract class Spell {
     // properties
     protected int cooldown = 0;
@@ -20,8 +18,6 @@ public abstract class Spell {
     protected int simulacraMaxLifetime = -1;
     protected String spellName = "No Spell";
     protected boolean isTechnical = false;
-
-
 
     // ENUM: reasons a spell cast might fail due to caster issues
 
@@ -66,9 +62,7 @@ public abstract class Spell {
 
         if (context.caster.asLivingEntity() == null) return false; // Caster must be a living entity
 
-
         if (context.target == null) return false; // No target
-
 
         if (context.target.asLivingEntity() == null) return false;
 
@@ -85,9 +79,6 @@ public abstract class Spell {
             System.out.println("FAILURE REASON: " + reason);
             return false;
         }
-
-
-
 
         return true;
     }
@@ -230,16 +221,6 @@ public abstract class Spell {
     // default: OK for all casters
     public CastFailureReason canCast(SpellCastContext context) {
         return CastFailureReason.OK;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj != null && this.getClass() == obj.getClass();
-    }
-
-    @Override
-    public int hashCode() {
-        return this.getClass().hashCode();
     }
 
     // HUD

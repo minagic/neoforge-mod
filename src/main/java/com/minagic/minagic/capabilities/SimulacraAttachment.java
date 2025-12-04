@@ -213,8 +213,7 @@ public class SimulacraAttachment {
         }
     }
 
-    // DO NOT UNDER ANY CIRCUMSTANCE MODIFY BELOW THIS LINE
-    // THIS IS CODING EQUIVALENT OF FORBIDDEN MAGIC. LITERALLY. CODEBASE COMBUSTION WILL ENSUE.
+    // WARN: DO NOT EDIT
     // --- End of Logic ---
     // --- Serializer ---
     public static class Serializer implements IAttachmentSerializer<SimulacraAttachment> {
