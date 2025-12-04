@@ -1,6 +1,7 @@
 package com.minagic.minagic.sorcerer.spells;
 
 import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
@@ -27,19 +28,19 @@ public class FireballBarrage extends AutonomousSpell {
         // simulacraMaxLifetime left to superclass default
     }
     @Override
-    public CastFailureReason canCast(SpellCastContext context) {
+    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
-            return CastFailureReason.CASTER_CLASS_MISMATCH;
+            return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
         }
 
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) == 0) {
-            return CastFailureReason.CASTER_SUBCLASS_MISMATCH;
+            return SpellValidator.CastFailureReason.CASTER_SUBCLASS_MISMATCH;
         }
 
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) < 20) {
-            return CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
+            return SpellValidator.CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
         }
-        return CastFailureReason.OK;
+        return SpellValidator.CastFailureReason.OK;
     }
 
     @Override

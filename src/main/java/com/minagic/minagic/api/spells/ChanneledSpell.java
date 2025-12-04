@@ -3,8 +3,9 @@ package com.minagic.minagic.api.spells;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.utilities.SpellValidationResult;
 
-public class ChanneledSpell extends Spell {
+public class ChanneledSpell extends Spell implements ISimulacrumSpell {
     public ChanneledSpell() {
         super();
 
@@ -17,13 +18,35 @@ public class ChanneledSpell extends Spell {
     }
 
     @Override
-    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
-        return switch (phase) {
-            case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
-            case STOP, EXIT_SIMULACRUM -> validateCaster(context) && validateItem(context);
-            case CAST -> validateCaster(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateItem(context);
-            case TICK -> false;
-        };
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context) {
+        SpellValidationResult result = SpellValidationResult.OK;
+
+        switch (phase) {
+            case START -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateCooldown(this, context))
+                        .and(SpellValidator.validateItem(this, context));
+            }
+            case STOP, EXIT_SIMULACRUM -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateItem(this, context))
+                        .and(SpellValidator.validateSimulacrum(context));
+            }
+            case CAST -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateCooldown(this, context))
+                        .and(SpellValidator.validateMana(this, context, getManaCost()))
+                        .and(SpellValidator.validateItem(this, context))
+                        .and(SpellValidator.validateSimulacrum(context));
+            }
+            case TICK -> {
+                result = result.and(SpellValidationResult.INVALID_PHASE);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -65,6 +88,17 @@ public class ChanneledSpell extends Spell {
     @Override
     public final void exitSimulacrum(SpellCastContext context) {
         // no-op for channeled spells
+    }
+
+
+    @Override
+    public int getSimulacrumThreshold() {
+        return this.simulacraThreshold;
+    }
+
+    @Override
+    public int getSimulacrumMaxLifetime() {
+        return this.simulacraMaxLifetime;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.minagic.minagic.capabilities;
 
+import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
@@ -71,9 +72,12 @@ public class SimulacraAttachment {
 
         SimulacraAttachment attachment = host.getData(ModAttachments.PLAYER_SIMULACRA);
 
+        if (!(spell instanceof ISimulacrumSpell simulacrumSpell)) {
+            throw new IllegalArgumentException("'spell' parameter must implement ISimulacrumSpell.");
+        }
         attachment.backgroundSimulacra.put(
                 ModSpells.getId(spell),
-                new SimulacrumSpellSlot(context, host.getUUID(), threshold, maxLifetime, maxLifetime, spell)
+                new SimulacrumSpellSlot(context, host.getUUID(), threshold, maxLifetime, maxLifetime, simulacrumSpell)
         );
         attachment.simulacraReadiness.put(ModSpells.getId(spell), 0f);
         host.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
@@ -213,8 +217,7 @@ public class SimulacraAttachment {
         }
     }
 
-    // DO NOT UNDER ANY CIRCUMSTANCE MODIFY BELOW THIS LINE
-    // THIS IS CODING EQUIVALENT OF FORBIDDEN MAGIC. LITERALLY. CODEBASE COMBUSTION WILL ENSUE.
+    // WARN: DO NOT EDIT
     // --- End of Logic ---
     // --- Serializer ---
     public static class Serializer implements IAttachmentSerializer<SimulacraAttachment> {

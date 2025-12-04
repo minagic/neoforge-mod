@@ -4,6 +4,7 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
+import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
@@ -38,19 +39,19 @@ public class TracerBullet extends InstanteneousSpell {
     }
 
     @Override
-    public CastFailureReason canCast(SpellCastContext context) {
+    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
-            return CastFailureReason.CASTER_CLASS_MISMATCH;
+            return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
         }
 
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) == 0) {
-            return CastFailureReason.CASTER_SUBCLASS_MISMATCH;
+            return SpellValidator.CastFailureReason.CASTER_SUBCLASS_MISMATCH;
         }
 
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) < 3) {
-            return CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
+            return SpellValidator.CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
         }
-        return CastFailureReason.OK;
+        return SpellValidator.CastFailureReason.OK;
     }
 
     @Override
@@ -164,7 +165,7 @@ public class TracerBullet extends InstanteneousSpell {
 
             boolean existing = sim.hasSpell(ModSpells.getId(this));
             if (existing) return;
-            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getMaxLifetime());
+            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
         }
     }
 

@@ -2,14 +2,17 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.MinagicDamage;
+import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
+import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.MathUtils;
 import com.minagic.minagic.utilities.SpellUtils;
+import com.minagic.minagic.utilities.SpellValidationResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -19,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 // this will extend raw spell as this is an easier approach
-public class Banishment extends Spell {
+public class Banishment extends Spell implements ISimulacrumSpell {
     public Banishment() {
         spellName = "Banishment";
         cooldown = 20;
@@ -27,29 +30,50 @@ public class Banishment extends Spell {
 
     // lifecycle
     @Override
-    public CastFailureReason canCast(SpellCastContext context) {
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
-            return CastFailureReason.CASTER_CLASS_MISMATCH;
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context) {
+        SpellValidationResult result = SpellValidationResult.OK;
+
+        switch (phase) {
+            case START -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateCooldown(this, context))
+                        .and(SpellValidator.validateItem(this, context));
+            }
+            case CAST -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateCooldown(this, context))
+                        .and(SpellValidator.validateItem(this, context))
+                        .and(SpellValidator.validateMetadata(this, context, List.of("bb_start", "bb_end")));
+            }
+            case EXIT_SIMULACRUM -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateItem(this, context));
+            }
+            case TICK, STOP -> {
+                result = result.and(SpellValidationResult.INVALID_PHASE);
+            }
         }
 
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) == 0) {
-            return CastFailureReason.CASTER_SUBCLASS_MISMATCH;
-        }
-
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) < 10) {
-            return CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
-        }
-        return CastFailureReason.OK;
+        return result;
     }
 
     @Override
-    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
-        return switch (phase) {
-            case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
-            case CAST -> validateCaster(context) && validateCooldown(context) && validateItem(context) && validateMetadata(context, List.of("bb_start", "bb_end"));
-            case EXIT_SIMULACRUM -> validateCaster(context) && validateItem(context);
-            case TICK, STOP -> false;
-        };
+    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
+        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
+            return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
+        }
+
+        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) == 0) {
+            return SpellValidator.CastFailureReason.CASTER_SUBCLASS_MISMATCH;
+        }
+
+        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) < 10) {
+            return SpellValidator.CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
+        }
+        return SpellValidator.CastFailureReason.OK;
     }
 
 
@@ -65,7 +89,11 @@ public class Banishment extends Spell {
 
             BlockPos pos = context.target.blockPosition();
             int manaCost = (int) MathUtils.areaBetween(SpellMetadata.getBlockPos(context.target, this, "bb_start"), pos);
-            if (!validateMana(context, manaCost) || manaCost == 0) return;
+            SpellValidationResult result = SpellValidator.validateMana(this, context, manaCost);
+            SpellValidator.showFailureIfNeeded(context, result);
+
+            if (!result.success()) return;
+
             SpellMetadata.setBlockPos(context.target, this, "bb_end", pos);
             SimulacraAttachment.addSimulacrum(context.target, context, this, 1, -1);
             drainMana(context, manaCost);
@@ -151,6 +179,16 @@ public class Banishment extends Spell {
         }
     }
 
+
+    @Override
+    public int getSimulacrumThreshold() {
+        return 0;
+    }
+
+    @Override
+    public int getSimulacrumMaxLifetime() {
+        return 0;
+    }
 
     @Override
     public final float progress(SimulacrumSpellData data) {

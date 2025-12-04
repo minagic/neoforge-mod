@@ -5,9 +5,10 @@ import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.utilities.SpellValidationResult;
 
 //// An abstract class representing spells that are charged up over time before being released.
-public class AutonomousChargedSpell extends Spell {
+public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     public AutonomousChargedSpell() {
         super();
 
@@ -19,21 +20,42 @@ public class AutonomousChargedSpell extends Spell {
         // maxLifetime = simulacrumThreshold, but since you initialize by constructor,
         // we set both here.
         this.simulacraThreshold = 0;
-        this.simulacraMaxLifetime = this.simulacraThreshold;
+        this.simulacraMaxLifetime = 0;
     }
 
     @Override
-    public final int getMaxLifetime() {
+    public int getSimulacrumThreshold() {
+        return simulacraThreshold;
+    }
+
+    @Override
+    public final int getSimulacrumMaxLifetime() {
         return getSimulacrumThreshold();
     }
 
     @Override
-    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
-        return switch (phase) {
-            case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
-            case CAST -> validateCaster(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateItem(context);
-            case TICK, STOP, EXIT_SIMULACRUM -> false;
-        };
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context) {
+        SpellValidationResult result = SpellValidationResult.OK;
+        switch (phase) {
+            case START -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateCooldown(this, context))
+                        .and(SpellValidator.validateItem(this, context));
+            }
+            case CAST -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateCooldown(this, context))
+                        .and(SpellValidator.validateMana(this, context, getManaCost()))
+                        .and(SpellValidator.validateItem(this, context));
+            }
+            case TICK, STOP, EXIT_SIMULACRUM -> {
+                result = result.and(SpellValidationResult.INVALID_PHASE);
+            }
+        }
+        SpellValidator.showFailureIfNeeded(context, result);
+        return result;
     }
 
     @Override
@@ -59,7 +81,7 @@ public class AutonomousChargedSpell extends Spell {
         if (existing) {
             SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
         } else {
-            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getMaxLifetime());
+            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
         }
     }
 

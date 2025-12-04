@@ -3,11 +3,13 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.ChargedSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
+import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellUtils;
+import com.minagic.minagic.utilities.SpellValidationResult;
 import com.minagic.minagic.utilities.VisualUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -15,6 +17,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class RadiantIllumination extends ChargedSpell {
@@ -38,19 +41,19 @@ public class RadiantIllumination extends ChargedSpell {
     }
 
     @Override
-    public CastFailureReason canCast(SpellCastContext context) {
+    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
-            return CastFailureReason.CASTER_CLASS_MISMATCH;
+            return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
         }
 
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) == 0) {
-            return CastFailureReason.CASTER_SUBCLASS_MISMATCH;
+            return SpellValidator.CastFailureReason.CASTER_SUBCLASS_MISMATCH;
         }
 
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) < 5) {
-            return CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
+            return SpellValidator.CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
         }
-        return CastFailureReason.OK;
+        return SpellValidator.CastFailureReason.OK;
     }
 
 
@@ -122,11 +125,12 @@ public class RadiantIllumination extends ChargedSpell {
         }
 
         @Override
-        protected boolean before(SpellEventPhase phase, SpellCastContext context){
-            return switch (phase) {
-                case CAST -> validateCaster(context) && validateItem(context);
-                default -> true;
-            };
+        protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context){
+            SpellValidationResult result = SpellValidationResult.OK;
+            if (Objects.requireNonNull(phase) == SpellEventPhase.CAST) {
+                result = result.and(SpellValidator.validateCaster(this, context));
+            }
+            return result;
         }
 
     }
