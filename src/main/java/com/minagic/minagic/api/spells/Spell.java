@@ -61,10 +61,8 @@ public abstract class Spell {
     protected void after(SpellEventPhase phase, SpellCastContext context) {}
 
     // OVERRIDES TO DEFINE SPELL BEHAVIOR
-
     // the main spell logic goes here
-    // the context.caster is guaranteed to be non-null here
-
+    // the context is guaranteed to be valid here
     protected void start(SpellCastContext context){}
 
     protected void tick(SpellCastContext context){}
@@ -97,8 +95,6 @@ public abstract class Spell {
     public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
         return SpellValidator.CastFailureReason.OK;
     }
-
-
     //  HUD
     public int color(float progress) {
         return 0x00000000;
