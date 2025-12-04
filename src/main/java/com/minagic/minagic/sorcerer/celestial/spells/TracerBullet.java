@@ -164,7 +164,7 @@ public class TracerBullet extends InstanteneousSpell {
 
             boolean existing = sim.hasSpell(ModSpells.getId(this));
             if (existing) return;
-            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getMaxLifetime());
+            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
         }
     }
 

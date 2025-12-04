@@ -4,7 +4,7 @@ import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
-public class ChargedSpell extends Spell {
+public class ChargedSpell extends Spell implements ISimulacrumSpell {
     public ChargedSpell() {
         super(); // keep whatever superclass initialization you rely on
 
@@ -48,7 +48,7 @@ public class ChargedSpell extends Spell {
                 context,
                 this,
                 0,
-                getMaxLifetime()
+                getSimulacrumMaxLifetime()
         );
     }
 
@@ -71,6 +71,16 @@ public class ChargedSpell extends Spell {
     @Override
     public final void exitSimulacrum(SpellCastContext context) {
         perform(SpellEventPhase.CAST, context);
+    }
+
+    @Override
+    public int getSimulacrumThreshold() {
+        return this.simulacraThreshold;
+    }
+
+    @Override
+    public int getSimulacrumMaxLifetime() {
+        return this.simulacraMaxLifetime;
     }
 
     // HUD

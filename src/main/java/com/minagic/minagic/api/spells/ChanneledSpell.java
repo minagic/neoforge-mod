@@ -4,7 +4,7 @@ import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
-public class ChanneledSpell extends Spell {
+public class ChanneledSpell extends Spell implements ISimulacrumSpell {
     public ChanneledSpell() {
         super();
 
@@ -65,6 +65,17 @@ public class ChanneledSpell extends Spell {
     @Override
     public final void exitSimulacrum(SpellCastContext context) {
         // no-op for channeled spells
+    }
+
+
+    @Override
+    public int getSimulacrumThreshold() {
+        return this.simulacraThreshold;
+    }
+
+    @Override
+    public int getSimulacrumMaxLifetime() {
+        return this.simulacraMaxLifetime;
     }
 
     @Override

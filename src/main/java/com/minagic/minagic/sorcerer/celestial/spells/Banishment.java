@@ -2,6 +2,7 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.MinagicDamage;
+import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.*;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 // this will extend raw spell as this is an easier approach
-public class Banishment extends Spell {
+public class Banishment extends Spell implements ISimulacrumSpell {
     public Banishment() {
         spellName = "Banishment";
         cooldown = 20;
@@ -151,6 +152,16 @@ public class Banishment extends Spell {
         }
     }
 
+
+    @Override
+    public int getSimulacrumThreshold() {
+        return 0;
+    }
+
+    @Override
+    public int getSimulacrumMaxLifetime() {
+        return 0;
+    }
 
     @Override
     public final float progress(SimulacrumSpellData data) {

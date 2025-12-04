@@ -4,7 +4,7 @@ import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
-public class ChanneledAutonomousSpell extends Spell {
+public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell {
     public ChanneledAutonomousSpell() {
         super();
 
@@ -55,6 +55,17 @@ public class ChanneledAutonomousSpell extends Spell {
 
     @Override
     public void exitSimulacrum(SpellCastContext context) {}
+
+
+    @Override
+    public int getSimulacrumThreshold() {
+        return this.simulacraThreshold;
+    }
+
+    @Override
+    public int getSimulacrumMaxLifetime() {
+        return this.simulacraMaxLifetime;
+    }
 
     @Override
     public final float progress(SimulacrumSpellData data) {

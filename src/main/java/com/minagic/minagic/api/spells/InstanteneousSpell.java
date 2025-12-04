@@ -58,11 +58,6 @@ public class InstanteneousSpell extends Spell{
     }
 
     @Override
-    public final float progress(SimulacrumSpellData data){
-        return 0f; // instantaneous spells have no progress
-    }
-
-    @Override
     public final int color(float progress){
         return 0x00000000; // transparent
     }

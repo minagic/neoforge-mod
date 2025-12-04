@@ -1,4 +1,5 @@
 package com.minagic.minagic.capabilities;
+import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.spellslots.SimulacrumSpellSlot;
 import com.mojang.serialization.Codec;
@@ -32,8 +33,9 @@ public record SimulacrumSpellData(
     // ===========
     public float progress() {
         var spell = ModSpells.get(spellId); // however you get it
-        if (spell == null) return 0xFFFFFF;
-        return spell.progress(this);
+        if (spell == null) return 0f;
+        if (!(spell instanceof ISimulacrumSpell simulacrumSpell)) return 0f;
+        return simulacrumSpell.progress(this);
     }
 
     public int color(float progress) {

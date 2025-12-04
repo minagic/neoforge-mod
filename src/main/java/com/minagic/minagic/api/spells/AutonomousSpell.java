@@ -11,7 +11,7 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
  * as a background simulacrum when cast. Runs indefinitely (maxLifetime = -1)
  * until toggled again.
  */
-public class AutonomousSpell extends Spell {
+public class AutonomousSpell extends Spell implements ISimulacrumSpell {
 
     @Override
     protected boolean before(SpellEventPhase phase, SpellCastContext context) {
@@ -45,7 +45,7 @@ public class AutonomousSpell extends Spell {
         if (existing) {
             SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
         } else {
-            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getMaxLifetime());
+            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
         }
 
     }
@@ -62,6 +62,16 @@ public class AutonomousSpell extends Spell {
 
     @Override
     public final void exitSimulacrum(SpellCastContext context) {}
+
+    @Override
+    public int getSimulacrumThreshold() {
+        return this.simulacraThreshold;
+    }
+
+    @Override
+    public int getSimulacrumMaxLifetime() {
+        return this.simulacraMaxLifetime;
+    }
 
     @Override
     public final float progress(SimulacrumSpellData data) {

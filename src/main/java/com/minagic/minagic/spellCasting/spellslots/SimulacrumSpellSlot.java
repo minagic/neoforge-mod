@@ -1,5 +1,6 @@
 package com.minagic.minagic.spellCasting.spellslots;
 
+import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
@@ -14,7 +15,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.UUID;
 
-public class SimulacrumSpellSlot extends SpellSlot {
+public class SimulacrumSpellSlot {
     // COLD STATE
     private final UUID casterUUID;
     private final UUID targetUUID;
@@ -29,6 +30,7 @@ public class SimulacrumSpellSlot extends SpellSlot {
     // HOT STATE
     private SpellCastContext context;
     private LivingEntity resolvedHostEntity; // runtime only
+    private final ISimulacrumSpell spell;
 
     // CONSTRUCTOR for deserialization
     public SimulacrumSpellSlot(
@@ -38,9 +40,12 @@ public class SimulacrumSpellSlot extends SpellSlot {
             int threshold,
             int maxLifetime,
             int originalMaxLifetime,
-            Spell spell
+            ISimulacrumSpell spell
     ) {
-        super(spell);
+        if (!(spell instanceof Spell)) {
+            throw new IllegalArgumentException("'spell' parameter must extend Spell class.");
+        }
+        this.spell = spell;
         this.hostUUID = hostUUID;
         this.targetUUID = targetUUID;
         this.casterUUID = casterUUID;
@@ -56,9 +61,13 @@ public class SimulacrumSpellSlot extends SpellSlot {
             int threshold,
             int maxLifetime,
             int originalMaxLifetime,
-            Spell spell
+            ISimulacrumSpell spell
     ) {
-        super(spell);
+        if (!(spell instanceof Spell)) {
+            throw new IllegalArgumentException("'spell' parameter must extend Spell class.");
+        }
+
+        this.spell = spell;
         this.context = context;
         this.casterUUID = context.caster.getUUID();
         this.targetUUID = context.target != null ? context.target.getUUID() : context.caster.getUUID();
@@ -144,9 +153,14 @@ public class SimulacrumSpellSlot extends SpellSlot {
         getSpell().perform(SpellEventPhase.EXIT_SIMULACRUM, context);
     }
 
+    public Spell getSpell() {
+        return (Spell) spell;
+    }
+
     // CODEC
     public static final Codec<UUID> UUID_CODEC =
             Codec.STRING.xmap(UUID::fromString, UUID::toString);
+
 
     public static final Codec<SimulacrumSpellSlot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             UUID_CODEC.fieldOf("host_id").forGetter(slot -> slot.hostUUID),
@@ -158,7 +172,10 @@ public class SimulacrumSpellSlot extends SpellSlot {
             Codec.INT.fieldOf("original_max_lifetime").forGetter(slot -> slot.originalMaxLifetime),
             ModSpells.SPELL_CODEC.fieldOf("spell").forGetter(SimulacrumSpellSlot::getSpell)
     ).apply(instance, (hostId, casterUUID, targetUUID, threshold, maxLifetime, lifetime, originalMaxLifetime, spell) -> {
-        SimulacrumSpellSlot slot = new SimulacrumSpellSlot(hostId, targetUUID, casterUUID, threshold, maxLifetime, originalMaxLifetime, spell);
+        if (!(spell instanceof ISimulacrumSpell simulacrumSpell)) {
+            throw new IllegalArgumentException("Spell is not an ISimulacrumSpell: " + spell);
+        }
+        SimulacrumSpellSlot slot = new SimulacrumSpellSlot(hostId, targetUUID, casterUUID, threshold, maxLifetime, originalMaxLifetime, simulacrumSpell);
         slot.lifetime = lifetime;
         return slot;
     }));

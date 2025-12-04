@@ -208,11 +208,11 @@ public abstract class Spell {
     // Simulacrum activation threshold
     // Simulacrum spell slot will call spell.perform(CAST, ...) when this many ticks have passed
     // repeatedly
-    public final int getSimulacrumThreshold(){return simulacraThreshold;}
-
-    // Simulacrum lifetime limit
-    // Simulacrum spell slot will auto-expire after this many ticks
-    public int getMaxLifetime(){return simulacraMaxLifetime;}
+//    public final int getSimulacrumThreshold(){return simulacraThreshold;}
+//
+//    // Simulacrum lifetime limit
+//    // Simulacrum spell slot will auto-expire after this many ticks
+//    public int getMaxLifetime(){return simulacraMaxLifetime;}
 
     public final boolean isTechnical() {return isTechnical;}
 
@@ -233,10 +233,10 @@ public abstract class Spell {
         return this.getClass().hashCode();
     }
 
-    // HUD
-    public float progress(SimulacrumSpellData data) {
-        return 0f;
-    }
+//    // HUD
+//    public float progress(SimulacrumSpellData data) {
+//        return 0f;
+//    }
 
     public int color(float progress) {
         return 0x00000000;

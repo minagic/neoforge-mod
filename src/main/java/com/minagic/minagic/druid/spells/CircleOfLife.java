@@ -49,7 +49,7 @@ public class CircleOfLife extends AutonomousSpell {
                     subCtx,
                     oath,
                     oath.getSimulacrumThreshold(),
-                    oath.getMaxLifetime()
+                    oath.getSimulacrumMaxLifetime()
             );
         }
     }

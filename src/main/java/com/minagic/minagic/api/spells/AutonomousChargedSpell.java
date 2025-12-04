@@ -7,7 +7,7 @@ import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 //// An abstract class representing spells that are charged up over time before being released.
-public class AutonomousChargedSpell extends Spell {
+public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     public AutonomousChargedSpell() {
         super();
 
@@ -19,11 +19,16 @@ public class AutonomousChargedSpell extends Spell {
         // maxLifetime = simulacrumThreshold, but since you initialize by constructor,
         // we set both here.
         this.simulacraThreshold = 0;
-        this.simulacraMaxLifetime = this.simulacraThreshold;
+        this.simulacraMaxLifetime = 0;
     }
 
     @Override
-    public final int getMaxLifetime() {
+    public int getSimulacrumThreshold() {
+        return simulacraThreshold;
+    }
+
+    @Override
+    public final int getSimulacrumMaxLifetime() {
         return getSimulacrumThreshold();
     }
 
@@ -59,7 +64,7 @@ public class AutonomousChargedSpell extends Spell {
         if (existing) {
             SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
         } else {
-            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getMaxLifetime());
+            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
         }
     }
 
