@@ -1,6 +1,7 @@
 package com.minagic.minagic.spells;
 
 import com.minagic.minagic.api.spells.InstanteneousSpell;
+import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
@@ -24,25 +25,25 @@ public class Fireball extends InstanteneousSpell {
     }
 
     @Override
-    public CastFailureReason canCast(SpellCastContext context){
+    public SpellValidator.CastFailureReason canCast(SpellCastContext context){
 
         // Check if player is a Mage subclass
         PlayerClass playerClass = context.caster.getData(ModAttachments.PLAYER_CLASS);
         if(playerClass.getMainClass() != PlayerClassEnum.SORCERER && playerClass.getMainClass() != PlayerClassEnum.WIZARD) {
-            return CastFailureReason.CASTER_CLASS_MISMATCH;
+            return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
         }
 
         if (playerClass.getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) == 0 &&
             playerClass.getSubclassLevel(PlayerSubClassEnum.WIZARD_ELEMANCY) == 0) {
-            return CastFailureReason.CASTER_SUBCLASS_MISMATCH;
+            return SpellValidator.CastFailureReason.CASTER_SUBCLASS_MISMATCH;
         }
 
         if (playerClass.getSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL) < 3 &&
                 playerClass.getSubclassLevel(PlayerSubClassEnum.WIZARD_ELEMANCY) < 3) {
-            return CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
+            return SpellValidator.CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
         }
 
-        return CastFailureReason.OK;
+        return SpellValidator.CastFailureReason.OK;
     }
 
 

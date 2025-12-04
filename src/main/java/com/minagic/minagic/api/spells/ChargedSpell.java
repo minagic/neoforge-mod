@@ -3,6 +3,7 @@ package com.minagic.minagic.api.spells;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.utilities.SpellValidationResult;
 
 public class ChargedSpell extends Spell implements ISimulacrumSpell {
     public ChargedSpell() {
@@ -17,13 +18,35 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
 
 
     @Override
-    protected boolean before(SpellEventPhase phase, SpellCastContext context) {
-        return switch (phase) {
-            case START -> validateCaster(context) && validateCooldown(context) && validateItem(context);
-            case TICK -> validateCaster(context) && validateItem(context) && validateSimulacrum(context);
-            case STOP, EXIT_SIMULACRUM -> validateCaster(context);
-            case CAST -> validateCaster(context) && validateItem(context) && validateCooldown(context) && validateMana(context, getManaCost()) && validateSimulacrum(context);
-        };
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context) {
+        SpellValidationResult result = SpellValidationResult.OK;
+
+        switch (phase) {
+            case START -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateCooldown(this, context))
+                        .and(SpellValidator.validateItem(this, context));
+            }
+            case TICK -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateItem(this, context))
+                        .and(SpellValidator.validateSimulacrum(context));
+            }
+            case STOP, EXIT_SIMULACRUM -> {
+                result = result.and(SpellValidator.validateCaster(this, context));
+            }
+            case CAST -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateItem(this, context))
+                        .and(SpellValidator.validateCooldown(this, context))
+                        .and(SpellValidator.validateMana(this, context, getManaCost()))
+                        .and(SpellValidator.validateSimulacrum(context));
+            }
+        }
+        return result;
     }
 
     @Override

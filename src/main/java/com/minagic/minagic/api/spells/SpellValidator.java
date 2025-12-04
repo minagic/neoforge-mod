@@ -1,0 +1,80 @@
+package com.minagic.minagic.api.spells;
+
+import com.minagic.minagic.capabilities.SpellMetadata;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
+import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.registries.ModSpells;
+import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.utilities.SpellValidationResult;
+
+import java.util.List;
+
+public class SpellValidator {
+
+    public static SpellValidationResult validateCaster(Spell spell, SpellCastContext context) {
+        var reason = spell.canCast(context);
+        var playerClass = context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass();
+
+        return switch (reason) {
+            case CASTER_CLASS_MISMATCH -> SpellValidationResult.playerFail(playerClass.getUnknownSpellMessage());
+            case CASTER_SUBCLASS_MISMATCH -> SpellValidationResult.playerFail(playerClass.getSubclassMismatchMessage());
+            case CASTER_CLASS_LEVEL_TOO_LOW -> SpellValidationResult.playerFail(playerClass.getLevelTooLowMessage());
+            case OK -> SpellValidationResult.OK;
+        };
+    }
+
+    public static SpellValidationResult validateCooldown(Spell spell, SpellCastContext context) {
+        var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
+        if (cooldowns.getCooldown(ModSpells.getId(spell)) > 0) {
+            return SpellValidationResult.playerFail("Spell is on cooldown!");
+        }
+        return SpellValidationResult.OK;
+    }
+
+    public static SpellValidationResult validateMana(Spell spell, SpellCastContext context, int manaCost) {
+        var mana = context.caster.getData(ModAttachments.MANA.get());
+        if (mana.getMana() < manaCost) {
+            return SpellValidationResult.playerFail("Not enough mana to cast " + spell.getString() + ".");
+        }
+        return SpellValidationResult.OK;
+    }
+
+    public static SpellValidationResult validateSimulacrum(SpellCastContext context) {
+        if (context.simulacrtumLifetime == null || context.simulacrtumLifetime.remainingLifetime() == 0) {
+            return SpellValidationResult.internalFail("Simulacrum expired.");
+        }
+        return SpellValidationResult.OK;
+    }
+
+    public static SpellValidationResult validateMetadata(Spell spell, SpellCastContext context, List<String> keys) {
+        for (String key : keys) {
+            if (!SpellMetadata.has(context.target, spell, key)) {
+                return SpellValidationResult.internalFail("Missing metadata: " + key);
+            }
+        }
+        return SpellValidationResult.OK;
+    }
+
+    public static SpellValidationResult validateItem(Spell spell, SpellCastContext context) {
+        return SpellValidationResult.OK; // placeholder hook
+    }
+
+    public static void showFailureIfNeeded(SpellCastContext context, SpellValidationResult result) {
+        if (!result.success() && result.showToPlayer()) {
+            HudAlertManager.addToEntity(
+                    context.caster,
+                    result.failureMessage(),
+                    0xFF555500,
+                    1,
+                    20
+            );
+        }
+    }
+
+    public enum CastFailureReason {
+        CASTER_CLASS_MISMATCH,
+        CASTER_SUBCLASS_MISMATCH,
+        CASTER_CLASS_LEVEL_TOO_LOW,
+        OK
+    }
+}

@@ -1,6 +1,7 @@
 package com.minagic.minagic.druid.spells;
 
 import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
@@ -68,20 +69,20 @@ public class CircleOfLife extends AutonomousSpell {
         }
     }
 
-    public CastFailureReason canCast(SpellCastContext context) {
+    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
         // check for DRUID, CIRCLE OF ANIMALS subclass level 5+
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.DRUID) {
-            return CastFailureReason.CASTER_CLASS_MISMATCH;
+            return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
         }
 
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.DRUID_ANIMALS) == 0) {
-            return CastFailureReason.CASTER_SUBCLASS_MISMATCH;
+            return SpellValidator.CastFailureReason.CASTER_SUBCLASS_MISMATCH;
         }
 
         if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.DRUID_ANIMALS) < 5) {
-            return CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
+            return SpellValidator.CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
         }
-        return CastFailureReason.OK;
+        return SpellValidator.CastFailureReason.OK;
     }
 
 

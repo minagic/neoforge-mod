@@ -1,7 +1,7 @@
 package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.utilities.SpellValidationResult;
 
 
 /// An abstract class representing spells that take effect immediately upon casting.
@@ -19,13 +19,27 @@ public class InstanteneousSpell extends Spell{
     }
 
     @Override
-    protected boolean before(SpellEventPhase phase, SpellCastContext context){
-        return switch (phase) {
-            case START -> true;
-            case STOP, EXIT_SIMULACRUM -> false;
-            case CAST -> validateCaster(context) && validateItem(context) && validateCooldown(context) && validateMana(context, getManaCost());
-            case TICK -> false;
-        };
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context){
+        SpellValidationResult result = SpellValidationResult.OK;
+
+        switch (phase) {
+            case START -> {
+                return result;
+            }
+            case CAST -> {
+                result = result
+                        .and(SpellValidator.validateCaster(this, context))
+                        .and(SpellValidator.validateItem(this, context))
+                        .and(SpellValidator.validateCooldown(this, context))
+                        .and(SpellValidator.validateMana(this, context, getManaCost()));
+            }
+            case STOP, EXIT_SIMULACRUM, TICK -> {
+                return SpellValidationResult.INVALID_PHASE;
+            }
+        }
+
+
+        return result;
     }
 
     @Override

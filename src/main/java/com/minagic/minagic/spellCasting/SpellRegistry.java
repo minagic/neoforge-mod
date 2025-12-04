@@ -1,11 +1,9 @@
 package com.minagic.minagic.spellCasting;
 
 import com.minagic.minagic.api.spells.Spell;
-import com.minagic.minagic.capabilities.PlayerClass;
-import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.api.spells.SpellValidator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +39,6 @@ public class SpellRegistry {
     }
 
     public static List<Spell> getSpells(Player player) {
-        return REGISTRY.values().stream().filter(spell -> spell.canCast(new SpellCastContext(player)) == Spell.CastFailureReason.OK && !spell.isTechnical()).toList();
+        return REGISTRY.values().stream().filter(spell -> spell.canCast(new SpellCastContext(player)) == SpellValidator.CastFailureReason.OK && !spell.isTechnical()).toList();
     }
 }
