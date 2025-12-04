@@ -40,8 +40,7 @@ public class SpellRegistry {
         return REVERSE.get(spell);
     }
 
-    public static List<Spell> getSpells(Player player, ItemStack stack) {
-        PlayerClass playerClass = player.getData(ModAttachments.PLAYER_CLASS);
+    public static List<Spell> getSpells(Player player) {
         return REGISTRY.values().stream().filter(spell -> spell.canCast(new SpellCastContext(player)) == Spell.CastFailureReason.OK && !spell.isTechnical()).toList();
     }
 }
