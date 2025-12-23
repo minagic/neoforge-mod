@@ -78,23 +78,18 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
 
     @Override
     public void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
-        //System.out.println("Charging spell: " + getString() + " | Charge time: " + chargeTime);
-        //chargeTime = context.simulacrtumLifetime.lifetime();
     }
 
     @Override
     public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {
-
         SimulacraAttachment.clearChanneling(
                 context.target
         );
-
-
     }
 
     @Override
     public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {
-        perform(SpellEventPhase.CAST, context, null);
+        perform(SpellEventPhase.CAST, context, simulacrumData);
     }
 
     @Override

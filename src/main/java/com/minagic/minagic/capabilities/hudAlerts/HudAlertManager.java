@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -21,7 +22,7 @@ import java.util.List;
 public class HudAlertManager {
     private List<HudAlertInstance> ACTIVE_ALERTS = new ArrayList<>();
 
-    public static void addToEntity(LivingEntity entity, String msg, int color, int priority, int durationTicks) {
+    public static void addToEntity(Entity entity, String msg, int color, int priority, int durationTicks) {
         HudAlertManager data = entity.getData(ModAttachments.HUD_ALERTS);
         data.addAlert(msg, color, priority, durationTicks);
         entity.setData(ModAttachments.HUD_ALERTS, data);

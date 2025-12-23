@@ -43,4 +43,12 @@ public record SimulacrumSpellData(
         if (spell == null) return 0x00000000;
         return spell.color(progress);
     }
+
+    public void dump(){
+        System.out.println("Spell:  " + spellId);
+        System.out.println("Remaining Lifetime: " +  remainingLifetime);
+        System.out.println("Max Lifetime: " + maxLifetime);
+        System.out.println("Lifetime: " + lifetime);
+        System.out.println("Threshold: " + threshold);
+    }
 }

@@ -16,6 +16,7 @@ public class ClientModEvents {
         event.registerEntityRenderer(Minagic.FIREBALL.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(Minagic.VOID_BLAST_ENTITY.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(Minagic.TRACER_BULLET_PROJECTILE.get(), ThrownItemRenderer::new);
+        event.registerEntityRenderer(Minagic.STAR_SHARD.get(), ThrownItemRenderer::new);
     }
 
     @SubscribeEvent

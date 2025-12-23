@@ -44,7 +44,7 @@ public class RadiantIllumination extends ChargedSpell {
 
     @Override
     public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
+        if (context.caster.getData(ModAttachments.PLAYER_CLASS.get()).getMainClass() != PlayerClassEnum.SORCERER) {
             return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
         }
 

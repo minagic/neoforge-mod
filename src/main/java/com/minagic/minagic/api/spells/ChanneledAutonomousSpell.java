@@ -58,7 +58,7 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
 
     @Override
     public void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        SimulacraAttachment.setChanneling(context.target, context, this, getSimulacrumThreshold(), -1);
+        SimulacraAttachment.setChanneling(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
 
     }
 
@@ -91,7 +91,9 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
         if (data.maxLifetime() <= 0) {
             return 1f;
         }
+        System.out.println("[ChanneledAutonomousSpell] Progress: " + data.remainingLifetime() / data.maxLifetime());
         return data.remainingLifetime() / data.maxLifetime();
+
     }
 
     @Override
