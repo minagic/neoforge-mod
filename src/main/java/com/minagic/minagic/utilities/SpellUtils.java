@@ -1,6 +1,8 @@
 package com.minagic.minagic.utilities;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
@@ -14,6 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 public class SpellUtils {
@@ -116,6 +119,17 @@ public class SpellUtils {
         }
 
         return null; // No block hit
+    }
+
+    @Nullable
+    public static LivingEntity resolveLivingEntityAcrossDimensions(UUID uuid, MinecraftServer server) {
+        for (ServerLevel level : server.getAllLevels()) {
+            Entity entity = level.getEntity(uuid);
+            if (entity instanceof LivingEntity living && living.isAlive()) {
+                return living;
+            }
+        }
+        return null;
     }
 
 }
