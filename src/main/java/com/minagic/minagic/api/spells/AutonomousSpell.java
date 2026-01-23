@@ -15,44 +15,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class AutonomousSpell extends Spell implements ISimulacrumSpell {
 
-    @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        SpellValidationResult result = SpellValidationResult.OK;
-
-        switch (phase) {
-            case START -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case TICK, CAST -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateMana(this, context, getManaCost()))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case EXIT_SIMULACRUM -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-        }
-        SpellValidator.showFailureIfNeeded(context, result);
-        return result;
-    }
-
-    @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        switch (phase) {
-            case CAST -> drainMana(context, getManaCost());
-            case EXIT_SIMULACRUM -> applyCooldown(context, getManaCost());
-            default -> {
-            }
-        }
-    }
-
 
     @Override
     public void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {

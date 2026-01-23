@@ -1,13 +1,8 @@
 package com.minagic.minagic.capabilities;
 import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.registries.ModSpells;
-import com.minagic.minagic.spellCasting.spellslots.SimulacrumSpellSlot;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-
-import javax.swing.text.html.parser.Entity;
 
 public record SimulacrumSpellData(
         ResourceLocation spellId,
@@ -42,5 +37,12 @@ public record SimulacrumSpellData(
         System.out.println("Max Lifetime: " + maxLifetime);
         System.out.println("Lifetime: " + lifetime);
         System.out.println("Threshold: " + threshold);
+    }
+
+    public boolean validate(){
+        if (host == null) return false;
+        if (!host.isAlive()) return false;
+        return !host.level().isClientSide();
+
     }
 }

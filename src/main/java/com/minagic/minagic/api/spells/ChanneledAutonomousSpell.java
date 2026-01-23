@@ -21,42 +21,6 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
     // lifecycle like of channelled spell
 
     @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        SpellValidationResult result = SpellValidationResult.OK;
-
-        switch (phase) {
-            case START, STOP -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case CAST, TICK -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateMana(this, context, getManaCost()))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case EXIT_SIMULACRUM -> {
-                result = result.and(SpellValidator.validateCaster(this, context));
-            }
-        }
-        SpellValidator.showFailureIfNeeded(context, result);
-        return result;
-    }
-
-    @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        switch (phase) {
-            case TICK -> drainMana(context, getManaCost());
-            case EXIT_SIMULACRUM -> applyCooldown(context, getCooldownTicks());
-            default -> {
-            }
-        }
-    }
-
-    @Override
     public void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         SimulacraAttachment.setChanneling(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
 

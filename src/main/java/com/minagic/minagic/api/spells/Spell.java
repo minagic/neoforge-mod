@@ -4,7 +4,6 @@ import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.utilities.SpellValidationResult;
 import org.jetbrains.annotations.Nullable;
 
 // An abstract class representing a spell with casting lifecycle methods and validation.
@@ -33,20 +32,13 @@ public abstract class Spell {
     }
 
     public void perform(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        SpellValidationResult ctx_validation = context.validate();
-        if (!ctx_validation.success()) {
-            System.out.println("Performing "+ phase + " failed, REASON: " + ctx_validation.failureMessage());
+        if (!context.validate()) {
             return;
         }
-        SpellValidationResult before = before(phase, context, simulacrumData);
-        if (!before.success()) {
-            System.out.println("Performing "+ phase + " failed, one or many prerequisites check failed: " + before.failureMessage());
-            SpellValidator.showFailureIfNeeded(context, before);
-            return;
-        }
-
-        if (!SpellValidator.validateSimulacrum(simulacrumData).success() && this instanceof ISimulacrumSpell) {
-            System.out.println("WARNING: ISimulacrumSpell "+ this.getString() + "'s PHASE" + phase + " is used without a valid SimulacrumData object");
+        if (simulacrumData != null){
+            if (!simulacrumData.validate()){
+                return;
+            }
         }
 
         switch (phase) {
@@ -57,14 +49,8 @@ public abstract class Spell {
             case TICK -> tick(context, simulacrumData);
         }
 
-        after(phase, context, simulacrumData);
     }
 
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        return SpellValidationResult.OK;
-    }
-
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {}
 
     // OVERRIDES TO DEFINE SPELL BEHAVIOR
     // the main spell logic goes here

@@ -28,13 +28,13 @@ public class SpellCastContext {
         return target.level();
     }
 
-    public SpellValidationResult validate(){
-        if (caster == null) return SpellValidationResult.internalFail("No caster.");
-        if (level() == null) return SpellValidationResult.internalFail("No level.");
-        if (target == null) return SpellValidationResult.internalFail("No target.");
-        if (!caster.isAlive() || !target.isAlive()) return SpellValidationResult.internalFail("Caster or target dead.");
-        if (level().isClientSide()) return SpellValidationResult.internalFail("Cannot cast on client.");
-        return SpellValidationResult.OK;
+    public boolean validate(){
+        if (caster == null) return false;
+        if (level() == null) return false;
+        if (target == null) return false;
+        if (!caster.isAlive() || !target.isAlive()) return false;
+        if (level().isClientSide()) return false;
+        return true;
     }
 
     public SpellCastContext inverted(){

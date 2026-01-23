@@ -50,8 +50,7 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
         return result;
     }
 
-    @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
+    private void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         switch (phase) {
             case CAST -> {
                 applyCooldown(context, getCooldownTicks());
