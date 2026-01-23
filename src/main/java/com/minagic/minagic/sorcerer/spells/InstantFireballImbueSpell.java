@@ -26,7 +26,7 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
     }
 
     @Override
-    public void cast(SpellCastContext ctx, SimulacrumSpellData simulacrumData) {
+    public void cast(SpellCastContext ctx, SimulacrumData simulacrumData) {
         LivingEntity caster = ctx.caster;
 
         // Compute target yourself (raycast)

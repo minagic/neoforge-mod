@@ -1,12 +1,6 @@
 package com.minagic.minagic.spellCasting;
 
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
-import com.minagic.minagic.utilities.SpellValidationResult;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class SpellCastContext {

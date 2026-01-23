@@ -1,6 +1,6 @@
 package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellValidationResult;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +21,7 @@ public class InstanteneousSpell extends Spell{
     }
 
     @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData){
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData){
         SpellValidationResult result = SpellValidationResult.OK;
 
         switch (phase) {
@@ -45,7 +45,7 @@ public class InstanteneousSpell extends Spell{
     }
 
     @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData){
+    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData){
         if (phase == SpellEventPhase.CAST) {
             applyCooldown(context, getCooldownTicks());
             drainMana(context, getManaCost());
@@ -54,22 +54,22 @@ public class InstanteneousSpell extends Spell{
 
     // lifecycle methods
     @Override
-    public final void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData){
+    public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData){
         perform(SpellEventPhase.CAST, context, null);
     }
 
     @Override
-    public final void tick(SpellCastContext context, SimulacrumSpellData simulacrumData){
+    public final void tick(SpellCastContext context, SimulacrumData simulacrumData){
         // no-op
     }
 
     @Override
-    public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData){
+    public final void stop(SpellCastContext context, SimulacrumData simulacrumData){
         // no-op
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData){
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData){
         // no-op
     }
 

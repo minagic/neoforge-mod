@@ -7,8 +7,8 @@ import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.*;
-import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
+import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.MathUtils;
 import com.minagic.minagic.utilities.SpellUtils;
@@ -31,7 +31,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
 
     // lifecycle
     @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         SpellValidationResult result = SpellValidationResult.OK;
 
         switch (phase) {
@@ -61,25 +61,17 @@ public class Banishment extends Spell implements ISimulacrumSpell {
         return result;
     }
 
-    @Override
-    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
-            return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
-        }
-
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) == 0) {
-            return SpellValidator.CastFailureReason.CASTER_SUBCLASS_MISMATCH;
-        }
-
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) < 10) {
-            return SpellValidator.CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
-        }
-        return SpellValidator.CastFailureReason.OK;
+    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.AllowedClass(
+                PlayerClassEnum.SORCERER,
+                PlayerSubClassEnum.SORCERER_CELESTIAL,
+                10
+        ));
     }
 
 
     @Override
-    public final void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
+    public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         if (!SpellMetadata.has(context.target, this, "bb_start")){
             SpellMetadata.setBlockPos(context.target, this, "bb_start", context.target.blockPosition());
             SimulacraAttachment.addSimulacrum(context.target, context, this, -1, 200);
@@ -105,12 +97,12 @@ public class Banishment extends Spell implements ISimulacrumSpell {
 
     }
 
-    public final void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
-    public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
-    public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
+    public final void tick(SpellCastContext context, SimulacrumData simulacrumData) {}
+    public final void stop(SpellCastContext context, SimulacrumData simulacrumData) {}
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {}
 
     @Override
-    public final void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public final void cast(SpellCastContext context, SimulacrumData simulacrumData) {
         ServerLevel level = (ServerLevel) context.level();
         BlockPos start = SpellMetadata.getBlockPos(context.target, this, "bb_start");
         BlockPos end = SpellMetadata.getBlockPos(context.target, this, "bb_end");
@@ -172,7 +164,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
+    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         if (phase == SpellEventPhase.EXIT_SIMULACRUM) {
             SpellMetadata.removeBlockPos(context.target, this, "bb_end");
             SpellMetadata.removeBlockPos(context.target, this, "bb_start");
@@ -192,7 +184,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public final float progress(SimulacrumSpellData data) {
+    public final float progress(SimulacrumData data) {
         if (data.maxLifetime() <= 0) {
             return 1f;
         }

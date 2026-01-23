@@ -6,8 +6,8 @@ import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
-import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellUtils;
 import com.minagic.minagic.utilities.SpellValidationResult;
@@ -33,7 +33,7 @@ public class RadiantIllumination extends ChargedSpell {
     }
 
     @Override
-    public void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public void tick(SpellCastContext context, SimulacrumData simulacrumData) {
         super.tick(context, simulacrumData);
         float progress = simulacrumData.progress();
         double radius =  progress > 0.8 ? 1 : progress/0.8;
@@ -42,25 +42,17 @@ public class RadiantIllumination extends ChargedSpell {
         VisualUtils.spawnRadialParticleRing(context.level(), context.target.position(), radius*32, density, ParticleTypes.END_ROD);
     }
 
-    @Override
-    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS.get()).getMainClass() != PlayerClassEnum.SORCERER) {
-            return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
-        }
-
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) == 0) {
-            return SpellValidator.CastFailureReason.CASTER_SUBCLASS_MISMATCH;
-        }
-
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) < 5) {
-            return SpellValidator.CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
-        }
-        return SpellValidator.CastFailureReason.OK;
+    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.AllowedClass(
+                PlayerClassEnum.SORCERER,
+                PlayerSubClassEnum.SORCERER_CELESTIAL,
+                5
+        ));
     }
 
 
     @Override
-    public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public void cast(SpellCastContext context, SimulacrumData simulacrumData) {
         // locate every entity within range
         float progress = simulacrumData.progress();
         double radius =  progress > 0.8 ? 1 : progress/0.8;
@@ -98,7 +90,7 @@ public class RadiantIllumination extends ChargedSpell {
 
         @Override
         // cast a VERY bright hyperdense particlespam around them
-        public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+        public void cast(SpellCastContext context, SimulacrumData simulacrumData) {
             LivingEntity target = context.target;
 
             ServerLevel level = (ServerLevel) context.level();
@@ -127,7 +119,7 @@ public class RadiantIllumination extends ChargedSpell {
         }
 
         @Override
-        protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData){
+        protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData){
             SpellValidationResult result = SpellValidationResult.OK;
             if (Objects.requireNonNull(phase) == SpellEventPhase.CAST) {
                 result = result.and(SpellValidator.validateCaster(this, context));

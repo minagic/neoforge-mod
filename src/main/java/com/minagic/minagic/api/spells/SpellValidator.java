@@ -1,6 +1,6 @@
 package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.SpellMetadata;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.registries.ModAttachments;
@@ -41,7 +41,7 @@ public class SpellValidator {
         return SpellValidationResult.OK;
     }
 
-    public static SpellValidationResult validateSimulacrum(@Nullable SimulacrumSpellData simulacrumData) {
+    public static SpellValidationResult validateSimulacrum(@Nullable SimulacrumData simulacrumData) {
         if (simulacrumData == null) {
             return SpellValidationResult.internalFail("Simulacrum data is null");
         }

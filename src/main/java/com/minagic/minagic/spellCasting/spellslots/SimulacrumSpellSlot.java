@@ -5,7 +5,7 @@ import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellUtils;
@@ -135,8 +135,8 @@ public class SimulacrumSpellSlot {
         System.out.println("[SimulacrumSpellSlot] TICK COMPLETE | Lifetime: " + lifetime + "/" + threshold + ", Max: " + maxLifetime);
     }
 
-    public SimulacrumSpellData getSpellData() {
-        return new SimulacrumSpellData(
+    public SimulacrumData getSpellData() {
+        return new SimulacrumData(
                 ModSpells.getId(getSpell()),
                 maxLifetime,
                 originalMaxLifetime,

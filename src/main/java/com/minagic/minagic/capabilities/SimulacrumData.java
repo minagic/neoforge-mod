@@ -4,7 +4,7 @@ import com.minagic.minagic.registries.ModSpells;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
-public record SimulacrumSpellData(
+public record SimulacrumData(
         ResourceLocation spellId,
         float remainingLifetime,
         float maxLifetime,
@@ -44,5 +44,9 @@ public record SimulacrumSpellData(
         if (!host.isAlive()) return false;
         return !host.level().isClientSide();
 
+    }
+
+    public void expireSimulacrum() {
+        SimulacraAttachment.removeSimulacrum(host, spellId);
     }
 }

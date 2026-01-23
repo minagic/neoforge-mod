@@ -1,7 +1,7 @@
 package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacraAttachment;
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -34,44 +34,10 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
         return getSimulacrumThreshold();
     }
 
-    @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        SpellValidationResult result = SpellValidationResult.OK;
-        switch (phase) {
-            case START -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case CAST -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateMana(this, context, getManaCost()))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case TICK, STOP, EXIT_SIMULACRUM -> {
-                result = result.and(SpellValidationResult.INVALID_PHASE);
-            }
-        }
-        SpellValidator.showFailureIfNeeded(context, result);
-        return result;
-    }
-
-    @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        if (phase == SpellEventPhase.CAST) {
-            applyCooldown(context, getManaCost());
-            drainMana(context, getManaCost());
-        }
-    }
-
-
 
     // lifecycle methods
     @Override
-    public final void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
+    public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
 
         // Get player simulacra attachment
         SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
@@ -87,23 +53,23 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public  final void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public  final void tick(SpellCastContext context, SimulacrumData simulacrumData) {
         // No-op for autonomous charged spells
     }
 
     @Override
-    public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public final void stop(SpellCastContext context, SimulacrumData simulacrumData) {
         // No-op for autonomous charged spells
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {
         // no-op
     }
 
 
     @Override
-    public final float progress(SimulacrumSpellData data) {
+    public final float progress(SimulacrumData data) {
         return data.remainingLifetime() / data.maxLifetime();
     }
 

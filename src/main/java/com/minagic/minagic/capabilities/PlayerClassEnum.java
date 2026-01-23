@@ -21,12 +21,12 @@ public enum PlayerClassEnum {
         return switch (this) {
             case WIZARD -> "Arcane pattern unrecognized.";
             case SORCERER -> "Your blood rejects this spell.";
-            case WARLOCK -> "Patron denies this power.";
+            case WARLOCK -> "Your patron denies this power.";
             case CLERIC -> "Your deity forbids this magic.";
             case DRUID -> "Nature spurns this spell.";
             case BARD -> "You cannot recall this melody.";
             case BLADESINGER -> "You lack the rhythm of this form.";
-            case MONK -> "Your ki cannot shape this art.";
+            case MONK -> "Your qi cannot shape this art.";
             case HERBALIST -> "These essences elude your touch.";
             case ALCHEMIST -> "Formula unbalanced — reaction fails.";
             case RUNE_ARTIFICER -> "Runic pattern not bound to your craft.";

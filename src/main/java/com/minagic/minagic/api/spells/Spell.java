@@ -1,6 +1,6 @@
 package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -31,7 +31,7 @@ public abstract class Spell {
         context.caster.setData(ModAttachments.MANA.get(), mana);
     }
 
-    public void perform(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
+    public void perform(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         if (!context.validate()) {
             return;
         }
@@ -55,15 +55,15 @@ public abstract class Spell {
     // OVERRIDES TO DEFINE SPELL BEHAVIOR
     // the main spell logic goes here
     // the context is guaranteed to be valid here
-    protected void start(SpellCastContext context, SimulacrumSpellData simulacrumData){}
+    protected void start(SpellCastContext context, SimulacrumData simulacrumData){}
 
-    protected void tick(SpellCastContext context, SimulacrumSpellData simulacrumData){}
+    protected void tick(SpellCastContext context, SimulacrumData simulacrumData){}
 
-    protected void stop(SpellCastContext context, SimulacrumSpellData simulacrumData){}
+    protected void stop(SpellCastContext context, SimulacrumData simulacrumData){}
 
-    protected void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
+    protected void cast(SpellCastContext context, SimulacrumData simulacrumData) {}
 
-    protected void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData){}
+    protected void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData){}
 
     public final String getString() {
         return spellName;

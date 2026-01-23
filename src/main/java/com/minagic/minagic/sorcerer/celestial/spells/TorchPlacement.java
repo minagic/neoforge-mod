@@ -1,12 +1,11 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.api.spells.ChargedSpell;
-import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
-import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.PowerCalibrator;
 import com.minagic.minagic.utilities.SpellValidationResult;
@@ -15,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class TorchPlacement extends ChargedSpell {
@@ -28,7 +28,7 @@ public class TorchPlacement extends ChargedSpell {
     }
 
     @Override
-    public void cast(SpellCastContext context, SimulacrumSpellData data) {
+    public void cast(SpellCastContext context, SimulacrumData data) {
 
         float originalCharge = data.lifetime() / data.maxLifetime();
 
@@ -105,19 +105,12 @@ public class TorchPlacement extends ChargedSpell {
 
     }
 
-    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
-            return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
-        }
-
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) == 0) {
-            return SpellValidator.CastFailureReason.CASTER_SUBCLASS_MISMATCH;
-        }
-
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) < 3) {
-            return SpellValidator.CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
-        }
-        return SpellValidator.CastFailureReason.OK;
+    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.AllowedClass(
+                PlayerClassEnum.SORCERER,
+                PlayerSubClassEnum.SORCERER_CELESTIAL,
+                3
+        ));
     }
 
 }
