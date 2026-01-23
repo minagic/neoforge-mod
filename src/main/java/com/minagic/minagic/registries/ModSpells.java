@@ -4,9 +4,7 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.druid.spells.CircleOfLife;
 import com.minagic.minagic.druid.spells.OathOfLife;
-import com.minagic.minagic.sorcerer.celestial.spells.Banishment;
-import com.minagic.minagic.sorcerer.celestial.spells.RadiantIllumination;
-import com.minagic.minagic.sorcerer.celestial.spells.TracerBullet;
+import com.minagic.minagic.sorcerer.celestial.spells.*;
 import com.minagic.minagic.sorcerer.spells.EventHorizon;
 import com.minagic.minagic.sorcerer.spells.FireballBarrage;
 import com.minagic.minagic.sorcerer.spells.InstantFireballImbueSpell;
@@ -33,6 +31,7 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_illumination"), new RadiantIllumination());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_illumination_linder"), new RadiantIllumination.RadiantIlluminationBlinder());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "kinetic_nullification_field"), new KineticNullificationField());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "celestial_bombardment"), new CelestialBombardment());
 
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "imbue_fireball"), new InstantFireballImbueSpell());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "circle_of_life"), new CircleOfLife());
@@ -40,6 +39,8 @@ public final class ModSpells {
 
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "tracer_bullet"), new TracerBullet());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "exposure"), new TracerBullet.Exposure());
+
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "torch_placement"), new TorchPlacement());
 
         // register dev spells here
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_instnateneous"), new InstantaneousDevSpell());

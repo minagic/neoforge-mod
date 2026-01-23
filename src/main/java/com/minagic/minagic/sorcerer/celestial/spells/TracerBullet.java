@@ -9,6 +9,7 @@ import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -27,6 +28,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -55,7 +57,7 @@ public class TracerBullet extends InstanteneousSpell {
     }
 
     @Override
-    public void cast(SpellCastContext context) {
+    public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         // spawn a TracerBulletProjectile
 
 
@@ -116,7 +118,7 @@ public class TracerBullet extends InstanteneousSpell {
                         target
                 );
 
-                new Exposure().perform(SpellEventPhase.START, currentContext);
+                new Exposure().perform(SpellEventPhase.START, currentContext, null);
             }
             ServerLevel world = (ServerLevel) context.level();
             world.sendParticles(ParticleTypes.FALLING_NECTAR,
@@ -148,7 +150,7 @@ public class TracerBullet extends InstanteneousSpell {
         }
 
         @Override
-        public void cast(SpellCastContext context) {
+        public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
             // if context.target has invis apply glow
             Holder<MobEffect> holder = new Holder.Direct<>(MobEffects.INVISIBILITY).value();
             if (context.target.hasEffect(holder)) {
@@ -159,7 +161,7 @@ public class TracerBullet extends InstanteneousSpell {
         }
 
         @Override
-        public void start(SpellCastContext context){
+        public void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData){
             // Get target's simulacra attachment
             SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 

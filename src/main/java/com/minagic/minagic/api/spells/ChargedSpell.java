@@ -4,6 +4,7 @@ import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellValidationResult;
+import org.jetbrains.annotations.Nullable;
 
 public class ChargedSpell extends Spell implements ISimulacrumSpell {
     public ChargedSpell() {
@@ -18,7 +19,7 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
 
 
     @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context) {
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         SpellValidationResult result = SpellValidationResult.OK;
 
         switch (phase) {
@@ -32,7 +33,7 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
                 result = result
                         .and(SpellValidator.validateCaster(this, context))
                         .and(SpellValidator.validateItem(this, context))
-                        .and(SpellValidator.validateSimulacrum(context));
+                        .and(SpellValidator.validateSimulacrum(simulacrumData));
             }
             case STOP, EXIT_SIMULACRUM -> {
                 result = result.and(SpellValidator.validateCaster(this, context));
@@ -43,14 +44,14 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
                         .and(SpellValidator.validateItem(this, context))
                         .and(SpellValidator.validateCooldown(this, context))
                         .and(SpellValidator.validateMana(this, context, getManaCost()))
-                        .and(SpellValidator.validateSimulacrum(context));
+                        .and(SpellValidator.validateSimulacrum(simulacrumData));
             }
         }
         return result;
     }
 
     @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context) {
+    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         switch (phase) {
             case CAST -> {
                 applyCooldown(context, getCooldownTicks());
@@ -65,7 +66,7 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
 
     // lifecycle methods
     @Override
-    public final void start(SpellCastContext context) {
+    public final void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         SimulacraAttachment.setChanneling(
                 context.target,
                 context,
@@ -76,24 +77,19 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public void tick(SpellCastContext context) {
-        //System.out.println("Charging spell: " + getString() + " | Charge time: " + chargeTime);
-        //chargeTime = context.simulacrtumLifetime.lifetime();
+    public void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
     }
 
     @Override
-    public final void stop(SpellCastContext context) {
-
+    public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         SimulacraAttachment.clearChanneling(
                 context.target
         );
-
-
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context) {
-        perform(SpellEventPhase.CAST, context);
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+        perform(SpellEventPhase.CAST, context, simulacrumData);
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.minagic.minagic.utilities;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -90,6 +91,31 @@ public class SpellUtils {
 
     public static double findSurfaceY(Level level, double x, double z) {
         return level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, BlockPos.containing(x, 0, z)).getY();
+    }
+
+
+    public static BlockPos getTargetBlockPos(Entity entity, double range) {
+        Level world = entity.level();
+        Vec3 start = entity.getEyePosition(1.0F); // Position of eyes
+        Vec3 look = entity.getLookAngle();        // Look direction vector
+        Vec3 end = start.add(look.scale(range));  // Where the look vector ends
+
+        // Use ray trace to detect block
+        ClipContext context = new ClipContext(
+                start,
+                end,
+                ClipContext.Block.OUTLINE,
+                ClipContext.Fluid.NONE,
+                entity
+        );
+
+        HitResult result = world.clip(context);
+
+        if (result.getType() == HitResult.Type.BLOCK) {
+            return ((BlockHitResult) result).getBlockPos();
+        }
+
+        return null; // No block hit
     }
 
 }

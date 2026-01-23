@@ -6,6 +6,7 @@ import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellUtils;
@@ -15,6 +16,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -31,9 +33,9 @@ public class RadiantIllumination extends ChargedSpell {
     }
 
     @Override
-    public void tick(SpellCastContext context) {
-        super.tick(context);
-        float progress = context.simulacrtumLifetime.progress();
+    public void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+        super.tick(context, simulacrumData);
+        float progress = simulacrumData.progress();
         double radius =  progress > 0.8 ? 1 : progress/0.8;
         int density = 64;
 
@@ -42,7 +44,7 @@ public class RadiantIllumination extends ChargedSpell {
 
     @Override
     public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
+        if (context.caster.getData(ModAttachments.PLAYER_CLASS.get()).getMainClass() != PlayerClassEnum.SORCERER) {
             return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
         }
 
@@ -58,9 +60,9 @@ public class RadiantIllumination extends ChargedSpell {
 
 
     @Override
-    public void cast(SpellCastContext context) {
+    public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         // locate every entity within range
-        float progress = context.simulacrtumLifetime.progress();
+        float progress = simulacrumData.progress();
         double radius =  progress > 0.8 ? 1 : progress/0.8;
 
         List<LivingEntity> targets = SpellUtils.findEntitiesInRadius(
@@ -78,7 +80,7 @@ public class RadiantIllumination extends ChargedSpell {
                     target
             );
             RadiantIlluminationBlinder blinder = new RadiantIlluminationBlinder();
-            blinder.perform(SpellEventPhase.START, currentContext);
+            blinder.perform(SpellEventPhase.START, currentContext, null);
         }
     }
 
@@ -96,7 +98,7 @@ public class RadiantIllumination extends ChargedSpell {
 
         @Override
         // cast a VERY bright hyperdense particlespam around them
-        public void cast(SpellCastContext context) {
+        public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
             LivingEntity target = context.target;
 
             ServerLevel level = (ServerLevel) context.level();
@@ -125,7 +127,7 @@ public class RadiantIllumination extends ChargedSpell {
         }
 
         @Override
-        protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context){
+        protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData){
             SpellValidationResult result = SpellValidationResult.OK;
             if (Objects.requireNonNull(phase) == SpellEventPhase.CAST) {
                 result = result.and(SpellValidator.validateCaster(this, context));

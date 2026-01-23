@@ -146,6 +146,8 @@ public class SimulacraAttachment {
             SimulacrumSpellSlot slot = entry.getValue();
             slot.tick();
             float readiness = slot.getSpellData().progress();
+            System.out.println("[SimulacraAttachement] Generated SimulacrumSpellData");
+            slot.getSpellData().dump();
             simulacraReadiness.put(entry.getKey(), readiness);
         }
     }

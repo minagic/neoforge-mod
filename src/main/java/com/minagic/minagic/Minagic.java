@@ -5,6 +5,7 @@ import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.gui.CooldownOverlay;
 import com.minagic.minagic.packets.MinagicNetwork;
 import com.minagic.minagic.registries.*;
+import com.minagic.minagic.sorcerer.celestial.spells.CelestialBombardment;
 import com.minagic.minagic.sorcerer.celestial.spells.TracerBullet;
 import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
 import com.minagic.minagic.spellCasting.ClearData;
@@ -88,14 +89,16 @@ public class Minagic {
                             .sized(0.5F, 0.5F) // Size of the entity
                             .clientTrackingRange(32) // Tracking range
                             .updateInterval(1) // Update interval
-                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":void_blast_entity"))));
-    // Creates a creative tab with the id "minagic:example_tab" for the example item, that is placed after the combat tab
-//    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
-//            .title(Component.translatable("itemGroup.minagic")) //The language key for the title of your CreativeModeTab
-//            .withTabsBefore(CreativeModeTabs.COMBAT)
-//            .displayItems((parameters, output) -> {
-//                output.accept(ModItems.EFFECT_WAND.get()); // Add the effect wand to the tab
-//            }).build());
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":tracer_bullet_projectile"))));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<CelestialBombardment.StarShard>> STAR_SHARD =
+            ENTITY_TYPES.register("star_shard",
+                    () -> EntityType.Builder.<CelestialBombardment.StarShard>of(CelestialBombardment.StarShard::new, MobCategory.MISC)
+                            .sized(0.5F, 0.5F) // Size of the entity
+                            .clientTrackingRange(32) // Tracking range
+                            .updateInterval(1) // Update interval
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":star_shard"))));
+
 
     public static final  EntityFreezer ENTITY_FREEZER = new EntityFreezer();
 

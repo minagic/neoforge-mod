@@ -5,27 +5,19 @@ import com.minagic.minagic.spellCasting.spellslots.SimulacrumSpellSlot;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+
+import javax.swing.text.html.parser.Entity;
 
 public record SimulacrumSpellData(
         ResourceLocation spellId,
         float remainingLifetime,
         float maxLifetime,
         float lifetime,
-        float threshold
+        float threshold,
+        LivingEntity host
 ) {
 
-    // ===========
-    //  CODEC
-    // ===========
-    public static final Codec<SimulacrumSpellData> CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
-                    ResourceLocation.CODEC.fieldOf("spell_id").forGetter(SimulacrumSpellData::spellId),
-                    Codec.FLOAT.fieldOf("remaining_lifetime").forGetter(SimulacrumSpellData::remainingLifetime),
-                    Codec.FLOAT.fieldOf("max_lifetime").forGetter(SimulacrumSpellData::maxLifetime),
-                    Codec.FLOAT.fieldOf("lifetime").forGetter(SimulacrumSpellData::lifetime),
-                    Codec.FLOAT.fieldOf("threshold").forGetter(SimulacrumSpellData::threshold)
-            ).apply(instance, SimulacrumSpellData::new)
-    );
 
 
     // ===========
@@ -42,5 +34,13 @@ public record SimulacrumSpellData(
         var spell = ModSpells.get(spellId); // however you get it
         if (spell == null) return 0x00000000;
         return spell.color(progress);
+    }
+
+    public void dump(){
+        System.out.println("Spell:  " + spellId);
+        System.out.println("Remaining Lifetime: " +  remainingLifetime);
+        System.out.println("Max Lifetime: " + maxLifetime);
+        System.out.println("Lifetime: " + lifetime);
+        System.out.println("Threshold: " + threshold);
     }
 }

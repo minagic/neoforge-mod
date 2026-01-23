@@ -19,7 +19,7 @@ public class SimulacrumSpellSlot {
     // COLD STATE
     private final UUID casterUUID;
     private final UUID targetUUID;
-    private final UUID hostUUID ; // NEW — the actual entity hosting the simulacrum
+    private final UUID hostUUID ;
 
     // NUMERIC STATE
     private int lifetime = 0;
@@ -116,7 +116,6 @@ public class SimulacrumSpellSlot {
         }
 
         lifetime++;
-        context.simulacrtumLifetime = getSpellData();
         System.out.println("[SimulacrumSpellSlot] TICK START | Lifetime: " + lifetime + "/" + threshold + ", Max: " + maxLifetime);
         System.out.println("[SimulacrumSpellSlot] Resolved Host Entity: " + resolvedHostEntity + " | Host ID: " + hostUUID);
         if (maxLifetime == 0) {
@@ -124,11 +123,11 @@ public class SimulacrumSpellSlot {
             return;
         }
 
-        getSpell().perform(SpellEventPhase.TICK, context);
+        getSpell().perform(SpellEventPhase.TICK, context, getSpellData());
 
         if (lifetime == threshold) {
             lifetime = 0;
-            getSpell().perform(SpellEventPhase.CAST, context);
+            getSpell().perform(SpellEventPhase.CAST, context, getSpellData());
         }
 
         maxLifetime--;
@@ -142,15 +141,14 @@ public class SimulacrumSpellSlot {
                 maxLifetime,
                 originalMaxLifetime,
                 lifetime,
-                threshold
-
+                threshold,
+                resolvedHostEntity
         );
     }
 
     public void exitSpellSlot() {
         if (context == null) return;
-        context.simulacrtumLifetime = getSpellData();
-        getSpell().perform(SpellEventPhase.EXIT_SIMULACRUM, context);
+        getSpell().perform(SpellEventPhase.EXIT_SIMULACRUM, context, getSpellData());
     }
 
     public Spell getSpell() {

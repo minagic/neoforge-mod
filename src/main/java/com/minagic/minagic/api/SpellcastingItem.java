@@ -62,6 +62,9 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     public void cycleSlotUp(Optional<Player> player, ItemStack stack) {
         if (player.isEmpty()) {return;} // player should not be empty
         SimulacraAttachment.clearChanneling(player.get());
+        if (player.get().isUsingItem()){
+            releaseUsing(stack, player.get().level(), player.get(), 0); // stop using the item
+        }
 
         T data = getData(stack);
 
@@ -165,7 +168,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
         SpellCastContext context = new SpellCastContext(serverPlayer);
 
-        data.getActive().getSpell().perform(SpellEventPhase.START, context);
+        data.getActive().getSpell().perform(SpellEventPhase.START, context, null);
         serverPlayer.startUsingItem(hand);
 
         return InteractionResult.SUCCESS;
@@ -193,7 +196,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         T data = getData(stack);
 
         SpellCastContext context = new SpellCastContext(serverPlayer);
-        data.getActive().getSpell().perform(SpellEventPhase.STOP, context);
+        data.getActive().getSpell().perform(SpellEventPhase.STOP, context, null);
         setData(stack, data);
 
         return true;

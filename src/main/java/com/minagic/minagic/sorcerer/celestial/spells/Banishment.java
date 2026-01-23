@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -30,7 +31,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
 
     // lifecycle
     @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context) {
+    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         SpellValidationResult result = SpellValidationResult.OK;
 
         switch (phase) {
@@ -78,7 +79,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
 
 
     @Override
-    public final void start(SpellCastContext context) {
+    public final void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         if (!SpellMetadata.has(context.target, this, "bb_start")){
             SpellMetadata.setBlockPos(context.target, this, "bb_start", context.target.blockPosition());
             SimulacraAttachment.addSimulacrum(context.target, context, this, -1, 200);
@@ -104,12 +105,12 @@ public class Banishment extends Spell implements ISimulacrumSpell {
 
     }
 
-    public final void tick(SpellCastContext context) {}
-    public final void stop(SpellCastContext context) {}
-    public final void exitSimulacrum(SpellCastContext context) {}
+    public final void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
+    public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
 
     @Override
-    public final void cast(SpellCastContext context) {
+    public final void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
         ServerLevel level = (ServerLevel) context.level();
         BlockPos start = SpellMetadata.getBlockPos(context.target, this, "bb_start");
         BlockPos end = SpellMetadata.getBlockPos(context.target, this, "bb_end");
@@ -171,7 +172,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context) {
+    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
         if (phase == SpellEventPhase.EXIT_SIMULACRUM) {
             SpellMetadata.removeBlockPos(context.target, this, "bb_end");
             SpellMetadata.removeBlockPos(context.target, this, "bb_start");

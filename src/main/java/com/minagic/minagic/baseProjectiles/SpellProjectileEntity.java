@@ -27,7 +27,6 @@ public abstract class SpellProjectileEntity extends Projectile {
     @Override
     public void tick() {
         super.tick();
-
         Vec3 currentPos = this.position();
         Vec3 motion = this.getDeltaMovement().add(0, -gravity, 0);
         Vec3 nextPos = currentPos.add(motion);

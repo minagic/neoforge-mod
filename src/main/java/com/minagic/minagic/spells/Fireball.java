@@ -5,6 +5,7 @@ import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.sounds.SoundEvents;
@@ -48,7 +49,7 @@ public class Fireball extends InstanteneousSpell {
 
 
     @Override
-    public void cast(SpellCastContext context) {
+    public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
 
         Level level = context.level();
         LivingEntity player = context.caster;
