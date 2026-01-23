@@ -58,16 +58,6 @@ public class SpellcastingItemData {
         return result;
     }
 
-    public String getRaw(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("currentSlot:").append(currentSlot).append(";");
-        sb.append("slots:");
-        for (int i = 0; i < slots.size(); i++) {
-            sb.append(slots.get(i).getSpellId());
-            if (i < slots.size() - 1) sb.append(",");
-        }
-        return sb.toString();
-    }
 
     public String toString() {
         StringBuilder sb = new StringBuilder("SpellcastingItemData{");

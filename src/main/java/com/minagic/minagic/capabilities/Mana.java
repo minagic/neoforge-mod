@@ -38,11 +38,10 @@ public final class Mana {
 
         this.maxMana = computedMax;
 
-        // --- Regeneration Logic Example ---
-        boolean restored = false;
+
 
         // Sorcerer passive regen
-        restored = restoreMana(1);
+        restoreMana(1);
         // Optional: log or effect if mana restored
 
 

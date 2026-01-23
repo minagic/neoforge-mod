@@ -62,6 +62,9 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     public void cycleSlotUp(Optional<Player> player, ItemStack stack) {
         if (player.isEmpty()) {return;} // player should not be empty
         SimulacraAttachment.clearChanneling(player.get());
+        if (player.get().isUsingItem()){
+            releaseUsing(stack, player.get().level(), player.get(), 0); // stop using the item
+        }
 
         T data = getData(stack);
 

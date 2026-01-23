@@ -141,8 +141,8 @@ public class SimulacrumSpellSlot {
                 maxLifetime,
                 originalMaxLifetime,
                 lifetime,
-                threshold
-
+                threshold,
+                resolvedHostEntity
         );
     }
 

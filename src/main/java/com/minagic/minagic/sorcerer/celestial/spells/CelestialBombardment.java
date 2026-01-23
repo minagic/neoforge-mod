@@ -1,8 +1,8 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
+import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.ChanneledAutonomousSpell;
-import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
@@ -10,8 +10,10 @@ import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumSpellData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spells.AOEHit;
 import com.minagic.minagic.utilities.MathUtils;
 import com.minagic.minagic.utilities.SpellUtils;
+import com.minagic.minagic.utilities.SpellValidationResult;
 import com.minagic.minagic.utilities.VisualUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -34,9 +36,9 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
 
     public CelestialBombardment(){
         super();
-        this.cooldown = 0;
+        this.cooldown = 400     ;
         this.spellName = "Celestial Bombardment";
-        this.simulacraMaxLifetime = 400;
+        this.simulacraMaxLifetime = 200;
         this.simulacraThreshold = 5;
         this.manaCost = 0;
     }
@@ -59,6 +61,13 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
 
     @Override
     public void cast(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumSpellData){
+        SpellValidationResult result = SpellValidator.validateMana(this, context, 25);
+        if (!result.success()){
+            result.showToPlayer();
+            return;
+        }
+
+
         int XZRange = 5;
         int targetCount = 5;
         int YRange = 3;
@@ -100,14 +109,14 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
 
         for (int i = 0; i < targetCount; i++){
             Vec3[] pos_dir = computeFiringSolution(context.caster.position(), MathUtils.blockPosToVec3(targetedBlock), MathUtils.blockPosToVec3(targets.get(i)), altitudes.get(i), 35);
-            StarShard shard = new StarShard(context.level(), pos_dir[0], pos_dir[1], context);
+            StarShard shard = new StarShard(context.level(), pos_dir[0], pos_dir[1]);
             System.out.println("[Celestial Bombardment] Spawning StarShard at " + Arrays.toString(pos_dir));
-
+            shard.setOwner(context.caster);
             context.level().addFreshEntity(shard);
         }
 
 
-
+        drainMana(context, 25);
 
     }
 
@@ -144,34 +153,40 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
     }
 
     public static class StarShard extends SpellProjectileEntity implements ItemSupplier {
-        private SpellCastContext context;
         public StarShard(EntityType<? extends CelestialBombardment.StarShard> type, Level level) {
             super(type, level);
             this.speed = 0f;
-            this.context = null;
         }
 
-        public StarShard(Level level, Vec3 position, Vec3 direction, SpellCastContext context) {
+        public StarShard(Level level, Vec3 position, Vec3 direction) {
             super(Minagic.STAR_SHARD.get(), level);
 
             this.speed = 1;
             this.isEntityPiercing = false;
             this.setPos(position.x, position.y, position.z);
             this.setDeltaMovement(direction.normalize().scale(this.speed));
-            this.context = context;
+
         }
 
         @Override
         public void onHitBlock(BlockHitResult result){
             if (this.level().isClientSide()) return;
             VisualUtils.createParticlesInSphere((ServerLevel) this.level(), this.position(), 4, ParticleTypes.END_ROD, 40);
+            AOEHit.applyAOE(
+                    this.getOwner(),
+                    this,
+                    Set.of(DamageTypes.RADIANT),
+                    12,
+                    4,
+                    result.getBlockPos()
+            );
             this.discard();
         }
 
 
         @Override
         public @NotNull ItemStack getItem(){
-            return new ItemStack(Items.PACKED_ICE);
+            return new ItemStack(Items.PRISMARINE_CRYSTALS);
         }
     }
 }
