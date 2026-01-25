@@ -103,9 +103,6 @@ public abstract class SpellProjectileEntity extends Projectile {
 
     @Override
     protected void onHitEntity(EntityHitResult hitResult) {
-//        if (hitResult.getEntity() == this.getOwner()) {
-//            return; // ignore hits on owner
-//        }
         if (maxPierce <= 0) {
             return;
         }

@@ -4,7 +4,11 @@ import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.DefaultGates;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // An abstract class representing a spell with casting lifecycle methods and validation.
 public abstract class Spell {
@@ -79,14 +83,15 @@ public abstract class Spell {
         return manaCost;
     }
 
+    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses(){
+        return new ArrayList<>();
+    }
+
     public final boolean isTechnical() {return isTechnical;}
 
     // CASTER VALIDATION METHODS
     // check if caster can use this spell
     // default: OK for all casters
-    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
-        return SpellValidator.CastFailureReason.OK;
-    }
     //  HUD
     public int color(float progress) {
         return 0x00000000;

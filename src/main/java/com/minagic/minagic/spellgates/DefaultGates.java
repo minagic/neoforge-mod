@@ -12,14 +12,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class DefaultGates {
-    public class ClassGate implements ISpellGate {
+    public static class ClassGate implements ISpellGate {
         public record AllowedClass(
                 PlayerClassEnum mainClass,
                 PlayerSubClassEnum subClass,
                 int level
         ){}
 
-        private List<AllowedClass> allowedClasses;
+        private final List<AllowedClass> allowedClasses;
         private String failureMessage;
         public ClassGate(List<AllowedClass> classes){
             this.allowedClasses = classes;
@@ -87,11 +87,13 @@ public class DefaultGates {
         }
     }
 
-    public class CooldownGate implements ISpellGate {
+    public static class CooldownGate implements ISpellGate {
         private final Spell spell;
+        private final int cooldown;
 
-        public CooldownGate(Spell spell) {
+        public CooldownGate(Spell spell, int cooldown) {
             this.spell = spell;
+            this.cooldown = cooldown;
         }
 
         @Override
@@ -110,9 +112,14 @@ public class DefaultGates {
                     40
             );
         }
+
+        @Override
+        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData){
+
+        }
     }
 
-    public class ManaGate implements ISpellGate {
+    public static class ManaGate implements ISpellGate {
         private final int manaCost;
         private final Spell spell;
 
@@ -146,7 +153,7 @@ public class DefaultGates {
         }
     }
 
-    public class ManaSustainGate implements ISpellGate {
+    public static class ManaSustainGate implements ISpellGate {
         private final int manaCost;
 
         public ManaSustainGate(int manaCost) {
@@ -181,14 +188,14 @@ public class DefaultGates {
         }
     }
 
-    public class SimulacrumGate implements ISpellGate {
+    public static class SimulacrumGate implements ISpellGate {
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             return simData != null && simData.remainingLifetime() > 0;
         }
     }
 
-    public class MetadataGate implements ISpellGate {
+    public static class MetadataGate implements ISpellGate {
         private final Spell spell;
         private final List<String> requiredKeys;
 

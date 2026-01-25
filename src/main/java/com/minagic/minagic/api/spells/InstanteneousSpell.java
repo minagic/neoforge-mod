@@ -20,37 +20,7 @@ public class InstanteneousSpell extends Spell{
         this.simulacraMaxLifetime = 0;
     }
 
-    @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData){
-        SpellValidationResult result = SpellValidationResult.OK;
 
-        switch (phase) {
-            case START -> {
-                return result;
-            }
-            case CAST -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateItem(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateMana(this, context, getManaCost()));
-            }
-            case STOP, EXIT_SIMULACRUM, TICK -> {
-                return SpellValidationResult.INVALID_PHASE;
-            }
-        }
-
-
-        return result;
-    }
-
-    @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData){
-        if (phase == SpellEventPhase.CAST) {
-            applyCooldown(context, getCooldownTicks());
-            drainMana(context, getManaCost());
-        }
-    }
 
     // lifecycle methods
     @Override

@@ -13,18 +13,6 @@ import java.util.List;
 
 public class SpellValidator {
 
-    public static SpellValidationResult validateCaster(Spell spell, SpellCastContext context) {
-        var reason = spell.canCast(context);
-        var playerClass = context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass();
-
-        return switch (reason) {
-            case CASTER_CLASS_MISMATCH -> SpellValidationResult.playerFail(playerClass.getUnknownSpellMessage());
-            case CASTER_SUBCLASS_MISMATCH -> SpellValidationResult.playerFail(playerClass.getSubclassMismatchMessage());
-            case CASTER_CLASS_LEVEL_TOO_LOW -> SpellValidationResult.playerFail(playerClass.getLevelTooLowMessage());
-            case OK -> SpellValidationResult.OK;
-        };
-    }
-
     public static SpellValidationResult validateCooldown(Spell spell, SpellCastContext context) {
         var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
         if (cooldowns.getCooldown(ModSpells.getId(spell)) > 0) {

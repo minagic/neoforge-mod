@@ -30,45 +30,6 @@ public class Banishment extends Spell implements ISimulacrumSpell {
     }
 
     // lifecycle
-    @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SpellValidationResult result = SpellValidationResult.OK;
-
-        switch (phase) {
-            case START -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case CAST -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateItem(this, context))
-                        .and(SpellValidator.validateMetadata(this, context, List.of("bb_start", "bb_end")));
-            }
-            case EXIT_SIMULACRUM -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case TICK, STOP -> {
-                result = result.and(SpellValidationResult.INVALID_PHASE);
-            }
-        }
-
-        return result;
-    }
-
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.AllowedClass(
-                PlayerClassEnum.SORCERER,
-                PlayerSubClassEnum.SORCERER_CELESTIAL,
-                10
-        ));
-    }
-
 
     @Override
     public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
@@ -161,15 +122,6 @@ public class Banishment extends Spell implements ISimulacrumSpell {
         }
 
 
-    }
-
-    @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        if (phase == SpellEventPhase.EXIT_SIMULACRUM) {
-            SpellMetadata.removeBlockPos(context.target, this, "bb_end");
-            SpellMetadata.removeBlockPos(context.target, this, "bb_start");
-            applyCooldown(context, cooldown);
-        }
     }
 
 

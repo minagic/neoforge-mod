@@ -118,14 +118,7 @@ public class RadiantIllumination extends ChargedSpell {
             }
         }
 
-        @Override
-        protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData){
-            SpellValidationResult result = SpellValidationResult.OK;
-            if (Objects.requireNonNull(phase) == SpellEventPhase.CAST) {
-                result = result.and(SpellValidator.validateCaster(this, context));
-            }
-            return result;
-        }
+
 
     }
 }

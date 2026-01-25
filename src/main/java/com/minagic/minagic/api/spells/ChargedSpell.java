@@ -18,50 +18,6 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
     }
 
 
-    @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SpellValidationResult result = SpellValidationResult.OK;
-
-        switch (phase) {
-            case START -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case TICK -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateItem(this, context))
-                        .and(SpellValidator.validateSimulacrum(simulacrumData));
-            }
-            case STOP, EXIT_SIMULACRUM -> {
-                result = result.and(SpellValidator.validateCaster(this, context));
-            }
-            case CAST -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateItem(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateMana(this, context, getManaCost()))
-                        .and(SpellValidator.validateSimulacrum(simulacrumData));
-            }
-        }
-        return result;
-    }
-
-    private void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        switch (phase) {
-            case CAST -> {
-                applyCooldown(context, getCooldownTicks());
-                drainMana(context, getManaCost());
-                SimulacraAttachment.clearChanneling(context.target);
-            }
-            case EXIT_SIMULACRUM -> applyCooldown(context, getCooldownTicks());
-            default -> {
-            }
-        }
-    }
 
     // lifecycle methods
     @Override
