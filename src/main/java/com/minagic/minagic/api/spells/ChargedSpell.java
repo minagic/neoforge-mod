@@ -3,6 +3,9 @@ package com.minagic.minagic.api.spells;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.DefaultGates;
+import com.minagic.minagic.spellgates.SpellGateChain;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.SpellValidationResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,13 +25,17 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
     // lifecycle methods
     @Override
     public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SimulacraAttachment.setChanneling(
-                context.target,
-                context,
-                this,
-                0,
-                getSimulacrumMaxLifetime()
-        );
+        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
+                ((ctx, simData) -> {
+                    SimulacraAttachment.setChanneling(
+                            ctx.target,
+                            ctx,
+                            this,
+                            0,
+                            getSimulacrumMaxLifetime()
+                    );
+                })
+        ).execute(context, simulacrumData);
     }
 
     @Override
@@ -44,7 +51,11 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
 
     @Override
     public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {
-        perform(SpellEventPhase.CAST, context, simulacrumData);
+        new SpellGateChain().addGate(new DefaultGates.SimulacrumGate()).setEffect((ctx, simData) -> {
+            perform(SpellEventPhase.CAST, ctx, simData);
+        }).execute(context, simulacrumData);
+
+
     }
 
     @Override

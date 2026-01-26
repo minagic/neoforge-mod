@@ -12,7 +12,7 @@ public class AutonomousChargedDevSpell extends AutonomousChargedSpell {
 
     @Override
     public void cast(SpellCastContext context, SimulacrumData simulacrumData) {
-        System.out.println("[AutonomousChargedDevSpell] 💥 Detonated after delay! "
+        System.out.println("[AutonomousChargedDevSpell] Detonated after delay! "
                 + context.caster.getName().getString());
 
     }

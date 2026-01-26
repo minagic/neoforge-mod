@@ -1,17 +1,21 @@
 package com.minagic.minagic.druid.spells;
 
 import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
 public class CircleOfLife extends AutonomousSpell {
@@ -25,35 +29,40 @@ public class CircleOfLife extends AutonomousSpell {
 
 
     @Override
-    public void cast(SpellCastContext context, SimulacrumData simulacrumData) {
-        OathOfLife oath = new OathOfLife();
+    public void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+                .setEffect((context, simulacrumData) -> {
+                    OathOfLife oath = new OathOfLife();
 
-        var entities = context.level().getEntitiesOfClass(
-                Animal.class,
-                context.target.getBoundingBox().inflate(5.0)
-        );
+                    var entities = context.level().getEntitiesOfClass(
+                            Animal.class,
+                            context.target.getBoundingBox().inflate(5.0)
+                    );
 
-        for (Animal animal : entities) {
-            if (animal == context.caster) continue;
-            if (!animal.isAlive()) continue;
+                    for (Animal animal : entities) {
+                        if (animal == context.caster) continue;
+                        if (!animal.isAlive()) continue;
 
-            // Spawn tiny “life” particle burst
-            spawnLifeParticle(animal);
+                        // Spawn tiny “life” particle burst
+                        spawnLifeParticle(animal);
 
-            // Build a *fresh* context for each target
-            SpellCastContext subCtx = new SpellCastContext(
-                    context.caster,
-                    animal
-            );
+                        // Build a *fresh* context for each target
+                        SpellCastContext subCtx = new SpellCastContext(
+                                context.caster,
+                                animal
+                        );
 
-            SimulacraAttachment.addSimulacrum(
-                    subCtx.target,
-                    subCtx,
-                    oath,
-                    oath.getSimulacrumThreshold(),
-                    oath.getSimulacrumMaxLifetime()
-            );
-        }
+                        SimulacraAttachment.addSimulacrum(
+                                subCtx.target,
+                                subCtx,
+                                oath,
+                                oath.getSimulacrumThreshold(),
+                                oath.getSimulacrumMaxLifetime()
+                        );
+                    }
+                })
+                .execute(ctx, simData);
+
     }
     private void spawnLifeParticle(LivingEntity entity) {
         Level level = entity.level();

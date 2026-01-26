@@ -2,7 +2,10 @@ package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import org.jetbrains.annotations.Nullable;
 
 public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell {
@@ -21,7 +24,13 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
 
     @Override
     public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SimulacraAttachment.setChanneling(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
+        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
+                ((ctx, simData) -> {
+                    SimulacraAttachment.setChanneling(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
+                })
+        ).execute(context, simulacrumData);
+
+
 
     }
 

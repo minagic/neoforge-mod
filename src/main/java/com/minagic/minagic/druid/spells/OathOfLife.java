@@ -3,11 +3,16 @@ package com.minagic.minagic.druid.spells;
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.Mana;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.animal.Animal;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
@@ -22,22 +27,26 @@ public class OathOfLife extends AutonomousSpell {
     }
 
     @Override
-    public void cast(SpellCastContext context, SimulacrumData simulacrumData) {
+    public void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
         // identify caster's mana percentage
-        Mana mana = context.caster.getData(ModAttachments.MANA);
-        float manaPercentage = mana.getMana() / (float) mana.getMaxMana();
-        if (manaPercentage < 0.2f) {
-            // low mana, DAMAGE instead
-            MinagicDamage damage = new MinagicDamage(context.target, context.caster, context.target, 6.0f, Set.of(
-                    DamageTypes.MAGIC,
-                    DamageTypes.NATURAL
-            ));
-            damage.hurt((ServerLevel)context.level());
-        }
-        else {
-            // heal target
-            context.target.heal(6.0f);
-        }
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+                .setEffect((context, simulacrumData) -> {
+                    Mana mana = context.caster.getData(ModAttachments.MANA);
+                    float manaPercentage = mana.getMana() / (float) mana.getMaxMana();
+                    if (manaPercentage < 0.2f) {
+                        // low mana, DAMAGE instead
+                        MinagicDamage damage = new MinagicDamage(context.target, context.caster, context.target, 6.0f, Set.of(
+                                DamageTypes.MAGIC,
+                                DamageTypes.NATURAL
+                        ));
+                        damage.hurt((ServerLevel)context.level());
+                    }
+                    else {
+                        // heal target
+                        context.target.heal(6.0f);
+                    }
+                })
+                .execute(ctx, simData);
     }
 
 }

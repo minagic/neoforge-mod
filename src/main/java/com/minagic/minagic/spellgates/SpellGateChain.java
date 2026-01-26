@@ -4,6 +4,7 @@ import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SpellGateChain {
@@ -12,7 +13,7 @@ public class SpellGateChain {
         void execute(SpellCastContext ctx, @Nullable SimulacrumData simData);
     }
 
-    List<ISpellGate> gates;
+    List<ISpellGate> gates = new ArrayList<>();
     SpellEffect effect;
 
     public SpellGateChain addGate(ISpellGate gate) {

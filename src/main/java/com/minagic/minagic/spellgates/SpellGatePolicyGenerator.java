@@ -31,8 +31,6 @@ public class SpellGatePolicyGenerator {
                     chain.addGate(new DefaultGates.ClassGate(allowedClasses));
                 if (manaCostOnCast != null)
                     chain.addGate(new DefaultGates.ManaGate(manaCostOnCast, spell));
-                if (manaSustainPerTick != null)
-                    chain.addGate(new DefaultGates.ManaSustainGate(manaSustainPerTick));
                 if (requireSimulacrumOnCast)
                     chain.addGate(new DefaultGates.SimulacrumGate());
             }

@@ -5,6 +5,7 @@ import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.SpellValidationResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,18 +39,21 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     // lifecycle methods
     @Override
     public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
+        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
+                ((ctx, simData) -> {
+                    SimulacraAttachment sim = ctx.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
-        // Get player simulacra attachment
-        SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
+                    boolean existing = sim.hasSpell(ModSpells.getId(this));
 
-        // Toggle logic: if already active, remove; else add
-        boolean existing = sim.hasSpell(ModSpells.getId(this));
+                    if (existing) {
+                        SimulacraAttachment.removeSimulacrum(ctx.target, ModSpells.getId(this));
+                    } else {
+                        SimulacraAttachment.addSimulacrum(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
+                    }
+                })
 
-        if (existing) {
-            SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
-        } else {
-            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
-        }
+        ).execute(context, simulacrumData);
+
     }
 
     @Override
