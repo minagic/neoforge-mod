@@ -2,14 +2,18 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
+import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.ChanneledAutonomousSpell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.capabilities.SpellMetadata;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.spells.AOEHit;
 import com.minagic.minagic.utilities.MathUtils;
 import com.minagic.minagic.utilities.SpellUtils;
@@ -52,63 +56,58 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
     }
 
     @Override
-    public void cast(SpellCastContext context, @Nullable SimulacrumData simulacrumData){
-        SpellValidationResult result = SpellValidator.validateMana(this, context, 25);
-        if (!result.success()){
-            result.showToPlayer();
-            return;
-        }
+    public void cast(SpellCastContext ctx, @Nullable SimulacrumData simData){
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, 5, null, false, this)
+                .setEffect((context, simulacrumData) -> {
+                    int XZRange = 5;
+                    int targetCount = 5;
+                    int YRange = 3;
 
 
-        int XZRange = 5;
-        int targetCount = 5;
-        int YRange = 3;
+                    LivingEntity target = context.target;
 
+                    BlockPos targetedBlock = SpellUtils.getTargetBlockPos(target, 48);
+                    if (targetedBlock == null) {
+                        return;
+                    }
+                    System.out.println("[Celestial Bombardment] Primary Target Locked: " + targetedBlock);
+                    // generate targets
+                    RandomSource random = context.level().random;
 
-        LivingEntity target = context.target;
+                    ArrayList<BlockPos> targets = new ArrayList<>();
+                    for (int i = 0; i<targetCount; i++){
+                        int XOffset = random.nextInt(-XZRange, XZRange);
+                        int ZOffset = random.nextInt(-XZRange, XZRange);
 
-        BlockPos targetedBlock = SpellUtils.getTargetBlockPos(target, 48);
-        if (targetedBlock == null) {
-            return;
-        }
-        System.out.println("[Celestial Bombardment] Primary Target Locked: " + targetedBlock);
-        // generate targets
-        RandomSource random = context.level().random;
+                        BlockPos currentBlockPos = new BlockPos(targetedBlock.getX() + XOffset, 0, targetedBlock.getZ() + ZOffset);
+                        currentBlockPos = new BlockPos(currentBlockPos.getX(),
+                                (int)SpellUtils.findSurfaceY(context.level(), currentBlockPos.getX(), currentBlockPos.getZ()),
+                                currentBlockPos.getZ());
+                        targets.add(currentBlockPos);
+                        System.out.println("[Celestial Bombardment] Locked Additional Target: "+ currentBlockPos);
 
-        ArrayList<BlockPos> targets = new ArrayList<>();
-        for (int i = 0; i<targetCount; i++){
-            int XOffset = random.nextInt(-XZRange, XZRange);
-            int ZOffset = random.nextInt(-XZRange, XZRange);
-
-            BlockPos currentBlockPos = new BlockPos(targetedBlock.getX() + XOffset, 0, targetedBlock.getZ() + ZOffset);
-            currentBlockPos = new BlockPos(currentBlockPos.getX(),
-                    (int)SpellUtils.findSurfaceY(context.level(), currentBlockPos.getX(), currentBlockPos.getZ()),
-                                           currentBlockPos.getZ());
-            targets.add(currentBlockPos);
-            System.out.println("[Celestial Bombardment] Locked Additional Target: "+ currentBlockPos);
-
-        }
+                    }
 
 
 
-        double baseAltitude = SpellUtils.findSurfaceY(context.level(), context.target.position().x, context.target.position().z);
+                    double baseAltitude = SpellUtils.findSurfaceY(context.level(), context.target.position().x, context.target.position().z);
 
 
-        ArrayList<Integer> altitudes = new ArrayList<>();
-        for (int i = 0; i<targetCount; i++){
-            altitudes.add((int)baseAltitude + random.nextInt(-YRange, YRange) + 50);
-        }
+                    ArrayList<Integer> altitudes = new ArrayList<>();
+                    for (int i = 0; i<targetCount; i++){
+                        altitudes.add((int)baseAltitude + random.nextInt(-YRange, YRange) + 50);
+                    }
 
-        for (int i = 0; i < targetCount; i++){
-            Vec3[] pos_dir = computeFiringSolution(context.caster.position(), MathUtils.blockPosToVec3(targetedBlock), MathUtils.blockPosToVec3(targets.get(i)), altitudes.get(i), 35);
-            StarShard shard = new StarShard(context.level(), pos_dir[0], pos_dir[1]);
-            System.out.println("[Celestial Bombardment] Spawning StarShard at " + Arrays.toString(pos_dir));
-            shard.setOwner(context.caster);
-            context.level().addFreshEntity(shard);
-        }
+                    for (int i = 0; i < targetCount; i++){
+                        Vec3[] pos_dir = computeFiringSolution(context.caster.position(), MathUtils.blockPosToVec3(targetedBlock), MathUtils.blockPosToVec3(targets.get(i)), altitudes.get(i), 35);
+                        StarShard shard = new StarShard(context.level(), pos_dir[0], pos_dir[1]);
+                        System.out.println("[Celestial Bombardment] Spawning StarShard at " + Arrays.toString(pos_dir));
+                        shard.setOwner(context.caster);
+                        context.level().addFreshEntity(shard);
+                    }
+                })
+                .execute(ctx, simData);
 
-
-        drainMana(context, 25);
 
     }
 
