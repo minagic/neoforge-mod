@@ -1,11 +1,14 @@
 package com.minagic.minagic.spells;
 
 import com.minagic.minagic.api.spells.InstanteneousSpell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,21 +44,24 @@ public class Fireball extends InstanteneousSpell {
 
 
     @Override
-    public void cast(SpellCastContext context, SimulacrumData simulacrumData) {
-
-        Level level = context.level();
-        LivingEntity player = context.caster;
-
-
-        Vec3 look = player.getLookAngle();
-        Vec3 spawnPos = player.getEyePosition().add(look.scale(0.5)); // start just in front of face
-
-        FireballEntity fireball = new FireballEntity(level, spawnPos, look);
-        fireball.setOwner(player);
-        level.addFreshEntity(fireball);
+    public void cast(SpellCastContext ctx, SimulacrumData simData) {
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+                .setEffect((context, simulacrumData) -> {
+                    Level level = context.level();
+                    LivingEntity player = context.caster;
 
 
-        // Optional: play sound or trigger animation
-        level.playSound(null, player.blockPosition(), SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
+                    Vec3 look = player.getLookAngle();
+                    Vec3 spawnPos = player.getEyePosition().add(look.scale(0.5)); // start just in front of face
+
+                    FireballEntity fireball = new FireballEntity(level, spawnPos, look);
+                    fireball.setOwner(player);
+                    level.addFreshEntity(fireball);
+
+
+                    // Optional: play sound or trigger animation
+                    level.playSound(null, player.blockPosition(), SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
+                })
+                .execute(ctx, simData);
     }
 }
