@@ -13,7 +13,6 @@ import com.minagic.minagic.sorcerer.voidbourne.spells.KineticNullificationField;
 import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spells.Fireball;
 import com.minagic.minagic.spells.NoneSpell;
-import com.minagic.minagic.testing.spells.*;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -44,13 +43,6 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "solar_shield"), new SolarShield());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "solar_surge"), new SolarSurge());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_blink"), new RadiantBlink());
-        // register dev spells here
-//        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_instnateneous"), new InstantaneousDevSpell());
-//        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_channeled"), new ChanneledDevSpell());
-//        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_charged"), new ChargedDevSpell());
-//        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_charged_autonomous"), new AutonomousChargedDevSpell());
-//        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_channeled_autonomous"), new ChanneledAutonomousDevSpell());
-//        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_autonomous"), new AutonomousDevSpell());
 
     }
     public static @Nullable Spell get(ResourceLocation id) {
