@@ -24,7 +24,7 @@ public class VoidBlastEntity extends SpellProjectileEntity implements ItemSuppli
 
     public VoidBlastEntity(Level level, Vec3 Pos, Vec3 direction) {
         super(Minagic.VOID_BLAST_ENTITY.get(), level);
-        this.speed = 3.0;
+        this.speed = 0.5;
         this.gravity = 0.0;
         this.isBlockPiercing = false;
         this.isEntityPiercing = false;

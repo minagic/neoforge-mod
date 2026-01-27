@@ -38,7 +38,6 @@ public class VoidBlast extends InstanteneousSpell {
                     LivingEntity player = context.caster;
                     Level level = context.level();
 
-
                     Vec3 look = player.getLookAngle();
                     Vec3 spawnPos = player.getEyePosition().add(look.scale(0.5)); // start just in front of face
 

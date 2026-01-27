@@ -70,7 +70,6 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
                     if (targetedBlock == null) {
                         return;
                     }
-                    System.out.println("[Celestial Bombardment] Primary Target Locked: " + targetedBlock);
                     // generate targets
                     RandomSource random = context.level().random;
 

@@ -1,5 +1,6 @@
 package com.minagic.minagic;
 
+import com.minagic.minagic.entity.sorcerer.voidbourne.VoidborneSorcererEntity;
 import com.minagic.minagic.particles.VoidParticle;
 import com.minagic.minagic.registries.ModParticles;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -17,6 +18,7 @@ public class ClientModEvents {
         event.registerEntityRenderer(Minagic.VOID_BLAST_ENTITY.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(Minagic.TRACER_BULLET_PROJECTILE.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(Minagic.STAR_SHARD.get(), ThrownItemRenderer::new);
+        event.registerEntityRenderer(Minagic.VOIDBOURNE_SORCERER_ENEMY.get(), ThrownItemRenderer::new);
     }
 
     @SubscribeEvent

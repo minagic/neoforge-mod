@@ -2,6 +2,7 @@ package com.minagic.minagic;
 
 import com.minagic.minagic.capabilities.hudAlerts.HudAlert;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
+import com.minagic.minagic.entity.sorcerer.voidbourne.VoidborneSorcererEntity;
 import com.minagic.minagic.events.NeoForgeEventHandler;
 import com.minagic.minagic.gui.CooldownOverlay;
 import com.minagic.minagic.packets.MinagicNetwork;
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import org.checkerframework.checker.units.qual.N;
 import org.slf4j.Logger;
 
@@ -100,6 +102,13 @@ public class Minagic {
                             .updateInterval(1) // Update interval
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":star_shard"))));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<VoidborneSorcererEntity>> VOIDBOURNE_SORCERER_ENEMY =
+            ENTITY_TYPES.register("voidbourne_sorcerer_enemy",
+                    () -> EntityType.Builder.<VoidborneSorcererEntity>of(VoidborneSorcererEntity::new, MobCategory.MONSTER)
+                            .sized(0.5F, 0.5F) // Size of the entity
+                            .clientTrackingRange(32) // Tracking range
+                            .updateInterval(1) // Update interval
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":voidbourne_sorcerer_entity"))));
 
     public static final  EntityFreezer ENTITY_FREEZER = new EntityFreezer();
 
@@ -182,6 +191,8 @@ public class Minagic {
         Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
 
     }
+
+
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {

@@ -27,7 +27,7 @@ public class KineticNullificationField extends AutonomousSpell {
         this.spellName = "Kinetic Nullification Field";
         this.cooldown = 100;
         this.simulacraMaxLifetime = 300;
-        this.manaCost = 20;
+        this.manaCost = 1;
     }
 
     public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {

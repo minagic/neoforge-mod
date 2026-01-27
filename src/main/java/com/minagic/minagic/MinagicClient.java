@@ -1,5 +1,6 @@
 package com.minagic.minagic;
 
+import com.minagic.minagic.entity.sorcerer.voidbourne.VoidborneSorcererEntity;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -9,6 +10,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = Minagic.MODID, dist = Dist.CLIENT)
@@ -27,5 +29,11 @@ public class MinagicClient {
         // Some client setup code
         Minagic.LOGGER.info("HELLO FROM CLIENT SETUP");
         Minagic.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+    }
+
+    @SubscribeEvent
+    public static void registerAttributes(EntityAttributeCreationEvent event) {
+        event.put(Minagic.VOIDBOURNE_SORCERER_ENEMY.get(),
+                VoidborneSorcererEntity.createAttributes().build());
     }
 }

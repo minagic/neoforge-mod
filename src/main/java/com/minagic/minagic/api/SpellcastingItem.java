@@ -52,6 +52,10 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         return stack.get(type);
     }
 
+    public SpellSlot getActive(ItemStack stack){
+        return this.getData(stack).getActive();
+    }
+
     @SuppressWarnings("unchecked")
     protected void setData(ItemStack stack, T data) {
         if (stack == null || data == null) return;
@@ -59,7 +63,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         stack.set(type, newData);
     }
 
-    public void cycleSlotUp(Optional<Player> player, ItemStack stack) {
+    public void cycleSlotUp(Optional<LivingEntity> player, ItemStack stack) {
         if (player.isEmpty()) {return;} // player should not be empty
         SimulacraAttachment.clearChanneling(player.get());
         if (player.get().isUsingItem()){
@@ -85,7 +89,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     }
 
-    public void cycleSlotDown(Optional<Player> player, ItemStack stack) {
+    public void cycleSlotDown(Optional<LivingEntity> player, ItemStack stack) {
         if (player.isEmpty()) return; // player should not be empty
         SimulacraAttachment.clearChanneling(player.get());
 
@@ -109,7 +113,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     }
 
 
-    public double getRemainingCooldown(ItemStack stack, Player player) {
+    public double getRemainingCooldown(ItemStack stack, LivingEntity player) {
         T data = getData(stack);
         ResourceLocation spellId = data.getActive().getSpellId();
 
@@ -119,7 +123,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     }
 
 
-    public void writeSpell(ItemStack stack, Level level, Player player, int slotIndex, Spell spell) {
+    public void writeSpell(ItemStack stack, Level level, LivingEntity player, int slotIndex, Spell spell) {
         if (level.isClientSide()) {
             //System.out.println("[-SPELL WRITE-] Client side write spell attempt! Redirecting to server via packet.");
             ClientPacketDistributor.sendToServer(new SpellWritePacket(slotIndex, ModSpells.getId(spell)));
@@ -141,8 +145,9 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         setData(stack, data);
 
         // sync to clients holding this item
-        ServerPlayer serverPlayer = (ServerPlayer) player;
-        PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
+        if (player instanceof ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
+        }
     }
 
     public boolean canPlayerClassUseSpellcastingItem(PlayerClass playerClass) {
@@ -170,6 +175,22 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
         data.getActive().getSpell().perform(SpellEventPhase.START, context, null);
         serverPlayer.startUsingItem(hand);
+
+        return InteractionResult.SUCCESS;
+    }
+
+
+    public InteractionResult use(@NotNull Level level, @NotNull LivingEntity player, @NotNull InteractionHand hand) {
+        // check if player can use this staff
+        if (player.level().isClientSide()) return InteractionResult.FAIL;
+
+        ItemStack stack = player.getItemInHand(hand);
+        T data = getData(stack);
+
+        SpellCastContext context = new SpellCastContext(player);
+
+        data.getActive().getSpell().perform(SpellEventPhase.START, context, null);
+        player.startUsingItem(hand);
 
         return InteractionResult.SUCCESS;
     }
