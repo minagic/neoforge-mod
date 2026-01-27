@@ -195,7 +195,12 @@ public class DefaultGates {
     public static class SimulacrumGate implements ISpellGate {
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            return simData != null && simData.remainingLifetime() > 0;
+            return simData != null && simData.remainingLifetime() != 0;
+        }
+
+        @Override
+        public void onFail(SpellCastContext context, @Nullable SimulacrumData simulacrumData){
+            System.out.println("Simulacrum check failed");
         }
     }
 

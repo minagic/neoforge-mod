@@ -29,7 +29,6 @@ public class FireballBarrage extends AutonomousSpell {
         this.manaCost = 15;
         this.cooldown = 0;
         this.simulacraThreshold = 5;
-        // simulacraMaxLifetime left to superclass default
     }
 
     public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
