@@ -4,15 +4,16 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
+import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.SpellUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
@@ -40,41 +41,38 @@ public class TracerBullet extends InstanteneousSpell {
         this.manaCost = 15;
     }
 
-    @Override
-    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass() != PlayerClassEnum.SORCERER) {
-            return SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
-        }
-
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) == 0) {
-            return SpellValidator.CastFailureReason.CASTER_SUBCLASS_MISMATCH;
-        }
-
-        if (context.caster.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(PlayerSubClassEnum.SORCERER_CELESTIAL) < 3) {
-            return SpellValidator.CastFailureReason.CASTER_CLASS_LEVEL_TOO_LOW;
-        }
-        return SpellValidator.CastFailureReason.OK;
+    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.AllowedClass(
+                PlayerClassEnum.SORCERER,
+                PlayerSubClassEnum.SORCERER_CELESTIAL,
+                3
+        ));
     }
 
     @Override
-    public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public void cast(SpellCastContext ctx, SimulacrumData simData) {
         // spawn a TracerBulletProjectile
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+                .setEffect((context, simulacrumData) -> {
+                    Level level = context.level();
+                    LivingEntity player = context.caster;
 
 
-        Level level = context.level();
-        LivingEntity player = context.caster;
+                    Vec3 look = player.getLookAngle();
+                    Vec3 spawnPos = player.getEyePosition().add(look.scale(0.5));
+
+                    TracerBulletProjectile projectile = new TracerBulletProjectile(
+                            level,
+                            spawnPos,
+                            look,
+                            context
+                    );
+                    context.level().addFreshEntity(projectile);
+                })
+                .execute(ctx, simData);
 
 
-        Vec3 look = player.getLookAngle();
-        Vec3 spawnPos = player.getEyePosition().add(look.scale(0.5));
 
-        TracerBulletProjectile projectile = new TracerBulletProjectile(
-                level,
-                spawnPos,
-                look,
-                context
-        );
-        context.level().addFreshEntity(projectile);
     }
 
     public static class TracerBulletProjectile extends SpellProjectileEntity implements ItemSupplier {
@@ -150,24 +148,35 @@ public class TracerBullet extends InstanteneousSpell {
         }
 
         @Override
-        public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+        public void cast(SpellCastContext ctx, SimulacrumData simData) {
             // if context.target has invis apply glow
-            Holder<MobEffect> holder = new Holder.Direct<>(MobEffects.INVISIBILITY).value();
-            if (context.target.hasEffect(holder)) {
-                context.target.addEffect(
-                        new MobEffectInstance(MobEffects.GLOWING, 20, 1)
-                );
-            }
+            SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+                    .setEffect((context, simulacrumData) -> {
+                        Holder<MobEffect> holder = new Holder.Direct<>(MobEffects.INVISIBILITY).value();
+                        if (context.target.hasEffect(holder)) {
+                            context.target.addEffect(
+                                    new MobEffectInstance(MobEffects.GLOWING, 20, 1)
+                            );
+                        }
+                    })
+                    .execute(ctx, simData);
+
+
         }
 
         @Override
-        public void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData){
-            // Get target's simulacra attachment
-            SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
+        public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData){
+            SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
+                    ((ctx, simData) -> {
+                        SimulacraAttachment sim = ctx.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
-            boolean existing = sim.hasSpell(ModSpells.getId(this));
-            if (existing) return;
-            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
+                        boolean existing = sim.hasSpell(ModSpells.getId(this));
+                        if (existing) return;
+                        SimulacraAttachment.addSimulacrum(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
+                    })
+
+            ).execute(context, simulacrumData);
+
         }
     }
 

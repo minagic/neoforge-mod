@@ -2,14 +2,17 @@ package com.minagic.minagic.testing.spells;
 
 import com.minagic.minagic.Config;
 import com.minagic.minagic.api.spells.InstanteneousSpell;
-import com.minagic.minagic.api.spells.SpellValidator;
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import java.util.Arrays;
+import java.util.List;
 
 public class InstantaneousDevSpell extends InstanteneousSpell {
 
     @Override
-    public void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public void cast(SpellCastContext context, SimulacrumData simulacrumData) {
 
         System.out.println("[InstantaneousDevSpell] Cast by " + context.caster.getName().getString()
                 + " at " + context.level().dimension().location());
@@ -26,8 +29,17 @@ public class InstantaneousDevSpell extends InstanteneousSpell {
         this.simulacraMaxLifetime = 0;
     }
 
-    @Override
-    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
-        return Config.ENABLE_DEV_SPELLS.get() ? SpellValidator.CastFailureReason.OK : SpellValidator.CastFailureReason.CASTER_CLASS_MISMATCH;
+    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+        if (!Config.ENABLE_DEV_SPELLS.get()) {
+            return List.of();
+        }
+
+        return Arrays.stream(PlayerSubClassEnum.values())
+                .map(subClass -> new DefaultGates.ClassGate.AllowedClass(
+                        subClass.getParentClass(),
+                        subClass,
+                        0
+                ))
+                .toList();
     }
 }

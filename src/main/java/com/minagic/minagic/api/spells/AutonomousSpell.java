@@ -1,11 +1,11 @@
 package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacraAttachment;
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.utilities.SpellValidationResult;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -15,73 +15,39 @@ import org.jetbrains.annotations.Nullable;
  */
 public class AutonomousSpell extends Spell implements ISimulacrumSpell {
 
-    @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        SpellValidationResult result = SpellValidationResult.OK;
-
-        switch (phase) {
-            case START -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case TICK, CAST -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateMana(this, context, getManaCost()))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case EXIT_SIMULACRUM -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-        }
-        SpellValidator.showFailureIfNeeded(context, result);
-        return result;
-    }
 
     @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        switch (phase) {
-            case CAST -> drainMana(context, getManaCost());
-            case EXIT_SIMULACRUM -> applyCooldown(context, getManaCost());
-            default -> {
-            }
-        }
-    }
+    public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
+        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
+                ((ctx, simData) -> {
+                    SimulacraAttachment sim = ctx.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
 
+                    boolean existing = sim.hasSpell(ModSpells.getId(this));
 
-    @Override
-    public void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        // Get player simulacra attachment
-        SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
+                    if (existing) {
+                        SimulacraAttachment.removeSimulacrum(ctx.target, ModSpells.getId(this));
+                    } else {
+                        SimulacraAttachment.addSimulacrum(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
+                    }
+                })
 
-        // Toggle logic: if already active, remove; else add
-        boolean existing = sim.hasSpell(ModSpells.getId(this));
+        ).execute(context, simulacrumData);
 
-        if (existing) {
-            SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
-        } else {
-            SimulacraAttachment.addSimulacrum(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
-        }
 
     }
 
     @Override
-    public void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public void tick(SpellCastContext context, SimulacrumData simulacrumData) {
         // No-op for autonomous spells
     }
 
     @Override
-    public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public final void stop(SpellCastContext context, SimulacrumData simulacrumData) {
         // No-op for autonomous spells
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {}
 
     @Override
     public int getSimulacrumThreshold() {
@@ -94,7 +60,7 @@ public class AutonomousSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public final float progress(SimulacrumSpellData data) {
+    public final float progress(SimulacrumData data) {
         if (data.maxLifetime() <= 0) {
             return 1f;
         }

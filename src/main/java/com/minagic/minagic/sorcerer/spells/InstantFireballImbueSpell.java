@@ -1,11 +1,16 @@
 package com.minagic.minagic.sorcerer.spells;
 
 import com.minagic.minagic.api.spells.InstanteneousSpell;
+import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
+import com.minagic.minagic.spells.FireballEntity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -26,20 +31,23 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
     }
 
     @Override
-    public void cast(SpellCastContext ctx, SimulacrumSpellData simulacrumData) {
-        LivingEntity caster = ctx.caster;
+    public void cast(SpellCastContext ctx, SimulacrumData simData) {
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+                .setEffect((context, simulacrumData) -> {
+                    LivingEntity caster = context.caster;
 
-        // Compute target yourself (raycast)
-        LivingEntity target = findLookTarget(caster, 32);
-        if (target == null) {
-            return; // fail silently or add a "no target" message
-        }
+                    // Compute target yourself (raycast)
+                    LivingEntity target = findLookTarget(caster, 32);
+                    if (target == null) {
+                        return;
+                    }
+                    // Fancy particle line
+                    spawnBeamParticles(caster, target);
 
-        // Fancy particle line
-        spawnBeamParticles(caster, target);
+                    applyForcedFireballBarrage(target, context);
+                })
+                .execute(ctx, simData);
 
-        // Apply the forced fireball barrage
-        applyForcedFireballBarrage(target, ctx);
     }
 
 

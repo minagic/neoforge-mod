@@ -1,6 +1,6 @@
 package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.SpellMetadata;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.registries.ModAttachments;
@@ -12,18 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class SpellValidator {
-
-    public static SpellValidationResult validateCaster(Spell spell, SpellCastContext context) {
-        var reason = spell.canCast(context);
-        var playerClass = context.caster.getData(ModAttachments.PLAYER_CLASS).getMainClass();
-
-        return switch (reason) {
-            case CASTER_CLASS_MISMATCH -> SpellValidationResult.playerFail(playerClass.getUnknownSpellMessage());
-            case CASTER_SUBCLASS_MISMATCH -> SpellValidationResult.playerFail(playerClass.getSubclassMismatchMessage());
-            case CASTER_CLASS_LEVEL_TOO_LOW -> SpellValidationResult.playerFail(playerClass.getLevelTooLowMessage());
-            case OK -> SpellValidationResult.OK;
-        };
-    }
 
     public static SpellValidationResult validateCooldown(Spell spell, SpellCastContext context) {
         var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
@@ -41,7 +29,7 @@ public class SpellValidator {
         return SpellValidationResult.OK;
     }
 
-    public static SpellValidationResult validateSimulacrum(@Nullable SimulacrumSpellData simulacrumData) {
+    public static SpellValidationResult validateSimulacrum(@Nullable SimulacrumData simulacrumData) {
         if (simulacrumData == null) {
             return SpellValidationResult.internalFail("Simulacrum data is null");
         }

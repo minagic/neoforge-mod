@@ -2,7 +2,10 @@ package com.minagic.minagic.spellCasting;
 
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellValidator;
+import com.minagic.minagic.spellgates.DefaultGates;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
@@ -38,7 +41,7 @@ public class SpellRegistry {
         return REVERSE.get(spell);
     }
 
-    public static List<Spell> getSpells(Player player) {
-        return REGISTRY.values().stream().filter(spell -> spell.canCast(new SpellCastContext(player)) == SpellValidator.CastFailureReason.OK && !spell.isTechnical()).toList();
+    public static List<Spell> getSpells(LivingEntity target) {
+        return REGISTRY.values().stream().filter(spell -> new DefaultGates.ClassGate(spell.getAllowedClasses()).check(new SpellCastContext(target), null) && ! spell.isTechnical()).toList();
     }
 }

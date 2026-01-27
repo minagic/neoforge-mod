@@ -1,9 +1,11 @@
 package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacraAttachment;
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.utilities.SpellValidationResult;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import org.jetbrains.annotations.Nullable;
 
 public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell {
@@ -21,59 +23,29 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
     // lifecycle like of channelled spell
 
     @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        SpellValidationResult result = SpellValidationResult.OK;
+    public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
+        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
+                ((ctx, simData) -> {
+                    SimulacraAttachment.setChanneling(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
+                })
+        ).execute(context, simulacrumData);
 
-        switch (phase) {
-            case START, STOP -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case CAST, TICK -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateMana(this, context, getManaCost()))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case EXIT_SIMULACRUM -> {
-                result = result.and(SpellValidator.validateCaster(this, context));
-            }
-        }
-        SpellValidator.showFailureIfNeeded(context, result);
-        return result;
-    }
 
-    @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        switch (phase) {
-            case TICK -> drainMana(context, getManaCost());
-            case EXIT_SIMULACRUM -> applyCooldown(context, getCooldownTicks());
-            default -> {
-            }
-        }
-    }
-
-    @Override
-    public void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        SimulacraAttachment.setChanneling(context.target, context, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
 
     }
 
     @Override
-    public void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public void tick(SpellCastContext context, SimulacrumData simulacrumData) {
         // no-op
     }
 
     @Override
-    public void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public void stop(SpellCastContext context, SimulacrumData simulacrumData) {
         SimulacraAttachment.clearChanneling(context.target);
     }
 
     @Override
-    public void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
+    public void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {}
 
 
     @Override
@@ -87,7 +59,7 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
     }
 
     @Override
-    public final float progress(SimulacrumSpellData data) {
+    public final float progress(SimulacrumData data) {
         if (data.maxLifetime() <= 0) {
             return 1f;
         }

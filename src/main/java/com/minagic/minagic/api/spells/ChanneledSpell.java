@@ -1,8 +1,9 @@
 package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacraAttachment;
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.SpellValidationResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,76 +19,37 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
         this.simulacraMaxLifetime = -1; // no max lifetime
     }
 
-    @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        SpellValidationResult result = SpellValidationResult.OK;
 
-        switch (phase) {
-            case START -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateItem(this, context));
-            }
-            case STOP, EXIT_SIMULACRUM -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateItem(this, context))
-                        .and(SpellValidator.validateSimulacrum(simulacrumData));
-            }
-            case CAST -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateMana(this, context, getManaCost()))
-                        .and(SpellValidator.validateItem(this, context))
-                        .and(SpellValidator.validateSimulacrum(simulacrumData));
-            }
-            case TICK -> {
-                result = result.and(SpellValidationResult.INVALID_PHASE);
-            }
-        }
-        return result;
-    }
-
-    @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        switch (phase) {
-            case CAST -> {
-                applyCooldown(context, getCooldownTicks());
-                drainMana(context, getManaCost());
-                SimulacraAttachment.clearChanneling(context.target);
-            }
-            case EXIT_SIMULACRUM -> applyCooldown(context, getCooldownTicks());
-            default -> {
-            }
-        }
-    }
 
     // Lifecycle methods
 
 
     @Override
-    public final void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        SimulacraAttachment.setChanneling(
-                context.target,
-                context,
-                this,
-                getSimulacrumThreshold(),
-                -1);
+    public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
+        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
+                ((ctx, simData) -> {
+                    SimulacraAttachment.setChanneling(
+                            ctx.target,
+                            ctx,
+                            this,
+                            getSimulacrumThreshold(),
+                            -1);
+                })
+        ).execute(context, simulacrumData);
+
     }
 
     @Override
-    public final void tick(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public final void tick(SpellCastContext context, SimulacrumData simulacrumData) {
         // no-op for channeled spells
     }
     @Override
-    public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public final void stop(SpellCastContext context, SimulacrumData simulacrumData) {
         SimulacraAttachment.clearChanneling(context.target);
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData) {
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {
         // no-op for channeled spells
     }
 
@@ -103,7 +65,7 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public final float progress(SimulacrumSpellData data) {
+    public final float progress(SimulacrumData data) {
         return data.lifetime()/data.threshold();
     }
 

@@ -1,11 +1,14 @@
 package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.utilities.SpellValidationResult;
+import com.minagic.minagic.spellgates.DefaultGates;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // An abstract class representing a spell with casting lifecycle methods and validation.
 public abstract class Spell {
@@ -32,21 +35,14 @@ public abstract class Spell {
         context.caster.setData(ModAttachments.MANA.get(), mana);
     }
 
-    public void perform(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        SpellValidationResult ctx_validation = context.validate();
-        if (!ctx_validation.success()) {
-            System.out.println("Performing "+ phase + " failed, REASON: " + ctx_validation.failureMessage());
+    public void perform(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
+        if (!context.validate()) {
             return;
         }
-        SpellValidationResult before = before(phase, context, simulacrumData);
-        if (!before.success()) {
-            System.out.println("Performing "+ phase + " failed, one or many prerequisites check failed: " + before.failureMessage());
-            SpellValidator.showFailureIfNeeded(context, before);
-            return;
-        }
-
-        if (!SpellValidator.validateSimulacrum(simulacrumData).success() && this instanceof ISimulacrumSpell) {
-            System.out.println("WARNING: ISimulacrumSpell "+ this.getString() + "'s PHASE" + phase + " is used without a valid SimulacrumData object");
+        if (simulacrumData != null){
+            if (!simulacrumData.validate()){
+                return;
+            }
         }
 
         switch (phase) {
@@ -57,27 +53,21 @@ public abstract class Spell {
             case TICK -> tick(context, simulacrumData);
         }
 
-        after(phase, context, simulacrumData);
     }
 
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {
-        return SpellValidationResult.OK;
-    }
-
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData) {}
 
     // OVERRIDES TO DEFINE SPELL BEHAVIOR
     // the main spell logic goes here
     // the context is guaranteed to be valid here
-    protected void start(SpellCastContext context, SimulacrumSpellData simulacrumData){}
+    protected void start(SpellCastContext context, SimulacrumData simulacrumData){}
 
-    protected void tick(SpellCastContext context, SimulacrumSpellData simulacrumData){}
+    protected void tick(SpellCastContext context, SimulacrumData simulacrumData){}
 
-    protected void stop(SpellCastContext context, SimulacrumSpellData simulacrumData){}
+    protected void stop(SpellCastContext context, SimulacrumData simulacrumData){}
 
-    protected void cast(SpellCastContext context, SimulacrumSpellData simulacrumData) {}
+    protected void cast(SpellCastContext context, SimulacrumData simulacrumData) {}
 
-    protected void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData){}
+    protected void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData){}
 
     public final String getString() {
         return spellName;
@@ -93,14 +83,15 @@ public abstract class Spell {
         return manaCost;
     }
 
+    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses(){
+        return new ArrayList<>();
+    }
+
     public final boolean isTechnical() {return isTechnical;}
 
     // CASTER VALIDATION METHODS
     // check if caster can use this spell
     // default: OK for all casters
-    public SpellValidator.CastFailureReason canCast(SpellCastContext context) {
-        return SpellValidator.CastFailureReason.OK;
-    }
     //  HUD
     public int color(float progress) {
         return 0x00000000;

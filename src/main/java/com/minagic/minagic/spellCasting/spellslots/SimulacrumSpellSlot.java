@@ -1,17 +1,19 @@
 package com.minagic.minagic.spellCasting.spellslots;
 
+import com.minagic.logging.ModLogger;
 import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.utilities.SpellUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
+import org.apache.logging.log4j.Logger;
 
 import java.util.UUID;
 
@@ -78,33 +80,31 @@ public class SimulacrumSpellSlot {
     }
 
     // CONTEXT RESOLUTION
-    public void resolveContext(Level level) {
-        System.out.println("Attempting to resolve SimulacrumSpellSlot context...");
-        if (level.isClientSide()) return;
-        Entity host = level.getEntity(hostUUID);
+    public void resolveContext(MinecraftServer server) {
+        Logger logger = ModLogger.SIMULACRUM;
+        logger.debug("Attempting to resolve SimulacrumSpellSlot context...");
 
-        if (host instanceof LivingEntity livingHost) {
-            resolvedHostEntity = livingHost;
-        }
-        else{
-            System.out.println("Warning: SimulacrumSpellSlot could not resolve host entity for ID: " + hostUUID);
+        resolvedHostEntity = SpellUtils.resolveLivingEntityAcrossDimensions(hostUUID, server);
+        if (resolvedHostEntity == null) {
+            logger.warn("Could not resolve host entity for ID: {}", hostUUID);
+            return;
         }
         if (context != null) return;
 
-        Entity caster = level.getEntity(casterUUID);
-        Entity target = level.getEntity(targetUUID);
+        LivingEntity resolvedCaster = SpellUtils.resolveLivingEntityAcrossDimensions(casterUUID, server);
+        LivingEntity resolvedTarget = SpellUtils.resolveLivingEntityAcrossDimensions(targetUUID, server);
 
-
-        if (caster instanceof LivingEntity livingCaster) {
-            if (target instanceof LivingEntity livingTarget) {
-                context = new SpellCastContext(livingCaster, livingTarget);
-            } else {
-                context = new SpellCastContext(livingCaster);
-            }
+        if (resolvedCaster == null) {
+            logger.warn("Could not resolve caster entity for ID: {}", casterUUID);
+            return;
         }
-        System.out.println("SimulacrumSpellSlot resolved context: Caster=" + caster + ", Target=" + target + ", Host=" + host);
-    }
 
+        context = (resolvedTarget != null)
+                ? new SpellCastContext(resolvedCaster, resolvedTarget)
+                : new SpellCastContext(resolvedCaster);
+
+        logger.debug("Context resolved: Host={}, Caster={}, Target={}", resolvedHostEntity, resolvedCaster, resolvedTarget);
+    }
     public void tick() {
         if (context == null) {
             System.out.println("Warning: SimulacrumSpellSlot tick called without resolved context.");
@@ -135,8 +135,8 @@ public class SimulacrumSpellSlot {
         System.out.println("[SimulacrumSpellSlot] TICK COMPLETE | Lifetime: " + lifetime + "/" + threshold + ", Max: " + maxLifetime);
     }
 
-    public SimulacrumSpellData getSpellData() {
-        return new SimulacrumSpellData(
+    public SimulacrumData getSpellData() {
+        return new SimulacrumData(
                 ModSpells.getId(getSpell()),
                 maxLifetime,
                 originalMaxLifetime,

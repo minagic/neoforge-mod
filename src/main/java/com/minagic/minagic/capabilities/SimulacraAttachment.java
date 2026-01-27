@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
@@ -134,9 +135,9 @@ public class SimulacraAttachment {
 
     // --- Logic ---
 
-    public void resolveAllContexts(Level level) {
+    public void resolveAllContexts(MinecraftServer server) {
         for (SimulacrumSpellSlot slot : backgroundSimulacra.values()) {
-            slot.resolveContext(level);
+            slot.resolveContext(server);
         }
     }
 
@@ -146,7 +147,7 @@ public class SimulacraAttachment {
             SimulacrumSpellSlot slot = entry.getValue();
             slot.tick();
             float readiness = slot.getSpellData().progress();
-            System.out.println("[SimulacraAttachement] Generated SimulacrumSpellData");
+            System.out.println("[SimulacraAttachement] Generated SimulacrumData");
             slot.getSpellData().dump();
             simulacraReadiness.put(entry.getKey(), readiness);
         }

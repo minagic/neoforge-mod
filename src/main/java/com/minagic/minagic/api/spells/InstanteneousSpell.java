@@ -1,7 +1,9 @@
 package com.minagic.minagic.api.spells;
 
-import com.minagic.minagic.capabilities.SimulacrumSpellData;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
+import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.SpellValidationResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,56 +22,31 @@ public class InstanteneousSpell extends Spell{
         this.simulacraMaxLifetime = 0;
     }
 
-    @Override
-    protected SpellValidationResult before(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData){
-        SpellValidationResult result = SpellValidationResult.OK;
 
-        switch (phase) {
-            case START -> {
-                return result;
-            }
-            case CAST -> {
-                result = result
-                        .and(SpellValidator.validateCaster(this, context))
-                        .and(SpellValidator.validateItem(this, context))
-                        .and(SpellValidator.validateCooldown(this, context))
-                        .and(SpellValidator.validateMana(this, context, getManaCost()));
-            }
-            case STOP, EXIT_SIMULACRUM, TICK -> {
-                return SpellValidationResult.INVALID_PHASE;
-            }
-        }
-
-
-        return result;
-    }
-
-    @Override
-    protected void after(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData){
-        if (phase == SpellEventPhase.CAST) {
-            applyCooldown(context, getCooldownTicks());
-            drainMana(context, getManaCost());
-        }
-    }
 
     // lifecycle methods
     @Override
-    public final void start(SpellCastContext context, @Nullable SimulacrumSpellData simulacrumData){
-        perform(SpellEventPhase.CAST, context, null);
+    public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData){
+        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
+                ((ctx, simData) -> {
+                    perform(SpellEventPhase.CAST, ctx, null);
+                })
+        ).execute(context, simulacrumData);
+
     }
 
     @Override
-    public final void tick(SpellCastContext context, SimulacrumSpellData simulacrumData){
+    public final void tick(SpellCastContext context, SimulacrumData simulacrumData){
         // no-op
     }
 
     @Override
-    public final void stop(SpellCastContext context, SimulacrumSpellData simulacrumData){
+    public final void stop(SpellCastContext context, SimulacrumData simulacrumData){
         // no-op
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context, SimulacrumSpellData simulacrumData){
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData){
         // no-op
     }
 

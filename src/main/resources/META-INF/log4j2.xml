@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%level] [%logger{1.}] %msg%n"/>
+        </Console>
+
+        <File name="SimulacrumLog" fileName="logs/simulacrum.log">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%level] %msg%n"/>
+        </File>
+
+        <File name="SpellcastLog" fileName="logs/spellcast.log">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%level] %msg%n"/>
+        </File>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="YourMod-Simulacrum" level="debug" additivity="false">
+            <AppenderRef ref="SimulacrumLog"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="YourMod-Spellcast" level="debug" additivity="false">
+            <AppenderRef ref="SpellcastLog"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
