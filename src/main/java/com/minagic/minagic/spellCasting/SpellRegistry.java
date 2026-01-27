@@ -1,5 +1,6 @@
 package com.minagic.minagic.spellCasting;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.spellgates.DefaultGates;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +21,7 @@ public class SpellRegistry {
     }
 
     public static Spell getSpell(ResourceLocation id) {
-        //System.out.println("Attempting lookup for spell ID: " + id + " in SpellRegistry: " + REGISTRY.keySet());
+        Minagic.LOGGER.trace("[SpellRegistry] Lookup by id {} within {} entries", id, REGISTRY.size());
 
         if (id != null && REGISTRY.containsKey(id)) {
             return REGISTRY.get(id);
@@ -32,9 +33,7 @@ public class SpellRegistry {
     }
 
     public static ResourceLocation getId(Spell spell) {
-        //System.out.println("SPELL REGISTRY: Looking up " + spell);
-        //System.out.println("SPELL REGISTRY: " + REVERSE.keySet());
-        //System.out.println("SPELL REGISTRY: Found ID: " + REVERSE.get(spell));
+        Minagic.LOGGER.trace("[SpellRegistry] Lookup by spell {}", spell == null ? "null" : spell.getClass().getSimpleName());
         return REVERSE.get(spell);
     }
 

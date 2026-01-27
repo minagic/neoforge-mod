@@ -1,5 +1,6 @@
 package com.minagic.minagic.events;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
@@ -36,7 +37,7 @@ public class NeoForgeEventHandler {
                 try {
                     handler.onLivingDamage(event, context, data);
                 } catch (Exception ex) {
-                    System.err.println("Exception in onLivingDamage for spell " + spell.getString());
+                    Minagic.LOGGER.error("Exception in onLivingDamage for spell {}", spell.getString(), ex);
                 }
             }
         }

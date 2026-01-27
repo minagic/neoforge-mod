@@ -1,5 +1,6 @@
 package com.minagic.minagic.gui;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
@@ -21,8 +22,8 @@ public class CooldownOverlay {
     @SubscribeEvent
     public void onRenderOverlay(RenderGuiEvent.Pre event) {
         Player player = Minecraft.getInstance().player;
-        //System.out.println("[-COOLDOWN OVERLAY-] Tick event: Rendering cooldown overlay");
         if (player == null) return;
+        Minagic.LOGGER.trace("[-COOLDOWN OVERLAY-] Rendering overlay for {}", player.getName().getString());
 
         ItemStack stack = player.getMainHandItem();
 

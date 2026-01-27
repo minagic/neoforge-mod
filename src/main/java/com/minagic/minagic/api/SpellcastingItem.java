@@ -1,5 +1,6 @@
 package com.minagic.minagic.api;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.gui.SpellEditorScreen;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
@@ -111,23 +112,26 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item {
 
     public void writeSpell(ItemStack stack, Level level, LivingEntity player, int slotIndex, Spell spell) {
         if (level.isClientSide()) {
-            //System.out.println("[-SPELL WRITE-] Client side write spell attempt! Redirecting to server via packet.");
+            Minagic.LOGGER.debug("[-SPELL WRITE-] Client-side write request, forwarding to server for slot {}", slotIndex);
             ClientPacketDistributor.sendToServer(new SpellWritePacket(slotIndex, ModSpells.getId(spell)));
             return;
         }
-        //System.out.println("[-SPELL WRITE-] Server side write spell attempt, proceeding.");
-        //System.out.println("[-SPELL WRITE-] Writing spell " + (spell == null ? "null" : spell.getString()) + " to slot " + slotIndex);
+        Minagic.LOGGER.debug("[-SPELL WRITE-] Server-side write request accepted for slot {} with spell {}",
+                slotIndex,
+                spell == null ? "null" : spell.getString());
 
         T data = getData(stack);
-        //System.out.println("[-SPELL WRITE-] Resolved data created from stack: " + data.getClass());
+        Minagic.LOGGER.trace("[-SPELL WRITE-] Resolved stack data type: {}", data.getClass());
         if (slotIndex < 0 || slotIndex >= data.getSlots().size()) {
             return;
         }
         SpellSlot slot = data.getSlots().get(slotIndex);
         slot.setSpell(spell);
         slot.resolveSpell();
-        //System.out.println("[-SPELL WRITE-] Updated slot " + slotIndex + " with spell " + (slot.getSpell() == null ? "null" : slot.getSpell().getString()));
-        //System.out.println("[-SPELL WRITE-] Setting updated data back to stack, data: " + data);
+        Minagic.LOGGER.trace("[-SPELL WRITE-] Slot {} now stores spell {}",
+                slotIndex,
+                slot.getSpell() == null ? "null" : slot.getSpell().getString());
+        Minagic.LOGGER.trace("[-SPELL WRITE-] Writing updated spell data back to stack");
         setData(stack, data);
 
         // sync to clients holding this item

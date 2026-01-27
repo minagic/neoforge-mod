@@ -1,5 +1,6 @@
 package com.minagic.minagic.spellCasting;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.Mana;
 import com.minagic.minagic.registries.ModAttachments;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,7 +15,10 @@ public class ManaHandler {
 
         Mana mana = entity.getData(ModAttachments.MANA.get());
         mana.tick(entity);
-        //System.out.println("[Minagic] Ticked mana for entity: " + entity.getName().getString() + " | Current Mana: " + mana.getMana() + "/" + mana.getMaxMana());
+        Minagic.LOGGER.trace("[Minagic] Mana tick for {} -> {}/{}",
+                entity.getName().getString(),
+                mana.getMana(),
+                mana.getMaxMana());
         entity.setData(ModAttachments.MANA.get(), mana);
     }
 }
