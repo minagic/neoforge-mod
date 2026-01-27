@@ -39,7 +39,7 @@ public enum Deity {
     }
 
     public boolean isCleric() {
-        return type == DeityType.CLERIC ;
+        return type == DeityType.CLERIC;
     }
 
     public boolean isWarlock() {

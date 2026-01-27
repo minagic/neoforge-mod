@@ -2,7 +2,6 @@ package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.druid.DruidHorn;
-import com.minagic.minagic.item.EffectWandItem;
 import com.minagic.minagic.sorcerer.sorcererStaff;
 import com.minagic.minagic.wizard.WizardWand;
 import net.minecraft.core.registries.Registries;
@@ -11,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModItems {
 
@@ -26,5 +24,7 @@ public final class ModItems {
             () -> new DruidHorn(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, ResourceLocation.parse(Minagic.MODID + "druid_horn"))))
     );
 
-    public static void register(IEventBus modBus) { Minagic.ITEMS.register(modBus); }
+    public static void register(IEventBus modBus) {
+        Minagic.ITEMS.register(modBus);
+    }
 }

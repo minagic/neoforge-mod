@@ -1,27 +1,17 @@
 package com.minagic.minagic.spells;
 
-import com.minagic.minagic.Minagic;
 import com.minagic.minagic.MinagicDamage;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.core.BlockPos;
-import org.apache.commons.lang3.ObjectUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.ObjectUtils.Null;
 
 public class AOEHit {
 

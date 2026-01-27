@@ -1,6 +1,5 @@
 package com.minagic.minagic;
 
-import com.minagic.minagic.entity.sorcerer.voidbourne.VoidborneSorcererEntity;
 import com.minagic.minagic.particles.VoidParticle;
 import com.minagic.minagic.registries.ModParticles;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;

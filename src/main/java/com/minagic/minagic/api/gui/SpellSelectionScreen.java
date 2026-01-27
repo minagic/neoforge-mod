@@ -235,7 +235,8 @@ public class SpellSelectionScreen extends Screen {
         }
     }
 
-    private record EntryHitbox(int index, int x, int y, int width, int height) {
+    private record EntryHitbox(int index, int x, int y, int width,
+                               int height) {
         boolean contains(double px, double py) {
             return px >= x && px <= x + width && py >= y && py <= y + height;
         }

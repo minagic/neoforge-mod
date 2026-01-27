@@ -1,6 +1,5 @@
 package com.minagic.minagic;
 
-import com.minagic.minagic.capabilities.hudAlerts.HudAlert;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.entity.sorcerer.voidbourne.VoidborneSorcererEntity;
 import com.minagic.minagic.events.NeoForgeEventHandler;
@@ -18,41 +17,35 @@ import com.minagic.minagic.spells.FireballEntity;
 import com.minagic.minagic.utilities.EntityFreezer;
 import com.minagic.minagic.utilities.ModEvents;
 import com.minagic.minagic.utilities.WorldEvents;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import org.checkerframework.checker.units.qual.N;
-import org.slf4j.Logger;
-
 import com.mojang.logging.LogUtils;
-
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(Minagic.MODID)
 public class Minagic {
     // Define mod id in a common place for everything to reference
     public static final String MODID = "minagic";
-
 
 
     // Directly reference a slf4j logger
@@ -104,18 +97,13 @@ public class Minagic {
 
     public static final DeferredHolder<EntityType<?>, EntityType<VoidborneSorcererEntity>> VOIDBOURNE_SORCERER_ENEMY =
             ENTITY_TYPES.register("voidbourne_sorcerer_enemy",
-                    () -> EntityType.Builder.<VoidborneSorcererEntity>of(VoidborneSorcererEntity::new, MobCategory.MONSTER)
+                    () -> EntityType.Builder.of(VoidborneSorcererEntity::new, MobCategory.MONSTER)
                             .sized(0.5F, 0.5F) // Size of the entity
                             .clientTrackingRange(32) // Tracking range
                             .updateInterval(1) // Update interval
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":voidbourne_sorcerer_entity"))));
 
-    public static final  EntityFreezer ENTITY_FREEZER = new EntityFreezer();
-
-    // Command registration method
-    private void onRegisterCommands(RegisterCommandsEvent event) {
-        MinagicTestCommand.register(event.getDispatcher());
-    }
+    public static final EntityFreezer ENTITY_FREEZER = new EntityFreezer();
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -162,7 +150,6 @@ public class Minagic {
         ModParticles.PARTICLES.register(modEventBus);
 
 
-
         // Register packet handlers
         MinagicNetwork network = new MinagicNetwork();
         network.register(modEventBus);
@@ -178,6 +165,11 @@ public class Minagic {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
+    // Command registration method
+    private void onRegisterCommands(RegisterCommandsEvent event) {
+        MinagicTestCommand.register(event.getDispatcher());
+    }
+
     private void commonSetup(FMLCommonSetupEvent event) {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
@@ -191,7 +183,6 @@ public class Minagic {
         Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
 
     }
-
 
 
     // Add the example block item to the building blocks tab

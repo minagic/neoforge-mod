@@ -1,9 +1,7 @@
 package com.minagic.minagic;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import org.lwjgl.glfw.GLFW;
 
 public class ClientKeybinds {
@@ -32,6 +30,7 @@ public class ClientKeybinds {
                 GLFW.GLFW_KEY_V,
                 KeyMapping.Category.MISC
         );
+        event.register(SHOW_SPELL_HUD);
     }
 
 }

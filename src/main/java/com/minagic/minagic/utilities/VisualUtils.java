@@ -41,7 +41,7 @@ public class VisualUtils {
             double pz = center.z + z * radius;
 
             level.sendParticles(
-                    options, px, py, pz, 1, 0 , 0, 0, 0);
+                    options, px, py, pz, 1, 0, 0, 0, 0);
         }
     }
 

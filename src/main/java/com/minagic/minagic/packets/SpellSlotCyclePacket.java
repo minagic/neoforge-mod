@@ -9,8 +9,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.Optional;
-
 public record SpellSlotCyclePacket() implements CustomPacketPayload {
     // Unique packet ID
     public static final Type<SpellSlotCyclePacket> TYPE =
@@ -24,15 +22,6 @@ public record SpellSlotCyclePacket() implements CustomPacketPayload {
         this(); // nothing to read
     }
 
-    public void write(FriendlyByteBuf buf) {
-        // nothing to write
-    }
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
-
     public static void handle(SpellSlotCyclePacket packet, IPayloadContext context) {
         if (!(context.player() instanceof ServerPlayer player)) {
             return;
@@ -44,7 +33,16 @@ public record SpellSlotCyclePacket() implements CustomPacketPayload {
         // get the item in the player's main hand
         var stack = player.getMainHandItem();
         if (stack.getItem() instanceof SpellcastingItem spellcastingItem) {
-            spellcastingItem.cycleSlotUp(Optional.of(player), stack);
+            spellcastingItem.cycleSlotUp(player, stack);
         }
+    }
+
+    public void write(FriendlyByteBuf buf) {
+        // nothing to write
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

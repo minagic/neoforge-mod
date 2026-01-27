@@ -16,7 +16,7 @@ import java.util.List;
 @EventBusSubscriber
 public class NeoForgeEventHandler {
     @SubscribeEvent
-    public static void onLivingHurtPost(LivingDamageEvent.Post event){
+    public static void onLivingHurtPost(LivingDamageEvent.Post event) {
 
         LivingEntity target = event.getEntity();
 
@@ -26,7 +26,7 @@ public class NeoForgeEventHandler {
             Spell spell = slot.getSpell();
 
             if (spell instanceof DefaultEventInterface.ILivingDamageSpellHandler handler) {
-                slot.resolveContext(((ServerLevel)target.level()).getServer());
+                slot.resolveContext(((ServerLevel) target.level()).getServer());
 
                 SpellCastContext context = slot.getContext(); // Or reconstruct if needed
                 SimulacrumData data = slot.getSpellData();

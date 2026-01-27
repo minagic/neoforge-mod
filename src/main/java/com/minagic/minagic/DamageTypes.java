@@ -6,9 +6,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageType;
 
 
-
-public final class DamageTypes  {
-    private final static String modID =  Minagic.MODID;
+public final class DamageTypes {
+    private final static String modID = Minagic.MODID;
 
     public static final ResourceKey<DamageType> MAGIC = ResourceKey.create(
             Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(modID, "magic"));

@@ -26,17 +26,13 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
-public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
+public class SpellcastingItem<T extends SpellcastingItemData> extends Item {
     protected final DataComponentType<T> type;
     private final Supplier<T> factory;
-
-    public DataComponentType<T> getType() {
-        return type;
-    }
 
     protected SpellcastingItem(Properties properties, DataComponentType<T> type, Supplier<T> factory) {
         super(properties);
@@ -44,7 +40,12 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         this.type = type;
         this.factory = factory;
     }
-    public T getData(ItemStack stack){
+
+    public DataComponentType<T> getType() {
+        return type;
+    }
+
+    public T getData(ItemStack stack) {
         if (!stack.has(type)) {
             setData(stack, factory.get());
         }
@@ -52,7 +53,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         return stack.get(type);
     }
 
-    public SpellSlot getActive(ItemStack stack){
+    public SpellSlot getActive(ItemStack stack) {
         return this.getData(stack).getActive();
     }
 
@@ -63,53 +64,38 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         stack.set(type, newData);
     }
 
-    public void cycleSlotUp(Optional<LivingEntity> player, ItemStack stack) {
-        if (player.isEmpty()) {return;} // player should not be empty
-        SimulacraAttachment.clearChanneling(player.get());
-        if (player.get().isUsingItem()){
-            releaseUsing(stack, player.get().level(), player.get(), 0); // stop using the item
-        }
-
-        T data = getData(stack);
-
-        int newSlot = Math.floorMod(data.getCurrentSlot() + 1, data.getSlots().size());
-        data.setCurrentSlot(newSlot);
-
-        // TODO: do we need this?
-        if (!(player.get() instanceof ServerPlayer serverPlayer)) return;
-        serverPlayer.sendSystemMessage(Component.literal(
-                "Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase()
-        ));
-
-
-        setData(stack, data);
-
-        PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
-
-
+    public void cycleSlotUp(@Nullable LivingEntity player, ItemStack stack) {
+        cycleSlot(player, stack, 1);
     }
 
-    public void cycleSlotDown(Optional<LivingEntity> player, ItemStack stack) {
-        if (player.isEmpty()) return; // player should not be empty
-        SimulacraAttachment.clearChanneling(player.get());
+    public void cycleSlotDown(@Nullable LivingEntity player, ItemStack stack) {
+        cycleSlot(player, stack, -1);
+    }
 
-        if (player.get().isUsingItem()){
-            releaseUsing(stack, player.get().level(), player.get(), 0); // stop using the item
+    private void cycleSlot(@Nullable LivingEntity player, ItemStack stack, int direction) {
+        if (player == null) {
+            return;
+        }
+        SimulacraAttachment.clearChanneling(player);
+        if (player.isUsingItem()) {
+            releaseUsing(stack, player.level(), player, 0);
         }
 
         T data = getData(stack);
-        int newSlot = Math.floorMod(data.getCurrentSlot() - 1, data.getSlots().size());
+        if (data.getSlots().isEmpty()) {
+            return;
+        }
+
+        int newSlot = Math.floorMod(data.getCurrentSlot() + direction, data.getSlots().size());
         data.setCurrentSlot(newSlot);
-
-        if (!(player.get() instanceof ServerPlayer serverPlayer)) return;
-        serverPlayer.sendSystemMessage(
-                Component.literal("Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase())
-        );
-
         setData(stack, data);
 
-        PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack)); // sync back to client
-
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.sendSystemMessage(Component.literal(
+                    "Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase()
+            ));
+            PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
+        }
     }
 
 
@@ -119,7 +105,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
         int tickCooldown = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get()).getCooldown(spellId);
 
-        return Math.floor((tickCooldown)/2.0)/10.0;
+        return Math.floor((tickCooldown) / 2.0) / 10.0;
     }
 
 
@@ -156,7 +142,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     @Override
     public InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
-        if (! (player instanceof ServerPlayer serverPlayer)) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.FAIL;
         }
 
@@ -194,6 +180,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
         return InteractionResult.SUCCESS;
     }
+
     // These are use lifecycle methods, RMB usage does not work without them
     @Override
     public @NotNull ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
@@ -207,7 +194,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     @Override
     public boolean releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity player, int timeLeft) {
-        if (! (player instanceof ServerPlayer serverPlayer)) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
             return false;
         }
 
@@ -228,7 +215,6 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     public <S extends SpellEditorScreen<T>> S getEditorScreen(Player player, ItemStack stack) {
         return (S) new SpellEditorScreen<>(player, this, stack);
     }
-
 
 
 }

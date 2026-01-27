@@ -15,14 +15,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record SyncSpellcastingDataPacket(ItemStack stack) implements CustomPacketPayload {
+public record SyncSpellcastingDataPacket(
+        ItemStack stack) implements CustomPacketPayload {
     public static final Type<SyncSpellcastingDataPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "sync_staff_data"));
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+    public static final StreamCodec<RegistryFriendlyByteBuf, SyncSpellcastingDataPacket> STREAM_CODEC =
+            StreamCodec.composite(
+                    ItemStack.STREAM_CODEC, SyncSpellcastingDataPacket::stack,
+                    SyncSpellcastingDataPacket::new
+            );
 
     public static void handle(SyncSpellcastingDataPacket pkt, IPayloadContext ctx) {
         if (ctx.player() == null) return;
@@ -37,20 +38,17 @@ public record SyncSpellcastingDataPacket(ItemStack stack) implements CustomPacke
     }
 
     private static void setStackData(ItemStack stack, SpellcastingItem<?> sci, SpellcastingItemData data) {
-        System.out.println("[-SYNC SPELLCASTING ITEM DATA-] Syncing data for SpellcastingItem to stack");
-        System.out.println("[-SYNC SPELLCASTING ITEM DATA-] Expecting this data component: " + sci.getType());
+        Minagic.LOGGER.debug("Syncing spellcasting data to stack for component {}", sci.getType());
 
         if (sci.getType() == ModDataComponents.STAFF_DATA.get()) {
             stack.set(ModDataComponents.STAFF_DATA.get(), (StaffData) data);
-        }
-        else if (sci.getType() == ModDataComponents.WIZARD_WAND_DATA.get()) {
+        } else if (sci.getType() == ModDataComponents.WIZARD_WAND_DATA.get()) {
             stack.set(ModDataComponents.WIZARD_WAND_DATA.get(), (WizardWandData) data);
         }
     }
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, SyncSpellcastingDataPacket> STREAM_CODEC =
-            StreamCodec.composite(
-                    ItemStack.STREAM_CODEC, SyncSpellcastingDataPacket::stack,
-                    SyncSpellcastingDataPacket::new
-            );
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

@@ -5,15 +5,15 @@ import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
 import java.util.List;
 
 public class Fireball extends InstanteneousSpell {

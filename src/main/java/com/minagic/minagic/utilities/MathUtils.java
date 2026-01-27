@@ -36,8 +36,9 @@ public class MathUtils {
     }
 
     public static double areaBetween(Vec3 vec1, Vec3 vec2) {
-        return abs((vec2.x  +1 - vec1.x) * (vec2.z +1 - vec1.z));
+        return abs((vec2.x + 1 - vec1.x) * (vec2.z + 1 - vec1.z));
     }
+
     public static double areaBetween(BlockPos pos1, BlockPos pos2) {
         return areaBetween(blockPosToVec3(pos1), blockPosToVec3(pos2));
     }

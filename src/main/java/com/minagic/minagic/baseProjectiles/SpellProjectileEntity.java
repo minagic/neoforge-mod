@@ -8,7 +8,10 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 public abstract class SpellProjectileEntity extends Projectile {
     protected double speed = 0;
@@ -44,7 +47,7 @@ public abstract class SpellProjectileEntity extends Projectile {
 
         // --- ENTITY COLLISION ---
         if (!isEntityPiercing) {
-            for (EntityHitResult entityHit : findAllEntityHits(currentPos, nextPos)) {;
+            for (EntityHitResult entityHit : findAllEntityHits(currentPos, nextPos)) {
                 onHitEntity(entityHit);
             }
         }

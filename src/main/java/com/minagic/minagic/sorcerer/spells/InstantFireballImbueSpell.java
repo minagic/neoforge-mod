@@ -1,16 +1,14 @@
 package com.minagic.minagic.sorcerer.spells;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
-import com.minagic.minagic.spells.FireballEntity;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -49,7 +47,6 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
                 .execute(ctx, simData);
 
     }
-
 
 
     // ============================================================
@@ -121,7 +118,7 @@ public class InstantFireballImbueSpell extends InstanteneousSpell {
         targetClass.setMainClass(PlayerClassEnum.SORCERER);
         targetClass.setSubclassLevel(PlayerSubClassEnum.SORCERER_INFERNAL, 20);
         target.setData(ModAttachments.PLAYER_CLASS, targetClass);
-        System.out.println("Applying forced fireball barrage to target: " + target);
+        Minagic.LOGGER.debug("Applying forced fireball barrage to target {}", target);
         SimulacraAttachment.addSimulacrum(
                 target,
                 new SpellCastContext(target, context.caster),

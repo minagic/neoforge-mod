@@ -1,5 +1,6 @@
 package com.minagic.minagic.api.gui;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.api.SpellcastingItemData;
 import com.minagic.minagic.api.spells.Spell;
@@ -32,9 +33,9 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
         this.item = item;
         this.stack = stack;
 
-        System.out.println("Initializing SpellEditorScreen with "+item.getClass());
+        Minagic.LOGGER.debug("Initializing SpellEditorScreen for {}", item.getClass());
         this.data = item.getData(stack); // Pull existing or default data
-        System.out.println("Initializing SpellEditorScreen with "+data.getClass());
+        Minagic.LOGGER.trace("Loaded spellcasting data {}", data.getClass());
     }
 
     @Override
@@ -47,6 +48,7 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
             addSlotButton(i); // you'll define this method
         }
     }
+
     protected List<Spell> getAvailableSpells(Player player, ItemStack stack) {
         return SpellRegistry.getSpells(player);
     }
@@ -89,8 +91,8 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
         List<Spell> available = getAvailableSpells(player, stack);
 
         Minecraft.getInstance().setScreen(new SpellSelectionScreen(available, selected -> {
-            System.out.println("Selected spell: " + selected.getString() + " for slot " + index);
-            System.out.println("Inscribing the spell into the staff.");
+            Minagic.LOGGER.debug("Selected spell {} for slot {}", selected.getString(), index);
+            Minagic.LOGGER.trace("Inscribing the spell into the staff");
             assert Minecraft.getInstance().level != null;
             item.writeSpell(stack, Minecraft.getInstance().level, Minecraft.getInstance().player, index, selected);
         }));

@@ -2,7 +2,6 @@ package com.minagic.minagic;
 
 import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.SubscribeEvent;
-
 import net.neoforged.neoforge.event.tick.ServerTickEvent.Pre;
 
 import java.util.ArrayList;
@@ -32,5 +31,6 @@ public class MinagicTaskScheduler {
         }
     }
 
-    private record ScheduledTask(int tick, Runnable task) {}
+    private record ScheduledTask(int tick, Runnable task) {
+    }
 }

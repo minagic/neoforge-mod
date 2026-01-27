@@ -39,8 +39,8 @@ public abstract class Spell {
         if (!context.validate()) {
             return;
         }
-        if (simulacrumData != null){
-            if (!simulacrumData.validate()){
+        if (simulacrumData != null) {
+            if (!simulacrumData.validate()) {
                 return;
             }
         }
@@ -59,15 +59,20 @@ public abstract class Spell {
     // OVERRIDES TO DEFINE SPELL BEHAVIOR
     // the main spell logic goes here
     // the context is guaranteed to be valid here
-    protected void start(SpellCastContext context, SimulacrumData simulacrumData){}
+    protected void start(SpellCastContext context, SimulacrumData simulacrumData) {
+    }
 
-    protected void tick(SpellCastContext context, SimulacrumData simulacrumData){}
+    protected void tick(SpellCastContext context, SimulacrumData simulacrumData) {
+    }
 
-    protected void stop(SpellCastContext context, SimulacrumData simulacrumData){}
+    protected void stop(SpellCastContext context, SimulacrumData simulacrumData) {
+    }
 
-    protected void cast(SpellCastContext context, SimulacrumData simulacrumData) {}
+    protected void cast(SpellCastContext context, SimulacrumData simulacrumData) {
+    }
 
-    protected void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData){}
+    protected void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {
+    }
 
     public final String getString() {
         return spellName;
@@ -83,11 +88,13 @@ public abstract class Spell {
         return manaCost;
     }
 
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses(){
+    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
         return new ArrayList<>();
     }
 
-    public final boolean isTechnical() {return isTechnical;}
+    public final boolean isTechnical() {
+        return isTechnical;
+    }
 
     // CASTER VALIDATION METHODS
     // check if caster can use this spell

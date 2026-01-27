@@ -19,6 +19,11 @@ import org.jetbrains.annotations.Nullable;
 
 
 public final class ModSpells {
+    public static final Codec<Spell> SPELL_CODEC = ResourceLocation.CODEC.xmap(
+            ModSpells::get,
+            ModSpells::getId
+    );
+
     public static void register() {
         // REGISTER ALL SPELLS HERE
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "fireball"), new Fireball());
@@ -45,6 +50,7 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_blink"), new RadiantBlink());
 
     }
+
     public static @Nullable Spell get(ResourceLocation id) {
         return SpellRegistry.getSpell(id);
     }
@@ -52,10 +58,5 @@ public final class ModSpells {
     public static @Nullable ResourceLocation getId(Spell spell) {
         return SpellRegistry.getId(spell);
     }
-
-    public static final Codec<Spell> SPELL_CODEC = ResourceLocation.CODEC.xmap(
-            ModSpells::get,
-            ModSpells::getId
-    );
 
 }

@@ -47,7 +47,8 @@ public class AutonomousSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {}
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {
+    }
 
     @Override
     public int getSimulacrumThreshold() {

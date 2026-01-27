@@ -62,7 +62,8 @@ public class SpellUtils {
         AABB box = new AABB(center, center).inflate(radius);
 
         return level.getEntitiesOfClass(entityType, box, entity -> {
-            if (exclusions != null && exclusions.contains(entity)) return false;
+            if (exclusions != null && exclusions.contains(entity))
+                return false;
             if (filter != null && !filter.test(entity)) return false;
             return entity.distanceToSqr(center) <= radius * radius;
         });

@@ -42,29 +42,6 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
         this.setDeltaMovement(direction.normalize().scale(SPEED));
     }
 
-    @Override
-    protected void onHitBlock(BlockHitResult hitResult) {
-        super.onHitBlock(hitResult);
-
-        BlockPos center = hitResult.getBlockPos();
-        AOEHit.applyAOE(this.getOwner(),  this, Set.of(DamageTypes.MAGIC, DamageTypes.FIRE, DamageTypes.ELEMENTAL), 10, RADIUS, center);
-        spawnAOESparkParticles(level(), hitResult.getLocation(), RADIUS);
-
-        this.discard();
-
-    }
-
-    @Override
-    protected void onHitEntity(EntityHitResult hitResult) {
-        super.onHitEntity(hitResult);
-
-        BlockPos center = hitResult.getEntity().blockPosition();
-        AOEHit.applyAOE(this.getOwner(),  this, Set.of(DamageTypes.MAGIC, DamageTypes.FIRE, DamageTypes.ELEMENTAL), 0, RADIUS, center);
-        spawnAOESparkParticles(level(), hitResult.getLocation(), RADIUS);
-
-        this.discard();
-    }
-
     public static void spawnAOESparkParticles(Level level, Vec3 center, double radius) {
         if (level.isClientSide()) return;
 
@@ -99,6 +76,28 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
         );
     }
 
+    @Override
+    protected void onHitBlock(BlockHitResult hitResult) {
+        super.onHitBlock(hitResult);
+
+        BlockPos center = hitResult.getBlockPos();
+        AOEHit.applyAOE(this.getOwner(), this, Set.of(DamageTypes.MAGIC, DamageTypes.FIRE, DamageTypes.ELEMENTAL), 10, RADIUS, center);
+        spawnAOESparkParticles(level(), hitResult.getLocation(), RADIUS);
+
+        this.discard();
+
+    }
+
+    @Override
+    protected void onHitEntity(EntityHitResult hitResult) {
+        super.onHitEntity(hitResult);
+
+        BlockPos center = hitResult.getEntity().blockPosition();
+        AOEHit.applyAOE(this.getOwner(), this, Set.of(DamageTypes.MAGIC, DamageTypes.FIRE, DamageTypes.ELEMENTAL), 0, RADIUS, center);
+        spawnAOESparkParticles(level(), hitResult.getLocation(), RADIUS);
+
+        this.discard();
+    }
 
     @Override
     public net.minecraft.world.item.ItemStack getItem() {

@@ -6,13 +6,13 @@ import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.SpellUtils;
 import net.minecraft.core.Holder;
@@ -72,11 +72,11 @@ public class TracerBullet extends InstanteneousSpell {
                 .execute(ctx, simData);
 
 
-
     }
 
     public static class TracerBulletProjectile extends SpellProjectileEntity implements ItemSupplier {
-        private SpellCastContext context;
+        private final SpellCastContext context;
+
         public TracerBulletProjectile(EntityType<? extends TracerBulletProjectile> type, Level level) {
             super(type, level);
             this.speed = 0f;
@@ -132,7 +132,7 @@ public class TracerBullet extends InstanteneousSpell {
         }
 
         @Override
-        public @NotNull ItemStack getItem(){
+        public @NotNull ItemStack getItem() {
             return new ItemStack(Items.GLOWSTONE);
         }
     }
@@ -165,7 +165,7 @@ public class TracerBullet extends InstanteneousSpell {
         }
 
         @Override
-        public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData){
+        public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
             SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
                     ((ctx, simData) -> {
                         SimulacraAttachment sim = ctx.target.getData(ModAttachments.PLAYER_SIMULACRA.get());

@@ -7,6 +7,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefaultEventInterface {
     public interface ILivingDamageSpellHandler {
-            void onLivingDamage(LivingDamageEvent.Post event, SpellCastContext ctx, @Nullable SimulacrumData simData);
+        void onLivingDamage(LivingDamageEvent.Post event, SpellCastContext ctx, @Nullable SimulacrumData simData);
     }
 }

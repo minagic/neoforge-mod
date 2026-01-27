@@ -5,23 +5,16 @@ import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
 import java.util.List;
 
 public class VoidBlast extends InstanteneousSpell {
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.AllowedClass(
-                PlayerClassEnum.SORCERER,
-                PlayerSubClassEnum.SORCERER_VOIDBOURNE,
-                3
-        ));
-    }
-
     public VoidBlast() {
         super();
 
@@ -29,6 +22,14 @@ public class VoidBlast extends InstanteneousSpell {
         this.cooldown = 20 * 3; // 60 ticks
         this.manaCost = 30;
         // simulacrum values untouched
+    }
+
+    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.AllowedClass(
+                PlayerClassEnum.SORCERER,
+                PlayerSubClassEnum.SORCERER_VOIDBOURNE,
+                3
+        ));
     }
 
     @Override

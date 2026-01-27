@@ -1,4 +1,5 @@
 package com.minagic.minagic.utilities;
+
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 

@@ -57,12 +57,10 @@ public class ModAttachments {
 
     public static final Supplier<AttachmentType<SpellMetadata>> SPELL_METADATA =
             ATTACHMENTS.register("spell_metadata", () ->
-                    AttachmentType.<SpellMetadata>builder(SpellMetadata::new)
+                    AttachmentType.builder(SpellMetadata::new)
                             .serialize(new SpellMetadata.Serializer())
                             .sync(ByteBufCodecs.fromCodec(SpellMetadata.CODEC))
                             .build());
-
-
 
 
     public static void register(IEventBus bus) {

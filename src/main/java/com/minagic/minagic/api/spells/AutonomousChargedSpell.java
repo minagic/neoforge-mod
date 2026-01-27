@@ -6,10 +6,9 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
-import com.minagic.minagic.utilities.SpellValidationResult;
 import org.jetbrains.annotations.Nullable;
 
-//// An abstract class representing spells that are charged up over time before being released.
+/// / An abstract class representing spells that are charged up over time before being released.
 public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     public AutonomousChargedSpell() {
         super();
@@ -57,7 +56,7 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public  final void tick(SpellCastContext context, SimulacrumData simulacrumData) {
+    public final void tick(SpellCastContext context, SimulacrumData simulacrumData) {
         // No-op for autonomous charged spells
     }
 

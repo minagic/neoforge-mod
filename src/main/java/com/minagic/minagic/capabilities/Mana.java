@@ -14,16 +14,23 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
-import java.util.HashMap;
-import java.util.Map;
-
-
 
 public final class Mana {
+    // CODEC
+    public static final Codec<Mana> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.FLOAT.fieldOf("mana").forGetter(Mana::getMana),
+            Codec.INT.fieldOf("maxMana").forGetter(Mana::getMaxMana)
+    ).apply(instance, (manaValue, maxManaValue) -> {
+        Mana m = new Mana();
+        m.setMaxMana(maxManaValue);
+        m.restoreMana(manaValue - m.getMana());
+        return m;
+    }));
     private float mana;
     private int maxMana;
 
-    public Mana() {}
+    public Mana() {
+    }
 
     public void tick(LivingEntity player) {
         // --- Retrieve Player Class Info ---
@@ -37,7 +44,6 @@ public final class Mana {
         }
 
         this.maxMana = computedMax;
-
 
 
         // Sorcerer passive regen
@@ -68,7 +74,9 @@ public final class Mana {
         return base;
     }
 
-    public float getMana() {return mana;}
+    public float getMana() {
+        return mana;
+    }
 
     public boolean drainMana(float amount) {
         boolean success = mana - amount >= 0;
@@ -83,10 +91,13 @@ public final class Mana {
         return success;
     }
 
-    public int getMaxMana() {return maxMana;}
+    public int getMaxMana() {
+        return maxMana;
+    }
 
-    public void setMaxMana(int maxMana) {this.maxMana = maxMana;}
-
+    public void setMaxMana(int maxMana) {
+        this.maxMana = maxMana;
+    }
 
     // rendering
     public void render(GuiGraphics gui) {
@@ -96,7 +107,7 @@ public final class Mana {
         final int COLOR_BACKGROUND = 0xFF222222;
         final int COLOR_FILL = 0xFF3399FF; // mana blue
         final int COLOR_TEXT = 0xFF99CCFF;
-        
+
         Minecraft mc = Minecraft.getInstance();
         if (mc == null || mc.player == null) return;
 
@@ -118,17 +129,6 @@ public final class Mana {
         String text = String.format("Mana: %.0f / %.0f", mana, (float) maxMana);
         gui.drawString(font, text, x, y - 10, COLOR_TEXT, false);
     }
-
-    // CODEC
-    public static final Codec<Mana> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.FLOAT.fieldOf("mana").forGetter(Mana::getMana),
-            Codec.INT.fieldOf("maxMana").forGetter(Mana::getMaxMana)
-    ).apply(instance, (manaValue, maxManaValue) -> {
-        Mana m = new Mana();
-        m.setMaxMana(maxManaValue);
-        m.restoreMana(manaValue-m.getMana());
-        return m;
-    }));
 
     // SERIALIZER
 

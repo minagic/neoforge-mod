@@ -8,11 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SpellGateChain {
-    @FunctionalInterface
-    public interface SpellEffect {
-        void execute(SpellCastContext ctx, @Nullable SimulacrumData simData);
-    }
-
     List<ISpellGate> gates = new ArrayList<>();
     SpellEffect effect;
 
@@ -21,7 +16,7 @@ public class SpellGateChain {
         return this;
     }
 
-    public SpellGateChain setEffect(SpellEffect effect){
+    public SpellGateChain setEffect(SpellEffect effect) {
         this.effect = effect;
         return this;
     }
@@ -42,6 +37,11 @@ public class SpellGateChain {
             gate.post(ctx, simData);
         }
 
+    }
+
+    @FunctionalInterface
+    public interface SpellEffect {
+        void execute(SpellCastContext ctx, @Nullable SimulacrumData simData);
     }
 
 }

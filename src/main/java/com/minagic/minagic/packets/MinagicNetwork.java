@@ -1,10 +1,8 @@
 package com.minagic.minagic.packets;
 
 import com.minagic.minagic.Minagic;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class MinagicNetwork {
     public void register(IEventBus modBus) {

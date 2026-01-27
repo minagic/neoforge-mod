@@ -4,7 +4,6 @@ import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
-import com.minagic.minagic.utilities.SpellValidationResult;
 import org.jetbrains.annotations.Nullable;
 
 public class ChanneledSpell extends Spell implements ISimulacrumSpell {
@@ -18,7 +17,6 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
         this.simulacraThreshold = 0;
         this.simulacraMaxLifetime = -1; // no max lifetime
     }
-
 
 
     // Lifecycle methods
@@ -43,6 +41,7 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
     public final void tick(SpellCastContext context, SimulacrumData simulacrumData) {
         // no-op for channeled spells
     }
+
     @Override
     public final void stop(SpellCastContext context, SimulacrumData simulacrumData) {
         SimulacraAttachment.clearChanneling(context.target);
@@ -66,7 +65,7 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
 
     @Override
     public final float progress(SimulacrumData data) {
-        return data.lifetime()/data.threshold();
+        return data.lifetime() / data.threshold();
     }
 
     @Override

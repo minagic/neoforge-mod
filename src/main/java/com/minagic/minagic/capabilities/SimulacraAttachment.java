@@ -1,5 +1,6 @@
 package com.minagic.minagic.capabilities;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.registries.ModAttachments;
@@ -14,49 +15,51 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
-
-import java.util.*;
-
-/*
- * Holds all simulacrum spell data for a player.
- * - Any number of backgroundSimulacra keyed by spell ID
- */
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 public class SimulacraAttachment {
 
+    // --- CODEC ---
+    public static final Codec<SimulacraAttachment> CODEC =
+            RecordCodecBuilder.create(instance -> instance.group(
+                    ResourceLocation.CODEC.optionalFieldOf("active_spell_id").forGetter(
+                            att -> Optional.ofNullable(att.activeChannelingSpellID)
+                    ),
+                    Codec.unboundedMap(ResourceLocation.CODEC, SimulacrumSpellSlot.CODEC)
+                            .optionalFieldOf("background_simulacra", Map.of())
+                            .forGetter(att -> att.backgroundSimulacra),
+                    Codec.unboundedMap(ResourceLocation.CODEC, Codec.FLOAT)
+                            .optionalFieldOf("simulacra_readiness", Map.of())
+                            .forGetter(att -> att.simulacraReadiness)
+            ).apply(instance, (activeSpellID, simulacraMap, readinessMap) ->
+            {
+                SimulacraAttachment att = new SimulacraAttachment();
+                activeSpellID.ifPresent(resourceLocation -> att.activeChannelingSpellID = resourceLocation);
+                att.backgroundSimulacra.putAll(simulacraMap);
+                att.simulacraReadiness.putAll(readinessMap);
+                return att;
+            }));
     // --- Fields ---
     private ResourceLocation activeChannelingSpellID = null;
     private Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = new HashMap<>();
-    private Map<ResourceLocation, Float> simulacraReadiness = new HashMap<>();
 
     // --- Getters ---
+    private Map<ResourceLocation, Float> simulacraReadiness = new HashMap<>();
 
-    public boolean hasActiveChanneling() {
-        return activeChannelingSpellID != null && backgroundSimulacra.containsKey(activeChannelingSpellID);
-    }
-
-    public @Nullable ResourceLocation getActiveChannelingID() {
-        return activeChannelingSpellID;
-    }
-
-    public boolean hasSpell(ResourceLocation id) {
-        return backgroundSimulacra.containsKey(id);
-    }
-
-    public static List<SimulacrumSpellSlot> getAllSpellslots(Entity entity){
+    public static List<SimulacrumSpellSlot> getAllSpellslots(Entity entity) {
         SimulacraAttachment sim = entity.getData(ModAttachments.PLAYER_SIMULACRA.get());
         return List.copyOf(sim.backgroundSimulacra.values());
     }
-
-
-    // --- Setters ---
 
     public static void setChanneling(Entity host, SpellCastContext context, Spell spell, int threshold, int maxLifetime) {
         if (host == null) return;
@@ -71,10 +74,14 @@ public class SimulacraAttachment {
         host.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
+
+    // --- Setters ---
+
     public static void addSimulacrum(Entity host, SpellCastContext context, Spell spell, int threshold, int maxLifetime) {
         if (context.target == null) return;
 
-        System.out.println("[SimulacraAttachment] Adding simulacrum spell: " + spell.getString() + " to host: " + (host) + " for target: " + (context.target));
+        Minagic.LOGGER.debug("Adding simulacrum spell {} to host {} targeting {}",
+                spell.getString(), host, context.target);
 
         SimulacraAttachment attachment = host.getData(ModAttachments.PLAYER_SIMULACRA);
 
@@ -126,7 +133,7 @@ public class SimulacraAttachment {
         simulacraReadiness.clear();
         attachment.backgroundSimulacra = (backgroundSimulacra);
         attachment.simulacraReadiness = (simulacraReadiness);
-        
+
         host.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
@@ -138,7 +145,19 @@ public class SimulacraAttachment {
         host.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
+    public boolean hasActiveChanneling() {
+        return activeChannelingSpellID != null && backgroundSimulacra.containsKey(activeChannelingSpellID);
+    }
+
+    public @Nullable ResourceLocation getActiveChannelingID() {
+        return activeChannelingSpellID;
+    }
+
     // --- Logic ---
+
+    public boolean hasSpell(ResourceLocation id) {
+        return backgroundSimulacra.containsKey(id);
+    }
 
     public void resolveAllContexts(MinecraftServer server) {
         for (SimulacrumSpellSlot slot : backgroundSimulacra.values()) {
@@ -152,8 +171,7 @@ public class SimulacraAttachment {
             SimulacrumSpellSlot slot = entry.getValue();
             slot.tick();
             float readiness = slot.getSpellData().progress();
-            System.out.println("[SimulacraAttachement] Generated SimulacrumData");
-            slot.getSpellData().dump();
+            Minagic.LOGGER.trace("Updated simulacrum {} readiness to {}", entry.getKey(), readiness);
             simulacraReadiness.put(entry.getKey(), readiness);
         }
     }
@@ -201,7 +219,8 @@ public class SimulacraAttachment {
 
             for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : att.backgroundSimulacra.entrySet()) {
                 ResourceLocation id = entry.getKey();
-                if (id.equals(att.activeChannelingSpellID)) continue; // skip active channeling
+                if (id.equals(att.activeChannelingSpellID))
+                    continue; // skip active channeling
 
                 SimulacrumSpellSlot slot = entry.getValue();
                 float readiness = att.simulacraReadiness.getOrDefault(id, 0f);
@@ -274,25 +293,4 @@ public class SimulacraAttachment {
             return true;
         }
     }
-
-    // --- CODEC ---
-    public static final Codec<SimulacraAttachment> CODEC =
-            RecordCodecBuilder.create(instance -> instance.group(
-                    ResourceLocation.CODEC.optionalFieldOf("active_spell_id").forGetter(
-                            att -> Optional.ofNullable(att.activeChannelingSpellID)
-                    ),
-                    Codec.unboundedMap(ResourceLocation.CODEC, SimulacrumSpellSlot.CODEC)
-                            .optionalFieldOf("background_simulacra", Map.of())
-                            .forGetter(att -> att.backgroundSimulacra),
-                    Codec.unboundedMap(ResourceLocation.CODEC, Codec.FLOAT)
-                            .optionalFieldOf("simulacra_readiness", Map.of())
-                            .forGetter(att -> att.simulacraReadiness)
-            ).apply(instance, ( activeSpellID, simulacraMap, readinessMap) ->
-            {
-                SimulacraAttachment att = new SimulacraAttachment();
-                activeSpellID.ifPresent(resourceLocation -> att.activeChannelingSpellID = resourceLocation);
-                att.backgroundSimulacra.putAll(simulacraMap);
-                att.simulacraReadiness.putAll(readinessMap);
-                return att;
-            }));
 }

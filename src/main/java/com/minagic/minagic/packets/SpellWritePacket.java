@@ -1,8 +1,8 @@
 package com.minagic.minagic.packets;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.SpellcastingItem;
+import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.registries.ModSpells;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -16,14 +16,24 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-public record SpellWritePacket(int slotIndex, ResourceLocation spellId) implements CustomPacketPayload {
+public record SpellWritePacket(int slotIndex,
+                               ResourceLocation spellId) implements CustomPacketPayload {
     public static final Type<SpellWritePacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "spell_write_packet"));
-
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+    public static final Codec<SpellWritePacket> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.INT.fieldOf("slotIndex").forGetter(SpellWritePacket::slotIndex),
+                    ResourceLocation.CODEC.fieldOf("spellId").forGetter(SpellWritePacket::spellId)
+            ).apply(instance, SpellWritePacket::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, SpellWritePacket> STREAM_CODEC =
+            StreamCodec.composite(
+                    ByteBufCodecs.INT,
+                    SpellWritePacket::slotIndex,
+                    ResourceLocation.STREAM_CODEC,
+                    SpellWritePacket::spellId,
+                    SpellWritePacket::new
+            );
 
     public static void handle(SpellWritePacket pkt, IPayloadContext ctx) {
         if (!(ctx.player() instanceof ServerPlayer serverPlayer)) return;
@@ -40,25 +50,11 @@ public record SpellWritePacket(int slotIndex, ResourceLocation spellId) implemen
         serverPlayer.setItemInHand(InteractionHand.MAIN_HAND, stack);
         serverPlayer.containerMenu.broadcastChanges();
     }
-    public static final Codec<SpellWritePacket> CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
-                    Codec.INT.fieldOf("slotIndex").forGetter(SpellWritePacket::slotIndex),
-                    ResourceLocation.CODEC.fieldOf("spellId").forGetter(SpellWritePacket::spellId)
-            ).apply(instance, SpellWritePacket::new)
-    );
 
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, SpellWritePacket> STREAM_CODEC =
-            StreamCodec.composite(
-                    ByteBufCodecs.INT,
-                    SpellWritePacket::slotIndex,
-                    ResourceLocation.STREAM_CODEC,
-                    SpellWritePacket::spellId,
-                    SpellWritePacket::new
-            );
-
-
-
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 
 
 }
