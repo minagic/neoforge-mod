@@ -31,7 +31,7 @@ public class SpellUtils {
     }
 
     public static <T extends Entity> List<T> getEntitiesInXZColumnBox(Level level, BlockPos pos1, BlockPos pos2, Class<T> type) {
-        return getEntitiesInXZColumnBox(level, pos1, pos2, type);
+        return getEntitiesInXZColumnBox(level, pos1, pos2, type, entity -> true);
     }
 
     /**

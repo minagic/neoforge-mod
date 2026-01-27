@@ -1,5 +1,6 @@
 package com.minagic.minagic.spellgates;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
@@ -200,7 +201,7 @@ public class DefaultGates {
 
         @Override
         public void onFail(SpellCastContext context, @Nullable SimulacrumData simulacrumData){
-            System.out.println("Simulacrum check failed");
+            Minagic.LOGGER.warn("Simulacrum gate failed for caster {}", context.caster.getName().getString());
         }
     }
 
