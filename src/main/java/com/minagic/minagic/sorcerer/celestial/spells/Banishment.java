@@ -110,7 +110,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
                     for (int i = 0; i < beamCount; i++) {
                         double tx = minX + level.getRandom().nextDouble() * (maxX - minX);
                         double tz = minZ + level.getRandom().nextDouble() * (maxZ - minZ);
-                        double ty = SpellUtils.findSurfaceY(level, tx, tz); // Get highest point at (tx, tz)
+                        double ty = SpellUtils.findSurfaceY(level, tx, tz); // Get the highest point at (tx, tz)
 
                         // Beam visual descending from above
                         for (int step = 0; step < 16; step++) {
