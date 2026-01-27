@@ -16,7 +16,7 @@ import java.util.List;
 @EventBusSubscriber
 public class NeoForgeEventHandler {
     @SubscribeEvent
-    public static void onLivingDamagePost(LivingDamageEvent.Post event){
+    public static void onLivingHurtPost(LivingDamageEvent.Post event){
 
         LivingEntity target = event.getEntity();
 
