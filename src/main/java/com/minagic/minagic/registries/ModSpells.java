@@ -48,7 +48,7 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "solar_shield"), new SolarShield());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "solar_surge"), new SolarSurge());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_blink"), new RadiantBlink());
-
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "gravitational_suspension"), new GravitationalSuspension());
     }
 
     public static @Nullable Spell get(ResourceLocation id) {
