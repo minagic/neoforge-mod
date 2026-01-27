@@ -62,8 +62,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
                     }
                     Minagic.LOGGER.debug("Banishment precheck: full metadata detected, cancelling spell");
                     SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
-                    SpellMetadata.removeBlockPos(context.target, this, "bb_start");
-                    SpellMetadata.removeBlockPos(context.target, this, "bb_end");
+
                 }
         ).execute(ctx, simData);
 
@@ -77,6 +76,8 @@ public class Banishment extends Spell implements ISimulacrumSpell {
     }
 
     public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {
+        SpellMetadata.removeBlockPos(context.target, this, "bb_start");
+        SpellMetadata.removeBlockPos(context.target, this, "bb_end");
     }
 
     @Override
