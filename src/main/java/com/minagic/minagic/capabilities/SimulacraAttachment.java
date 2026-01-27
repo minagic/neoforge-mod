@@ -50,6 +50,11 @@ public class SimulacraAttachment {
         return backgroundSimulacra.containsKey(id);
     }
 
+    public static List<SimulacrumSpellSlot> getAllSpellslots(Entity entity){
+        SimulacraAttachment sim = entity.getData(ModAttachments.PLAYER_SIMULACRA.get());
+        return List.copyOf(sim.backgroundSimulacra.values());
+    }
+
 
     // --- Setters ---
 

@@ -14,6 +14,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.LivingEntity;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -104,6 +105,10 @@ public class SimulacrumSpellSlot {
                 : new SpellCastContext(resolvedCaster);
 
         logger.debug("Context resolved: Host={}, Caster={}, Target={}", resolvedHostEntity, resolvedCaster, resolvedTarget);
+    }
+
+    public @Nullable SpellCastContext getContext(){
+        return this.context;
     }
     public void tick() {
         if (context == null) {

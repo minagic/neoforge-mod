@@ -2,6 +2,7 @@ package com.minagic.minagic;
 
 import com.minagic.minagic.capabilities.hudAlerts.HudAlert;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
+import com.minagic.minagic.events.NeoForgeEventHandler;
 import com.minagic.minagic.gui.CooldownOverlay;
 import com.minagic.minagic.packets.MinagicNetwork;
 import com.minagic.minagic.registries.*;
@@ -143,6 +144,7 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(new HudAlertManager());
         NeoForge.EVENT_BUS.register(ENTITY_FREEZER);
         NeoForge.EVENT_BUS.register(new ModEvents());
+        NeoForge.EVENT_BUS.register(NeoForgeEventHandler.class);
         //NeoForge.EVENT_BUS.register(new PlayerItemUsageCheck());
 
         ModItems.register(modEventBus);
