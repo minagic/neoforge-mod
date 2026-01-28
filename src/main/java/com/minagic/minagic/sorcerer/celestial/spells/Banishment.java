@@ -83,6 +83,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
     @Override
     public final void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
         SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+                .addGate(new DefaultGates.MetadataGate(this, List.of("bb_start", "bb_end"), true))
                 .setEffect((context, simulacrumData) -> {
                     ServerLevel level = (ServerLevel) context.level();
                     BlockPos start = SpellMetadata.getBlockPos(context.target, this, "bb_start");

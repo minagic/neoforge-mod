@@ -208,10 +208,12 @@ public class DefaultGates {
     public static class MetadataGate implements ISpellGate {
         private final Spell spell;
         private final List<String> requiredKeys;
+        private final boolean exitSimulacrumOnFail;
 
-        public MetadataGate(Spell spell, List<String> requiredKeys) {
+        public MetadataGate(Spell spell, List<String> requiredKeys, boolean exitSimulacrumOnFail) {
             this.spell = spell;
             this.requiredKeys = requiredKeys;
+            this.exitSimulacrumOnFail = exitSimulacrumOnFail;
         }
 
         @Override
@@ -222,6 +224,13 @@ public class DefaultGates {
                 }
             }
             return true;
+        }
+
+        @Override
+        public void onFail(SpellCastContext ctx, SimulacrumData simData) {
+            if (this.exitSimulacrumOnFail) {
+                simData.expireSimulacrum();
+            }
         }
     }
 
