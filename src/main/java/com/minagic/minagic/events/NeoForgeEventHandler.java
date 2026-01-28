@@ -32,7 +32,7 @@ public class NeoForgeEventHandler {
                 SpellCastContext context = slot.getContext(); // Or reconstruct if needed
                 SimulacrumData data = slot.getSpellData();
                 if (context == null) return;
-                if (!context.validate()) return;
+                if (context.validate()) return;
 
                 try {
                     handler.onLivingDamage(event, context, data);

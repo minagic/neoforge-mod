@@ -37,7 +37,6 @@ public record SpellWritePacket(int slotIndex,
 
     public static void handle(SpellWritePacket pkt, IPayloadContext ctx) {
         if (!(ctx.player() instanceof ServerPlayer serverPlayer)) return;
-        if (serverPlayer == null) return;
 
         ItemStack stack = serverPlayer.getMainHandItem();
         if (!(stack.getItem() instanceof SpellcastingItem<?> item)) return;

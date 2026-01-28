@@ -26,7 +26,7 @@ public record SyncSpellcastingDataPacket(
             );
 
     public static void handle(SyncSpellcastingDataPacket pkt, IPayloadContext ctx) {
-        if (ctx.player() == null) return;
+        ctx.player();
         Minecraft.getInstance().execute(() -> {
             Player player = Minecraft.getInstance().player;
             if (player == null) return;

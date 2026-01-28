@@ -24,15 +24,13 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
     @Override
     public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
-                ((ctx, simData) -> {
-                    SimulacraAttachment.setChanneling(
-                            ctx.target,
-                            ctx,
-                            this,
-                            0,
-                            getSimulacrumMaxLifetime()
-                    );
-                })
+                ((ctx, simData) -> SimulacraAttachment.setChanneling(
+                        ctx.target,
+                        ctx,
+                        this,
+                        0,
+                        getSimulacrumMaxLifetime()
+                ))
         ).execute(context, simulacrumData);
     }
 
@@ -49,9 +47,7 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
 
     @Override
     public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {
-        new SpellGateChain().addGate(new DefaultGates.SimulacrumGate()).setEffect((ctx, simData) -> {
-            perform(SpellEventPhase.CAST, ctx, simData);
-        }).execute(context, simulacrumData);
+        new SpellGateChain().addGate(new DefaultGates.SimulacrumGate()).setEffect((ctx, simData) -> perform(SpellEventPhase.CAST, ctx, simData)).execute(context, simulacrumData);
 
 
     }

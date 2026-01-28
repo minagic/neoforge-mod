@@ -39,6 +39,6 @@ class StaffDataTest {
         StaffData data = new StaffData(List.of(custom), 0);
 
         assertEquals(1, data.getSlots().size());
-        assertSame(custom, data.getSlots().get(0));
+        assertSame(custom, data.getSlots().getFirst());
     }
 }

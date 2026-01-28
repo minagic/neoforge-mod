@@ -219,7 +219,7 @@ public class DefaultGates {
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             for (String key : requiredKeys) {
-                if (!SpellMetadata.has(ctx.target, spell, key)) {
+                if (SpellMetadata.has(ctx.target, spell, key)) {
                     return false;
                 }
             }

@@ -109,7 +109,7 @@ public final class Mana {
         final int COLOR_TEXT = 0xFF99CCFF;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc == null || mc.player == null) return;
+        if (mc.player == null) return;
 
         Font font = mc.font;
         int screenWidth = mc.getWindow().getGuiScaledWidth();
@@ -117,17 +117,16 @@ public final class Mana {
 
         float ratio = Mth.clamp(mana / maxMana, 0f, 1f);
 
-        int x = PADDING;
         int y = screenHeight - 10; // anchored above hotbar
 
         // Background
-        gui.fill(x, y, x + BAR_WIDTH, y + BAR_HEIGHT, COLOR_BACKGROUND);
+        gui.fill(PADDING, y, PADDING + BAR_WIDTH, y + BAR_HEIGHT, COLOR_BACKGROUND);
         // Fill
-        gui.fill(x, y, x + (int) (BAR_WIDTH * ratio), y + BAR_HEIGHT, COLOR_FILL);
+        gui.fill(PADDING, y, PADDING + (int) (BAR_WIDTH * ratio), y + BAR_HEIGHT, COLOR_FILL);
 
         // Text
         String text = String.format("Mana: %.0f / %.0f", mana, (float) maxMana);
-        gui.drawString(font, text, x, y - 10, COLOR_TEXT, false);
+        gui.drawString(font, text, PADDING, y - 10, COLOR_TEXT, false);
     }
 
     // SERIALIZER

@@ -91,9 +91,9 @@ public class VoidborneSorcererEntity extends Monster implements ItemSupplier {
             boolean knfActive = sim.hasSpell(KNF_ID);
 
             // === Hostile Projectile Nearby? ===
-            boolean hostileProjectile = level().getEntities(this, getBoundingBox().inflate(5), e ->
+            boolean hostileProjectile = !level().getEntities(this, getBoundingBox().inflate(5), e ->
                     e instanceof Projectile proj && proj.getOwner() != this
-            ).size() > 0;
+            ).isEmpty();
 
             if (hostileProjectile && !knfActive) {
                 cycleToSpell(staffItem, stack, KNF_ID);
@@ -126,8 +126,8 @@ public class VoidborneSorcererEntity extends Monster implements ItemSupplier {
     private void tryCastSpell(sorcererStaff item, ItemStack stack) {
         if (item.getRemainingCooldown(stack, this) <= 0) {
             SpellCastContext context = new SpellCastContext(this);
-            ((SpellcastingItem) this.getItemInHand(InteractionHand.MAIN_HAND).getItem()).getData(stack).getActive().onStart(context);
-            ((SpellcastingItem) this.getItemInHand(InteractionHand.MAIN_HAND).getItem()).getData(stack).getActive().onStop(context);
+            ((SpellcastingItem<?>) this.getItemInHand(InteractionHand.MAIN_HAND).getItem()).getData(stack).getActive().onStart(context);
+            ((SpellcastingItem<?>) this.getItemInHand(InteractionHand.MAIN_HAND).getItem()).getData(stack).getActive().onStop(context);
         }
     }
 

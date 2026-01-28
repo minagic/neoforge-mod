@@ -39,14 +39,14 @@ public class Banishment extends Spell implements ISimulacrumSpell {
         Minagic.LOGGER.debug("Banishment spell start invoked");
         new SpellGateChain().addGate(new DefaultGates.ClassGate(this.getAllowedClasses())).setEffect(
                 (context, simulacrumData) -> {
-                    if (!SpellMetadata.has(context.target, this, "bb_start")) {
+                    if (SpellMetadata.has(context.target, this, "bb_start")) {
                         Minagic.LOGGER.debug("Banishment precheck: no metadata, initializing area");
                         SpellMetadata.setBlockPos(context.target, this, "bb_start", context.target.blockPosition());
                         SimulacraAttachment.addSimulacrum(context.target, context, this, -1, 200);
                         return;
                     }
 
-                    if (!SpellMetadata.has(context.target, this, "bb_end")) {
+                    if (SpellMetadata.has(context.target, this, "bb_end")) {
                         Minagic.LOGGER.debug("Banishment precheck: partial metadata detected");
                         BlockPos pos = context.target.blockPosition();
                         int manaCost = (int) MathUtils.areaBetween(SpellMetadata.getBlockPos(context.target, this, "bb_start"), pos);

@@ -26,9 +26,6 @@ public record SpellSlotCyclePacket() implements CustomPacketPayload {
         if (!(context.player() instanceof ServerPlayer player)) {
             return;
         }
-        if (player == null) {
-            return;
-        }
 
         // get the item in the player's main hand
         var stack = player.getMainHandItem();

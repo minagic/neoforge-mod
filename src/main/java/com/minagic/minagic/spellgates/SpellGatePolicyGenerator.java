@@ -41,9 +41,7 @@ public class SpellGatePolicyGenerator {
                     chain.addGate(new DefaultGates.ManaSustainGate(manaSustainPerTick));
                 chain.addGate(new DefaultGates.SimulacrumGate());
             }
-            case EXIT_SIMULACRUM -> {
-                chain.addGate(new DefaultGates.SimulacrumGate());
-            }
+            case EXIT_SIMULACRUM -> chain.addGate(new DefaultGates.SimulacrumGate());
             case STOP -> {
                 // intentionally left empty
             }

@@ -49,7 +49,7 @@ public final class ModDataComponents {
     }
 
     public static HashMap<DataComponentType<?>, Type> getAllSpellcastingItemDataComponents() {
-        return new HashMap<DataComponentType<?>, Type>() {{
+        return new HashMap<>() {{
             put(STAFF_DATA.get(), StaffData.class);
             put(WIZARD_WAND_DATA.get(), WizardWandData.class);
         }};
