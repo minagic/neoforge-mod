@@ -9,6 +9,7 @@ import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
 import com.minagic.minagic.utilities.PowerCalibrator;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 
@@ -75,7 +76,7 @@ public class TorchPlacement extends ChargedSpell {
                                             BlockPos floor = center.offset(dx, dy - 1, dz);
                                             BlockPos air = center.offset(dx, dy, dz);
 
-                                            if (!level.getBlockState(floor).isSolid())
+                                            if (!level.getBlockState(floor).isFaceSturdy(level, floor, Direction.UP))
                                                 continue;
                                             if (!level.isEmptyBlock(air)) continue;
 

@@ -38,6 +38,6 @@ public record MinagicDamage(
         // ARMOR_PIERCING is now embedded into DynamicDamageSource
         DamageSource source = new DynamicDamageSource(typeHolder, this.tags, 0.5f, directEntity, sourceEntity);
 
-        this.targetEntity.hurt(source, finalDamage);
+        this.targetEntity.hurtServer(level, source, finalDamage);
     }
 }
