@@ -36,7 +36,7 @@ public abstract class Spell {
     }
 
     public void perform(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        if (!context.validate()) {
+        if (context.validate()) {
             return;
         }
         if (simulacrumData != null) {

@@ -23,7 +23,7 @@ public class EffectWandItem extends Item {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         Random random = new Random();
 
-        List<Holder<MobEffect>> effects = new ArrayList<Holder<MobEffect>>();
+        List<Holder<MobEffect>> effects = new ArrayList<>();
         for (MobEffect e : BuiltInRegistries.MOB_EFFECT) {
             if (e != null)
                 effects.add(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(e));

@@ -23,11 +23,11 @@ public class SpellCastContext {
     }
 
     public boolean validate() {
-        if (caster == null) return false;
-        if (level() == null) return false;
-        if (target == null) return false;
-        if (!caster.isAlive() || !target.isAlive()) return false;
-        return !level().isClientSide();
+        if (caster == null) return true;
+        if (level() == null) return true;
+        if (target == null) return true;
+        if (!caster.isAlive() || !target.isAlive()) return true;
+        return level().isClientSide();
     }
 
     public SpellCastContext inverted() {

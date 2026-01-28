@@ -36,14 +36,11 @@ public class SolarShield extends AutonomousSpell implements DefaultEventInterfac
                 .addGate(new DefaultGates.SimulacrumGate())
                 .addGate(new DefaultGates.ManaSustainGate(0))
                 .setEffect((context, simData) ->
-                {
-
-                    ((ServerLevel) context.level()).sendParticles(
-                            ParticleTypes.SOUL_FIRE_FLAME,
-                            context.caster.getX(), context.caster.getY() + 1.0, context.caster.getZ(),
-                            4, 0.2, 0.3, 0.2, 0.01
-                    );
-                });
+                        ((ServerLevel) context.level()).sendParticles(
+                                ParticleTypes.SOUL_FIRE_FLAME,
+                                context.caster.getX(), context.caster.getY() + 1.0, context.caster.getZ(),
+                                4, 0.2, 0.3, 0.2, 0.01
+                        ));
         chain.execute(ctx, data);
 
 

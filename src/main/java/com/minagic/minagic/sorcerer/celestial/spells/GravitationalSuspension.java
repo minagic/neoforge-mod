@@ -1,5 +1,6 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
@@ -10,10 +11,8 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
-import com.minagic.minagic.spellgates.SpellGateChain;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class GravitationalSuspension extends AutonomousSpell {
         SpellGatePolicyGenerator.build(SpellEventPhase.TICK, this.getAllowedClasses(), 0, 0, manaCost, false, this)
                 .setEffect(
                         (ctx, simData) -> {
-                            System.out.println("FGravitation ticked");
+                            Minagic.LOGGER.trace("Gravitational Suspension tick for {}", ctx.target.getName().getString());
                             ctx.target.setNoGravity(true);
                             ctx.target.hurtMarked = true;
                         }
@@ -50,8 +49,10 @@ public class GravitationalSuspension extends AutonomousSpell {
 
     @Override
     public void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {
-        System.out.println("Gravitational Suspension ended... side=" + (context.level().isClientSide() ? "CLIENT" : "SERVER"));
-        System.out.println("Before: noGravity=" + context.target.isNoGravity());
+        Minagic.LOGGER.debug("Gravitational Suspension ended on {} (side: {})",
+                context.target.getName().getString(),
+                context.level().isClientSide() ? "CLIENT" : "SERVER");
+        Minagic.LOGGER.trace("Before cleanup: noGravity={}", context.target.isNoGravity());
         LivingEntity e = context.target;
         e.setNoGravity(false);
         e.hurtMarked = true;
@@ -59,7 +60,7 @@ public class GravitationalSuspension extends AutonomousSpell {
         e.setDeltaMovement(e.getDeltaMovement().multiply(1, 1, 1));
         e.fallDistance = 0;
         e.hurtMarked = true;
-        System.out.println("After: noGravity=" + context.target.isNoGravity());
+        Minagic.LOGGER.trace("After cleanup: noGravity={}", context.target.isNoGravity());
     }
 
     public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses(){

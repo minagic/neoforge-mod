@@ -18,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class RadiantIllumination extends ChargedSpell {
@@ -35,7 +36,7 @@ public class RadiantIllumination extends ChargedSpell {
         SpellGatePolicyGenerator.build(SpellEventPhase.TICK, this.getAllowedClasses(), cooldown, 0, 0, false, this).setEffect(
                 (context, simulacrumData) -> {
                     super.tick(context, simulacrumData);
-                    float progress = simulacrumData.progress();
+                    float progress = Objects.requireNonNull(simulacrumData).progress();
                     double radius = progress > 0.8 ? 1 : progress / 0.8;
                     int density = 64;
 
@@ -60,7 +61,7 @@ public class RadiantIllumination extends ChargedSpell {
         SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, true, this)
                 .setEffect((context, simulacrumData) -> {
                     // locate every entity within range
-                    float progress = simulacrumData.progress();
+                    float progress = Objects.requireNonNull(simulacrumData).progress();
                     double radius = progress > 0.8 ? 1 : progress / 0.8;
 
                     List<LivingEntity> targets = SpellUtils.findEntitiesInRadius(
@@ -117,12 +118,11 @@ public class RadiantIllumination extends ChargedSpell {
 
                             double xOffset = Math.cos(angle) * distance;
                             double zOffset = Math.sin(angle) * distance;
-                            double yOffset = height;
 
                             level.sendParticles(
                                     ParticleTypes.END_ROD,
                                     center.x + xOffset,
-                                    center.y + yOffset,
+                                    center.y + height,
                                     center.z + zOffset,
                                     0, 0, 0, 0, 0
                             );

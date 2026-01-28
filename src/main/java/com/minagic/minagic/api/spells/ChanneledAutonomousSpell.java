@@ -24,9 +24,7 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
     @Override
     public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
-                ((ctx, simData) -> {
-                    SimulacraAttachment.setChanneling(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
-                })
+                ((ctx, simData) -> SimulacraAttachment.setChanneling(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime()))
         ).execute(context, simulacrumData);
 
 

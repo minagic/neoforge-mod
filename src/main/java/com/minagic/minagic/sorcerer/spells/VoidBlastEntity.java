@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class VoidBlastEntity extends SpellProjectileEntity implements ItemSupplier {
@@ -48,7 +49,7 @@ public class VoidBlastEntity extends SpellProjectileEntity implements ItemSuppli
             return;
         }
 
-        Level level = this.getOwner().level();
+        Level level = Objects.requireNonNull(this.getOwner()).level();
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         // DAMAGE

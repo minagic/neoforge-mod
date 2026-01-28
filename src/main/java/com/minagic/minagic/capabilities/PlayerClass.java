@@ -108,7 +108,7 @@ public class PlayerClass {
     // RENDER
     public void render(GuiGraphics gui) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc == null || mc.player == null) return;
+        if (mc.player == null) return;
 
         Font font = mc.font;
         int screenWidth = mc.getWindow().getGuiScaledWidth();

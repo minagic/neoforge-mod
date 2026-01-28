@@ -1,5 +1,6 @@
 package com.minagic.minagic.spellgates;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
@@ -200,30 +201,37 @@ public class DefaultGates {
 
         @Override
         public void onFail(SpellCastContext context, @Nullable SimulacrumData simulacrumData){
-            System.out.println("Simulacrum check failed");
+            Minagic.LOGGER.warn("Simulacrum gate failed for caster {}", context.caster.getName().getString());
         }
     }
 
     public static class MetadataGate implements ISpellGate {
         private final Spell spell;
         private final List<String> requiredKeys;
+        private final boolean exitSimulacrumOnFail;
 
-        public MetadataGate(Spell spell, List<String> requiredKeys) {
+        public MetadataGate(Spell spell, List<String> requiredKeys, boolean exitSimulacrumOnFail) {
             this.spell = spell;
             this.requiredKeys = requiredKeys;
+            this.exitSimulacrumOnFail = exitSimulacrumOnFail;
         }
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             for (String key : requiredKeys) {
-                if (!SpellMetadata.has(ctx.target, spell, key)) {
+                if (SpellMetadata.has(ctx.target, spell, key)) {
                     return false;
                 }
             }
             return true;
         }
 
-
+        @Override
+        public void onFail(SpellCastContext ctx, SimulacrumData simData) {
+            if (this.exitSimulacrumOnFail) {
+                simData.expireSimulacrum();
+            }
+        }
     }
 
 }
