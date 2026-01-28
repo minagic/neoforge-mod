@@ -41,4 +41,8 @@ public record SimulacrumData(
     public void expireSimulacrum() {
         SimulacraAttachment.removeSimulacrum(host, spellId);
     }
+
+    public float remainingLifetime(){
+        return remainingLifetime;
+    }
 }

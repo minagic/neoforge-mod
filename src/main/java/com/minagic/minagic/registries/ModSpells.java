@@ -5,6 +5,7 @@ import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.druid.spells.CircleOfLife;
 import com.minagic.minagic.druid.spells.OathOfLife;
 import com.minagic.minagic.sorcerer.celestial.spells.*;
+import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaBurst;
 import com.minagic.minagic.sorcerer.spells.EventHorizon;
 import com.minagic.minagic.sorcerer.spells.FireballBarrage;
 import com.minagic.minagic.sorcerer.spells.InstantFireballImbueSpell;
@@ -49,6 +50,10 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "solar_surge"), new SolarSurge());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_blink"), new RadiantBlink());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "gravitational_suspension"), new GravitationalSuspension());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_burst"), new NovaBurst());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_pulse"), new NovaBurst.NovaPulse());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_pulse_precursor"), new NovaBurst.NovaPulsePrecursor());
+
     }
 
     public static @Nullable Spell get(ResourceLocation id) {

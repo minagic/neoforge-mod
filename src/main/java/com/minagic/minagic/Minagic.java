@@ -1,12 +1,16 @@
 package com.minagic.minagic;
 
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudOverrideManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudOverrideRegistry;
+import com.minagic.minagic.capabilities.hudAlerts.WhiteFlashOverride;
 import com.minagic.minagic.entity.sorcerer.voidbourne.VoidborneSorcererEntity;
 import com.minagic.minagic.events.NeoForgeEventHandler;
 import com.minagic.minagic.gui.CooldownOverlay;
 import com.minagic.minagic.packets.MinagicNetwork;
 import com.minagic.minagic.registries.*;
 import com.minagic.minagic.sorcerer.celestial.spells.CelestialBombardment;
+import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaImpactProxyEntity;
 import com.minagic.minagic.sorcerer.celestial.spells.TracerBullet;
 import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
 import com.minagic.minagic.spellCasting.ClearData;
@@ -102,6 +106,13 @@ public class Minagic {
                             .clientTrackingRange(32) // Tracking range
                             .updateInterval(1) // Update interval
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":voidbourne_sorcerer_entity"))));
+    public static final DeferredHolder<EntityType<?>, EntityType<NovaImpactProxyEntity>> NOVA_PROXY =
+            ENTITY_TYPES.register("nova_proxy",
+                    () -> EntityType.Builder.<NovaImpactProxyEntity>of(NovaImpactProxyEntity::new, MobCategory.MISC)
+                    .sized(0.1f, 0.1f)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "nova_proxy"))));
 
     public static final EntityFreezer ENTITY_FREEZER = new EntityFreezer();
 
@@ -139,6 +150,7 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(new PlayerSimulacraHandler());
         NeoForge.EVENT_BUS.register(new ClearData());
         NeoForge.EVENT_BUS.register(new HudAlertManager());
+        NeoForge.EVENT_BUS.register(new HudOverrideManager());
         NeoForge.EVENT_BUS.register(ENTITY_FREEZER);
         NeoForge.EVENT_BUS.register(new ModEvents());
         NeoForge.EVENT_BUS.register(NeoForgeEventHandler.class);
@@ -163,6 +175,9 @@ public class Minagic {
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        HudOverrideRegistry.register(ResourceLocation.fromNamespaceAndPath(MODID, "white_flash_primary"), new WhiteFlashOverride(200, 0));
+        HudOverrideRegistry.register(ResourceLocation.fromNamespaceAndPath(MODID, "white_flash_secondary"), new WhiteFlashOverride(3, 0));
     }
 
     // Command registration method

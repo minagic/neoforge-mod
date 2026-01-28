@@ -3,6 +3,7 @@ package com.minagic.minagic.registries;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudOverrideManager;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -60,6 +61,13 @@ public class ModAttachments {
                     AttachmentType.builder(SpellMetadata::new)
                             .serialize(new SpellMetadata.Serializer())
                             .sync(ByteBufCodecs.fromCodec(SpellMetadata.CODEC))
+                            .build());
+
+    public static final Supplier<AttachmentType<HudOverrideManager>> HUD_OVERRIDES =
+            ATTACHMENTS.register("hud_overrides", () ->
+                    AttachmentType.builder(HudOverrideManager::new)
+                            .serialize(new HudOverrideManager.Serializer())
+                            .sync(ByteBufCodecs.fromCodec(HudOverrideManager.CODEC))
                             .build());
 
 

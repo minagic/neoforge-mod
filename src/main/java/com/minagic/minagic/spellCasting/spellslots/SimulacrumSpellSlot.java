@@ -140,9 +140,10 @@ public class SimulacrumSpellSlot {
         }
 
         lifetime++;
-        LOGGER.debug("SimulacrumSpellSlot tick start | lifetime: {}/{} max: {}", lifetime, threshold, maxLifetime);
-        LOGGER.trace("SimulacrumSpellSlot host entity {} with id {}", resolvedHostEntity, hostUUID);
+        LOGGER.debug("SimulacrumSpellSlot tick start | spell: {} | lifetime: {}/{} max: {}", this.getSpell().getString(), lifetime, threshold, maxLifetime);
+        LOGGER.debug("SimulacrumSpellSlot host entity {} with id {}", resolvedHostEntity, hostUUID);
         if (maxLifetime == 0) {
+
             SimulacraAttachment.removeSimulacrum(resolvedHostEntity, ModSpells.getId(getSpell()));
             return;
         }

@@ -1,6 +1,7 @@
 package com.minagic.minagic;
 
 import com.minagic.minagic.entity.sorcerer.voidbourne.VoidborneSorcererEntity;
+import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaImpactProxyEntity;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -35,5 +36,8 @@ public class MinagicClient {
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(Minagic.VOIDBOURNE_SORCERER_ENEMY.get(),
                 VoidborneSorcererEntity.createAttributes().build());
+        event.put(
+                Minagic.NOVA_PROXY.get(),
+                NovaImpactProxyEntity.createAttributes().build());
     }
 }

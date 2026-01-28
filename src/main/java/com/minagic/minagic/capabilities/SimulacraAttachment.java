@@ -74,6 +74,11 @@ public class SimulacraAttachment {
         host.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
+    public static Map<ResourceLocation, Float> getAllProgress(Entity host){
+        SimulacraAttachment sim = host.getData(ModAttachments.PLAYER_SIMULACRA.get());
+        return Map.copyOf(sim.simulacraReadiness);
+    }
+
 
     // --- Setters ---
 
@@ -85,6 +90,8 @@ public class SimulacraAttachment {
 
         SimulacraAttachment attachment = host.getData(ModAttachments.PLAYER_SIMULACRA);
 
+        Minagic.LOGGER.debug("Received host's attachement: {}", attachment);
+
         if (!(spell instanceof ISimulacrumSpell simulacrumSpell)) {
             throw new IllegalArgumentException("'spell' parameter must implement ISimulacrumSpell.");
         }
@@ -92,29 +99,32 @@ public class SimulacraAttachment {
                 ModSpells.getId(spell),
                 new SimulacrumSpellSlot(context, host.getUUID(), threshold, maxLifetime, maxLifetime, simulacrumSpell)
         );
+
+
         attachment.simulacraReadiness.put(ModSpells.getId(spell), 0f);
-        host.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
+        Minagic.LOGGER.debug("Attachment updated, putting back onto host: {}", host);
+        try {
+            host.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
+        } catch (Throwable t) {
+            Minagic.LOGGER.error("CRASH during setData", t);
+        }
+        Minagic.LOGGER.debug("Simulacrum addition complete");
     }
 
     public static void removeSimulacrum(Entity host, ResourceLocation id) {
         // cast onExit
+        Minagic.LOGGER.debug("Removing {} from {}", id, host);
         SimulacraAttachment attachment = host.getData(ModAttachments.PLAYER_SIMULACRA);
-        Map<ResourceLocation, SimulacrumSpellSlot> backgroundSimulacra = attachment.backgroundSimulacra;
-        Map<ResourceLocation, Float> simulacraReadiness = attachment.simulacraReadiness;
 
-
-        SimulacrumSpellSlot slot = backgroundSimulacra.get(id);
+        SimulacrumSpellSlot slot = attachment.backgroundSimulacra.get(id);
         if (slot != null) {
             slot.exitSpellSlot();
         }
 
-        backgroundSimulacra.remove(id);
-        simulacraReadiness.remove(id);
+        attachment.backgroundSimulacra.remove(id);
+        attachment.simulacraReadiness.remove(id);
 
-
-        attachment.backgroundSimulacra = backgroundSimulacra;
-        attachment.simulacraReadiness = simulacraReadiness;
-
+        Minagic.LOGGER.debug("Success. New Data: {}, {}", attachment.backgroundSimulacra, attachment.simulacraReadiness);
         host.setData(ModAttachments.PLAYER_SIMULACRA, attachment);
     }
 
@@ -167,7 +177,8 @@ public class SimulacraAttachment {
 
     public void tick() {
         // Tick background simulacra
-        for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : backgroundSimulacra.entrySet()) {
+        Map<ResourceLocation, SimulacrumSpellSlot> copy = Map.copyOf(backgroundSimulacra);
+        for (Map.Entry<ResourceLocation, SimulacrumSpellSlot> entry : copy.entrySet()) {
             SimulacrumSpellSlot slot = entry.getValue();
             slot.tick();
             float readiness = slot.getSpellData().progress();

@@ -56,7 +56,7 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public final void tick(SpellCastContext context, SimulacrumData simulacrumData) {
+    public void tick(SpellCastContext context, SimulacrumData simulacrumData) {
         // No-op for autonomous charged spells
     }
 
