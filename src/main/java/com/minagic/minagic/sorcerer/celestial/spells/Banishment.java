@@ -8,6 +8,7 @@ import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.*;
+import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
@@ -115,7 +116,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
                         // Beam visual descending from above
                         for (int step = 0; step < 16; step++) {
                             double y = ty + 16 - step;
-                            level.sendParticles(ParticleTypes.GLOW, tx, y, tz, 1, 0, 0, 0, 0.0);
+                            level.sendParticles(ModParticles.CELEST_PARTICLES.get(), tx, y, tz, 1, 0, 0, 0, 0.0);
                         }
 
                         // Impact visuals

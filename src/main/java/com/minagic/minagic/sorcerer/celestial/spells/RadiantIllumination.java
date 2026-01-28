@@ -6,6 +6,7 @@ import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
@@ -39,7 +40,7 @@ public class RadiantIllumination extends ChargedSpell {
                     double radius = progress > 0.8 ? 1 : progress / 0.8;
                     int density = 64;
 
-                    VisualUtils.spawnRadialParticleRing(context.level(), context.target.position(), radius * 32, density, ParticleTypes.END_ROD);
+                    VisualUtils.spawnRadialParticleRing(context.level(), context.target.position(), radius * 32, density, ModParticles.CELEST_PARTICLES.get());
                 }
         ).execute(ctx, simData);
 
