@@ -1,6 +1,7 @@
 package com.minagic.minagic;
 
 import com.minagic.minagic.particles.VoidParticle;
+import com.minagic.minagic.particles.CelestParticles;
 import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaImpactProxyEntity;
 import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaProxyRenderer;
@@ -31,8 +32,10 @@ public class ClientModEvents {
         ClientKeybinds.registerKeybinds(event);
     }
 
+
     @SubscribeEvent
-    public void registerParticles(RegisterParticleProvidersEvent event) {
-        event.registerSpriteSet(ModParticles.VOID_PARTICLE.get(), VoidParticle.Provider::new);
+    public void registerParticleFactories(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(ModParticles.CELEST_PARTICLES.get(), CelestParticles.Provider::new);
     }
+
 }

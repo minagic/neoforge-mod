@@ -159,7 +159,7 @@ public class Minagic {
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
         ModAttachments.register(modEventBus);
-        ModParticles.PARTICLES.register(modEventBus);
+        ModParticles.register(modEventBus);
 
 
         // Register packet handlers
