@@ -57,6 +57,7 @@ public class NovaImpactProxyEntity extends Monster implements ItemSupplier {
     public NovaImpactProxyEntity(EntityType<? extends NovaImpactProxyEntity> type, Level level) {
         super(type, level);
         this.setNoAi(true);
+
     }
 
     public NovaImpactProxyEntity(Level level, BlockPos position, int lifetime, UUID casterUUID, float radius) {

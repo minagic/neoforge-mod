@@ -14,7 +14,9 @@ import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
 import com.minagic.minagic.capabilities.hudAlerts.HudOverrideManager;
 import com.minagic.minagic.capabilities.hudAlerts.HudOverrideRegistry;
 import com.minagic.minagic.capabilities.hudAlerts.IHudOverride;
+import com.minagic.minagic.particles.CelestParticles;
 import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
@@ -27,12 +29,16 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -132,7 +138,8 @@ public class NovaBurst extends AutonomousChargedSpell  {
                             BlockPos blockPos = SpellUtils.getTargetBlockPos(ctx.target, 192);
                             if (blockPos == null) return;
                             NovaImpactProxyEntity proxy = Minagic.NOVA_PROXY.get().create((ServerLevel) ctx.level(), EntitySpawnReason.MOB_SUMMONED);
-                            proxy.setPos(MathUtils.blockPosToVec3(blockPos));
+                            BlockPos finalBlockPos = new BlockPos(blockPos.getX(), (int)SpellUtils.findSurfaceY(ctx.level(), blockPos.getX(), blockPos.getZ())+20, blockPos.getZ());
+                            proxy.setPos(MathUtils.blockPosToVec3(finalBlockPos));
                             proxy.setLifetime(240);
                             proxy.setCasterUUID(ctx.target.getUUID());
                             proxy.setRadius(40);
@@ -207,7 +214,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
                         List<LivingEntity> entities = SpellUtils.findEntitiesInRadius(
                                 level,
                                 caster.position(),
-                                RADIUS*progress,
+                                5+(RADIUS-5)*progress*progress,
                                 LivingEntity.class,
                                 e -> e.isAlive(),
                                 Set.of(caster)
@@ -226,12 +233,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
                             entity.addEffect(new MobEffectInstance(new MobEffectInstance(MobEffects.DARKNESS, 400, 1)));
 
                         }
-                        VisualUtils.spawnExplosionVFX((ServerLevel) ctx.level(), ctx.target.position(), RADIUS*progress);
-
-
-//                        for (LivingEntity entity : entities) {
-//                            HudOverrideManager.addToEntity(entity, secondaryFlash);
-//                        }
+                        //VisualUtils.spawnExplosionVFX((ServerLevel) ctx.level(), ctx.target.position(), RADIUS*progress);
 
                     })
                     .execute(context, simulacrumData);
@@ -241,7 +243,6 @@ public class NovaBurst extends AutonomousChargedSpell  {
         public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
             return List.of();
         }
-
 
     }
 
@@ -258,6 +259,31 @@ public class NovaBurst extends AutonomousChargedSpell  {
         public void cast(SpellCastContext ctx, SimulacrumData simData){
             SpellCastContext context = new SpellCastContext(ctx.caster);
             new NovaPulse().perform(SpellEventPhase.START, context, null);
+            if (! (ctx.target instanceof NovaImpactProxyEntity novaProxy)) return;
+            LivingEntity player = SpellUtils.resolveLivingEntityAcrossDimensions(novaProxy.getCasterUUID(), ctx.level().getServer());
+            Vec3 dir = player.position().subtract(ctx.target.position()).normalize();
+            player.push(dir.x * 0.5, 0.4, dir.z * 0.5);
+            ctx.level().playSound(ctx.target, ctx.target.getOnPos(), SoundEvents.ENDER_DRAGON_DEATH, SoundSource.HOSTILE, 1.5f, 1.2f);
+            ctx.level().playSound(ctx.target, ctx.target.getOnPos(), SoundEvents.LIGHTNING_BOLT_IMPACT, SoundSource.HOSTILE, 1.5f, 1.2f);
+
+        }
+
+        public void tick(SpellCastContext context, SimulacrumData simulacrumData){
+            new SpellGateChain().addGate(new DefaultGates.SimulacrumGate())
+                    .setEffect(
+                            (ctx, simData)->
+                            {
+                                RandomSource rand = ctx.level().random;
+                                double angle = (1-simData.progress())*2*Math.PI;
+                                Vec3 origin = ctx.target.position();
+                                Vec3[] targets = MathUtils.twoVectorsWithAngle(origin, angle, rand.nextDouble()*9+6, rand);
+                                for (Vec3 target: targets){
+                                    VisualUtils.createParticleRay((ServerLevel) ctx.level(), origin, target, ParticleTypes.SOUL_FIRE_FLAME, 100);
+                                }
+                                ctx.level().playSound(ctx.target, ctx.target.getOnPos(), SoundEvents.BEACON_AMBIENT, SoundSource.AMBIENT, 3f, 0.5f + 3*simData.progress());
+                            }
+                    )
+                    .execute(context,simulacrumData);
         }
 
         @Override

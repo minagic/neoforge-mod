@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
@@ -103,6 +104,8 @@ public class NovaProxyRenderer extends EntityRenderer<NovaImpactProxyEntity, Nov
         int alpha = 200;
 
         renderOrb(pose, vc, r, alpha, rings, segments);
+
+
     }
     private Vec3 spherePoint(float r, float phi, float theta) {
         float x = (float)(r * Math.sin(phi) * Math.cos(theta));
@@ -119,7 +122,7 @@ public class NovaProxyRenderer extends EntityRenderer<NovaImpactProxyEntity, Nov
 //            VertexConsumer vc = buffer.getBuffer(RenderType.energySwirl(
 //                    ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/end_gateway_beam.png"), 0, 0));
 
-        float radius = (1-progress) * 40f;
+        float radius = 5+ (1-progress)*(1-progress) * 35f;
         renderOrb(pose, vc, radius, 255, 32, 64);
     }
 
@@ -161,13 +164,42 @@ public class NovaProxyRenderer extends EntityRenderer<NovaImpactProxyEntity, Nov
         vc.addVertex(mat, (float) to.x, (float) to.y, (float) to.z).setColor(r,g,b,a).setNormal(0, 1, 0);
     }
 
+    private void addLine(VertexConsumer vc, Matrix4f mat, Vec3 from, Vec3 to, int alpha) {
+        vc.addVertex(mat, (float) from.x, (float) from.y, (float) from.z)
+                .setColor(255, 255, 255, alpha)
+                .setNormal(0, 1, 0);
+        vc.addVertex(mat, (float) to.x, (float) to.y, (float) to.z)
+                .setColor(255, 255, 255, alpha)
+                .setNormal(0, 1, 0);
+    }
+
+    private void drawConeLines(VertexConsumer vc, Matrix4f mat, Vec3 apex, float baseZ, float radius, int alpha) {
+        Vec3 b1 = new Vec3(radius, 0.0, baseZ);
+        Vec3 b2 = new Vec3(0.0, radius, baseZ);
+        Vec3 b3 = new Vec3(-radius, 0.0, baseZ);
+        Vec3 b4 = new Vec3(0.0, -radius, baseZ);
+
+        // Sides
+        addLine(vc, mat, apex, b1, alpha);
+        addLine(vc, mat, apex, b2, alpha);
+        addLine(vc, mat, apex, b3, alpha);
+        addLine(vc, mat, apex, b4, alpha);
+
+        // Base square
+        addLine(vc, mat, b1, b2, alpha);
+        addLine(vc, mat, b2, b3, alpha);
+        addLine(vc, mat, b3, b4, alpha);
+        addLine(vc, mat, b4, b1, alpha);
+    }
+
 
     private void addVertexColor(VertexConsumer vc, Matrix4f mat, Vec3 v, int alpha) {
-        Random random = new Random();
-
-        random.nextInt(1);
-        random.nextInt(1);
         vc.addVertex(mat, (float) v.x, (float) v.y, (float) v.z)
                 .setColor(255, 255, 255, alpha);
+    }
+
+    @Override
+    public boolean shouldRender(NovaImpactProxyEntity entity, Frustum frustum, double camX, double camY, double camZ) {
+        return true; // always render if client knows about it
     }
 }
