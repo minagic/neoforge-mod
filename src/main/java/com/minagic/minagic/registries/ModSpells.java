@@ -53,6 +53,7 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_burst"), new NovaBurst());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_pulse"), new NovaBurst.NovaPulse());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_pulse_precursor"), new NovaBurst.NovaPulsePrecursor());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "aether_glide"), new AetherGlide());
 
     }
 
