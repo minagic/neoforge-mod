@@ -1,4 +1,5 @@
 package com.minagic.minagic.capabilities;
+
 import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.registries.ModSpells;
 import net.minecraft.resources.ResourceLocation;
@@ -12,7 +13,6 @@ public record SimulacrumData(
         float threshold,
         LivingEntity host
 ) {
-
 
 
     // ===========
@@ -31,15 +31,7 @@ public record SimulacrumData(
         return spell.color(progress);
     }
 
-    public void dump(){
-        System.out.println("Spell:  " + spellId);
-        System.out.println("Remaining Lifetime: " +  remainingLifetime);
-        System.out.println("Max Lifetime: " + maxLifetime);
-        System.out.println("Lifetime: " + lifetime);
-        System.out.println("Threshold: " + threshold);
-    }
-
-    public boolean validate(){
+    public boolean validate() {
         if (host == null) return false;
         if (!host.isAlive()) return false;
         return !host.level().isClientSide();
@@ -48,5 +40,9 @@ public record SimulacrumData(
 
     public void expireSimulacrum() {
         SimulacraAttachment.removeSimulacrum(host, spellId);
+    }
+
+    public float remainingLifetime(){
+        return remainingLifetime;
     }
 }

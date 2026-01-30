@@ -55,22 +55,33 @@ public enum PlayerSubClassEnum {
     public PlayerClassEnum getParentClass() {
         // Map subclasses to their parent classes
         return switch (this) {
-            case WIZARD_ELEMANCY, WIZARD_NECROMANCY, WIZARD_CONJURATION -> PlayerClassEnum.WIZARD;
+            case WIZARD_ELEMANCY, WIZARD_NECROMANCY, WIZARD_CONJURATION ->
+                    PlayerClassEnum.WIZARD;
             case SORCERER_CELESTIAL, SORCERER_DRACONIC, SORCERER_INFERNAL,
-                 SORCERER_VOIDBOURNE, SORCERER_SPIRITUAL -> PlayerClassEnum.SORCERER;
-            case WARLOCK_CHAIN, WARLOCK_WEAPON, WARLOCK_TOME, WARLOCK_PACTS -> PlayerClassEnum.WARLOCK;
-            case CLERIC_ZEALOT, CLERIC_APOSTLE, CLERIC_ORACLE -> PlayerClassEnum.CLERIC;
+                 SORCERER_VOIDBOURNE, SORCERER_SPIRITUAL ->
+                    PlayerClassEnum.SORCERER;
+            case WARLOCK_CHAIN, WARLOCK_WEAPON, WARLOCK_TOME, WARLOCK_PACTS ->
+                    PlayerClassEnum.WARLOCK;
+            case CLERIC_ZEALOT, CLERIC_APOSTLE, CLERIC_ORACLE ->
+                    PlayerClassEnum.CLERIC;
             case DRUID_TREES, DRUID_ANIMALS, DRUID_MONSTERS,
                  DRUID_UNDEAD, DRUID_SPIRITS -> PlayerClassEnum.DRUID;
-            case BARD_HARMONY, BARD_DISCORD, BARD_ELOQUENCE -> PlayerClassEnum.BARD;
-            case BLADESINGER_AFTERTONE, BLADESINGER_STINGS, BLADESINGER_GROUNDED -> PlayerClassEnum.BLADESINGER;
-            case MONK_SHADOW, MONK_MIRRORING_HAND, MONK_SPECTRAL_FIST -> PlayerClassEnum.MONK;
+            case BARD_HARMONY, BARD_DISCORD, BARD_ELOQUENCE ->
+                    PlayerClassEnum.BARD;
+            case BLADESINGER_AFTERTONE, BLADESINGER_STINGS,
+                 BLADESINGER_GROUNDED -> PlayerClassEnum.BLADESINGER;
+            case MONK_SHADOW, MONK_MIRRORING_HAND, MONK_SPECTRAL_FIST ->
+                    PlayerClassEnum.MONK;
             case HERBALIST_THORNS, HERBALIST_ROOTS, HERBALIST_FLOWERS,
-                 HERBALIST_STEMS, HERBALIST_LEAVES -> PlayerClassEnum.HERBALIST;
-            case ALCHEMIST_DISTILLATION, ALCHEMIST_FERMENTATION, ALCHEMIST_DISPERSION -> PlayerClassEnum.ALCHEMIST;
+                 HERBALIST_STEMS, HERBALIST_LEAVES ->
+                    PlayerClassEnum.HERBALIST;
+            case ALCHEMIST_DISTILLATION, ALCHEMIST_FERMENTATION,
+                 ALCHEMIST_DISPERSION -> PlayerClassEnum.ALCHEMIST;
             case RUNE_ARTIFICER_ENCHANTMENT, RUNE_ARTIFICER_MYTHIC_FORGE,
-                 RUNE_ARTIFICER_RUNOMANCY, RUNE_ARTIFICER_OVERRIDE -> PlayerClassEnum.RUNE_ARTIFICER;
-            case SHAMAN_WILD, SHAMAN_FOUR_ELEMENTS, SHAMAN_SPIRITS -> PlayerClassEnum.SHAMAN;
+                 RUNE_ARTIFICER_RUNOMANCY, RUNE_ARTIFICER_OVERRIDE ->
+                    PlayerClassEnum.RUNE_ARTIFICER;
+            case SHAMAN_WILD, SHAMAN_FOUR_ELEMENTS, SHAMAN_SPIRITS ->
+                    PlayerClassEnum.SHAMAN;
             default -> PlayerClassEnum.UNDECLARED;
         };
     }

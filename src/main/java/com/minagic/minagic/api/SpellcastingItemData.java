@@ -17,26 +17,43 @@ public class SpellcastingItemData {
     protected int currentSlot;
 
     // OVERRIDE THIS METHOD
-    public SpellcastingItemData(List<SpellSlot> slots, int currentSlot){
+    public SpellcastingItemData(List<SpellSlot> slots, int currentSlot) {
         this.slots = new ArrayList<>(Objects.requireNonNull(slots, "slots"));
         this.currentSlot = currentSlot;
     }
 
-    public SpellcastingItemData(){
+    public SpellcastingItemData() {
         this.slots = new ArrayList<>();
         this.slots.add(new SpellSlot());
         this.currentSlot = 0;
+    }
+
+    // ---- CODEC ----
+    public static <T extends SpellcastingItemData> Codec<T> codec(
+            BiFunction<List<SpellSlot>, Integer, T> factory
+    ) {
+        return RecordCodecBuilder.create(instance -> instance.group(
+                SpellSlot.CODEC.listOf().fieldOf("slots").forGetter(SpellcastingItemData::getSlots),
+                Codec.INT.fieldOf("currentSlot").forGetter(SpellcastingItemData::getCurrentSlot)
+        ).apply(instance, factory));
     }
 
     public SpellSlot getActive() {
         int idx = Mth.clamp(currentSlot, 0, slots.size() - 1);
         return slots.get(idx);
     }
-    public List<SpellSlot> getSlots() {return slots;}
 
-    public int getCurrentSlot() {return currentSlot;}
+    public List<SpellSlot> getSlots() {
+        return slots;
+    }
 
-    public void setCurrentSlot(int currentSlot) {this.currentSlot = currentSlot;}
+    public int getCurrentSlot() {
+        return currentSlot;
+    }
+
+    public void setCurrentSlot(int currentSlot) {
+        this.currentSlot = currentSlot;
+    }
 
     @Override
     public boolean equals(Object other) {
@@ -49,6 +66,7 @@ public class SpellcastingItemData {
         }
         return true;
     }
+
     @Override
     public int hashCode() {
         int result = Integer.hashCode(currentSlot);
@@ -57,7 +75,6 @@ public class SpellcastingItemData {
         }
         return result;
     }
-
 
     public String toString() {
         StringBuilder sb = new StringBuilder("SpellcastingItemData{");
@@ -72,18 +89,8 @@ public class SpellcastingItemData {
         return sb.toString();
     }
 
-    public SpellcastingItemData copy(){
+    public SpellcastingItemData copy() {
         return new SpellcastingItemData(this.getSlots(), this.getCurrentSlot());
-    }
-
-    // ---- CODEC ----
-    public static <T extends SpellcastingItemData> Codec<T> codec(
-            BiFunction<List<SpellSlot>, Integer, T> factory
-    ) {
-        return RecordCodecBuilder.create(instance -> instance.group(
-                SpellSlot.CODEC.listOf().fieldOf("slots").forGetter(SpellcastingItemData::getSlots),
-                Codec.INT.fieldOf("currentSlot").forGetter(SpellcastingItemData::getCurrentSlot)
-        ).apply(instance, factory));
     }
 
 }

@@ -5,6 +5,7 @@ import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.druid.spells.CircleOfLife;
 import com.minagic.minagic.druid.spells.OathOfLife;
 import com.minagic.minagic.sorcerer.celestial.spells.*;
+import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaBurst;
 import com.minagic.minagic.sorcerer.spells.EventHorizon;
 import com.minagic.minagic.sorcerer.spells.FireballBarrage;
 import com.minagic.minagic.sorcerer.spells.InstantFireballImbueSpell;
@@ -13,13 +14,17 @@ import com.minagic.minagic.sorcerer.voidbourne.spells.KineticNullificationField;
 import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spells.Fireball;
 import com.minagic.minagic.spells.NoneSpell;
-import com.minagic.minagic.testing.spells.*;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 
 public final class ModSpells {
+    public static final Codec<Spell> SPELL_CODEC = ResourceLocation.CODEC.xmap(
+            ModSpells::get,
+            ModSpells::getId
+    );
+
     public static void register() {
         // REGISTER ALL SPELLS HERE
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "fireball"), new Fireball());
@@ -41,16 +46,17 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "exposure"), new TracerBullet.Exposure());
 
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "torch_placement"), new TorchPlacement());
-
-        // register dev spells here
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_instnateneous"), new InstantaneousDevSpell());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_channeled"), new ChanneledDevSpell());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_charged"), new ChargedDevSpell());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_charged_autonomous"), new AutonomousChargedDevSpell());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_channeled_autonomous"), new ChanneledAutonomousDevSpell());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "dev_autonomous"), new AutonomousDevSpell());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "solar_shield"), new SolarShield());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "solar_surge"), new SolarSurge());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_blink"), new RadiantBlink());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "gravitational_suspension"), new GravitationalSuspension());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_burst"), new NovaBurst());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_pulse"), new NovaBurst.NovaPulse());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_pulse_precursor"), new NovaBurst.NovaPulsePrecursor());
+        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "aether_glide"), new AetherGlide());
 
     }
+
     public static @Nullable Spell get(ResourceLocation id) {
         return SpellRegistry.getSpell(id);
     }
@@ -58,10 +64,5 @@ public final class ModSpells {
     public static @Nullable ResourceLocation getId(Spell spell) {
         return SpellRegistry.getId(spell);
     }
-
-    public static final Codec<Spell> SPELL_CODEC = ResourceLocation.CODEC.xmap(
-            ModSpells::get,
-            ModSpells::getId
-    );
 
 }

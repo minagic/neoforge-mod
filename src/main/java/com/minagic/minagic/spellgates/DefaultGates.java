@@ -1,5 +1,6 @@
 package com.minagic.minagic.spellgates;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
@@ -13,17 +14,12 @@ import java.util.List;
 
 public class DefaultGates {
     public static class ClassGate implements ISpellGate {
-        public record AllowedClass(
-                PlayerClassEnum mainClass,
-                PlayerSubClassEnum subClass,
-                int level
-        ){}
-
         private final List<AllowedClass> allowedClasses;
         private String failureMessage;
-        public ClassGate(List<AllowedClass> classes){
+        public ClassGate(List<AllowedClass> classes) {
             this.allowedClasses = classes;
         }
+
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             Entity caster = ctx.caster;
@@ -36,7 +32,7 @@ public class DefaultGates {
 
             for (AllowedClass allowed : allowedClasses) {
                 PlayerClassEnum playerClass = playerData.getMainClass();
-                for (PlayerSubClassEnum subClass: PlayerSubClassEnum.values()) {
+                for (PlayerSubClassEnum subClass : PlayerSubClassEnum.values()) {
                     int level = playerData.getSubclassLevel(subClass);
 
                     if (playerClass != allowed.mainClass()) {
@@ -85,6 +81,13 @@ public class DefaultGates {
                     60
             );
         }
+
+        public record AllowedClass(
+                PlayerClassEnum mainClass,
+                PlayerSubClassEnum subClass,
+                int level
+        ) {
+        }
     }
 
     public static class CooldownGate implements ISpellGate {
@@ -114,7 +117,7 @@ public class DefaultGates {
         }
 
         @Override
-        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData){
+        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             var cooldowns = ctx.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
             cooldowns.setCooldown(ModSpells.getId(spell), cooldown);
             ctx.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
@@ -148,7 +151,7 @@ public class DefaultGates {
         }
 
         @Override
-        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData){
+        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             var mana = ctx.caster.getData(ModAttachments.MANA.get());
             mana.drainMana(manaCost);
             ctx.caster.setData(ModAttachments.MANA.get(), mana);
@@ -183,7 +186,7 @@ public class DefaultGates {
         }
 
         @Override
-        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData){
+        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             var mana = ctx.caster.getData(ModAttachments.MANA.get());
             mana.drainMana(manaCost);
             ctx.caster.setData(ModAttachments.MANA.get(), mana);
@@ -193,27 +196,41 @@ public class DefaultGates {
     public static class SimulacrumGate implements ISpellGate {
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            return simData != null && simData.remainingLifetime() > 0;
+            return simData != null && simData.remainingLifetime() != 0;
+        }
+
+        @Override
+        public void onFail(SpellCastContext context, @Nullable SimulacrumData simulacrumData){
+            Minagic.LOGGER.warn("Simulacrum gate failed for caster {}", context.caster.getName().getString());
         }
     }
 
     public static class MetadataGate implements ISpellGate {
         private final Spell spell;
         private final List<String> requiredKeys;
+        private final boolean exitSimulacrumOnFail;
 
-        public MetadataGate(Spell spell, List<String> requiredKeys) {
+        public MetadataGate(Spell spell, List<String> requiredKeys, boolean exitSimulacrumOnFail) {
             this.spell = spell;
             this.requiredKeys = requiredKeys;
+            this.exitSimulacrumOnFail = exitSimulacrumOnFail;
         }
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             for (String key : requiredKeys) {
-                if (!SpellMetadata.has(ctx.target, spell, key)) {
+                if (SpellMetadata.has(ctx.target, spell, key)) {
                     return false;
                 }
             }
             return true;
+        }
+
+        @Override
+        public void onFail(SpellCastContext ctx, SimulacrumData simData) {
+            if (this.exitSimulacrumOnFail) {
+                simData.expireSimulacrum();
+            }
         }
     }
 

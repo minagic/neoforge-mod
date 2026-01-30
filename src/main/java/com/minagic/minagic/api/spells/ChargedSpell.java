@@ -6,7 +6,6 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
-import com.minagic.minagic.utilities.SpellValidationResult;
 import org.jetbrains.annotations.Nullable;
 
 public class ChargedSpell extends Spell implements ISimulacrumSpell {
@@ -21,20 +20,17 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
     }
 
 
-
     // lifecycle methods
     @Override
     public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
-                ((ctx, simData) -> {
-                    SimulacraAttachment.setChanneling(
-                            ctx.target,
-                            ctx,
-                            this,
-                            0,
-                            getSimulacrumMaxLifetime()
-                    );
-                })
+                ((ctx, simData) -> SimulacraAttachment.setChanneling(
+                        ctx.target,
+                        ctx,
+                        this,
+                        0,
+                        getSimulacrumMaxLifetime()
+                ))
         ).execute(context, simulacrumData);
     }
 
@@ -51,9 +47,7 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
 
     @Override
     public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {
-        new SpellGateChain().addGate(new DefaultGates.SimulacrumGate()).setEffect((ctx, simData) -> {
-            perform(SpellEventPhase.CAST, ctx, simData);
-        }).execute(context, simulacrumData);
+        new SpellGateChain().addGate(new DefaultGates.SimulacrumGate()).setEffect((ctx, simData) -> perform(SpellEventPhase.CAST, ctx, simData)).execute(context, simulacrumData);
 
 
     }
@@ -71,13 +65,13 @@ public class ChargedSpell extends Spell implements ISimulacrumSpell {
     // HUD
     @Override
     public final float progress(SimulacrumData data) {
-        return data.lifetime() / Math.max(1, data.maxLifetime() );
+        return data.lifetime() / Math.max(1, data.maxLifetime());
     }
 
     @Override
     public final int color(float progress) {
         if (progress >= 0.8) {
-            return 0xFFFF0000 ; // Red when approaching limit
+            return 0xFFFF0000; // Red when approaching limit
         } else {
             return 0xFF0000FF; // Blue when charging
         }

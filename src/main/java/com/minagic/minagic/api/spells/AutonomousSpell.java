@@ -20,7 +20,9 @@ public class AutonomousSpell extends Spell implements ISimulacrumSpell {
     public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
                 ((ctx, simData) -> {
+
                     SimulacraAttachment sim = ctx.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
+
 
                     boolean existing = sim.hasSpell(ModSpells.getId(this));
 
@@ -47,7 +49,7 @@ public class AutonomousSpell extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {}
+    public void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {}
 
     @Override
     public int getSimulacrumThreshold() {

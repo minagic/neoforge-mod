@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageType;
 
 import java.util.List;
@@ -51,8 +50,8 @@ public class MinagicTestCommand {
                             if (!player.isAlive()) return;
                             player.setHealth(player.getMaxHealth());
 
-                            MinagicDamage dmg = new MinagicDamage(player, player, player,.0f, Set.of(key));
-                            dmg.hurt((ServerLevel) player.level());
+                            MinagicDamage dmg = new MinagicDamage(player, player, player, .0f, Set.of(key));
+                            dmg.hurt(player.level());
                             player.sendSystemMessage(Component.literal("Applied: " + key.location()));
                         });
 
@@ -64,8 +63,8 @@ public class MinagicTestCommand {
                             if (!player.isAlive()) return;
                             player.setHealth(player.getMaxHealth());
 
-                            MinagicDamage dmg = new MinagicDamage(player, player, player,1.0f, Set.of(key, DamageTypes.ARMOR_PIERCING));
-                            dmg.hurt((ServerLevel) player.level());
+                            MinagicDamage dmg = new MinagicDamage(player, player, player, 1.0f, Set.of(key, DamageTypes.ARMOR_PIERCING));
+                            dmg.hurt(player.level());
                             player.sendSystemMessage(Component.literal("Applied: " + key.location() + " + ARMOR_PIERCING"));
                         });
 

@@ -5,19 +5,16 @@ import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.PlayerClassEnum;
 import com.minagic.minagic.capabilities.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.spells.FireballEntity;
-import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
 import java.util.List;
 
 /**
@@ -32,8 +29,8 @@ public class FireballBarrage extends AutonomousSpell {
         this.manaCost = 15;
         this.cooldown = 0;
         this.simulacraThreshold = 5;
-        // simulacraMaxLifetime left to superclass default
     }
+
     public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
         return List.of(new DefaultGates.ClassGate.AllowedClass(
                 PlayerClassEnum.SORCERER,

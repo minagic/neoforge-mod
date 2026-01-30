@@ -8,7 +8,10 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 public abstract class SpellProjectileEntity extends Projectile {
     protected double speed = 0;
@@ -30,7 +33,6 @@ public abstract class SpellProjectileEntity extends Projectile {
         Vec3 currentPos = this.position();
         Vec3 motion = this.getDeltaMovement().add(0, -gravity, 0);
         Vec3 nextPos = currentPos.add(motion);
-        Vec3 limitPos = nextPos;
 
         // --- BLOCK COLLISION ---
         if (!isBlockPiercing) {
@@ -44,13 +46,13 @@ public abstract class SpellProjectileEntity extends Projectile {
 
         // --- ENTITY COLLISION ---
         if (!isEntityPiercing) {
-            for (EntityHitResult entityHit : findAllEntityHits(currentPos, nextPos)) {;
+            for (EntityHitResult entityHit : findAllEntityHits(currentPos, nextPos)) {
                 onHitEntity(entityHit);
             }
         }
 
         // --- MOVE PROJECTILE ---
-        this.setPos(limitPos.x, limitPos.y, limitPos.z);
+        this.setPos(nextPos.x, nextPos.y, nextPos.z);
         this.setDeltaMovement(motion);
         this.setBoundingBox(this.makeBoundingBox());
     }
@@ -79,9 +81,7 @@ public abstract class SpellProjectileEntity extends Projectile {
         for (Entity target : candidates) {
             AABB targetBox = target.getBoundingBox().inflate(0.3D); // a little leniency for fast projectiles
             Optional<Vec3> intercept = targetBox.clip(start, end);
-            if (intercept.isPresent()) {
-                results.add(new EntityHitResult(target, intercept.get()));
-            }
+            intercept.ifPresent(vec3 -> results.add(new EntityHitResult(target, vec3)));
         }
 
         // Sort by distance from the start so you can process in order

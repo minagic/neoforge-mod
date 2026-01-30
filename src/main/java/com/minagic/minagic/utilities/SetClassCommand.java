@@ -12,15 +12,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.server.command.EnumArgument;
 
-import java.util.Arrays;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 public class SetClassCommand {
 
@@ -81,12 +77,11 @@ public class SetClassCommand {
             }
         }
 
-        for(Entity entity : EntityArgument.getEntities(ctx, "player")) {
+        for (Entity entity : EntityArgument.getEntities(ctx, "player")) {
             entity.setData(ModAttachments.PLAYER_CLASS, pc);
             ctx.getSource().sendSuccess(() ->
                     Component.literal("Updated class of " + entity.getName().getString() + " to " + main.name()), true);
         }
-
 
 
         return 1;

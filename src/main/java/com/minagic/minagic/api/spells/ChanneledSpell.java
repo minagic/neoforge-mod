@@ -4,7 +4,6 @@ import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
-import com.minagic.minagic.utilities.SpellValidationResult;
 import org.jetbrains.annotations.Nullable;
 
 public class ChanneledSpell extends Spell implements ISimulacrumSpell {
@@ -20,21 +19,18 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
     }
 
 
-
     // Lifecycle methods
 
 
     @Override
     public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
-                ((ctx, simData) -> {
-                    SimulacraAttachment.setChanneling(
-                            ctx.target,
-                            ctx,
-                            this,
-                            getSimulacrumThreshold(),
-                            -1);
-                })
+                ((ctx, simData) -> SimulacraAttachment.setChanneling(
+                        ctx.target,
+                        ctx,
+                        this,
+                        getSimulacrumThreshold(),
+                        -1))
         ).execute(context, simulacrumData);
 
     }
@@ -43,6 +39,7 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
     public final void tick(SpellCastContext context, SimulacrumData simulacrumData) {
         // no-op for channeled spells
     }
+
     @Override
     public final void stop(SpellCastContext context, SimulacrumData simulacrumData) {
         SimulacraAttachment.clearChanneling(context.target);
@@ -66,7 +63,7 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
 
     @Override
     public final float progress(SimulacrumData data) {
-        return data.lifetime()/data.threshold();
+        return data.lifetime() / data.threshold();
     }
 
     @Override

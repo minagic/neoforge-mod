@@ -1,12 +1,10 @@
 package com.minagic.minagic.spellCasting;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
-import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.spellgates.DefaultGates;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +19,13 @@ public class SpellRegistry {
         REGISTRY.put(id, spell);
         REVERSE.put(spell, id);
     }
+
     public static Spell getSpell(ResourceLocation id) {
-        //System.out.println("Attempting lookup for spell ID: " + id + " in SpellRegistry: " + REGISTRY.keySet());
+        Minagic.LOGGER.trace("[SpellRegistry] Lookup by id {} within {} entries", id, REGISTRY.size());
 
         if (id != null && REGISTRY.containsKey(id)) {
             return REGISTRY.get(id);
-        }
-        else{
+        } else {
             return null;
         }
 
@@ -35,13 +33,11 @@ public class SpellRegistry {
     }
 
     public static ResourceLocation getId(Spell spell) {
-        //System.out.println("SPELL REGISTRY: Looking up " + spell);
-        //System.out.println("SPELL REGISTRY: " + REVERSE.keySet());
-        //System.out.println("SPELL REGISTRY: Found ID: " + REVERSE.get(spell));
+        Minagic.LOGGER.trace("[SpellRegistry] Lookup by spell {}", spell == null ? "null" : spell.getClass().getSimpleName());
         return REVERSE.get(spell);
     }
 
     public static List<Spell> getSpells(LivingEntity target) {
-        return REGISTRY.values().stream().filter(spell -> new DefaultGates.ClassGate(spell.getAllowedClasses()).check(new SpellCastContext(target), null) && ! spell.isTechnical()).toList();
+        return REGISTRY.values().stream().filter(spell -> new DefaultGates.ClassGate(spell.getAllowedClasses()).check(new SpellCastContext(target), null) && !spell.isTechnical()).toList();
     }
 }

@@ -1,5 +1,6 @@
 package com.minagic.minagic.api;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.gui.SpellEditorScreen;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
@@ -26,17 +27,13 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
-public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
+public class SpellcastingItem<T extends SpellcastingItemData> extends Item {
     protected final DataComponentType<T> type;
     private final Supplier<T> factory;
-
-    public DataComponentType<T> getType() {
-        return type;
-    }
 
     protected SpellcastingItem(Properties properties, DataComponentType<T> type, Supplier<T> factory) {
         super(properties);
@@ -44,12 +41,21 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         this.type = type;
         this.factory = factory;
     }
-    public T getData(ItemStack stack){
+
+    public DataComponentType<T> getType() {
+        return type;
+    }
+
+    public T getData(ItemStack stack) {
         if (!stack.has(type)) {
             setData(stack, factory.get());
         }
 
         return stack.get(type);
+    }
+
+    public SpellSlot getActive(ItemStack stack) {
+        return this.getData(stack).getActive();
     }
 
     @SuppressWarnings("unchecked")
@@ -59,90 +65,79 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
         stack.set(type, newData);
     }
 
-    public void cycleSlotUp(Optional<Player> player, ItemStack stack) {
-        if (player.isEmpty()) {return;} // player should not be empty
-        SimulacraAttachment.clearChanneling(player.get());
-        if (player.get().isUsingItem()){
-            releaseUsing(stack, player.get().level(), player.get(), 0); // stop using the item
+    public void cycleSlotUp(@Nullable LivingEntity player, ItemStack stack) {
+        cycleSlot(player, stack, 1);
+    }
+
+    public void cycleSlotDown(@Nullable LivingEntity player, ItemStack stack) {
+        cycleSlot(player, stack, -1);
+    }
+
+    private void cycleSlot(@Nullable LivingEntity player, ItemStack stack, int direction) {
+        if (player == null) {
+            return;
+        }
+        SimulacraAttachment.clearChanneling(player);
+        if (player.isUsingItem()) {
+            releaseUsing(stack, player.level(), player, 0);
         }
 
         T data = getData(stack);
-
-        int newSlot = Math.floorMod(data.getCurrentSlot() + 1, data.getSlots().size());
-        data.setCurrentSlot(newSlot);
-
-        // TODO: do we need this?
-        if (!(player.get() instanceof ServerPlayer serverPlayer)) return;
-        serverPlayer.sendSystemMessage(Component.literal(
-                "Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase()
-        ));
-
-
-        setData(stack, data);
-
-        PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
-
-
-    }
-
-    public void cycleSlotDown(Optional<Player> player, ItemStack stack) {
-        if (player.isEmpty()) return; // player should not be empty
-        SimulacraAttachment.clearChanneling(player.get());
-
-        if (player.get().isUsingItem()){
-            releaseUsing(stack, player.get().level(), player.get(), 0); // stop using the item
+        if (data.getSlots().isEmpty()) {
+            return;
         }
 
-        T data = getData(stack);
-        int newSlot = Math.floorMod(data.getCurrentSlot() - 1, data.getSlots().size());
+        int newSlot = Math.floorMod(data.getCurrentSlot() + direction, data.getSlots().size());
         data.setCurrentSlot(newSlot);
-
-        if (!(player.get() instanceof ServerPlayer serverPlayer)) return;
-        serverPlayer.sendSystemMessage(
-                Component.literal("Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase())
-        );
-
         setData(stack, data);
 
-        PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack)); // sync back to client
-
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.sendSystemMessage(Component.literal(
+                    "Switched to slot " + data.getCurrentSlot() + ": " + data.getActive().getEnterPhrase()
+            ));
+            PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
+        }
     }
 
 
-    public double getRemainingCooldown(ItemStack stack, Player player) {
+    public double getRemainingCooldown(ItemStack stack, LivingEntity player) {
         T data = getData(stack);
         ResourceLocation spellId = data.getActive().getSpellId();
 
         int tickCooldown = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get()).getCooldown(spellId);
 
-        return Math.floor((tickCooldown)/2.0)/10.0;
+        return Math.floor((tickCooldown) / 2.0) / 10.0;
     }
 
 
-    public void writeSpell(ItemStack stack, Level level, Player player, int slotIndex, Spell spell) {
+    public void writeSpell(ItemStack stack, Level level, LivingEntity player, int slotIndex, Spell spell) {
         if (level.isClientSide()) {
-            //System.out.println("[-SPELL WRITE-] Client side write spell attempt! Redirecting to server via packet.");
+            Minagic.LOGGER.debug("[-SPELL WRITE-] Client-side write request, forwarding to server for slot {}", slotIndex);
             ClientPacketDistributor.sendToServer(new SpellWritePacket(slotIndex, ModSpells.getId(spell)));
             return;
         }
-        //System.out.println("[-SPELL WRITE-] Server side write spell attempt, proceeding.");
-        //System.out.println("[-SPELL WRITE-] Writing spell " + (spell == null ? "null" : spell.getString()) + " to slot " + slotIndex);
+        Minagic.LOGGER.debug("[-SPELL WRITE-] Server-side write request accepted for slot {} with spell {}",
+                slotIndex,
+                spell == null ? "null" : spell.getString());
 
         T data = getData(stack);
-        //System.out.println("[-SPELL WRITE-] Resolved data created from stack: " + data.getClass());
+        Minagic.LOGGER.trace("[-SPELL WRITE-] Resolved stack data type: {}", data.getClass());
         if (slotIndex < 0 || slotIndex >= data.getSlots().size()) {
             return;
         }
         SpellSlot slot = data.getSlots().get(slotIndex);
         slot.setSpell(spell);
         slot.resolveSpell();
-        //System.out.println("[-SPELL WRITE-] Updated slot " + slotIndex + " with spell " + (slot.getSpell() == null ? "null" : slot.getSpell().getString()));
-        //System.out.println("[-SPELL WRITE-] Setting updated data back to stack, data: " + data);
+        Minagic.LOGGER.trace("[-SPELL WRITE-] Slot {} now stores spell {}",
+                slotIndex,
+                slot.getSpell() == null ? "null" : slot.getSpell().getString());
+        Minagic.LOGGER.trace("[-SPELL WRITE-] Writing updated spell data back to stack");
         setData(stack, data);
 
         // sync to clients holding this item
-        ServerPlayer serverPlayer = (ServerPlayer) player;
-        PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
+        if (player instanceof ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(serverPlayer, new SyncSpellcastingDataPacket(stack));
+        }
     }
 
     public boolean canPlayerClassUseSpellcastingItem(PlayerClass playerClass) {
@@ -151,7 +146,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     @Override
     public InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
-        if (! (player instanceof ServerPlayer serverPlayer)) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.FAIL;
         }
 
@@ -173,6 +168,23 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
         return InteractionResult.SUCCESS;
     }
+
+
+    public InteractionResult use(@NotNull Level level, @NotNull LivingEntity player, @NotNull InteractionHand hand) {
+        // check if player can use this staff
+        if (player.level().isClientSide()) return InteractionResult.FAIL;
+
+        ItemStack stack = player.getItemInHand(hand);
+        T data = getData(stack);
+
+        SpellCastContext context = new SpellCastContext(player);
+
+        data.getActive().getSpell().perform(SpellEventPhase.START, context, null);
+        player.startUsingItem(hand);
+
+        return InteractionResult.SUCCESS;
+    }
+
     // These are use lifecycle methods, RMB usage does not work without them
     @Override
     public @NotNull ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
@@ -186,7 +198,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
 
     @Override
     public boolean releaseUsing(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity player, int timeLeft) {
-        if (! (player instanceof ServerPlayer serverPlayer)) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
             return false;
         }
 
@@ -207,7 +219,6 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item  {
     public <S extends SpellEditorScreen<T>> S getEditorScreen(Player player, ItemStack stack) {
         return (S) new SpellEditorScreen<>(player, this, stack);
     }
-
 
 
 }

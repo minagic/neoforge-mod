@@ -8,7 +8,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 
-
 import javax.annotation.Nullable;
 import java.util.Set;
 
@@ -21,7 +20,7 @@ public class DynamicDamageSource extends DamageSource {
                                float exhaustion,
                                Entity causing,
                                @Nullable Entity directSource
-                               ) {
+    ) {
         super(dummyType, directSource, causing);
         this.tags = tags;
         this.baseExhaustion = exhaustion;
@@ -48,10 +47,9 @@ public class DynamicDamageSource extends DamageSource {
     }
 
     @Override
-    public boolean is(ResourceKey<DamageType> key){
+    public boolean is(ResourceKey<DamageType> key) {
         return this.tags.contains(key);
     }
-
 
 
 }

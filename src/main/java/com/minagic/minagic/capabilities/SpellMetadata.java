@@ -21,24 +21,35 @@ import java.util.Map;
 
 public class SpellMetadata {
 
+    public static final Codec<Pair<ResourceLocation, String>> PAIR_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ResourceLocation.CODEC.fieldOf("namespace").forGetter(Pair::getFirst),
+            Codec.STRING.fieldOf("key").forGetter(Pair::getSecond)
+    ).apply(instance, Pair::of));
+    // CODEC
+    public static final Codec<SpellMetadata> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.unboundedMap(PAIR_CODEC, Codec.STRING).fieldOf("stringMap").forGetter(s -> s.stringMap),
+            Codec.unboundedMap(PAIR_CODEC, Codec.INT).fieldOf("intMap").forGetter(s -> s.intMap),
+            Codec.unboundedMap(PAIR_CODEC, BlockState.CODEC).fieldOf("blockStateMap").forGetter(s -> s.blockStateMap),
+            Codec.unboundedMap(PAIR_CODEC, BlockPos.CODEC).fieldOf("blockPosMap").forGetter(s -> s.blockPosMap)
+    ).apply(instance, (stringMap, intMap, blockStateMap, blockPosMap) -> {
+        SpellMetadata meta = new SpellMetadata();
+        meta.stringMap.putAll(stringMap);
+        meta.intMap.putAll(intMap);
+        meta.blockStateMap.putAll(blockStateMap);
+        meta.blockPosMap.putAll(blockPosMap);
+        return meta;
+    }));
     private final Map<Pair<ResourceLocation, String>, String> stringMap = new HashMap<>();
     private final Map<Pair<ResourceLocation, String>, Integer> intMap = new HashMap<>();
     private final Map<Pair<ResourceLocation, String>, BlockState> blockStateMap = new HashMap<>();
     private final Map<Pair<ResourceLocation, String>, BlockPos> blockPosMap = new HashMap<>();
 
-    public static final Codec<Pair<ResourceLocation, String>> PAIR_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("namespace").forGetter(Pair::getFirst),
-            Codec.STRING.fieldOf("key").forGetter(Pair::getSecond)
-    ).apply(instance, Pair::of));
-
-
-
     public static boolean has(Entity target, Spell spell, String key) {
         var a = getAttachment(target);
-        return  a.stringMap.containsKey(makeKey(spell, key)) ||
-                a.intMap.containsKey(makeKey(spell, key)) ||
-                a.blockStateMap.containsKey(makeKey(spell, key)) ||
-                a.blockPosMap.containsKey(makeKey(spell, key));
+        return !a.stringMap.containsKey(makeKey(spell, key)) &&
+                !a.intMap.containsKey(makeKey(spell, key)) &&
+                !a.blockStateMap.containsKey(makeKey(spell, key)) &&
+                !a.blockPosMap.containsKey(makeKey(spell, key));
     }
 
     public static String getString(Entity target, Spell spell, String key) {
@@ -89,7 +100,6 @@ public class SpellMetadata {
         getAttachment(target).blockPosMap.remove(makeKey(spell, key));
     }
 
-
     private static Pair<ResourceLocation, String> makeKey(Spell spell, String key) {
         return Pair.of(ModSpells.getId(spell), key);
     }
@@ -97,21 +107,6 @@ public class SpellMetadata {
     private static SpellMetadata getAttachment(Entity entity) {
         return entity.getData(ModAttachments.SPELL_METADATA); // Adjust according to your capability system
     }
-
-    // CODEC
-    public static final Codec<SpellMetadata> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.unboundedMap(PAIR_CODEC, Codec.STRING).fieldOf("stringMap").forGetter(s -> s.stringMap),
-            Codec.unboundedMap(PAIR_CODEC, Codec.INT).fieldOf("intMap").forGetter(s -> s.intMap),
-            Codec.unboundedMap(PAIR_CODEC, BlockState.CODEC).fieldOf("blockStateMap").forGetter(s -> s.blockStateMap),
-            Codec.unboundedMap(PAIR_CODEC, BlockPos.CODEC).fieldOf("blockPosMap").forGetter(s -> s.blockPosMap)
-    ).apply(instance, (stringMap, intMap, blockStateMap, blockPosMap) -> {
-        SpellMetadata meta = new SpellMetadata();
-        meta.stringMap.putAll(stringMap);
-        meta.intMap.putAll(intMap);
-        meta.blockStateMap.putAll(blockStateMap);
-        meta.blockPosMap.putAll(blockPosMap);
-        return meta;
-    }));
 
     public static class Serializer implements IAttachmentSerializer<SpellMetadata> {
         private static final String KEY_STRING_MAP = "stringMap";

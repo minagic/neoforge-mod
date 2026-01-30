@@ -5,13 +5,11 @@ import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.Mana;
-import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.animal.Animal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
@@ -39,9 +37,8 @@ public class OathOfLife extends AutonomousSpell {
                                 DamageTypes.MAGIC,
                                 DamageTypes.NATURAL
                         ));
-                        damage.hurt((ServerLevel)context.level());
-                    }
-                    else {
+                        damage.hurt((ServerLevel) context.level());
+                    } else {
                         // heal target
                         context.target.heal(6.0f);
                     }

@@ -14,25 +14,45 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.LivingEntity;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
 public class SimulacrumSpellSlot {
+    // CODEC
+    public static final Codec<UUID> UUID_CODEC =
+            Codec.STRING.xmap(UUID::fromString, UUID::toString);
+    public static final Codec<SimulacrumSpellSlot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            UUID_CODEC.fieldOf("host_id").forGetter(slot -> slot.hostUUID),
+            UUID_CODEC.fieldOf("caster_uuid").forGetter(slot -> slot.casterUUID),
+            UUID_CODEC.fieldOf("target_uuid").forGetter(slot -> slot.targetUUID),
+            Codec.INT.fieldOf("threshold").forGetter(slot -> slot.threshold),
+            Codec.INT.fieldOf("max_lifetime").forGetter(slot -> slot.maxLifetime),
+            Codec.INT.optionalFieldOf("lifetime", 0).forGetter(slot -> slot.lifetime),
+            Codec.INT.fieldOf("original_max_lifetime").forGetter(slot -> slot.originalMaxLifetime),
+            ModSpells.SPELL_CODEC.fieldOf("spell").forGetter(SimulacrumSpellSlot::getSpell)
+    ).apply(instance, (hostId, casterUUID, targetUUID, threshold, maxLifetime, lifetime, originalMaxLifetime, spell) -> {
+        if (!(spell instanceof ISimulacrumSpell simulacrumSpell)) {
+            throw new IllegalArgumentException("Spell is not an ISimulacrumSpell: " + spell);
+        }
+        SimulacrumSpellSlot slot = new SimulacrumSpellSlot(hostId, targetUUID, casterUUID, threshold, maxLifetime, originalMaxLifetime, simulacrumSpell);
+        slot.lifetime = lifetime;
+        return slot;
+    }));
+    private static final Logger LOGGER = ModLogger.SIMULACRUM;
     // COLD STATE
     private final UUID casterUUID;
     private final UUID targetUUID;
-    private final UUID hostUUID ;
-
+    private final UUID hostUUID;
+    private final int threshold;
+    private final int originalMaxLifetime;
+    private final ISimulacrumSpell spell;
     // NUMERIC STATE
     private int lifetime = 0;
-    private final int threshold;
     private int maxLifetime; // -1 = no limit
-    private final int originalMaxLifetime;
-
     // HOT STATE
     private SpellCastContext context;
     private LivingEntity resolvedHostEntity; // runtime only
-    private final ISimulacrumSpell spell;
 
     // CONSTRUCTOR for deserialization
     public SimulacrumSpellSlot(
@@ -81,12 +101,11 @@ public class SimulacrumSpellSlot {
 
     // CONTEXT RESOLUTION
     public void resolveContext(MinecraftServer server) {
-        Logger logger = ModLogger.SIMULACRUM;
-        logger.debug("Attempting to resolve SimulacrumSpellSlot context...");
+        LOGGER.debug("Attempting to resolve SimulacrumSpellSlot context...");
 
         resolvedHostEntity = SpellUtils.resolveLivingEntityAcrossDimensions(hostUUID, server);
         if (resolvedHostEntity == null) {
-            logger.warn("Could not resolve host entity for ID: {}", hostUUID);
+            LOGGER.warn("Could not resolve host entity for ID: {}", hostUUID);
             return;
         }
         if (context != null) return;
@@ -95,7 +114,7 @@ public class SimulacrumSpellSlot {
         LivingEntity resolvedTarget = SpellUtils.resolveLivingEntityAcrossDimensions(targetUUID, server);
 
         if (resolvedCaster == null) {
-            logger.warn("Could not resolve caster entity for ID: {}", casterUUID);
+            LOGGER.warn("Could not resolve caster entity for ID: {}", casterUUID);
             return;
         }
 
@@ -103,22 +122,28 @@ public class SimulacrumSpellSlot {
                 ? new SpellCastContext(resolvedCaster, resolvedTarget)
                 : new SpellCastContext(resolvedCaster);
 
-        logger.debug("Context resolved: Host={}, Caster={}, Target={}", resolvedHostEntity, resolvedCaster, resolvedTarget);
+        LOGGER.debug("Context resolved: Host={}, Caster={}, Target={}", resolvedHostEntity, resolvedCaster, resolvedTarget);
     }
+
+    public @Nullable SpellCastContext getContext() {
+        return this.context;
+    }
+
     public void tick() {
         if (context == null) {
-            System.out.println("Warning: SimulacrumSpellSlot tick called without resolved context.");
+            LOGGER.warn("SimulacrumSpellSlot tick called without resolved context.");
             return;
         }
         if (resolvedHostEntity == null) {
-            System.out.println("Warning: SimulacrumSpellSlot tick called without resolved host entity.");
+            LOGGER.warn("SimulacrumSpellSlot tick called without resolved host entity.");
             return;
         }
 
         lifetime++;
-        System.out.println("[SimulacrumSpellSlot] TICK START | Lifetime: " + lifetime + "/" + threshold + ", Max: " + maxLifetime);
-        System.out.println("[SimulacrumSpellSlot] Resolved Host Entity: " + resolvedHostEntity + " | Host ID: " + hostUUID);
+        LOGGER.debug("SimulacrumSpellSlot tick start | spell: {} | lifetime: {}/{} max: {}", this.getSpell().getString(), lifetime, threshold, maxLifetime);
+        LOGGER.debug("SimulacrumSpellSlot host entity {} with id {}", resolvedHostEntity, hostUUID);
         if (maxLifetime == 0) {
+
             SimulacraAttachment.removeSimulacrum(resolvedHostEntity, ModSpells.getId(getSpell()));
             return;
         }
@@ -131,8 +156,7 @@ public class SimulacrumSpellSlot {
         }
 
         maxLifetime--;
-
-        System.out.println("[SimulacrumSpellSlot] TICK COMPLETE | Lifetime: " + lifetime + "/" + threshold + ", Max: " + maxLifetime);
+        LOGGER.debug("SimulacrumSpellSlot tick complete | lifetime: {}/{} max: {}", lifetime, threshold, maxLifetime);
     }
 
     public SimulacrumData getSpellData() {
@@ -154,27 +178,4 @@ public class SimulacrumSpellSlot {
     public Spell getSpell() {
         return (Spell) spell;
     }
-
-    // CODEC
-    public static final Codec<UUID> UUID_CODEC =
-            Codec.STRING.xmap(UUID::fromString, UUID::toString);
-
-
-    public static final Codec<SimulacrumSpellSlot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            UUID_CODEC.fieldOf("host_id").forGetter(slot -> slot.hostUUID),
-            UUID_CODEC.fieldOf("caster_uuid").forGetter(slot -> slot.casterUUID),
-            UUID_CODEC.fieldOf("target_uuid").forGetter(slot -> slot.targetUUID),
-            Codec.INT.fieldOf("threshold").forGetter(slot -> slot.threshold),
-            Codec.INT.fieldOf("max_lifetime").forGetter(slot -> slot.maxLifetime),
-            Codec.INT.optionalFieldOf("lifetime", 0).forGetter(slot -> slot.lifetime),
-            Codec.INT.fieldOf("original_max_lifetime").forGetter(slot -> slot.originalMaxLifetime),
-            ModSpells.SPELL_CODEC.fieldOf("spell").forGetter(SimulacrumSpellSlot::getSpell)
-    ).apply(instance, (hostId, casterUUID, targetUUID, threshold, maxLifetime, lifetime, originalMaxLifetime, spell) -> {
-        if (!(spell instanceof ISimulacrumSpell simulacrumSpell)) {
-            throw new IllegalArgumentException("Spell is not an ISimulacrumSpell: " + spell);
-        }
-        SimulacrumSpellSlot slot = new SimulacrumSpellSlot(hostId, targetUUID, casterUUID, threshold, maxLifetime, originalMaxLifetime, simulacrumSpell);
-        slot.lifetime = lifetime;
-        return slot;
-    }));
 }

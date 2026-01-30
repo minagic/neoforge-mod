@@ -41,7 +41,7 @@ public class SpellValidator {
 
     public static SpellValidationResult validateMetadata(Spell spell, SpellCastContext context, List<String> keys) {
         for (String key : keys) {
-            if (!SpellMetadata.has(context.target, spell, key)) {
+            if (SpellMetadata.has(context.target, spell, key)) {
                 return SpellValidationResult.internalFail("Missing metadata: " + key);
             }
         }

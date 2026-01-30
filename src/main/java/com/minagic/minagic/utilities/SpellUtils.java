@@ -31,7 +31,7 @@ public class SpellUtils {
     }
 
     public static <T extends Entity> List<T> getEntitiesInXZColumnBox(Level level, BlockPos pos1, BlockPos pos2, Class<T> type) {
-        return getEntitiesInXZColumnBox(level, pos1, pos2, type);
+        return getEntitiesInXZColumnBox(level, pos1, pos2, type, entity -> true);
     }
 
     /**
@@ -62,7 +62,8 @@ public class SpellUtils {
         AABB box = new AABB(center, center).inflate(radius);
 
         return level.getEntitiesOfClass(entityType, box, entity -> {
-            if (exclusions != null && exclusions.contains(entity)) return false;
+            if (exclusions != null && exclusions.contains(entity))
+                return false;
             if (filter != null && !filter.test(entity)) return false;
             return entity.distanceToSqr(center) <= radius * radius;
         });

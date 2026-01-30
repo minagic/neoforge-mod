@@ -2,6 +2,7 @@ package com.minagic.minagic.utilities;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -41,7 +42,7 @@ public class VisualUtils {
             double pz = center.z + z * radius;
 
             level.sendParticles(
-                    options, px, py, pz, 1, 0 , 0, 0, 0);
+                    options, px, py, pz, 1, 0, 0, 0, 0);
         }
     }
 
@@ -70,6 +71,32 @@ public class VisualUtils {
 
             level.sendParticles(options, currentPos.x, currentPos.y, currentPos.z, 1, 0, 0, 0, 0);
             currentPos = currentPos.add(step);
+        }
+    }
+
+    public static void spawnExplosionVFX(ServerLevel level, Vec3 center, double maxRadius) {
+        int rings = 20; // how many frames of expansion
+        int particlesPerRing = 200;
+
+        for (int r = 0; r < rings; r++) {
+            double radius = (maxRadius * r) / rings;
+
+            for (int i = 0; i < particlesPerRing; i++) {
+                double theta = level.random.nextDouble() * Math.PI * 2;
+                double phi = Math.acos(2 * level.random.nextDouble() - 1);
+
+                double x = center.x + radius * Math.sin(phi) * Math.cos(theta);
+                double y = center.y + radius * Math.sin(phi) * Math.sin(theta);
+                double z = center.z + radius * Math.cos(phi);
+
+                level.sendParticles(
+                        ParticleTypes.EXPLOSION_EMITTER,
+                        x, y, z,
+                        1,
+                        0, 0, 0,
+                        0.0
+                );
+            }
         }
     }
 }

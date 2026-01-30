@@ -20,7 +20,16 @@ import java.util.Comparator;
 import java.util.List;
 
 public class HudAlertManager {
-    private List<HudAlertInstance> ACTIVE_ALERTS = new ArrayList<>();
+    // CODEC
+    public static final Codec<HudAlertManager> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            HudAlertInstance.CODEC.listOf().fieldOf("active_alerts")
+                    .forGetter(HudAlertManager::getActiveAlerts)
+    ).apply(instance, alerts -> {
+        HudAlertManager m = new HudAlertManager();
+        m.setActiveAlerts(alerts);
+        return m;
+    }));
+    private final List<HudAlertInstance> ACTIVE_ALERTS = new ArrayList<>();
 
     public static void addToEntity(Entity entity, String msg, int color, int priority, int durationTicks) {
         HudAlertManager data = entity.getData(ModAttachments.HUD_ALERTS);
@@ -76,17 +85,6 @@ public class HudAlertManager {
 
     }
 
-
-
-    // CODEC
-    public static final Codec<HudAlertManager> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            HudAlertInstance.CODEC.listOf().fieldOf("active_alerts")
-                    .forGetter(HudAlertManager::getActiveAlerts)
-    ).apply(instance, alerts -> {
-        HudAlertManager m = new HudAlertManager();
-        m.setActiveAlerts(alerts);
-        return m;
-    }));
     // SERIALIZER
     public static class Serializer implements IAttachmentSerializer<HudAlertManager> {
 

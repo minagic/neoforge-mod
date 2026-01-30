@@ -1,6 +1,7 @@
 package com.minagic.minagic;
 
 //import com.minagic.minagic.gui.StaffSpellScreen;
+
 import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.packets.SpellSlotCycleDownPacket;
 import com.minagic.minagic.packets.SpellSlotCyclePacket;
@@ -17,24 +18,22 @@ public class ClientInputHandler {
     public void onClientTick(ClientTickEvent.Pre event) {
 
         if (ClientKeybinds.CYCLE_SPELL != null && ClientKeybinds.CYCLE_SPELL.consumeClick()) {
-            // send packet to server to cycle spell
             ClientPacketDistributor.sendToServer(new SpellSlotCyclePacket());
-
         }
 
         if (ClientKeybinds.CYCLE_SPELL_DOWN != null && ClientKeybinds.CYCLE_SPELL_DOWN.consumeClick()) {
-            // send packet to server to cycle spell down
             ClientPacketDistributor.sendToServer(new SpellSlotCycleDownPacket());
         }
 
-        if (ClientKeybinds.SHOW_SPELL_HUD.isDown()) {
-            Player player = Minecraft.getInstance().player;
-            if (player != null) {
-                ItemStack stack = player.getMainHandItem();
-                if (stack.getItem() instanceof SpellcastingItem spellcastingItem) {
-                    Minecraft.getInstance().setScreen(spellcastingItem.getEditorScreen(player, stack));
-                }
-
+        if (ClientKeybinds.SHOW_SPELL_HUD != null && ClientKeybinds.SHOW_SPELL_HUD.consumeClick()) {
+            Minecraft minecraft = Minecraft.getInstance();
+            Player player = minecraft.player;
+            if (player == null) {
+                return;
+            }
+            ItemStack stack = player.getMainHandItem();
+            if (stack.getItem() instanceof SpellcastingItem spellcastingItem) {
+                minecraft.setScreen(spellcastingItem.getEditorScreen(player, stack));
             }
         }
     }

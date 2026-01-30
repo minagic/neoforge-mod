@@ -2,24 +2,36 @@ package com.minagic.minagic.capabilities;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class PlayerClass {
 
-    private PlayerClassEnum mainClass;
+    // CODEC
+    public static final Codec<PlayerClass> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            PlayerClassEnum.CODEC.fieldOf("main_class").forGetter(PlayerClass::getMainClass),
+            Codec.unboundedMap(PlayerSubClassEnum.CODEC, Codec.INT)
+                    .optionalFieldOf("subclasses", Map.of()).forGetter(PlayerClass::getAllSubclasses),
+            Deity.CODEC.optionalFieldOf("deity").forGetter(PlayerClass::getDeity)
+    ).apply(inst, (mainClass, subclassMap, deityOpt) -> {
+        PlayerClass result = new PlayerClass();
+        result.setMainClass(mainClass);
+        subclassMap.forEach(result::setSubclassLevel);
+        deityOpt.ifPresent(result::setDeity);
+        return result;
+    }));
     private final Map<PlayerSubClassEnum, Integer> subclasses;
+    private PlayerClassEnum mainClass;
     private Optional<Deity> deity;
 
     public PlayerClass() {
@@ -96,7 +108,7 @@ public class PlayerClass {
     // RENDER
     public void render(GuiGraphics gui) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc == null || mc.player == null) return;
+        if (mc.player == null) return;
 
         Font font = mc.font;
         int screenWidth = mc.getWindow().getGuiScaledWidth();
@@ -134,24 +146,10 @@ public class PlayerClass {
         // --- Draw Deity (if present) ---
         if (deity.isPresent() && deity.get() != Deity.UNDECLARED) {
             Deity d = deity.get();
-            String deityText = "Deity: " + d.toString();
+            String deityText = "Deity: " + d;
             gui.drawString(font, deityText, x, y + spacing, COLOR_DEITY, false);
         }
     }
-
-    // CODEC
-    public static final Codec<PlayerClass> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            PlayerClassEnum.CODEC.fieldOf("main_class").forGetter(PlayerClass::getMainClass),
-            Codec.unboundedMap(PlayerSubClassEnum.CODEC, Codec.INT)
-                    .optionalFieldOf("subclasses", Map.of()).forGetter(PlayerClass::getAllSubclasses),
-            Deity.CODEC.optionalFieldOf("deity").forGetter(PlayerClass::getDeity)
-    ).apply(inst, (mainClass, subclassMap, deityOpt) -> {
-        PlayerClass result = new PlayerClass();
-        result.setMainClass(mainClass);
-        subclassMap.forEach(result::setSubclassLevel);
-        deityOpt.ifPresent(result::setDeity);
-        return result;
-    }));
 
     // SERIALIZER
     public static class Serializer implements IAttachmentSerializer<PlayerClass> {

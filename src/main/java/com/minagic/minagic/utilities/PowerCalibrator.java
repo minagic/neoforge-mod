@@ -2,17 +2,12 @@ package com.minagic.minagic.utilities;
 
 public final class PowerCalibrator {
 
-    public static interface PowerCurve {
-        public float apply(float value);
-    }
-
-    private PowerCurve curve;
+    private final PowerCurve curve;
     private boolean inverted = false;
     private float flatMin = 0f;
     private float flatMax = 1f;
     private float outMin = 0f;
     private float outMax = 1f;
-
     private PowerCalibrator(PowerCurve curve) {
         this.curve = curve;
     }
@@ -53,14 +48,21 @@ public final class PowerCalibrator {
         return outMin + value * (outMax - outMin);
     }
 
+    public interface PowerCurve {
+        float apply(float value);
+    }
 
     public static class LinearCurve implements PowerCurve {
         public static final LinearCurve INSTANCE = new LinearCurve();
-        public float apply(float input) { return input; }
+
+        public float apply(float input) {
+            return input;
+        }
     }
 
     public static class SinusoidalCurve implements PowerCurve {
         public static final SinusoidalCurve INSTANCE = new SinusoidalCurve();
+
         public float apply(float input) {
             return (float) Math.sin(input * Math.PI * 0.5); // rises fast, then slows
         }
@@ -68,9 +70,11 @@ public final class PowerCalibrator {
 
     public static class ExponentialCurve implements PowerCurve {
         private final float exponent;
+
         public ExponentialCurve(float exponent) {
             this.exponent = exponent;
         }
+
         public float apply(float input) {
             return (float) Math.pow(input, exponent);
         }

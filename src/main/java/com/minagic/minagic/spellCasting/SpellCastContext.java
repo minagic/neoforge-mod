@@ -18,24 +18,21 @@ public class SpellCastContext {
         this.target = target;
     }
 
-    public Level level(){
+    public Level level() {
         return target.level();
     }
 
-    public boolean validate(){
-        if (caster == null) return false;
-        if (level() == null) return false;
-        if (target == null) return false;
-        if (!caster.isAlive() || !target.isAlive()) return false;
-        if (level().isClientSide()) return false;
-        return true;
+    public boolean validate() {
+        if (caster == null) return true;
+        if (level() == null) return true;
+        if (target == null) return true;
+        if (!caster.isAlive() || !target.isAlive()) return true;
+        return level().isClientSide();
     }
 
-    public SpellCastContext inverted(){
+    public SpellCastContext inverted() {
         return new SpellCastContext(this.target, this.caster);
     }
-
-
 
 
 }

@@ -8,12 +8,18 @@ import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 
-
-import java.util.HashMap;
-
 public final class PlayerSpellCooldowns {
+    // === CODEC ===
+    public static final Codec<PlayerSpellCooldowns> CODEC =
+            Codec.unboundedMap(ResourceLocation.CODEC, Codec.INT)
+                    .xmap(map -> {
+                        var inst = new PlayerSpellCooldowns();
+                        inst.cooldowns.putAll(map);
+                        return inst;
+                    }, d -> d.cooldowns);
     private final Map<ResourceLocation, Integer> cooldowns = new HashMap<>();
 
     public void tick() {
@@ -34,17 +40,9 @@ public final class PlayerSpellCooldowns {
         cooldowns.putAll(newMap);
     }
 
-    public Map<ResourceLocation, Integer> view() { return cooldowns; } // read-only use only
-
-
-    // === CODEC ===
-    public static final Codec<PlayerSpellCooldowns> CODEC =
-            Codec.unboundedMap(ResourceLocation.CODEC, Codec.INT)
-                    .xmap(map -> {
-                        var inst = new PlayerSpellCooldowns();
-                        inst.cooldowns.putAll(map);
-                        return inst;
-                    }, d -> d.cooldowns);
+    public Map<ResourceLocation, Integer> view() {
+        return cooldowns;
+    } // read-only use only
 
     // === SERIALIZER ===
     public static class Serializer implements IAttachmentSerializer<PlayerSpellCooldowns> {

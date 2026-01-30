@@ -1,16 +1,14 @@
 package com.minagic.minagic.item;
 
 import net.minecraft.core.Holder;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +23,10 @@ public class EffectWandItem extends Item {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         Random random = new Random();
 
-        List<Holder<MobEffect>> effects = new ArrayList<Holder<MobEffect>>();
+        List<Holder<MobEffect>> effects = new ArrayList<>();
         for (MobEffect e : BuiltInRegistries.MOB_EFFECT) {
-            if (e != null) effects.add(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(e));
+            if (e != null)
+                effects.add(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(e));
         }
 
         if (effects.isEmpty()) {

@@ -5,7 +5,6 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -15,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class VoidBlastEntity extends SpellProjectileEntity implements ItemSupplier {
@@ -24,7 +24,7 @@ public class VoidBlastEntity extends SpellProjectileEntity implements ItemSuppli
 
     public VoidBlastEntity(Level level, Vec3 Pos, Vec3 direction) {
         super(Minagic.VOID_BLAST_ENTITY.get(), level);
-        this.speed = 3.0;
+        this.speed = 0.5;
         this.gravity = 0.0;
         this.isBlockPiercing = false;
         this.isEntityPiercing = false;
@@ -49,7 +49,7 @@ public class VoidBlastEntity extends SpellProjectileEntity implements ItemSuppli
             return;
         }
 
-        Level level = this.getOwner().level();
+        Level level = Objects.requireNonNull(this.getOwner()).level();
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         // DAMAGE

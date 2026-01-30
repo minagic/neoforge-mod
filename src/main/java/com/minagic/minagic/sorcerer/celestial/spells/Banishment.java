@@ -1,17 +1,17 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.DamageTypes;
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.*;
-import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.registries.ModSpells;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.ISpellGate;
+import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.MathUtils;
@@ -23,7 +23,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -38,18 +37,18 @@ public class Banishment extends Spell implements ISimulacrumSpell {
 
     @Override
     public final void start(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-        System.out.println("Banishment.start called");
+        Minagic.LOGGER.debug("Banishment spell start invoked");
         new SpellGateChain().addGate(new DefaultGates.ClassGate(this.getAllowedClasses())).setEffect(
                 (context, simulacrumData) -> {
-                    if (!SpellMetadata.has(context.target, this, "bb_start")){
-                        System.out.println("Banishment.start precheck complete. Status: NO METADATA");
+                    if (SpellMetadata.has(context.target, this, "bb_start")) {
+                        Minagic.LOGGER.debug("Banishment precheck: no metadata, initializing area");
                         SpellMetadata.setBlockPos(context.target, this, "bb_start", context.target.blockPosition());
                         SimulacraAttachment.addSimulacrum(context.target, context, this, -1, 200);
                         return;
                     }
 
-                    if (!SpellMetadata.has(context.target, this, "bb_end")){
-                        System.out.println("Banishment.start precheck complete. Status: PARTIAL METADATA");
+                    if (SpellMetadata.has(context.target, this, "bb_end")) {
+                        Minagic.LOGGER.debug("Banishment precheck: partial metadata detected");
                         BlockPos pos = context.target.blockPosition();
                         int manaCost = (int) MathUtils.areaBetween(SpellMetadata.getBlockPos(context.target, this, "bb_start"), pos);
                         SpellValidationResult result = SpellValidator.validateMana(this, context, manaCost);
@@ -62,23 +61,30 @@ public class Banishment extends Spell implements ISimulacrumSpell {
                         drainMana(context, manaCost);
                         return;
                     }
-                    System.out.println("Banishment.start precheck complete. Status: FULL METADATA, CANCELLING SPELL");
+                    Minagic.LOGGER.debug("Banishment precheck: full metadata detected, cancelling spell");
                     SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
-                    SpellMetadata.removeBlockPos(context.target, this, "bb_start");
-                    SpellMetadata.removeBlockPos(context.target, this, "bb_end");
+
                 }
         ).execute(ctx, simData);
 
 
     }
 
-    public final void tick(SpellCastContext context, SimulacrumData simulacrumData) {}
-    public final void stop(SpellCastContext context, SimulacrumData simulacrumData) {}
-    public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {}
+    public final void tick(SpellCastContext context, SimulacrumData simulacrumData) {
+    }
+
+    public final void stop(SpellCastContext context, SimulacrumData simulacrumData) {
+    }
+
+    public final void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {
+        SpellMetadata.removeBlockPos(context.target, this, "bb_start");
+        SpellMetadata.removeBlockPos(context.target, this, "bb_end");
+    }
 
     @Override
     public final void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
         SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+                .addGate(new DefaultGates.MetadataGate(this, List.of("bb_start", "bb_end"), true))
                 .setEffect((context, simulacrumData) -> {
                     ServerLevel level = (ServerLevel) context.level();
                     BlockPos start = SpellMetadata.getBlockPos(context.target, this, "bb_start");
@@ -106,12 +112,12 @@ public class Banishment extends Spell implements ISimulacrumSpell {
                     for (int i = 0; i < beamCount; i++) {
                         double tx = minX + level.getRandom().nextDouble() * (maxX - minX);
                         double tz = minZ + level.getRandom().nextDouble() * (maxZ - minZ);
-                        double ty = SpellUtils.findSurfaceY(level, tx, tz); // Get highest point at (tx, tz)
+                        double ty = SpellUtils.findSurfaceY(level, tx, tz); // Get the highest point at (tx, tz)
 
                         // Beam visual descending from above
                         for (int step = 0; step < 16; step++) {
                             double y = ty + 16 - step;
-                            level.sendParticles(ParticleTypes.GLOW, tx, y, tz, 1, 0, 0, 0, 0.0);
+                            level.sendParticles(ModParticles.CELEST_PARTICLES.get(), tx, y, tz, 1, 0, 0, 0, 0.0);
                         }
 
                         // Impact visuals
@@ -166,7 +172,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses(){
+    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
         return List.of(new DefaultGates.ClassGate.AllowedClass[]{new DefaultGates.ClassGate.AllowedClass(PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 10)});
     }
 }

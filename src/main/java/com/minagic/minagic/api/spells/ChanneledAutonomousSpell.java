@@ -1,9 +1,8 @@
 package com.minagic.minagic.api.spells;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import org.jetbrains.annotations.Nullable;
@@ -25,11 +24,8 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
     @Override
     public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
-                ((ctx, simData) -> {
-                    SimulacraAttachment.setChanneling(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
-                })
+                ((ctx, simData) -> SimulacraAttachment.setChanneling(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime()))
         ).execute(context, simulacrumData);
-
 
 
     }
@@ -45,7 +41,8 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
     }
 
     @Override
-    public void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {}
+    public void exitSimulacrum(SpellCastContext context, SimulacrumData simulacrumData) {
+    }
 
 
     @Override
@@ -63,8 +60,9 @@ public class ChanneledAutonomousSpell extends Spell implements ISimulacrumSpell 
         if (data.maxLifetime() <= 0) {
             return 1f;
         }
-        System.out.println("[ChanneledAutonomousSpell] Progress: " + data.remainingLifetime() / data.maxLifetime());
-        return data.remainingLifetime() / data.maxLifetime();
+        float progress = data.remainingLifetime() / data.maxLifetime();
+        Minagic.LOGGER.trace("ChanneledAutonomousSpell progress: {}", progress);
+        return progress;
 
     }
 

@@ -1,11 +1,16 @@
 package com.minagic.minagic;
 
-import com.minagic.minagic.capabilities.hudAlerts.HudAlert;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudOverrideManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudOverrideRegistry;
+import com.minagic.minagic.capabilities.hudAlerts.WhiteFlashOverride;
+import com.minagic.minagic.entity.sorcerer.voidbourne.VoidborneSorcererEntity;
+import com.minagic.minagic.events.NeoForgeEventHandler;
 import com.minagic.minagic.gui.CooldownOverlay;
 import com.minagic.minagic.packets.MinagicNetwork;
 import com.minagic.minagic.registries.*;
 import com.minagic.minagic.sorcerer.celestial.spells.CelestialBombardment;
+import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaImpactProxyEntity;
 import com.minagic.minagic.sorcerer.celestial.spells.TracerBullet;
 import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
 import com.minagic.minagic.spellCasting.ClearData;
@@ -16,40 +21,35 @@ import com.minagic.minagic.spells.FireballEntity;
 import com.minagic.minagic.utilities.EntityFreezer;
 import com.minagic.minagic.utilities.ModEvents;
 import com.minagic.minagic.utilities.WorldEvents;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import org.checkerframework.checker.units.qual.N;
-import org.slf4j.Logger;
-
 import com.mojang.logging.LogUtils;
-
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(Minagic.MODID)
 public class Minagic {
     // Define mod id in a common place for everything to reference
     public static final String MODID = "minagic";
-
 
 
     // Directly reference a slf4j logger
@@ -99,13 +99,22 @@ public class Minagic {
                             .updateInterval(1) // Update interval
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":star_shard"))));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<VoidborneSorcererEntity>> VOIDBOURNE_SORCERER_ENEMY =
+            ENTITY_TYPES.register("voidbourne_sorcerer_enemy",
+                    () -> EntityType.Builder.of(VoidborneSorcererEntity::new, MobCategory.MONSTER)
+                            .sized(0.5F, 0.5F) // Size of the entity
+                            .clientTrackingRange(32) // Tracking range
+                            .updateInterval(1) // Update interval
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":voidbourne_sorcerer_entity"))));
+    public static final DeferredHolder<EntityType<?>, EntityType<NovaImpactProxyEntity>> NOVA_PROXY =
+            ENTITY_TYPES.register("nova_proxy",
+                    () -> EntityType.Builder.<NovaImpactProxyEntity>of(NovaImpactProxyEntity::new, MobCategory.MISC)
+                    .sized(0.1f, 0.1f)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "nova_proxy"))));
 
-    public static final  EntityFreezer ENTITY_FREEZER = new EntityFreezer();
-
-    // Command registration method
-    private void onRegisterCommands(RegisterCommandsEvent event) {
-        MinagicTestCommand.register(event.getDispatcher());
-    }
+    public static final EntityFreezer ENTITY_FREEZER = new EntityFreezer();
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -141,15 +150,16 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(new PlayerSimulacraHandler());
         NeoForge.EVENT_BUS.register(new ClearData());
         NeoForge.EVENT_BUS.register(new HudAlertManager());
+        NeoForge.EVENT_BUS.register(new HudOverrideManager());
         NeoForge.EVENT_BUS.register(ENTITY_FREEZER);
         NeoForge.EVENT_BUS.register(new ModEvents());
+        NeoForge.EVENT_BUS.register(NeoForgeEventHandler.class);
         //NeoForge.EVENT_BUS.register(new PlayerItemUsageCheck());
 
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
         ModAttachments.register(modEventBus);
-        ModParticles.PARTICLES.register(modEventBus);
-
+        ModParticles.register(modEventBus);
 
 
         // Register packet handlers
@@ -165,6 +175,14 @@ public class Minagic {
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        HudOverrideRegistry.register(ResourceLocation.fromNamespaceAndPath(MODID, "white_flash_primary"), new WhiteFlashOverride(200, 0));
+        HudOverrideRegistry.register(ResourceLocation.fromNamespaceAndPath(MODID, "white_flash_secondary"), new WhiteFlashOverride(3, 0));
+    }
+
+    // Command registration method
+    private void onRegisterCommands(RegisterCommandsEvent event) {
+        MinagicTestCommand.register(event.getDispatcher());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
@@ -180,6 +198,7 @@ public class Minagic {
         Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
 
     }
+
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {

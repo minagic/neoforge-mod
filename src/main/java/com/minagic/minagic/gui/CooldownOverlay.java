@@ -1,8 +1,10 @@
 package com.minagic.minagic.gui;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudOverrideManager;
 import com.minagic.minagic.registries.ModAttachments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -14,15 +16,15 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
 public class CooldownOverlay {
+    private static final int COOLDOWN_COLOR_SWITCH_RENDERS = 50;
     private static boolean cooldownColorFlag = false;
     private static int cooldownRenderCounter = 0;
-    private static final int COOLDOWN_COLOR_SWITCH_RENDERS = 50;
 
     @SubscribeEvent
     public void onRenderOverlay(RenderGuiEvent.Pre event) {
         Player player = Minecraft.getInstance().player;
-        //System.out.println("[-COOLDOWN OVERLAY-] Tick event: Rendering cooldown overlay");
         if (player == null) return;
+        Minagic.LOGGER.trace("[-COOLDOWN OVERLAY-] Rendering overlay for {}", player.getName().getString());
 
         ItemStack stack = player.getMainHandItem();
 
@@ -51,6 +53,9 @@ public class CooldownOverlay {
         HudAlertManager hudAlertManager = player.getData(ModAttachments.HUD_ALERTS);
         hudAlertManager.render(gui, gui.guiWidth(), gui.guiHeight());
 
+        HudOverrideManager hudOverrideManager = player.getData(ModAttachments.HUD_OVERRIDES);
+        hudOverrideManager.render(gui, gui.guiWidth(), gui.guiHeight());
+
     }
 
     public void renderCooldown(GuiGraphics gui, LivingEntity entity, ItemStack stack) {
@@ -73,7 +78,7 @@ public class CooldownOverlay {
         // --- Colors ---
         final int COLOR_TEXT_READY = 0xFF00FF00;  // green
         final int COLOR_TEXT_CD = 0xFFFF4444;     // red
-        final int COLOR_TEXT_CD_ALT= 0xFFFFFF00; // yellow
+        final int COLOR_TEXT_CD_ALT = 0xFFFFFF00; // yellow
         final int COLOR_TEXT_LABEL = 0xFFFFFFFF;  // white
         final int COLOR_FILL = 0xFFFF4444;        // cooldown bar color
 
@@ -87,7 +92,7 @@ public class CooldownOverlay {
         int cdWidth = font.width(cdText);
         gui.drawString(font, cdText, x + width / 2 - cdWidth / 2, y + 30, cooldown > 0 ? cooldownColorFlag ? COLOR_TEXT_CD_ALT : COLOR_TEXT_CD : COLOR_TEXT_READY, false);
 
-        cooldownRenderCounter ++;
+        cooldownRenderCounter++;
         if (cooldownRenderCounter >= COOLDOWN_COLOR_SWITCH_RENDERS) {
             cooldownColorFlag = !cooldownColorFlag;
             cooldownRenderCounter = 0;
