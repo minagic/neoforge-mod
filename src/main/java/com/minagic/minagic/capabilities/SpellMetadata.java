@@ -46,10 +46,10 @@ public class SpellMetadata {
 
     public static boolean has(Entity target, Spell spell, String key) {
         var a = getAttachment(target);
-        return !a.stringMap.containsKey(makeKey(spell, key)) &&
-                !a.intMap.containsKey(makeKey(spell, key)) &&
-                !a.blockStateMap.containsKey(makeKey(spell, key)) &&
-                !a.blockPosMap.containsKey(makeKey(spell, key));
+        return a.stringMap.containsKey(makeKey(spell, key)) ||
+                a.intMap.containsKey(makeKey(spell, key)) ||
+                a.blockStateMap.containsKey(makeKey(spell, key)) ||
+                a.blockPosMap.containsKey(makeKey(spell, key));
     }
 
     public static String getString(Entity target, Spell spell, String key) {

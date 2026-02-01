@@ -21,9 +21,11 @@ import com.minagic.minagic.spells.FireballEntity;
 import com.minagic.minagic.utilities.EntityFreezer;
 import com.minagic.minagic.utilities.ModEvents;
 import com.minagic.minagic.utilities.WorldEvents;
+import com.minagic.testing.TestsRegistration;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -44,6 +46,10 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
+
+import java.util.function.Consumer;
+
+import static com.minagic.testing.TestsRegistration.TEST_FUNCTION;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(Minagic.MODID)
@@ -131,6 +137,8 @@ public class Minagic {
         // Register the Deferred Register to the mod event bus so entity types get registered
         ENTITY_TYPES.register(modEventBus);
 
+        TEST_FUNCTION.register(modEventBus);
+
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (Minagic) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
@@ -154,7 +162,6 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(ENTITY_FREEZER);
         NeoForge.EVENT_BUS.register(new ModEvents());
         NeoForge.EVENT_BUS.register(NeoForgeEventHandler.class);
-        //NeoForge.EVENT_BUS.register(new PlayerItemUsageCheck());
 
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);

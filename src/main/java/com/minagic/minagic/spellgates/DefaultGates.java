@@ -135,7 +135,9 @@ public class DefaultGates {
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+            Minagic.LOGGER.debug("Starting mana prerequisite check for {} with {} mana cost for {}", spell, manaCost, ctx.caster);
             var mana = ctx.caster.getData(ModAttachments.MANA.get());
+            Minagic.LOGGER.debug("Resolved mana attachment: {}, readings: {} / {} mana, test will {}", mana, mana.getMana(), mana.getMaxMana(), mana.getMana() >= manaCost ? "succeed." : "fail.");
             return mana.getMana() >= manaCost;
         }
 
@@ -220,10 +222,10 @@ public class DefaultGates {
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             for (String key : requiredKeys) {
                 if (SpellMetadata.has(ctx.target, spell, key)) {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
         @Override

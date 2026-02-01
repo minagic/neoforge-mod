@@ -45,10 +45,7 @@ public final class Mana {
 
         this.maxMana = computedMax;
 
-
-        // Sorcerer passive regen
         restoreMana(1);
-        // Optional: log or effect if mana restored
 
 
     }
@@ -92,6 +89,7 @@ public final class Mana {
     }
 
     public int getMaxMana() {
+        System.out.println(maxMana);
         return maxMana;
     }
 
