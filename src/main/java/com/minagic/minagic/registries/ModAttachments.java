@@ -16,11 +16,11 @@ public class ModAttachments {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
             DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, Minagic.MODID);
 
-    public static final Supplier<AttachmentType<PlayerSpellCooldowns>> PLAYER_SPELL_COOLDOWNS =
+    public static final Supplier<AttachmentType<CooldownAttachment>> PLAYER_SPELL_COOLDOWNS =
             ATTACHMENTS.register("player_spell_cooldowns", () ->
-                    AttachmentType.builder(PlayerSpellCooldowns::new)
-                            .serialize(new PlayerSpellCooldowns.Serializer()) // persistent & sync-enabled
-                            .sync(ByteBufCodecs.fromCodec(PlayerSpellCooldowns.CODEC))
+                    AttachmentType.builder(CooldownAttachment::new)
+                            .serialize(new CooldownAttachment.Serializer()) // persistent & sync-enabled
+                            .sync(ByteBufCodecs.fromCodec(CooldownAttachment.CODEC))
                             .build()
             );
 

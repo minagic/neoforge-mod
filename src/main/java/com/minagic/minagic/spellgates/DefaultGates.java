@@ -119,7 +119,7 @@ public class DefaultGates {
         @Override
         public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             var cooldowns = ctx.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-            cooldowns.setCooldown(ModSpells.getId(spell), cooldown);
+            cooldowns.applyCooldown(ModSpells.getId(spell), cooldown);
             ctx.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
         }
     }

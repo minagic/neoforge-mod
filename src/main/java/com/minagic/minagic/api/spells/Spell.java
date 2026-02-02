@@ -25,7 +25,7 @@ public abstract class Spell {
 
     public void applyCooldown(SpellCastContext context, int cooldown) {
         var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-        cooldowns.setCooldown(ModSpells.getId(this), cooldown);
+        cooldowns.applyCooldown(ModSpells.getId(this), cooldown);
         context.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
     }
 

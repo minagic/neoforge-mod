@@ -151,7 +151,7 @@ public final class ManaAttachment implements IRenderableAttachement {
         gui.fill(PADDING, y, PADDING + (int) (BAR_WIDTH * ratio), y + BAR_HEIGHT, COLOR_FILL);
 
         // Text
-        String text = String.format("ManaAttachment: %.0f / %.0f", mana, (float) maxMana);
+        String text = String.format("Mana: %.0f / %.0f", mana, (float) maxMana);
         gui.drawString(font, text, PADDING, y - 10, COLOR_TEXT, false);
     }
 
