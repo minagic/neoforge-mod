@@ -4,7 +4,7 @@ import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.ManaAttachement;
+import com.minagic.minagic.capabilities.ManaAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -29,7 +29,7 @@ public class OathOfLife extends AutonomousSpell {
         // identify caster's mana percentage
         SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
                 .setEffect((context, simulacrumData) -> {
-                    ManaAttachement manaAttachement = context.caster.getData(ModAttachments.MANA);
+                    ManaAttachment manaAttachement = context.caster.getData(ModAttachments.MANA);
                     float manaPercentage = manaAttachement.getMana() / (float) manaAttachement.getMaxMana();
                     if (manaPercentage < 0.2f) {
                         // low manaAttachement, DAMAGE instead

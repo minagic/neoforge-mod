@@ -1,7 +1,7 @@
 package com.minagic.minagic.spellCasting;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.capabilities.ManaAttachement;
+import com.minagic.minagic.capabilities.ManaAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -13,9 +13,9 @@ public class ManaHandler {
         LivingEntity entity = event.getEntity().asLivingEntity();
         if (entity == null || entity.level().isClientSide()) return;
 
-        ManaAttachement manaAttachement = entity.getData(ModAttachments.MANA.get());
+        ManaAttachment manaAttachement = entity.getData(ModAttachments.MANA.get());
         manaAttachement.tick(entity);
-        Minagic.LOGGER.trace("[Minagic] ManaAttachement tick for {} -> {}/{}",
+        Minagic.LOGGER.trace("[Minagic] ManaAttachment tick for {} -> {}/{}",
                 entity.getName().getString(),
                 manaAttachement.getMana(),
                 manaAttachement.getMaxMana());

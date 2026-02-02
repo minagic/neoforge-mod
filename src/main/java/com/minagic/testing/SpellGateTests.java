@@ -1,7 +1,7 @@
 package com.minagic.testing;
 
 
-import com.minagic.minagic.capabilities.ManaAttachement;
+import com.minagic.minagic.capabilities.ManaAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.sorcerer.celestial.spells.SolarSurge;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -24,7 +24,7 @@ public class SpellGateTests {
         Player fakePlayer = helper.makeMockPlayer(GameType.CREATIVE);
         fakePlayer.setPos(1, 2, 1);
 
-        ManaAttachement manaAttachement = fakePlayer.getData(ModAttachments.MANA);
+        ManaAttachment manaAttachement = fakePlayer.getData(ModAttachments.MANA);
         manaAttachement.drainMana(manaAttachement.getMana());
         fakePlayer.setData(ModAttachments.MANA, manaAttachement);
 
@@ -47,16 +47,16 @@ public class SpellGateTests {
         // restore manaAttachement
 
 
-        ManaAttachement data = fakePlayer.getData(ModAttachments.MANA);
+        ManaAttachment data = fakePlayer.getData(ModAttachments.MANA);
         data.setMaxMana(200);
         data.restoreMana(data.getMaxMana());
 
         fakePlayer.setData(ModAttachments.MANA, data);
         helper.runAfterDelay(1,
                 () -> {
-                    ManaAttachement data2 = fakePlayer.getData(ModAttachments.MANA);
+                    ManaAttachment data2 = fakePlayer.getData(ModAttachments.MANA);
 
-                    helper.assertTrue(manaAttachement.getMana() == 200, Component.nullToEmpty("ManaAttachement not initialized!"));
+                    helper.assertTrue(manaAttachement.getMana() == 200, Component.nullToEmpty("ManaAttachment not initialized!"));
 
                     com.minagic.minagic.spellCasting.SpellCastContext context = new SpellCastContext(fakePlayer);
                     new SpellGateChain()
@@ -70,7 +70,7 @@ public class SpellGateTests {
                             .execute(context, null);
                     data2 = fakePlayer.getData(ModAttachments.MANA);
 
-                    helper.assertTrue(manaAttachement.getMana() == 190, Component.nullToEmpty("ManaAttachement should have been spent resulting in 190 manaAttachement, got " + manaAttachement.getMana() + " instead"));
+                    helper.assertTrue(manaAttachement.getMana() == 190, Component.nullToEmpty("ManaAttachment should have been spent resulting in 190 manaAttachement, got " + manaAttachement.getMana() + " instead"));
                 }
         );
 

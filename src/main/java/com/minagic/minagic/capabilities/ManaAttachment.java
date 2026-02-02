@@ -17,13 +17,13 @@ import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 
-public final class ManaAttachement implements IRenderableAttachement {
+public final class ManaAttachment implements IRenderableAttachement {
     // INTERNAL VARIABLES
     private float mana;
     private int maxMana;
 
     // CONSTRUCTOR
-    public ManaAttachement() {
+    public ManaAttachment() {
         this.maxMana = 0;
         this.mana = 0;
     }
@@ -39,12 +39,12 @@ public final class ManaAttachement implements IRenderableAttachement {
 
     // STATIC GETTERS
     public static float getMana(Entity host){
-        ManaAttachement manaAttachement = host.getData(ModAttachments.MANA);
+        ManaAttachment manaAttachement = host.getData(ModAttachments.MANA);
         return manaAttachement.getMana();
     }
 
     public static int getMaxMana(Entity host) {
-        ManaAttachement manaAttachement = host.getData(ModAttachments.MANA);
+        ManaAttachment manaAttachement = host.getData(ModAttachments.MANA);
         return manaAttachement.getMaxMana();
     }
 
@@ -67,19 +67,19 @@ public final class ManaAttachement implements IRenderableAttachement {
 
     // STATIC SETTERS
     public static void drainMana(Entity host, float amount){
-        ManaAttachement manaAttachement = host.getData(ModAttachments.MANA);
+        ManaAttachment manaAttachement = host.getData(ModAttachments.MANA);
         manaAttachement.drainMana(amount);
         host.setData(ModAttachments.MANA, manaAttachement);
     }
 
     public static void restoreMana(Entity host, float amount){
-        ManaAttachement manaAttachement = host.getData(ModAttachments.MANA);
+        ManaAttachment manaAttachement = host.getData(ModAttachments.MANA);
         manaAttachement.restoreMana(amount);
         host.setData(ModAttachments.MANA, manaAttachement);
     }
 
     public static void setMaxMana(Entity host, int maxMana){
-        ManaAttachement manaAttachement = host.getData(ModAttachments.MANA);
+        ManaAttachment manaAttachement = host.getData(ModAttachments.MANA);
         manaAttachement.setMaxMana(maxMana);
         host.setData(ModAttachments.MANA, manaAttachement);
     }
@@ -151,18 +151,18 @@ public final class ManaAttachement implements IRenderableAttachement {
         gui.fill(PADDING, y, PADDING + (int) (BAR_WIDTH * ratio), y + BAR_HEIGHT, COLOR_FILL);
 
         // Text
-        String text = String.format("ManaAttachement: %.0f / %.0f", mana, (float) maxMana);
+        String text = String.format("ManaAttachment: %.0f / %.0f", mana, (float) maxMana);
         gui.drawString(font, text, PADDING, y - 10, COLOR_TEXT, false);
     }
 
     // DANGER ZONE: DO NOT EDIT
 
     // CODEC
-    public static final Codec<ManaAttachement> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.FLOAT.fieldOf("mana").forGetter(ManaAttachement::getMana),
-            Codec.INT.fieldOf("maxMana").forGetter(ManaAttachement::getMaxMana)
+    public static final Codec<ManaAttachment> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.FLOAT.fieldOf("mana").forGetter(ManaAttachment::getMana),
+            Codec.INT.fieldOf("maxMana").forGetter(ManaAttachment::getMaxMana)
     ).apply(instance, (manaValue, maxManaValue) -> {
-        ManaAttachement m = new ManaAttachement();
+        ManaAttachment m = new ManaAttachment();
         m.setMaxMana(maxManaValue);
         m.restoreMana(manaValue - m.getMana());
         return m;
@@ -170,13 +170,13 @@ public final class ManaAttachement implements IRenderableAttachement {
 
     // SERIALIZER
 
-    public static class Serializer implements IAttachmentSerializer<ManaAttachement> {
+    public static class Serializer implements IAttachmentSerializer<ManaAttachment> {
         private static final String KEY_MANA = "mana";
         private static final String KEY_MAX_MANA = "maxMana";
 
         @Override
-        public ManaAttachement read(@NotNull IAttachmentHolder holder, ValueInput input) {
-            ManaAttachement manaAttachement = new ManaAttachement();
+        public ManaAttachment read(@NotNull IAttachmentHolder holder, ValueInput input) {
+            ManaAttachment manaAttachement = new ManaAttachment();
             input.read(KEY_MAX_MANA, Codec.INT).ifPresent(manaAttachement::setMaxMana);
             // Read both manaAttachement and maxMana if present
             input.read(KEY_MANA, Codec.INT).ifPresent(value -> {
@@ -188,7 +188,7 @@ public final class ManaAttachement implements IRenderableAttachement {
         }
 
         @Override
-        public boolean write(ManaAttachement attachment, ValueOutput output) {
+        public boolean write(ManaAttachment attachment, ValueOutput output) {
             output.store(KEY_MANA, Codec.FLOAT, attachment.getMana());
             output.store(KEY_MAX_MANA, Codec.INT, attachment.getMaxMana());
             return true;
