@@ -3,6 +3,10 @@ package com.minagic.minagic.capabilities;
 import com.mojang.serialization.Codec;
 
 public class MagicClassEnums {
+
+    // =========================
+    // PLAYER CLASSES
+    // =========================
     public enum PlayerClassEnum {
         WIZARD,
         SORCERER,
@@ -81,6 +85,9 @@ public class MagicClassEnums {
         }
     }
 
+    // =========================
+    // PLAYER SUBCLASSES
+    // =========================
     public enum PlayerSubClassEnum {
         WIZARD_ELEMANCY,
         WIZARD_NECROMANCY,
@@ -241,6 +248,9 @@ public class MagicClassEnums {
         }
     }
 
+    // =========================
+    // DEITIES
+    // =========================
     public enum DeityEnum {
         // Cleric Deities (mythological)
         THOR(DeityType.CLERIC),

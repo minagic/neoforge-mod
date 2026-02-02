@@ -62,19 +62,19 @@ public final class PlayerClass {
     // STATIC GETTERS
     // =========================
     public static PlayerClassEnum getMainClass(Entity host) {
-        return host.getData(ModAttachments.PLAYER_CLASS).getMainClass();
+        return getAttachment(host).getMainClass();
     }
 
     public static int getSubclassLevel(Entity host, PlayerSubClassEnum subclass) {
-        return host.getData(ModAttachments.PLAYER_CLASS).getSubclassLevel(subclass);
+        return getAttachment(host).getSubclassLevel(subclass);
     }
 
     public static Map<PlayerSubClassEnum, Integer> getAllSubclasses(Entity host) {
-        return host.getData(ModAttachments.PLAYER_CLASS).getAllSubclasses();
+        return getAttachment(host).getAllSubclasses();
     }
 
     public static DeityEnum getDeity(Entity host) {
-        return host.getData(ModAttachments.PLAYER_CLASS).getDeity();
+        return getAttachment(host).getDeity();
     }
 
     // =========================
@@ -123,31 +123,31 @@ public final class PlayerClass {
     // STATIC SETTERS
     // =========================
     public static void setMainClass(Entity host, PlayerClassEnum clazz) {
-        PlayerClass pc = host.getData(ModAttachments.PLAYER_CLASS);
+        PlayerClass pc = getAttachment(host);
         pc.setMainClass(clazz);
         host.setData(ModAttachments.PLAYER_CLASS, pc);
     }
 
     public static void setSubclassLevel(Entity host, PlayerSubClassEnum subclass, int level) {
-        PlayerClass pc = host.getData(ModAttachments.PLAYER_CLASS);
+        PlayerClass pc = getAttachment(host);
         pc.setSubclassLevel(subclass, level);
         host.setData(ModAttachments.PLAYER_CLASS, pc);
     }
 
     public static void setDeity(Entity host, DeityEnum deity) {
-        PlayerClass pc = host.getData(ModAttachments.PLAYER_CLASS);
+        PlayerClass pc = getAttachment(host);
         pc.setDeity(deity);
         host.setData(ModAttachments.PLAYER_CLASS, pc);
     }
 
     public static void clearSubclasses(Entity host) {
-        PlayerClass pc = host.getData(ModAttachments.PLAYER_CLASS);
+        PlayerClass pc = getAttachment(host);
         pc.clearSubclasses();
         host.setData(ModAttachments.PLAYER_CLASS, pc);
     }
 
     public static void clearDeity(Entity host) {
-        PlayerClass pc = host.getData(ModAttachments.PLAYER_CLASS);
+        PlayerClass pc = getAttachment(host);
         pc.clearDeity();
         host.setData(ModAttachments.PLAYER_CLASS, pc);
     }
@@ -165,6 +165,13 @@ public final class PlayerClass {
 
     private boolean canHaveDeity(PlayerClassEnum clazz) {
         return clazz == PlayerClassEnum.CLERIC || clazz == PlayerClassEnum.WARLOCK;
+    }
+
+    // =========================
+    // INTERNAL HELPERS
+    // =========================
+    private static PlayerClass getAttachment(Entity entity) {
+        return entity.getData(ModAttachments.PLAYER_CLASS);
     }
 
     // =========================

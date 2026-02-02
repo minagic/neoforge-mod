@@ -68,15 +68,15 @@ public final class SimulacraAttachment {
     // STATIC GETTERS
     // =========================
     public static Map<ResourceLocation, Float> getAllProgress(Entity host) {
-        return host.getData(ModAttachments.PLAYER_SIMULACRA).getAllProgress();
+        return getAttachment(host).getAllProgress();
     }
 
     public static List<SimulacrumSpellSlot> getAllSpellslots(Entity host) {
-        return host.getData(ModAttachments.PLAYER_SIMULACRA).getAllSpellSlots();
+        return getAttachment(host).getAllSpellSlots();
     }
 
     public static boolean hasSpell(Entity host, ResourceLocation id) {
-        return host.getData(ModAttachments.PLAYER_SIMULACRA).hasSpell(id);
+        return getAttachment(host).hasSpell(id);
     }
 
     // =========================
@@ -93,7 +93,7 @@ public final class SimulacraAttachment {
         clearChanneling(host);
         addSimulacrum(host, context, spell, threshold, maxLifetime);
 
-        SimulacraAttachment att = host.getData(ModAttachments.PLAYER_SIMULACRA);
+        SimulacraAttachment att = getAttachment(host);
         att.setActiveChannelingID(ModSpells.getId(spell));
         host.setData(ModAttachments.PLAYER_SIMULACRA, att);
     }
@@ -105,7 +105,7 @@ public final class SimulacraAttachment {
             throw new IllegalArgumentException("'spell' must implement ISimulacrumSpell.");
         }
 
-        SimulacraAttachment att = host.getData(ModAttachments.PLAYER_SIMULACRA);
+        SimulacraAttachment att = getAttachment(host);
 
         ResourceLocation id = ModSpells.getId(spell);
 
@@ -120,7 +120,7 @@ public final class SimulacraAttachment {
     }
 
     public static void removeSimulacrum(Entity host, ResourceLocation id) {
-        SimulacraAttachment att = host.getData(ModAttachments.PLAYER_SIMULACRA);
+        SimulacraAttachment att = getAttachment(host);
 
         SimulacrumSpellSlot slot = att.backgroundSimulacra.get(id);
         if (slot != null) {
@@ -134,7 +134,7 @@ public final class SimulacraAttachment {
     }
 
     public static void clearChanneling(Entity host) {
-        SimulacraAttachment att = host.getData(ModAttachments.PLAYER_SIMULACRA);
+        SimulacraAttachment att = getAttachment(host);
 
         if (att.activeChannelingSpellID != null) {
             removeSimulacrum(host, att.activeChannelingSpellID);
@@ -145,7 +145,7 @@ public final class SimulacraAttachment {
     }
 
     public static void clearSimulacra(Entity host) {
-        SimulacraAttachment att = host.getData(ModAttachments.PLAYER_SIMULACRA);
+        SimulacraAttachment att = getAttachment(host);
 
         for (SimulacrumSpellSlot slot : att.backgroundSimulacra.values()) {
             slot.exitSpellSlot();
@@ -229,6 +229,13 @@ public final class SimulacraAttachment {
             yBottom -= spacing;
             if (yBottom < 40) break;
         }
+    }
+
+    // =========================
+    // INTERNAL HELPERS
+    // =========================
+    private static SimulacraAttachment getAttachment(Entity entity) {
+        return entity.getData(ModAttachments.PLAYER_SIMULACRA);
     }
 
     // =========================

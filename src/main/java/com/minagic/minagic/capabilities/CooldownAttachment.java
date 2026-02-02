@@ -4,10 +4,8 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import org.jetbrains.annotations.NotNull;
@@ -16,17 +14,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class CooldownAttachment {
+
+    // =========================
+    // INTERNAL VARIABLES
+    // =========================
     private final Map<ResourceLocation, Integer> cooldowns = new HashMap<>();
 
+    // =========================
     // CONSTRUCTOR
-    public CooldownAttachment(){}
+    // =========================
+    public CooldownAttachment() {}
 
+    // =========================
     // INSTANCE GETTERS
+    // =========================
     public int getCooldown(ResourceLocation id) {
         return cooldowns.getOrDefault(id, 0);
     }
 
-    public Map<ResourceLocation, Integer> getAllCooldowns(){
+    public Map<ResourceLocation, Integer> getAllCooldowns() {
         return Map.copyOf(cooldowns); // NEVER leak originals
     }
 
@@ -34,48 +40,53 @@ public final class CooldownAttachment {
         return getCooldown(id) > 0;
     }
 
+    // =========================
     // STATIC GETTERS
-    public static int getCooldown(Entity host, ResourceLocation id){
-        CooldownAttachment cooldownAttachment = host.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
-        return cooldownAttachment.getCooldown(id);
+    // =========================
+    public static int getCooldown(Entity host, ResourceLocation id) {
+        return getAttachment(host).getCooldown(id);
     }
 
     public static Map<ResourceLocation, Integer> getAllCooldowns(Entity host) {
-        CooldownAttachment cooldownAttachment = host.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
-        return cooldownAttachment.getAllCooldowns();
+        return getAttachment(host).getAllCooldowns();
     }
 
     public static boolean isOnCooldown(Entity host, ResourceLocation id) {
         return getCooldown(host, id) > 0;
     }
 
+    // =========================
     // INSTANCE SETTERS
+    // =========================
     public void applyCooldown(ResourceLocation id, int ticks) {
         cooldowns.put(id, Math.max(0, ticks));
     }
 
-    public void clearAll(){
+    public void clearAll() {
         cooldowns.clear();
     }
 
+    // =========================
     // STATIC SETTERS
-    public static void applyCooldown(Entity host, ResourceLocation id, int ticks){
-        CooldownAttachment cooldownAttachment = host.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
+    // =========================
+    public static void applyCooldown(Entity host, ResourceLocation id, int ticks) {
+        CooldownAttachment cooldownAttachment = getAttachment(host);
         cooldownAttachment.applyCooldown(id, ticks);
         host.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS, cooldownAttachment);
     }
 
-    public static void clearAll(Entity host){
-        CooldownAttachment cooldownAttachment = host.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
+    public static void clearAll(Entity host) {
+        CooldownAttachment cooldownAttachment = getAttachment(host);
         cooldownAttachment.clearAll();
         host.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS, cooldownAttachment);
     }
 
+    // =========================
     // INTERNAL METHODS
-
+    // =========================
     private void replaceAll(Map<ResourceLocation, Integer> newMap) {
         cooldowns.clear();
-        newMap.forEach((k,v) -> cooldowns.put(k, Math.max(0, v)));
+        newMap.forEach((k, v) -> cooldowns.put(k, Math.max(0, v)));
     }
 
     public void tick() {
@@ -84,12 +95,22 @@ public final class CooldownAttachment {
     }
 
     public static void tick(Entity host) {
-        CooldownAttachment cd = host.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
+        CooldownAttachment cd = getAttachment(host);
         cd.tick();
         host.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS, cd);
     }
 
+    // =========================
+    // INTERNAL HELPERS
+    // =========================
+    private static CooldownAttachment getAttachment(Entity entity) {
+        return entity.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
+    }
+
+    // =========================
     // DANGER ZONE: DO NOT EDIT
+    // =========================
+
     // CODEC
     public static final Codec<CooldownAttachment> CODEC =
             Codec.unboundedMap(ResourceLocation.CODEC, Codec.INT)

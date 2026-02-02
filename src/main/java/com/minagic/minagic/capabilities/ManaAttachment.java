@@ -19,38 +19,46 @@ import org.jetbrains.annotations.NotNull;
 
 
 public final class ManaAttachment implements IRenderableAttachement {
+
+    // =========================
     // INTERNAL VARIABLES
+    // =========================
     private float mana;
     private int maxMana;
 
+    // =========================
     // CONSTRUCTOR
+    // =========================
     public ManaAttachment() {
         this.maxMana = 0;
         this.mana = 0;
     }
 
+    // =========================
     // INSTANCE GETTERS
+    // =========================
     public float getMana() {
         return mana;
     }
 
-    public int getMaxMana(){
+    public int getMaxMana() {
         return maxMana;
     }
 
+    // =========================
     // STATIC GETTERS
-    public static float getMana(Entity host){
-        ManaAttachment manaAttachement = host.getData(ModAttachments.MANA);
-        return manaAttachement.getMana();
+    // =========================
+    public static float getMana(Entity host) {
+        return getAttachment(host).getMana();
     }
 
     public static int getMaxMana(Entity host) {
-        ManaAttachment manaAttachement = host.getData(ModAttachments.MANA);
-        return manaAttachement.getMaxMana();
+        return getAttachment(host).getMaxMana();
     }
 
+    // =========================
     // INSTANCE SETTERS
-
+    // =========================
     public void drainMana(float amount) {
         mana = Math.max(0f, mana - amount);
     }
@@ -65,29 +73,31 @@ public final class ManaAttachment implements IRenderableAttachement {
         this.mana = Math.min(this.mana, this.maxMana);
     }
 
-
+    // =========================
     // STATIC SETTERS
-    public static void drainMana(Entity host, float amount){
-        ManaAttachment manaAttachement = host.getData(ModAttachments.MANA);
+    // =========================
+    public static void drainMana(Entity host, float amount) {
+        ManaAttachment manaAttachement = getAttachment(host);
         manaAttachement.drainMana(amount);
         host.setData(ModAttachments.MANA, manaAttachement);
     }
 
-    public static void restoreMana(Entity host, float amount){
-        ManaAttachment manaAttachement = host.getData(ModAttachments.MANA);
+    public static void restoreMana(Entity host, float amount) {
+        ManaAttachment manaAttachement = getAttachment(host);
         manaAttachement.restoreMana(amount);
         host.setData(ModAttachments.MANA, manaAttachement);
     }
 
-    public static void setMaxMana(Entity host, int maxMana){
-        ManaAttachment manaAttachement = host.getData(ModAttachments.MANA);
+    public static void setMaxMana(Entity host, int maxMana) {
+        ManaAttachment manaAttachement = getAttachment(host);
         manaAttachement.setMaxMana(maxMana);
         host.setData(ModAttachments.MANA, manaAttachement);
     }
 
 
+    // =========================
     // INTERNAL METHODS
-
+    // =========================
     public void tick(LivingEntity player) {
         PlayerClass pc = player.getData(ModAttachments.PLAYER_CLASS);
 
@@ -126,7 +136,9 @@ public final class ManaAttachment implements IRenderableAttachement {
         return base;
     }
 
+    // =========================
     // RENDER
+    // =========================
     public void render(GuiGraphics gui) {
         final int BAR_WIDTH = 100;
         final int BAR_HEIGHT = 8;
@@ -156,7 +168,16 @@ public final class ManaAttachment implements IRenderableAttachement {
         gui.drawString(font, text, PADDING, y - 10, COLOR_TEXT, false);
     }
 
+    // =========================
+    // INTERNAL HELPERS
+    // =========================
+    private static ManaAttachment getAttachment(Entity entity) {
+        return entity.getData(ModAttachments.MANA);
+    }
+
+    // =========================
     // DANGER ZONE: DO NOT EDIT
+    // =========================
 
     // CODEC
     public static final Codec<ManaAttachment> CODEC = RecordCodecBuilder.create(instance -> instance.group(
