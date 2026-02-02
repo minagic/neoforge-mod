@@ -3,7 +3,7 @@ package com.minagic.minagic.wizard;
 import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.api.gui.SpellEditorScreen;
 import com.minagic.minagic.capabilities.PlayerClass;
-import com.minagic.minagic.capabilities.PlayerClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.gui.WizardWandEditorScreen;
 import com.minagic.minagic.registries.ModDataComponents;
 import net.minecraft.world.entity.player.Player;

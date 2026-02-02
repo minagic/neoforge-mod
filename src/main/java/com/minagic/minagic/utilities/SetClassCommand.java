@@ -1,9 +1,9 @@
 package com.minagic.minagic.utilities;
 
-import com.minagic.minagic.capabilities.Deity;
+import com.minagic.minagic.capabilities.MagicClassEnums.DeityEnum;
 import com.minagic.minagic.capabilities.PlayerClass;
-import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -26,7 +26,7 @@ public class SetClassCommand {
                 .then(Commands.argument("player", EntityArgument.entities())
                         .then(Commands.argument("main", EnumArgument.enumArgument(PlayerClassEnum.class))
                                 .executes(ctx -> apply(ctx, false, false))
-                                .then(Commands.argument("deity", EnumArgument.enumArgument(Deity.class))
+                                .then(Commands.argument("deity", EnumArgument.enumArgument(DeityEnum.class))
                                         .executes(ctx -> apply(ctx, true, false))
                                         .then(Commands.argument("subclasses", StringArgumentType.greedyString())
                                                 .executes(ctx -> apply(ctx, true, true))
@@ -44,7 +44,7 @@ public class SetClassCommand {
         pc.setMainClass(main);
 
         if (withDeity) {
-            Deity deity = ctx.getArgument("deity", Deity.class);
+            DeityEnum deity = ctx.getArgument("deity", DeityEnum.class);
             if (!pc.setDeity(deity)) {
                 ctx.getSource().sendFailure(Component.literal("Invalid deity " + deity.name() + " for " + main.name()));
                 return 0;

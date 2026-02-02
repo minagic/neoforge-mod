@@ -2,7 +2,7 @@ package com.minagic.minagic.sorcerer;
 
 import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.capabilities.PlayerClass;
-import com.minagic.minagic.capabilities.PlayerClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.registries.ModDataComponents;
 
 public class sorcererStaff extends SpellcastingItem<StaffData> {
