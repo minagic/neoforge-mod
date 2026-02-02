@@ -78,13 +78,11 @@ public final class CooldownAttachment {
         newMap.forEach((k,v) -> cooldowns.put(k, Math.max(0, v)));
     }
 
-    // INSTANCE
     public void tick() {
         cooldowns.replaceAll((id, cd) -> cd - 1);
         cooldowns.entrySet().removeIf(e -> e.getValue() <= 0);
     }
 
-    // STATIC
     public static void tick(Entity host) {
         CooldownAttachment cd = host.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS);
         cd.tick();
