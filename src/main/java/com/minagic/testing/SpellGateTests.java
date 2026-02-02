@@ -35,14 +35,14 @@ public class SpellGateTests {
                 .setEffect(
                         (context, simData) ->
                         {
-                            helper.fail("Effect should not have run due to insufficient manaAttachement, worked instead");
+                            helper.fail("Effect should not have run due to insufficient mana, worked instead");
                         }
                 )
                 .execute(ctx, null);
 
         List<String> warnings = TestingUtils.getUserWarnings(fakePlayer);
-        helper.assertTrue(warnings.contains("Not enough manaAttachement to cast Solar Surge."), Component.literal("Message in hud alerts should state: " +
-                "'Not enough manaAttachement to cast Solar Surge.', got "+warnings+" instead"));
+        helper.assertTrue(warnings.contains("Not enough mana to cast Solar Surge."), Component.literal("Message in hud alerts should state: " +
+                "'Not enough mana to cast Solar Surge.', got "+warnings+" instead"));
 
         // restore manaAttachement
 
@@ -70,7 +70,7 @@ public class SpellGateTests {
                             .execute(context, null);
                     data2 = fakePlayer.getData(ModAttachments.MANA);
 
-                    helper.assertTrue(manaAttachement.getMana() == 190, Component.nullToEmpty("ManaAttachment should have been spent resulting in 190 manaAttachement, got " + manaAttachement.getMana() + " instead"));
+                    helper.assertTrue(manaAttachement.getMana() == 190, Component.nullToEmpty("Mana should have been spent resulting in 190 mana, got " + manaAttachement.getMana() + " instead"));
                 }
         );
 
