@@ -1,8 +1,7 @@
 package com.minagic.testing;
 
 
-import com.minagic.minagic.Minagic;
-import com.minagic.minagic.capabilities.Mana;
+import com.minagic.minagic.capabilities.ManaAttachement;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.sorcerer.celestial.spells.SolarSurge;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -25,9 +24,9 @@ public class SpellGateTests {
         Player fakePlayer = helper.makeMockPlayer(GameType.CREATIVE);
         fakePlayer.setPos(1, 2, 1);
 
-        Mana mana = fakePlayer.getData(ModAttachments.MANA);
-        mana.drainMana(mana.getMana());
-        fakePlayer.setData(ModAttachments.MANA, mana);
+        ManaAttachement manaAttachement = fakePlayer.getData(ModAttachments.MANA);
+        manaAttachement.drainMana(manaAttachement.getMana());
+        fakePlayer.setData(ModAttachments.MANA, manaAttachement);
 
         SpellCastContext ctx = new SpellCastContext(fakePlayer);
 
@@ -36,28 +35,28 @@ public class SpellGateTests {
                 .setEffect(
                         (context, simData) ->
                         {
-                            helper.fail("Effect should not have run due to insufficient mana, worked instead");
+                            helper.fail("Effect should not have run due to insufficient manaAttachement, worked instead");
                         }
                 )
                 .execute(ctx, null);
 
         List<String> warnings = TestingUtils.getUserWarnings(fakePlayer);
-        helper.assertTrue(warnings.contains("Not enough mana to cast Solar Surge."), Component.literal("Message in hud alerts should state: " +
-                "'Not enough mana to cast Solar Surge.', got "+warnings+" instead"));
+        helper.assertTrue(warnings.contains("Not enough manaAttachement to cast Solar Surge."), Component.literal("Message in hud alerts should state: " +
+                "'Not enough manaAttachement to cast Solar Surge.', got "+warnings+" instead"));
 
-        // restore mana
+        // restore manaAttachement
 
 
-        Mana data = fakePlayer.getData(ModAttachments.MANA);
+        ManaAttachement data = fakePlayer.getData(ModAttachments.MANA);
         data.setMaxMana(200);
         data.restoreMana(data.getMaxMana());
 
         fakePlayer.setData(ModAttachments.MANA, data);
         helper.runAfterDelay(1,
                 () -> {
-                    Mana data2 = fakePlayer.getData(ModAttachments.MANA);
+                    ManaAttachement data2 = fakePlayer.getData(ModAttachments.MANA);
 
-                    helper.assertTrue(mana.getMana() == 200, Component.nullToEmpty("Mana not initialized!"));
+                    helper.assertTrue(manaAttachement.getMana() == 200, Component.nullToEmpty("ManaAttachement not initialized!"));
 
                     com.minagic.minagic.spellCasting.SpellCastContext context = new SpellCastContext(fakePlayer);
                     new SpellGateChain()
@@ -71,7 +70,7 @@ public class SpellGateTests {
                             .execute(context, null);
                     data2 = fakePlayer.getData(ModAttachments.MANA);
 
-                    helper.assertTrue(mana.getMana() == 190, Component.nullToEmpty("Mana should have been spent resulting in 190 mana, got " + mana.getMana() + " instead"));
+                    helper.assertTrue(manaAttachement.getMana() == 190, Component.nullToEmpty("ManaAttachement should have been spent resulting in 190 manaAttachement, got " + manaAttachement.getMana() + " instead"));
                 }
         );
 

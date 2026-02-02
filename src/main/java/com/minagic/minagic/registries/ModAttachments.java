@@ -33,11 +33,11 @@ public class ModAttachments {
                             .build()
             );
 
-    public static final Supplier<AttachmentType<Mana>> MANA =
+    public static final Supplier<AttachmentType<ManaAttachement>> MANA =
             ATTACHMENTS.register("mana", () ->
-                    AttachmentType.builder(Mana::new)
-                            .serialize(new Mana.Serializer()) // persistent & sync-enabled
-                            .sync(ByteBufCodecs.fromCodec(Mana.CODEC))
+                    AttachmentType.builder(ManaAttachement::new)
+                            .serialize(new ManaAttachement.Serializer()) // persistent & sync-enabled
+                            .sync(ByteBufCodecs.fromCodec(ManaAttachement.CODEC))
                             .build()
             );
     public static final Supplier<AttachmentType<SimulacraAttachment>> PLAYER_SIMULACRA =
