@@ -34,13 +34,13 @@ public class VoidBlastEntity extends SpellProjectileEntity implements ItemSuppli
     }
 
     @Override
-    protected void onHitBlock(net.minecraft.world.phys.@NotNull @NotNull BlockHitResult hitResult) {
+    protected void onHitBlock(net.minecraft.world.phys.@NotNull BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
         this.discard();
     }
 
     @Override
-    protected void onHitEntity(net.minecraft.world.phys.@NotNull @NotNull EntityHitResult hitResult) {
+    protected void onHitEntity(net.minecraft.world.phys.@NotNull EntityHitResult hitResult) {
         super.onHitEntity(hitResult);
 
         Entity entity = hitResult.getEntity();
