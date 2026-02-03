@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public final class SimulacraAttachment {
+public final class SimulacraAttachment implements AutodetectionInterfaces.ILivingTickableAttachment, AutodetectionInterfaces.IRenderableAttachment {
 
     // =========================
     // INTERNAL VARIABLES
@@ -161,13 +162,17 @@ public final class SimulacraAttachment {
     // =========================
     // INTERNAL LOGIC
     // =========================
-    public void resolveAllContexts(MinecraftServer server) {
+    private void resolveAllContexts(MinecraftServer server) {
         for (SimulacrumSpellSlot slot : backgroundSimulacra.values()) {
             slot.resolveContext(server);
         }
     }
 
-    public void tick() {
+    public void tick(LivingEntity host) {
+        if (host.level().isClientSide()) return;
+        MinecraftServer server = host.level().getServer();
+        resolveAllContexts(server);
+
         Map<ResourceLocation, SimulacrumSpellSlot> copy = Map.copyOf(backgroundSimulacra);
 
         for (var entry : copy.entrySet()) {
@@ -180,7 +185,7 @@ public final class SimulacraAttachment {
     // =========================
     // RENDER
     // =========================
-    public void render(GuiGraphics gui) {
+    public void render(LivingEntity host, GuiGraphics gui) {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
 
@@ -229,6 +234,10 @@ public final class SimulacraAttachment {
             yBottom -= spacing;
             if (yBottom < 40) break;
         }
+    }
+
+    public boolean shouldRender(LivingEntity host){
+        return !this.getAllSpellSlots().isEmpty();
     }
 
     // =========================

@@ -1,5 +1,6 @@
 package com.minagic.minagic.capabilities;
 
+import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
 import com.mojang.serialization.Codec;
@@ -18,7 +19,7 @@ import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 
-public final class ManaAttachment implements IRenderableAttachement {
+public final class ManaAttachment implements AutodetectionInterfaces.IRenderableAttachment, AutodetectionInterfaces.ILivingTickableAttachment {
 
     // =========================
     // INTERNAL VARIABLES
@@ -94,14 +95,13 @@ public final class ManaAttachment implements IRenderableAttachement {
         host.setData(ModAttachments.MANA, manaAttachement);
     }
 
-
     // =========================
     // INTERNAL METHODS
     // =========================
-    public void tick(LivingEntity player) {
-        PlayerClass pc = player.getData(ModAttachments.PLAYER_CLASS);
+    public void tick(LivingEntity host) {
+        PlayerClass pc = host.getData(ModAttachments.PLAYER_CLASS);
 
-        int computedMax = computeMaxMana(player, pc);
+        int computedMax = computeMaxMana(host, pc);
 
         // Adjust current mana if needed
         if (mana > computedMax) {
@@ -139,7 +139,7 @@ public final class ManaAttachment implements IRenderableAttachement {
     // =========================
     // RENDER
     // =========================
-    public void render(GuiGraphics gui) {
+    public void render(LivingEntity host, GuiGraphics gui) {
         final int BAR_WIDTH = 100;
         final int BAR_HEIGHT = 8;
         final int PADDING = 8;
@@ -166,6 +166,11 @@ public final class ManaAttachment implements IRenderableAttachement {
         // Text
         String text = String.format("Mana: %.0f / %.0f", mana, (float) maxMana);
         gui.drawString(font, text, PADDING, y - 10, COLOR_TEXT, false);
+    }
+
+    @Override
+    public boolean shouldRender(LivingEntity host) {
+        return host.getMainHandItem().getItem() instanceof SpellcastingItem<?>;
     }
 
     // =========================

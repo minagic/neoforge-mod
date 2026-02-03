@@ -2,7 +2,7 @@ package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.SpellMetadata;
-import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -54,7 +54,7 @@ public class SpellValidator {
 
     public static void showFailureIfNeeded(SpellCastContext context, SpellValidationResult result) {
         if (!result.success() && result.showToPlayer()) {
-            HudAlertManager.addToEntity(
+            HudAlertAttachment.addToEntity(
                     context.caster,
                     result.failureMessage(),
                     0xFF555500,

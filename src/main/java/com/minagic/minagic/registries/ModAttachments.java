@@ -2,8 +2,8 @@ package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.*;
-import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
-import com.minagic.minagic.capabilities.hudAlerts.HudOverrideManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
+import com.minagic.minagic.capabilities.hudAlerts.WhiteFlashAttachment;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -48,11 +48,11 @@ public class ModAttachments {
                             .build()
             );
 
-    public static final Supplier<AttachmentType<HudAlertManager>> HUD_ALERTS =
+    public static final Supplier<AttachmentType<HudAlertAttachment>> HUD_ALERTS =
             ATTACHMENTS.register("hud_alerts", () ->
-                    AttachmentType.builder(HudAlertManager::new)
-                            .serialize(new HudAlertManager.Serializer())
-                            .sync(ByteBufCodecs.fromCodec(HudAlertManager.CODEC))
+                    AttachmentType.builder(HudAlertAttachment::new)
+                            .serialize(new HudAlertAttachment.Serializer())
+                            .sync(ByteBufCodecs.fromCodec(HudAlertAttachment.CODEC))
                             .build()
             );
 
@@ -63,12 +63,13 @@ public class ModAttachments {
                             .sync(ByteBufCodecs.fromCodec(SpellMetadata.CODEC))
                             .build());
 
-    public static final Supplier<AttachmentType<HudOverrideManager>> HUD_OVERRIDES =
-            ATTACHMENTS.register("hud_overrides", () ->
-                    AttachmentType.builder(HudOverrideManager::new)
-                            .serialize(new HudOverrideManager.Serializer())
-                            .sync(ByteBufCodecs.fromCodec(HudOverrideManager.CODEC))
-                            .build());
+    public static final Supplier<AttachmentType<WhiteFlashAttachment>> WHITE_FLASH =
+            ATTACHMENTS.register("white_flash_override", () ->
+                    AttachmentType.builder(WhiteFlashAttachment::new)
+                            .serialize(new WhiteFlashAttachment.Serializer())
+                            .sync(ByteBufCodecs.fromCodec(WhiteFlashAttachment.CODEC))
+                            .build()
+            );
 
 
     public static void register(IEventBus bus) {

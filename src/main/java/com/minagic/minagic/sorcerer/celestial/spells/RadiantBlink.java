@@ -5,7 +5,7 @@ import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
@@ -90,7 +90,7 @@ public class RadiantBlink extends InstanteneousSpell {
                     }
 
                     // No space found
-                    HudAlertManager.addToEntity(ctx.caster,
+                    HudAlertAttachment.addToEntity(ctx.caster,
                             "No safe space to blink!",
                             0xFFDD7700,
                             1,

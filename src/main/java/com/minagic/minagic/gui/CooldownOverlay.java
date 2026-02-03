@@ -3,8 +3,6 @@ package com.minagic.minagic.gui;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.api.spells.Spell;
-import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
-import com.minagic.minagic.capabilities.hudAlerts.HudOverrideManager;
 import com.minagic.minagic.registries.ModAttachments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -38,23 +36,6 @@ public class CooldownOverlay {
         // subclasses and their levels
         var playerClassData = player.getData(ModAttachments.PLAYER_CLASS.get());
         playerClassData.render(gui);
-
-        // Render mana
-        var manaData = player.getData(ModAttachments.MANA);
-        manaData.render(gui);
-
-
-        // Render a channeled spell indicator if applicable
-        var simulacraData = player.getData(ModAttachments.PLAYER_SIMULACRA);
-        simulacraData.render(gui);
-
-
-        // render hud alerts
-        HudAlertManager hudAlertManager = player.getData(ModAttachments.HUD_ALERTS);
-        hudAlertManager.render(gui, gui.guiWidth(), gui.guiHeight());
-
-        HudOverrideManager hudOverrideManager = player.getData(ModAttachments.HUD_OVERRIDES);
-        hudOverrideManager.render(gui, gui.guiWidth(), gui.guiHeight());
 
     }
 

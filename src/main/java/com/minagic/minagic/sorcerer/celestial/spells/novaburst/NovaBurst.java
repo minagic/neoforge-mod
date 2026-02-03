@@ -10,14 +10,8 @@ import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
-import com.minagic.minagic.capabilities.hudAlerts.HudOverrideManager;
-import com.minagic.minagic.capabilities.hudAlerts.HudOverrideRegistry;
-import com.minagic.minagic.capabilities.hudAlerts.IHudOverride;
-import com.minagic.minagic.particles.CelestParticles;
+import com.minagic.minagic.capabilities.hudAlerts.*;
 import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModParticles;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
@@ -32,7 +26,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -116,7 +109,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
 
                                 // Blinking HUD alert every 10 ticks
                                 if (t % 10 == 0) {
-                                    HudAlertManager.addToEntity(
+                                    HudAlertAttachment.addToEntity(
                                             target,
                                             "TARGET ACQUIRED. DETONATING.",
                                             0xFFFF3333,
@@ -209,7 +202,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
                         LivingEntity caster = ctx.target;
                         Level level = ctx.level();
 
-                        IHudOverride primaryFlash = HudOverrideRegistry.getCodec(WHITE_FLASH_PRIMARY);
+
 
                         List<LivingEntity> entities = SpellUtils.findEntitiesInRadius(
                                 level,
@@ -221,7 +214,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
                         );
 
                         for (LivingEntity entity : entities) {
-                            HudOverrideManager.addToEntity(entity, primaryFlash);
+                            WhiteFlashAttachment.start(entity, 200);
                             if ((ctx.target instanceof NovaImpactProxyEntity proxy)) {
                                 MinagicDamage damage = new MinagicDamage(SpellUtils.resolveLivingEntityAcrossDimensions(proxy.getCasterUUID(), Objects.requireNonNull(ctx.level().getServer())),
                                         entity,

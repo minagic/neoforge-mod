@@ -4,6 +4,7 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
@@ -13,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class CooldownAttachment {
+public final class CooldownAttachment implements AutodetectionInterfaces.ILivingTickableAttachment {
 
     // =========================
     // INTERNAL VARIABLES
@@ -89,15 +90,9 @@ public final class CooldownAttachment {
         newMap.forEach((k, v) -> cooldowns.put(k, Math.max(0, v)));
     }
 
-    public void tick() {
+    public void tick(LivingEntity host) {
         cooldowns.replaceAll((id, cd) -> cd - 1);
         cooldowns.entrySet().removeIf(e -> e.getValue() <= 0);
-    }
-
-    public static void tick(Entity host) {
-        CooldownAttachment cd = getAttachment(host);
-        cd.tick();
-        host.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS, cd);
     }
 
     // =========================

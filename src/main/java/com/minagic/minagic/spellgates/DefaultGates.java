@@ -5,7 +5,7 @@ import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.*;
-import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -75,7 +75,7 @@ public class DefaultGates {
 
         @Override
         public void onFail(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            HudAlertManager.addToEntity(
+            HudAlertAttachment.addToEntity(
                     ctx.caster,
                     failureMessage,
                     0xFF5555,
@@ -109,7 +109,7 @@ public class DefaultGates {
 
         @Override
         public void onFail(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            HudAlertManager.addToEntity(
+            HudAlertAttachment.addToEntity(
                     ctx.caster,
                     "Spell is on cooldown!",
                     0xFF5555,
@@ -145,7 +145,7 @@ public class DefaultGates {
 
         @Override
         public void onFail(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            HudAlertManager.addToEntity(
+            HudAlertAttachment.addToEntity(
                     ctx.caster,
                     "Not enough mana to cast " + spell.getString() + ".",
                     0x3366FF, // Blue
@@ -180,7 +180,7 @@ public class DefaultGates {
             if (simData != null) {
                 simData.expireSimulacrum();
             }
-            HudAlertManager.addToEntity(
+            HudAlertAttachment.addToEntity(
                     ctx.caster,
                     "Simulacrum ended: insufficient mana.",
                     0xAA00FF,

@@ -1,5 +1,6 @@
 package com.minagic.minagic.capabilities.hudAlerts;
 
+import com.minagic.minagic.capabilities.AutodetectionInterfaces;
 import com.minagic.minagic.registries.ModAttachments;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -9,30 +10,19 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class HudAlertManager {
-    // CODEC
-    public static final Codec<HudAlertManager> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            HudAlertInstance.CODEC.listOf().fieldOf("active_alerts")
-                    .forGetter(HudAlertManager::getActiveAlerts)
-    ).apply(instance, alerts -> {
-        HudAlertManager m = new HudAlertManager();
-        m.setActiveAlerts(alerts);
-        return m;
-    }));
+public class HudAlertAttachment implements AutodetectionInterfaces.IRenderableAttachment, AutodetectionInterfaces.ILivingTickableAttachment {
     private final List<HudAlertInstance> ACTIVE_ALERTS = new ArrayList<>();
 
     public static void addToEntity(Entity entity, String msg, int color, int priority, int durationTicks) {
-        HudAlertManager data = entity.getData(ModAttachments.HUD_ALERTS);
+        HudAlertAttachment data = entity.getData(ModAttachments.HUD_ALERTS);
         data.addAlert(msg, color, priority, durationTicks);
         entity.setData(ModAttachments.HUD_ALERTS, data);
     }
@@ -54,11 +44,12 @@ public class HudAlertManager {
         ACTIVE_ALERTS.sort(Comparator.comparingInt(a -> -a.getAlert().priority()));
     }
 
-    public void tick() {
+    public void tick(LivingEntity host) {
         ACTIVE_ALERTS.removeIf(HudAlertInstance::tickAndShouldRemove);
     }
 
-    public void render(GuiGraphics gui, int width, int height) {
+    public void render(LivingEntity host, GuiGraphics gui) {
+        int width = gui.guiWidth();
         int y = 20; // Centered messages near top of screen
         for (int i = 0; i < ACTIVE_ALERTS.size(); i++) {
             HudAlertInstance instance = ACTIVE_ALERTS.get(i);
@@ -75,23 +66,28 @@ public class HudAlertManager {
         }
     }
 
-    // tick handler
-    @SubscribeEvent
-    public void onPlayerTick(PlayerTickEvent.Pre event) {
-        LivingEntity entity = event.getEntity();
-        HudAlertManager data = entity.getData(ModAttachments.HUD_ALERTS);
-        data.tick();
-        entity.setData(ModAttachments.HUD_ALERTS, data);
-
+    @Override
+    public boolean shouldRender(LivingEntity host) {
+        return !ACTIVE_ALERTS.isEmpty();
     }
 
+    // CODEC
+    public static final Codec<HudAlertAttachment> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            HudAlertInstance.CODEC.listOf().fieldOf("active_alerts")
+                    .forGetter(HudAlertAttachment::getActiveAlerts)
+    ).apply(instance, alerts -> {
+        HudAlertAttachment m = new HudAlertAttachment();
+        m.setActiveAlerts(alerts);
+        return m;
+    }));
+
     // SERIALIZER
-    public static class Serializer implements IAttachmentSerializer<HudAlertManager> {
+    public static class Serializer implements IAttachmentSerializer<HudAlertAttachment> {
 
         @Override
-        public @NotNull HudAlertManager read(@NotNull IAttachmentHolder holder, ValueInput input) {
-            HudAlertManager result = new HudAlertManager();
-            input.read("hud_alert_manager", HudAlertManager.CODEC)
+        public @NotNull HudAlertAttachment read(@NotNull IAttachmentHolder holder, ValueInput input) {
+            HudAlertAttachment result = new HudAlertAttachment();
+            input.read("hud_alert_manager", HudAlertAttachment.CODEC)
                     .ifPresentOrElse(
                             stored -> result.setActiveAlerts(stored.getActiveAlerts()),
                             () -> {
@@ -101,8 +97,8 @@ public class HudAlertManager {
         }
 
         @Override
-        public boolean write(@NotNull HudAlertManager attachment, ValueOutput output) {
-            output.store("hud_alert_manager", HudAlertManager.CODEC, attachment);
+        public boolean write(@NotNull HudAlertAttachment attachment, ValueOutput output) {
+            output.store("hud_alert_manager", HudAlertAttachment.CODEC, attachment);
             return true;
         }
     }
