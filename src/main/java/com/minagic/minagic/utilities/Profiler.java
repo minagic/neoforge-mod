@@ -1,7 +1,6 @@
 package com.minagic.minagic.utilities;
 
 import com.minagic.minagic.Minagic;
-import net.minecraft.client.Minecraft;
 
 public final class Profiler {
     public static long start() {

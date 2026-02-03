@@ -37,7 +37,7 @@ public class VoidParticle extends Particle {
         }
 
         @Override
-        public @Nullable Particle createParticle(SimpleParticleType particleType, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, RandomSource random) {
+        public @Nullable Particle createParticle(@NotNull SimpleParticleType particleType, @NotNull ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, @NotNull RandomSource random) {
             return new VoidParticle(level, x, y, z, 0, 0, 0);
         }
     }

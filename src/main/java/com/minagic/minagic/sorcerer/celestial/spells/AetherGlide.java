@@ -11,7 +11,6 @@ import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
-import com.minagic.minagic.spells.*;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -20,7 +19,6 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -66,9 +64,6 @@ public class AetherGlide extends AutonomousSpell {
         ).setEffect((ctx, simData) -> {
 
             LivingEntity target = ctx.target;
-            Level level = target.level();
-
-            if (level.isClientSide()) return;
 
 // -----------------------------
 // ALTITUDE FACTOR (0..1)
@@ -121,7 +116,7 @@ public class AetherGlide extends AutonomousSpell {
                 player.setOnGround(false);
             }
 
-            if (level instanceof ServerLevel server) {
+            if (ctx.level() instanceof ServerLevel server) {
                 Vec3 pos = target.position();
                 server.sendParticles(
                         ParticleTypes.END_ROD,

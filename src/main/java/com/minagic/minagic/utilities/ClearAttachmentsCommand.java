@@ -23,6 +23,7 @@ public class ClearAttachmentsCommand {
         );
     }
 
+    @SuppressWarnings("SameReturnValue")
     private static int clear(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         Entity entity = EntityArgument.getEntity(ctx, "entity");
         ModAttachments.resetAllAttachments(entity);

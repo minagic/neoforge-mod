@@ -34,9 +34,7 @@ public class SpellGateTests {
                 .addGate(new DefaultGates.ManaGate(10, new SolarSurge()))
                 .setEffect(
                         (context, simData) ->
-                        {
-                            helper.fail("Effect should not have run due to insufficient mana, worked instead");
-                        }
+                                helper.fail("Effect should not have run due to insufficient mana, worked instead")
                 )
                 .execute(ctx, null);
 
@@ -63,12 +61,9 @@ public class SpellGateTests {
                             .addGate(new DefaultGates.ManaGate(10, new SolarSurge()))
                             .setEffect(
                                     (context1, simData) ->
-                                    {
-                                        helper.succeed();
-                                    }
+                                            helper.succeed()
                             )
                             .execute(context, null);
-                    data2 = fakePlayer.getData(ModAttachments.MANA);
 
                     helper.assertTrue(manaAttachement.getMana() == 190, Component.nullToEmpty("Mana should have been spent resulting in 190 mana, got " + manaAttachement.getMana() + " instead"));
                 }
@@ -88,9 +83,7 @@ public class SpellGateTests {
                 .addGate(new DefaultGates.CooldownGate(new SolarSurge(), 20))
                 .setEffect(
                         (context, simData) ->
-                        {
-                            flag.set(true);
-                        }
+                                flag.set(true)
                 )
                 .execute(ctx, null);
 
@@ -100,9 +93,7 @@ public class SpellGateTests {
                 .addGate(new DefaultGates.CooldownGate( new SolarSurge(), 20))
                 .setEffect(
                         (context, simData) ->
-                        {
-                            helper.fail("SpellGate effect should have failed with cooldown, worked instead");
-                        }
+                                helper.fail("SpellGate effect should have failed with cooldown, worked instead")
                 )
                 .execute(ctx, null);
 

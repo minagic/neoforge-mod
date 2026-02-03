@@ -1,9 +1,7 @@
 package com.minagic.minagic;
 
-import com.minagic.minagic.particles.VoidParticle;
 import com.minagic.minagic.particles.CelestParticles;
 import com.minagic.minagic.registries.ModParticles;
-import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaImpactProxyEntity;
 import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaProxyRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.neoforged.bus.api.SubscribeEvent;

@@ -1,6 +1,5 @@
 package com.minagic.minagic.capabilities;
 
-import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.registries.ModAttachments;

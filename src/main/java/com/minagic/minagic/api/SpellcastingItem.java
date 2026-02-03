@@ -145,7 +145,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item {
     }
 
     @Override
-    public InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.FAIL;
         }

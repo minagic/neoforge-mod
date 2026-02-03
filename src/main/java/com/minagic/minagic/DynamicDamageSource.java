@@ -7,6 +7,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Set;
@@ -36,7 +37,7 @@ public class DynamicDamageSource extends DamageSource {
     }
 
     @Override
-    public boolean is(TagKey<DamageType> tag) {
+    public boolean is(@NotNull TagKey<DamageType> tag) {
         if (tag == DamageTypeTags.BYPASSES_ARMOR) {
             // custom logic, e.g. check your own tag set
             return this.tags.contains(DamageTypes.ARMOR_PIERCING);
@@ -47,7 +48,7 @@ public class DynamicDamageSource extends DamageSource {
     }
 
     @Override
-    public boolean is(ResourceKey<DamageType> key) {
+    public boolean is(@NotNull ResourceKey<DamageType> key) {
         return this.tags.contains(key);
     }
 

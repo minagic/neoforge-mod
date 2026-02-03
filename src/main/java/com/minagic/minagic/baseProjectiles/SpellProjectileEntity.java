@@ -7,6 +7,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -97,12 +98,12 @@ public abstract class SpellProjectileEntity extends Projectile {
     // ---- hooks ---------------------------------------------------------------
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         // no synced fields
     }
 
     @Override
-    protected void onHitEntity(EntityHitResult hitResult) {
+    protected void onHitEntity(@NotNull EntityHitResult hitResult) {
         if (maxPierce <= 0) {
             return;
         }
@@ -112,7 +113,7 @@ public abstract class SpellProjectileEntity extends Projectile {
     }
 
     @Override
-    protected void onHitBlock(BlockHitResult hitResult) {
+    protected void onHitBlock(@NotNull BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
     }
 }

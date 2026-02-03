@@ -59,7 +59,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
                             ServerLevel level = (ServerLevel) ctx.level();
                             LivingEntity target = ctx.target;
 
-                            int t = (int) simData.remainingLifetime();
+                            @SuppressWarnings("DataFlowIssue") int t = (int) simData.remainingLifetime();
 
                             // Live LOS targeting (do NOT cache)
                             BlockPos impact = SpellUtils.getTargetBlockPos(target, 192);
@@ -130,14 +130,15 @@ public class NovaBurst extends AutonomousChargedSpell  {
                         (ctx, simData) -> {
                             BlockPos blockPos = SpellUtils.getTargetBlockPos(ctx.target, 192);
                             if (blockPos == null) return;
-                            NovaImpactProxyEntity proxy = Minagic.NOVA_PROXY.get().create((ServerLevel) ctx.level(), EntitySpawnReason.MOB_SUMMONED);
+                            NovaImpactProxyEntity proxy = Minagic.NOVA_PROXY.get().create(ctx.level(), EntitySpawnReason.MOB_SUMMONED);
                             BlockPos finalBlockPos = new BlockPos(blockPos.getX(), (int)SpellUtils.findSurfaceY(ctx.level(), blockPos.getX(), blockPos.getZ())+20, blockPos.getZ());
+                            assert proxy != null;
                             proxy.setPos(MathUtils.blockPosToVec3(finalBlockPos));
                             proxy.setLifetime(240);
                             proxy.setCasterUUID(ctx.target.getUUID());
                             proxy.setRadius(40);
 
-                            ((ServerLevel)ctx.level()).addFreshEntity(proxy);
+                            ctx.level().addFreshEntity(proxy);
                             SpellCastContext castContext = new SpellCastContext(proxy);
                             new NovaPulsePrecursor().perform(SpellEventPhase.START, castContext, null);
                         }
@@ -196,7 +197,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
                             this
                     )
                     .setEffect((ctx, simData) -> {
-                        float progress = 1-simData.progress();
+                        @SuppressWarnings("DataFlowIssue") float progress = 1-simData.progress();
 
 
                         LivingEntity caster = ctx.target;
@@ -209,7 +210,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
                                 caster.position(),
                                 5+(RADIUS-5)*progress*progress,
                                 LivingEntity.class,
-                                e -> e.isAlive(),
+                                LivingEntity::isAlive,
                                 Set.of(caster)
                         );
 
@@ -253,7 +254,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
             SpellCastContext context = new SpellCastContext(ctx.caster);
             new NovaPulse().perform(SpellEventPhase.START, context, null);
             if (! (ctx.target instanceof NovaImpactProxyEntity novaProxy)) return;
-            LivingEntity player = SpellUtils.resolveLivingEntityAcrossDimensions(novaProxy.getCasterUUID(), ctx.level().getServer());
+            @SuppressWarnings("DataFlowIssue") LivingEntity player = SpellUtils.resolveLivingEntityAcrossDimensions(novaProxy.getCasterUUID(), ctx.level().getServer());
             Vec3 dir = player.position().subtract(ctx.target.position()).normalize();
             player.push(dir.x * 0.5, 0.4, dir.z * 0.5);
             ctx.level().playSound(ctx.target, ctx.target.getOnPos(), SoundEvents.ENDER_DRAGON_DEATH, SoundSource.HOSTILE, 1.5f, 1.2f);
@@ -267,7 +268,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
                             (ctx, simData)->
                             {
                                 RandomSource rand = ctx.level().random;
-                                double angle = (1-simData.progress())*2*Math.PI;
+                                @SuppressWarnings("DataFlowIssue") double angle = (1-simData.progress())*2*Math.PI;
                                 Vec3 origin = ctx.target.position();
                                 Vec3[] targets = MathUtils.twoVectorsWithAngle(origin, angle, rand.nextDouble()*9+6, rand);
                                 for (Vec3 target: targets){

@@ -30,6 +30,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -132,7 +133,7 @@ public class VoidborneSorcererEntity extends Monster implements ItemSupplier {
     }
 
     @Override
-    public ItemStack getItem() {
+    public @NotNull ItemStack getItem() {
         return new ItemStack(Items.WITHER_SKELETON_SKULL);
     }
 

@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -54,12 +55,12 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
+    public boolean mouseClicked(@NotNull MouseButtonEvent event, boolean handled) {
         return super.mouseClicked(event, handled);
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(graphics, mouseX, mouseY, partialTicks);
         super.render(graphics, mouseX, mouseY, partialTicks);
         this.renderTooltip(graphics, mouseX, mouseY);

@@ -151,7 +151,7 @@ public final class WhiteFlashAttachment
         }
 
         @Override
-        public boolean write(WhiteFlashAttachment attachment, ValueOutput output) {
+        public boolean write(WhiteFlashAttachment attachment, @NotNull ValueOutput output) {
             if (attachment.ticksRemaining > 0) {
                 output.store(KEY_TICKS, Codec.INT, attachment.ticksRemaining);
                 output.store(KEY_DURATION, Codec.INT, attachment.duration);

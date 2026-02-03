@@ -156,7 +156,7 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
         }
 
         @Override
-        public void onHitBlock(BlockHitResult result) {
+        public void onHitBlock(@NotNull BlockHitResult result) {
             if (this.level().isClientSide()) return;
             VisualUtils.createParticlesInSphere((ServerLevel) this.level(), this.position(), 4, ParticleTypes.END_ROD, 40);
             AOEHit.applyAOE(

@@ -19,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Optional;
 
 public final class PlayerClass {
 

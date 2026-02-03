@@ -17,7 +17,6 @@ import com.minagic.minagic.spellgates.SpellGateChain;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.MathUtils;
 import com.minagic.minagic.utilities.SpellUtils;
-import com.minagic.minagic.utilities.SpellValidationResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -46,7 +45,6 @@ public class Banishment extends Spell implements ISimulacrumSpell {
                         Minagic.LOGGER.debug("Banishment precheck: no metadata, initializing area");
                         SpellMetadata.setBlockPos(context.target, this, "bb_start", context.target.blockPosition());
                         SimulacraAttachment.addSimulacrum(context.target, context, this, -1, 200);
-                        return;
                     }
 
                     else if (!SpellMetadata.has(context.target, this, "bb_end")) {
@@ -64,7 +62,6 @@ public class Banishment extends Spell implements ISimulacrumSpell {
                                 )
                                 .execute(context, simulacrumData);
 
-                        return;
                     }
                     else {
                         Minagic.LOGGER.debug("Banishment precheck: full metadata detected, cancelling spell");
