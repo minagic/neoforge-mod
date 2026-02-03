@@ -5,12 +5,9 @@ import com.minagic.minagic.registries.ModAttachments;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.util.profiling.Profiler;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -20,8 +17,6 @@ import java.util.List;
 
 
 public final class AttachmentDispatcher {
-
-    private static final List<AttachmentType<?>> ALL = new ArrayList<>();
     private static List<AttachmentType<?>> TICKABLE = new ArrayList<>();
     private static List<AttachmentType<?>> RENDERABLE = new ArrayList<>();
 
@@ -36,7 +31,6 @@ public final class AttachmentDispatcher {
 
         for (var entry : ModAttachments.ATTACHMENTS.getEntries()) {
             AttachmentType<?> type = entry.get();
-            ALL.add(type);
 
             Object attachment;
             try {

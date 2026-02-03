@@ -6,7 +6,6 @@ import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.api.spells.SpellValidator;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.*;
@@ -50,22 +49,29 @@ public class Banishment extends Spell implements ISimulacrumSpell {
                         return;
                     }
 
-                    if (!SpellMetadata.has(context.target, this, "bb_end")) {
+                    else if (!SpellMetadata.has(context.target, this, "bb_end")) {
                         Minagic.LOGGER.debug("Banishment precheck: partial metadata detected");
                         BlockPos pos = context.target.blockPosition();
                         int manaCost = (int) MathUtils.areaBetween(SpellMetadata.getBlockPos(context.target, this, "bb_start"), pos);
-                        SpellValidationResult result = SpellValidator.validateMana(this, context, manaCost);
-                        SpellValidator.showFailureIfNeeded(context, result);
 
-                        if (!result.success()) return;
+                        new SpellGateChain()
+                                .addGate(new DefaultGates.ManaGate(manaCost, this))
+                                .setEffect(
+                                        (internal_ctx, data) -> {
+                                            SpellMetadata.setBlockPos(internal_ctx.target, this, "bb_end", pos);
+                                            SimulacraAttachment.addSimulacrum(internal_ctx.target, internal_ctx, this, 1, -1);
+                                        }
+                                )
+                                .execute(context, simulacrumData);
 
-                        SpellMetadata.setBlockPos(context.target, this, "bb_end", pos);
-                        SimulacraAttachment.addSimulacrum(context.target, context, this, 1, -1);
-                        drainMana(context, manaCost);
                         return;
                     }
-                    Minagic.LOGGER.debug("Banishment precheck: full metadata detected, cancelling spell");
-                    SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
+                    else {
+                        Minagic.LOGGER.debug("Banishment precheck: full metadata detected, cancelling spell");
+                        SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
+                        SpellMetadata.removeBlockPos(context.target, this, "bb_start");
+                        SpellMetadata.removeBlockPos(context.target, this, "bb_end");
+                    }
 
                 }
         ).execute(ctx, simData);

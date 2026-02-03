@@ -1,10 +1,12 @@
 package com.minagic.minagic.capabilities;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -18,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.mojang.serialization.DataResult;
 
 public final class SpellMetadata {
 
@@ -45,6 +48,8 @@ public final class SpellMetadata {
     // INSTANCE GETTERS
     // =========================
     public boolean has(Pair<ResourceLocation, String> key) {
+        Minagic.LOGGER.debug("SpellMetadats lookup: {}", key);
+        Minagic.LOGGER.debug("BlockPos map: {}", blockPosMap);
         return stringMap.containsKey(key)
                 || intMap.containsKey(key)
                 || blockStateMap.containsKey(key)
@@ -88,6 +93,10 @@ public final class SpellMetadata {
 
     public static BlockPos getBlockPos(Entity host, Spell spell, String key) {
         return getAttachment(host).getBlockPos(makeKey(spell, key));
+    }
+
+    public static Map<Pair<ResourceLocation, String>, BlockPos> getAllBlockPos(Entity host) {
+        return Map.copyOf(getAttachment(host).blockPosMap);
     }
 
     // =========================
@@ -165,9 +174,13 @@ public final class SpellMetadata {
     }
 
     public static void setBlockPos(Entity host, Spell spell, String key, BlockPos value) {
+        Minagic.LOGGER.debug("Attempting to set block pos to {} for spell {} at {}", host, spell, value);
         SpellMetadata meta = getAttachment(host);
+        Minagic.LOGGER.debug("Successfully retrieved metadata, block map: {}", meta.blockPosMap);
         meta.setBlockPos(makeKey(spell, key), value);
+        Minagic.LOGGER.debug("Successfully set block pos, new map: {}", meta.blockPosMap);
         host.setData(ModAttachments.SPELL_METADATA, meta);
+        Minagic.LOGGER.debug("Successfully saved new metadata: {}", meta.blockPosMap);
     }
 
     public static void removeBlockPos(Entity host, Spell spell, String key) {
@@ -187,32 +200,37 @@ public final class SpellMetadata {
     // DANGER ZONE: DO NOT EDIT
     // =========================
 
-    public static final Codec<Pair<ResourceLocation, String>> PAIR_CODEC =
-            RecordCodecBuilder.create(instance -> instance.group(
-                    ResourceLocation.CODEC.fieldOf("namespace").forGetter(Pair::getFirst),
-                    Codec.STRING.fieldOf("key").forGetter(Pair::getSecond)
-            ).apply(instance, Pair::of));
 
-    public static final Codec<SpellMetadata> CODEC =
-            RecordCodecBuilder.create(instance -> instance.group(
-                    Codec.unboundedMap(PAIR_CODEC, Codec.STRING).fieldOf("stringMap").forGetter(s -> s.stringMap),
-                    Codec.unboundedMap(PAIR_CODEC, Codec.INT).fieldOf("intMap").forGetter(s -> s.intMap),
-                    Codec.unboundedMap(PAIR_CODEC, BlockState.CODEC).fieldOf("blockStateMap").forGetter(s -> s.blockStateMap),
-                    Codec.unboundedMap(PAIR_CODEC, BlockPos.CODEC).fieldOf("blockPosMap").forGetter(s -> s.blockPosMap)
-            ).apply(instance, (stringMap, intMap, blockStateMap, blockPosMap) -> {
-                SpellMetadata meta = new SpellMetadata();
-                meta.stringMap.putAll(stringMap);
-                meta.intMap.putAll(intMap);
-                meta.blockStateMap.putAll(blockStateMap);
-                meta.blockPosMap.putAll(blockPosMap);
-                return meta;
-            }));
 
+    public static final Codec<Pair<ResourceLocation, String>> PAIR_CODEC = Codec.STRING.comapFlatMap(s -> {
+        int i = s.indexOf('|');
+        if (i <= 0) return null;
+        try {
+            ResourceLocation rl = ResourceLocation.parse(s.substring(0, i));
+            String key = s.substring(i + 1);
+            return DataResult.success(Pair.of(rl, key));
+        } catch (Exception e) {
+            return null;
+        }
+    }, pair -> pair.getFirst().toString() + "|" + pair.getSecond());
+
+    public static final Codec<SpellMetadata> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.unboundedMap(PAIR_CODEC, Codec.STRING).fieldOf("stringMap").forGetter(s -> s.stringMap),
+            Codec.unboundedMap(PAIR_CODEC, Codec.INT).fieldOf("intMap").forGetter(s -> s.intMap),
+            Codec.unboundedMap(PAIR_CODEC, BlockState.CODEC).fieldOf("blockStateMap").forGetter(s -> s.blockStateMap),
+            Codec.unboundedMap(PAIR_CODEC, BlockPos.CODEC).fieldOf("blockPosMap").forGetter(s -> s.blockPosMap)
+    ).apply(instance, (stringMap, intMap, blockStateMap, blockPosMap) -> {
+        SpellMetadata meta = new SpellMetadata();
+        meta.stringMap.putAll(stringMap);
+        meta.intMap.putAll(intMap);
+        meta.blockStateMap.putAll(blockStateMap);
+        meta.blockPosMap.putAll(blockPosMap);
+        return meta;
+    }));
     // =========================
     // SERIALIZER
     // =========================
     public static class Serializer implements IAttachmentSerializer<SpellMetadata> {
-
         private static final String KEY_STRING_MAP = "stringMap";
         private static final String KEY_INT_MAP = "intMap";
         private static final String KEY_BLOCKSTATE_MAP = "blockStateMap";
@@ -221,19 +239,10 @@ public final class SpellMetadata {
         @Override
         public @NotNull SpellMetadata read(@NotNull IAttachmentHolder holder, ValueInput input) {
             SpellMetadata metadata = new SpellMetadata();
-
-            input.read(KEY_STRING_MAP, Codec.unboundedMap(PAIR_CODEC, Codec.STRING))
-                    .ifPresent(metadata.stringMap::putAll);
-
-            input.read(KEY_INT_MAP, Codec.unboundedMap(PAIR_CODEC, Codec.INT))
-                    .ifPresent(metadata.intMap::putAll);
-
-            input.read(KEY_BLOCKSTATE_MAP, Codec.unboundedMap(PAIR_CODEC, BlockState.CODEC))
-                    .ifPresent(metadata.blockStateMap::putAll);
-
-            input.read(KEY_BLOCKPOS_MAP, Codec.unboundedMap(PAIR_CODEC, BlockPos.CODEC))
-                    .ifPresent(metadata.blockPosMap::putAll);
-
+            input.read(KEY_STRING_MAP, Codec.unboundedMap(PAIR_CODEC, Codec.STRING)).ifPresent(metadata.stringMap::putAll);
+            input.read(KEY_INT_MAP, Codec.unboundedMap(PAIR_CODEC, Codec.INT)).ifPresent(metadata.intMap::putAll);
+            input.read(KEY_BLOCKSTATE_MAP, Codec.unboundedMap(PAIR_CODEC, BlockState.CODEC)).ifPresent(metadata.blockStateMap::putAll);
+            input.read(KEY_BLOCKPOS_MAP, Codec.unboundedMap(PAIR_CODEC, BlockPos.CODEC)).ifPresent(metadata.blockPosMap::putAll);
             return metadata;
         }
 

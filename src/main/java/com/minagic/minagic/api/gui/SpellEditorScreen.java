@@ -24,7 +24,7 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
     protected final Player player;
     protected final ItemStack stack;
     protected final SpellcastingItem<T> item;
-    protected T data;
+    protected final T data;
 
     public SpellEditorScreen(Player player, SpellcastingItem<T> item, ItemStack stack) {
         super(new MerchantMenu(0, player.getInventory()), player.getInventory(), item.getName(stack));

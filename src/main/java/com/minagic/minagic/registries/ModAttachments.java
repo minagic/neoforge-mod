@@ -5,12 +5,15 @@ import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
 import com.minagic.minagic.capabilities.hudAlerts.WhiteFlashAttachment;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.function.Supplier;
+
+import java.util.List;
 
 public class ModAttachments {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
@@ -71,6 +74,31 @@ public class ModAttachments {
                             .build()
             );
 
+
+    private static final List<AttachmentEntry<?>> REGISTERED_ATTACHMENTS = List.of(
+            new AttachmentEntry<>(PLAYER_SPELL_COOLDOWNS, CooldownAttachment::new),
+            new AttachmentEntry<>(PLAYER_CLASS, PlayerClass::new),
+            new AttachmentEntry<>(MANA, ManaAttachment::new),
+            new AttachmentEntry<>(PLAYER_SIMULACRA, SimulacraAttachment::new),
+            new AttachmentEntry<>(HUD_ALERTS, HudAlertAttachment::new),
+            new AttachmentEntry<>(SPELL_METADATA, SpellMetadata::new),
+            new AttachmentEntry<>(WHITE_FLASH, WhiteFlashAttachment::new)
+    );
+
+    public static void resetAllAttachments(Entity entity) {
+        for (AttachmentEntry<?> entry : REGISTERED_ATTACHMENTS) {
+            resetAttachment(entity, entry);
+        }
+    }
+
+    private static <T> void resetAttachment(Entity entity, AttachmentEntry<T> entry) {
+
+        entity.setData(entry.typeSupplier().get(), entry.instanceFactory().get());
+    }
+
+    private record AttachmentEntry<T>(Supplier<AttachmentType<T>> typeSupplier,
+                                      Supplier<T> instanceFactory) {
+    }
 
     public static void register(IEventBus bus) {
         ATTACHMENTS.register(bus);

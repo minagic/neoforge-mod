@@ -78,21 +78,21 @@ public final class ManaAttachment implements AutodetectionInterfaces.IRenderable
     // STATIC SETTERS
     // =========================
     public static void drainMana(Entity host, float amount) {
-        ManaAttachment manaAttachement = getAttachment(host);
-        manaAttachement.drainMana(amount);
-        host.setData(ModAttachments.MANA, manaAttachement);
+        ManaAttachment manaAttachment = getAttachment(host);
+        manaAttachment.drainMana(amount);
+        host.setData(ModAttachments.MANA, manaAttachment);
     }
 
     public static void restoreMana(Entity host, float amount) {
-        ManaAttachment manaAttachement = getAttachment(host);
-        manaAttachement.restoreMana(amount);
-        host.setData(ModAttachments.MANA, manaAttachement);
+        ManaAttachment manaAttachment = getAttachment(host);
+        manaAttachment.restoreMana(amount);
+        host.setData(ModAttachments.MANA, manaAttachment);
     }
 
     public static void setMaxMana(Entity host, int maxMana) {
-        ManaAttachment manaAttachement = getAttachment(host);
-        manaAttachement.setMaxMana(maxMana);
-        host.setData(ModAttachments.MANA, manaAttachement);
+        ManaAttachment manaAttachment = getAttachment(host);
+        manaAttachment.setMaxMana(maxMana);
+        host.setData(ModAttachments.MANA, manaAttachment);
     }
 
     // =========================
@@ -202,16 +202,16 @@ public final class ManaAttachment implements AutodetectionInterfaces.IRenderable
         private static final String KEY_MAX_MANA = "maxMana";
 
         @Override
-        public ManaAttachment read(@NotNull IAttachmentHolder holder, ValueInput input) {
-            ManaAttachment manaAttachement = new ManaAttachment();
-            input.read(KEY_MAX_MANA, Codec.INT).ifPresent(manaAttachement::setMaxMana);
-            // Read both manaAttachement and maxMana if present
+        public @NotNull ManaAttachment read(@NotNull IAttachmentHolder holder, ValueInput input) {
+            ManaAttachment manaAttachment = new ManaAttachment();
+            input.read(KEY_MAX_MANA, Codec.INT).ifPresent(manaAttachment::setMaxMana);
+            // Read both manaAttachment and maxMana if present
             input.read(KEY_MANA, Codec.INT).ifPresent(value -> {
                 // Clamp to ensure no invalid data
-                manaAttachement.restoreMana(value - manaAttachement.getMana());
+                manaAttachment.restoreMana(value - manaAttachment.getMana());
             });
 
-            return manaAttachement;
+            return manaAttachment;
         }
 
         @Override

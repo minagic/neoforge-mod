@@ -12,8 +12,10 @@ import com.minagic.minagic.sorcerer.celestial.spells.TracerBullet;
 import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
 import com.minagic.minagic.spellCasting.ClearData;
 import com.minagic.minagic.spells.FireballEntity;
+import com.minagic.minagic.utilities.ClearAttachmentsCommand;
 import com.minagic.minagic.utilities.EntityFreezer;
 import com.minagic.minagic.utilities.ModEvents;
+import com.minagic.minagic.utilities.SetClassCommand;
 import com.minagic.minagic.utilities.WorldEvents;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -139,7 +141,6 @@ public class Minagic {
 
         ModSpells.register();
         // Register your tick handlers here!
-        NeoForge.EVENT_BUS.register(new MinagicTaskScheduler());
         NeoForge.EVENT_BUS.register(new ClientInputHandler());
         NeoForge.EVENT_BUS.register(new CooldownOverlay());
         NeoForge.EVENT_BUS.register(new WorldEvents());
@@ -174,7 +175,8 @@ public class Minagic {
 
     // Command registration method
     private void onRegisterCommands(RegisterCommandsEvent event) {
-        MinagicTestCommand.register(event.getDispatcher());
+        SetClassCommand.register(event.getDispatcher());
+        ClearAttachmentsCommand.register(event.getDispatcher());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

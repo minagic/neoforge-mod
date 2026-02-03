@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SpellGateChain {
-    List<ISpellGate> gates = new ArrayList<>();
+    final List<ISpellGate> gates = new ArrayList<>();
     SpellEffect effect;
 
     public SpellGateChain addGate(ISpellGate gate) {

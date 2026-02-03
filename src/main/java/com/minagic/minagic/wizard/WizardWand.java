@@ -19,6 +19,7 @@ public class WizardWand extends SpellcastingItem<WizardWandData> {
         return playerClass.getMainClass() == PlayerClassEnum.WIZARD;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public SpellEditorScreen<WizardWandData> getEditorScreen(Player player, ItemStack stack) {
         return new WizardWandEditorScreen(player, this, stack);

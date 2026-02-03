@@ -89,9 +89,9 @@ public class EntityFreezer {
     }
 
     public static class Entry {
-        Vec3 originalMotion;
+        final Vec3 originalMotion;
         long lastSeenTick;
-        Vec3 originalPosition;
+        final Vec3 originalPosition;
         Vec3 momentum;
 
         Entry(Vec3 originalMotion, long lastSeenTick, Vec3 originalPosition) {

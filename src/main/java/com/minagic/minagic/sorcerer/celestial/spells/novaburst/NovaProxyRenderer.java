@@ -89,10 +89,6 @@ public class NovaProxyRenderer extends EntityRenderer<NovaImpactProxyEntity, Nov
     }
 
 
-    public ResourceLocation getTextureLocation(NovaImpactProxyEntity entity) {
-        return TextureAtlas.LOCATION_BLOCKS;
-    }
-
     // =========================
     // PRECURSOR
     // =========================
@@ -119,9 +115,6 @@ public class NovaProxyRenderer extends EntityRenderer<NovaImpactProxyEntity, Nov
     // PULSE
     // =========================
     private void renderPulse(PoseStack.Pose pose, VertexConsumer vc, float progress) {
-//            VertexConsumer vc = buffer.getBuffer(RenderType.energySwirl(
-//                    ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/end_gateway_beam.png"), 0, 0));
-
         float radius = 5+ (1-progress)*(1-progress) * 35f;
         renderOrb(pose, vc, radius, 255, 32, 64);
     }
