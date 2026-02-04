@@ -4,6 +4,7 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.gui.SpellEditorScreen;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
+import com.minagic.minagic.capabilities.CooldownAttachment;
 import com.minagic.minagic.capabilities.PlayerClass;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.packets.SpellWritePacket;
@@ -100,11 +101,11 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item {
     }
 
 
-    public double getRemainingCooldown(ItemStack stack, LivingEntity player) {
+    public double getRemainingCooldown(ItemStack stack, LivingEntity living) {
         T data = getData(stack);
         ResourceLocation spellId = data.getActive().getSpellId();
 
-        int tickCooldown = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get()).getCooldown(spellId);
+        int tickCooldown = CooldownAttachment.getCooldown(living, spellId);
 
         return Math.floor((tickCooldown) / 2.0) / 10.0;
     }

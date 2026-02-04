@@ -28,7 +28,6 @@ public class HudAlertAttachment implements AutodetectionInterfaces.IRenderableAt
     }
 
     public void addAlert(String msg, int color, int priority, int durationTicks) {
-        // Remove lower-priority duplicates
         ACTIVE_ALERTS.removeIf(a -> a.getAlert().message().equals(msg));
         ACTIVE_ALERTS.add(new HudAlertInstance(new HudAlert(msg, color, priority, durationTicks)));
         ACTIVE_ALERTS.sort(Comparator.comparingInt(a -> -a.getAlert().priority()));

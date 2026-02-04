@@ -22,19 +22,6 @@ public abstract class Spell {
 
 
     // CASTING LIFECYCLE METHODS
-
-    public void applyCooldown(SpellCastContext context, int cooldown) {
-        var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-        cooldowns.applyCooldown(ModSpells.getId(this), cooldown);
-        context.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
-    }
-
-    public void drainMana(SpellCastContext context, int manaCost) {
-        var mana = context.caster.getData(ModAttachments.MANA.get());
-        mana.drainMana(manaCost);
-        context.caster.setData(ModAttachments.MANA.get(), mana);
-    }
-
     public void perform(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         if (context.validate()) {
             return;

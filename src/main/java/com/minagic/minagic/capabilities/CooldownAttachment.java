@@ -53,7 +53,7 @@ public final class CooldownAttachment implements AutodetectionInterfaces.ILiving
     }
 
     public static boolean isOnCooldown(Entity host, ResourceLocation id) {
-        return getCooldown(host, id) > 0;
+        return getAttachment(host).isOnCooldown(id);
     }
 
     // =========================
