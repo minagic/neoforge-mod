@@ -1,6 +1,7 @@
 package com.minagic.minagic.baseProjectiles;
 
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -31,9 +32,13 @@ public abstract class SpellProjectileEntity extends Projectile {
     @Override
     public void tick() {
         super.tick();
+
+        faceVelocity(this);
+
+
         Vec3 currentPos = this.position();
-        Vec3 motion = this.getDeltaMovement().add(0, -gravity, 0);
-        Vec3 nextPos = currentPos.add(motion);
+        Vec3 delta = this.getDeltaMovement().add(0, -gravity, 0);
+        Vec3 nextPos = currentPos.add(delta);
 
         // --- BLOCK COLLISION ---
         if (!isBlockPiercing) {
@@ -54,7 +59,7 @@ public abstract class SpellProjectileEntity extends Projectile {
 
         // --- MOVE PROJECTILE ---
         this.setPos(nextPos.x, nextPos.y, nextPos.z);
-        this.setDeltaMovement(motion);
+        this.setDeltaMovement(delta);
         this.setBoundingBox(this.makeBoundingBox());
     }
 
@@ -115,5 +120,17 @@ public abstract class SpellProjectileEntity extends Projectile {
     @Override
     protected void onHitBlock(@NotNull BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
+    }
+
+    public static void faceVelocity(Entity e) {
+        Vec3 v = e.getDeltaMovement();
+        if (v.lengthSqr() < 1e-6) return;
+
+        float yaw = (float)(Mth.atan2(v.z, v.x) * (180F / Math.PI)) - 90F;
+        float pitch = (float)(-(Mth.atan2(v.y,
+                Math.sqrt(v.x * v.x + v.z * v.z)) * (180F / Math.PI)));
+
+        e.setYRot(yaw);
+        e.setXRot(pitch);
     }
 }
