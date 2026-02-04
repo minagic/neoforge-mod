@@ -1,8 +1,6 @@
 package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import org.jetbrains.annotations.Nullable;
@@ -75,7 +73,7 @@ public abstract class Spell {
         return manaCost;
     }
 
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
         return new ArrayList<>();
     }
 

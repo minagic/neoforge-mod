@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
-public final class PlayerClass {
+public final class MagicClass {
 
     // =========================
     // INTERNAL VARIABLES
@@ -32,7 +32,7 @@ public final class PlayerClass {
     // =========================
     // CONSTRUCTOR
     // =========================
-    public PlayerClass() {
+    public MagicClass() {
         this.mainClass = PlayerClassEnum.UNDECLARED;
         this.subclasses = new EnumMap<>(PlayerSubClassEnum.class);
         this.deity = DeityEnum.UNDECLARED;
@@ -122,31 +122,31 @@ public final class PlayerClass {
     // STATIC SETTERS
     // =========================
     public static void setMainClass(Entity host, PlayerClassEnum clazz) {
-        PlayerClass pc = getAttachment(host);
+        MagicClass pc = getAttachment(host);
         pc.setMainClass(clazz);
         host.setData(ModAttachments.PLAYER_CLASS, pc);
     }
 
     public static void setSubclassLevel(Entity host, PlayerSubClassEnum subclass, int level) {
-        PlayerClass pc = getAttachment(host);
+        MagicClass pc = getAttachment(host);
         pc.setSubclassLevel(subclass, level);
         host.setData(ModAttachments.PLAYER_CLASS, pc);
     }
 
     public static void setDeity(Entity host, DeityEnum deity) {
-        PlayerClass pc = getAttachment(host);
+        MagicClass pc = getAttachment(host);
         pc.setDeity(deity);
         host.setData(ModAttachments.PLAYER_CLASS, pc);
     }
 
     public static void clearSubclasses(Entity host) {
-        PlayerClass pc = getAttachment(host);
+        MagicClass pc = getAttachment(host);
         pc.clearSubclasses();
         host.setData(ModAttachments.PLAYER_CLASS, pc);
     }
 
     public static void clearDeity(Entity host) {
-        PlayerClass pc = getAttachment(host);
+        MagicClass pc = getAttachment(host);
         pc.clearDeity();
         host.setData(ModAttachments.PLAYER_CLASS, pc);
     }
@@ -169,7 +169,7 @@ public final class PlayerClass {
     // =========================
     // INTERNAL HELPERS
     // =========================
-    private static PlayerClass getAttachment(Entity entity) {
+    private static MagicClass getAttachment(Entity entity) {
         return entity.getData(ModAttachments.PLAYER_CLASS);
     }
 
@@ -214,13 +214,13 @@ public final class PlayerClass {
     // =========================
 
     // CODEC
-    public static final Codec<PlayerClass> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            PlayerClassEnum.CODEC.fieldOf("main_class").forGetter(PlayerClass::getMainClass),
+    public static final Codec<MagicClass> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            PlayerClassEnum.CODEC.fieldOf("main_class").forGetter(MagicClass::getMainClass),
             Codec.unboundedMap(PlayerSubClassEnum.CODEC, Codec.INT)
-                    .optionalFieldOf("subclasses", Map.of()).forGetter(PlayerClass::getAllSubclasses),
-            DeityEnum.CODEC.fieldOf("deity").forGetter(PlayerClass::getDeity)
+                    .optionalFieldOf("subclasses", Map.of()).forGetter(MagicClass::getAllSubclasses),
+            DeityEnum.CODEC.fieldOf("deity").forGetter(MagicClass::getDeity)
     ).apply(inst, (mainClass, subclassMap, deity) -> {
-        PlayerClass result = new PlayerClass();
+        MagicClass result = new MagicClass();
         result.setMainClass(mainClass);
         subclassMap.forEach(result::setSubclassLevel);
         result.setDeity(deity);
@@ -228,12 +228,12 @@ public final class PlayerClass {
     }));
 
     // SERIALIZER
-    public static class Serializer implements IAttachmentSerializer<PlayerClass> {
+    public static class Serializer implements IAttachmentSerializer<MagicClass> {
 
         @Override
-        public @NotNull PlayerClass read(@NotNull IAttachmentHolder holder, ValueInput input) {
-            PlayerClass result = new PlayerClass();
-            input.read("player_class", PlayerClass.CODEC)
+        public @NotNull MagicClass read(@NotNull IAttachmentHolder holder, ValueInput input) {
+            MagicClass result = new MagicClass();
+            input.read("player_class", MagicClass.CODEC)
                     .ifPresent(pc -> {
                         result.setMainClass(pc.getMainClass());
                         pc.getAllSubclasses().forEach(result::setSubclassLevel);
@@ -243,8 +243,8 @@ public final class PlayerClass {
         }
 
         @Override
-        public boolean write(@NotNull PlayerClass attachment, ValueOutput output) {
-            output.store("player_class", PlayerClass.CODEC, attachment);
+        public boolean write(@NotNull MagicClass attachment, ValueOutput output) {
+            output.store("player_class", MagicClass.CODEC, attachment);
             return true;
         }
     }

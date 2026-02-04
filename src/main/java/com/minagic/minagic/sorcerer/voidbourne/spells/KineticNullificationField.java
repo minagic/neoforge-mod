@@ -26,8 +26,8 @@ public class KineticNullificationField extends AutonomousSpell {
         this.manaCost = 1;
     }
 
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.AllowedClass(
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
                 PlayerClassEnum.SORCERER,
                 PlayerSubClassEnum.SORCERER_VOIDBOURNE,
                 3

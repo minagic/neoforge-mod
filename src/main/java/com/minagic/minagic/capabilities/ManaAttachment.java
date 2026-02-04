@@ -99,9 +99,8 @@ public final class ManaAttachment implements AutodetectionInterfaces.IRenderable
     // INTERNAL METHODS
     // =========================
     public void tick(LivingEntity host) {
-        PlayerClass pc = host.getData(ModAttachments.PLAYER_CLASS);
 
-        int computedMax = computeMaxMana(host, pc);
+        int computedMax = computeMaxMana(host);
 
         // Adjust current mana if needed
         if (mana > computedMax) {
@@ -115,11 +114,11 @@ public final class ManaAttachment implements AutodetectionInterfaces.IRenderable
 
     }
 
-    private int computeMaxMana(LivingEntity player, PlayerClass pc) {
-        if (!(player instanceof Player)) {
-            return 1000; // Non-player entities have a lot of mana
+    private int computeMaxMana(LivingEntity living) {
+        if (!(living instanceof Player)) {
+            return 1000; // Non-living entities have a lot of mana
         }
-        int base = switch (pc.getMainClass()) {
+        int base = switch (MagicClass.getMainClass(living)) {
             case SORCERER -> 120;
             case CLERIC -> 100;
             case DRUID -> 110;
@@ -129,9 +128,9 @@ public final class ManaAttachment implements AutodetectionInterfaces.IRenderable
         };
 
         // Subclass bonuses
-        base += pc.getSubclassLevel(PlayerSubClassEnum.SORCERER_VOIDBOURNE) * 5;
-        base += pc.getSubclassLevel(PlayerSubClassEnum.CLERIC_ORACLE) * 3;
-        base += pc.getSubclassLevel(PlayerSubClassEnum.DRUID_SPIRITS) * 2;
+        base += MagicClass.getSubclassLevel(living, PlayerSubClassEnum.SORCERER_VOIDBOURNE) * 5;
+        base += MagicClass.getSubclassLevel(living, PlayerSubClassEnum.CLERIC_ORACLE) * 3;
+        base += MagicClass.getSubclassLevel(living, PlayerSubClassEnum.DRUID_SPIRITS) * 2;
 
         return base;
     }

@@ -31,8 +31,8 @@ public class FireballBarrage extends AutonomousSpell {
         this.simulacraThreshold = 5;
     }
 
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.AllowedClass(
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
                 PlayerClassEnum.SORCERER,
                 PlayerSubClassEnum.SORCERER_INFERNAL,
                 0

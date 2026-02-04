@@ -178,7 +178,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.AllowedClass[]{new DefaultGates.ClassGate.AllowedClass(PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 10)});
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.MagicClassEntry[]{new DefaultGates.ClassGate.MagicClassEntry(PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 10)});
     }
 }

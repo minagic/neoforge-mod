@@ -18,7 +18,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.Level;
 
 import java.util.List;
 
@@ -132,9 +131,9 @@ public class AetherGlide extends AutonomousSpell {
     }
 
     @Override
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
         return List.of(
-                new DefaultGates.ClassGate.AllowedClass(
+                new DefaultGates.ClassGate.MagicClassEntry(
                         PlayerClassEnum.SORCERER,
                         PlayerSubClassEnum.SORCERER_CELESTIAL,
                         13

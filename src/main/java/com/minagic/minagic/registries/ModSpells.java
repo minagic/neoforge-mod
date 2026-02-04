@@ -8,7 +8,6 @@ import com.minagic.minagic.sorcerer.celestial.spells.*;
 import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaBurst;
 import com.minagic.minagic.sorcerer.spells.EventHorizon;
 import com.minagic.minagic.sorcerer.spells.FireballBarrage;
-import com.minagic.minagic.sorcerer.spells.InstantFireballImbueSpell;
 import com.minagic.minagic.sorcerer.spells.VoidBlast;
 import com.minagic.minagic.sorcerer.voidbourne.spells.KineticNullificationField;
 import com.minagic.minagic.spellCasting.SpellRegistry;
@@ -38,7 +37,6 @@ public final class ModSpells {
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "kinetic_nullification_field"), new KineticNullificationField());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "celestial_bombardment"), new CelestialBombardment());
 
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "imbue_fireball"), new InstantFireballImbueSpell());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "circle_of_life"), new CircleOfLife());
         SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "oath_of_life"), new OathOfLife());
 

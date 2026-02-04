@@ -24,8 +24,8 @@ public class VoidBlast extends InstanteneousSpell {
         // simulacrum values untouched
     }
 
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.AllowedClass(
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
                 PlayerClassEnum.SORCERER,
                 PlayerSubClassEnum.SORCERER_VOIDBOURNE,
                 3

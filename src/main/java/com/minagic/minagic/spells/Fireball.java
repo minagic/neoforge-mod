@@ -27,14 +27,14 @@ public class Fireball extends InstanteneousSpell {
         // manaCost and cooldown inherited / preset elsewhere
     }
 
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
         return List.of(
-                new DefaultGates.ClassGate.AllowedClass(
+                new DefaultGates.ClassGate.MagicClassEntry(
                         PlayerClassEnum.SORCERER,
                         PlayerSubClassEnum.SORCERER_INFERNAL,
                         3
                 ),
-                new DefaultGates.ClassGate.AllowedClass(
+                new DefaultGates.ClassGate.MagicClassEntry(
                         PlayerClassEnum.WIZARD,
                         PlayerSubClassEnum.WIZARD_ELEMANCY,
                         3

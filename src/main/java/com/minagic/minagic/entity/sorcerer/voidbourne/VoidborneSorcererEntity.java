@@ -2,7 +2,7 @@ package com.minagic.minagic.entity.sorcerer.voidbourne;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.SpellcastingItem;
-import com.minagic.minagic.capabilities.PlayerClass;
+import com.minagic.minagic.capabilities.MagicClass;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
@@ -43,12 +43,8 @@ public class VoidborneSorcererEntity extends Monster implements ItemSupplier {
         this.setGlowingTag(true);
         this.xpReward = 20;
         // a class for free!
-        PlayerClass pc = this.getData(ModAttachments.PLAYER_CLASS);
-        pc.setMainClass(PlayerClassEnum.SORCERER);
-        pc.setSubclassLevel(PlayerSubClassEnum.SORCERER_VOIDBOURNE, 10);
-        this.setData(ModAttachments.PLAYER_CLASS, pc);
-
-        // standard issue staff
+        MagicClass.setMainClass(this, PlayerClassEnum.SORCERER);
+        MagicClass.setSubclassLevel(this, PlayerSubClassEnum.SORCERER_VOIDBOURNE, 10);
 
     }
 

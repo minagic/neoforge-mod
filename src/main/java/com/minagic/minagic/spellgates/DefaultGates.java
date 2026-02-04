@@ -16,10 +16,10 @@ import java.util.List;
 
 public class DefaultGates {
     public static class ClassGate implements ISpellGate {
-        private final List<AllowedClass> allowedClasses;
+        private final List<MagicClassEntry> magicClassEntries;
         private String failureMessage;
-        public ClassGate(List<AllowedClass> classes) {
-            this.allowedClasses = classes;
+        public ClassGate(List<MagicClassEntry> classes) {
+            this.magicClassEntries = classes;
         }
 
         @Override
@@ -29,15 +29,14 @@ public class DefaultGates {
             boolean anyClassMatch = false;
             boolean anySubclassMatch = false;
 
-            PlayerClass playerData = caster.getData(ModAttachments.PLAYER_CLASS);
 
+            PlayerClassEnum actualClass = MagicClass.getMainClass(caster);
+            for (MagicClassEntry allowed : magicClassEntries) {
 
-            for (AllowedClass allowed : allowedClasses) {
-                PlayerClassEnum playerClass = playerData.getMainClass();
                 for (PlayerSubClassEnum subClass : PlayerSubClassEnum.values()) {
-                    int level = playerData.getSubclassLevel(subClass);
+                    int level = MagicClass.getSubclassLevel(caster, subClass);
 
-                    if (playerClass != allowed.mainClass()) {
+                    if (actualClass != allowed.mainClass()) {
                         continue;
                     }
 
@@ -62,11 +61,8 @@ public class DefaultGates {
             // Determine fallback message if full match not found
             if (!anyClassMatch) {
                 // Worst case — wrong class
-                PlayerClassEnum actualClass = playerData.getMainClass();
                 failureMessage = actualClass.getUnknownSpellMessage();
             } else if (!anySubclassMatch) {
-                // Mid-case — correct class, wrong subclass
-                PlayerClassEnum actualClass = playerData.getMainClass();
                 failureMessage = actualClass.getSubclassMismatchMessage();
             }
 
@@ -84,7 +80,7 @@ public class DefaultGates {
             );
         }
 
-        public record AllowedClass(
+        public record MagicClassEntry(
                 PlayerClassEnum mainClass,
                 PlayerSubClassEnum subClass,
                 int level

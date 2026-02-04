@@ -1,7 +1,7 @@
 package com.minagic.minagic.utilities;
 
 import com.minagic.minagic.capabilities.MagicClassEnums.DeityEnum;
-import com.minagic.minagic.capabilities.PlayerClass;
+import com.minagic.minagic.capabilities.MagicClass;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.registries.ModAttachments;
@@ -40,7 +40,7 @@ public class SetClassCommand {
     private static int apply(CommandContext<CommandSourceStack> ctx, boolean withDeity, boolean withSubclasses) throws CommandSyntaxException {
         PlayerClassEnum main = ctx.getArgument("main", PlayerClassEnum.class);
 
-        PlayerClass pc = new PlayerClass();
+        MagicClass pc = new MagicClass();
         pc.setMainClass(main);
 
         if (withDeity) {

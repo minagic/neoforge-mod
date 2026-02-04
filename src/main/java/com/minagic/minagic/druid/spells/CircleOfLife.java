@@ -80,8 +80,8 @@ public class CircleOfLife extends AutonomousSpell {
         }
     }
 
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.AllowedClass(
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
                 PlayerClassEnum.DRUID,
                 PlayerSubClassEnum.DRUID_ANIMALS,
                 5

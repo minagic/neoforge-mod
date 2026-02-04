@@ -27,11 +27,11 @@ public class ModAttachments {
                             .build()
             );
 
-    public static final Supplier<AttachmentType<PlayerClass>> PLAYER_CLASS =
+    public static final Supplier<AttachmentType<MagicClass>> PLAYER_CLASS =
             ATTACHMENTS.register("player_class", () ->
-                    AttachmentType.builder(PlayerClass::new)
-                            .serialize(new PlayerClass.Serializer()) // persistent & sync-enabled
-                            .sync(ByteBufCodecs.fromCodec(PlayerClass.CODEC))
+                    AttachmentType.builder(MagicClass::new)
+                            .serialize(new MagicClass.Serializer()) // persistent & sync-enabled
+                            .sync(ByteBufCodecs.fromCodec(MagicClass.CODEC))
                             .copyOnDeath()
                             .build()
             );
@@ -77,7 +77,7 @@ public class ModAttachments {
 
     private static final List<AttachmentEntry<?>> REGISTERED_ATTACHMENTS = List.of(
             new AttachmentEntry<>(PLAYER_SPELL_COOLDOWNS, CooldownAttachment::new),
-            new AttachmentEntry<>(PLAYER_CLASS, PlayerClass::new),
+            new AttachmentEntry<>(PLAYER_CLASS, MagicClass::new),
             new AttachmentEntry<>(MANA, ManaAttachment::new),
             new AttachmentEntry<>(PLAYER_SIMULACRA, SimulacraAttachment::new),
             new AttachmentEntry<>(HUD_ALERTS, HudAlertAttachment::new),
