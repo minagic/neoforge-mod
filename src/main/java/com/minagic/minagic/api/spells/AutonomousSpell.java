@@ -5,6 +5,8 @@ import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellgates.DefaultGates;
+import com.minagic.minagic.spellgates.SpellGateChain;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +20,7 @@ public class AutonomousSpell extends Spell implements ISimulacrumSpell {
 
     @Override
     public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
+        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), null, this.manaCost, 0, false, this).setEffect(
                 ((ctx, simData) -> {
 
                     SimulacraAttachment sim = ctx.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
@@ -29,7 +31,14 @@ public class AutonomousSpell extends Spell implements ISimulacrumSpell {
                     if (existing) {
                         SimulacraAttachment.removeSimulacrum(ctx.target, ModSpells.getId(this));
                     } else {
-                        SimulacraAttachment.addSimulacrum(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
+                        new SpellGateChain()
+                                .addGate(new DefaultGates.CooldownGate(this, cooldown))
+                                .setEffect(
+                                        (internal_ctx, internal_data) -> {
+                                            SimulacraAttachment.addSimulacrum(internal_ctx.target, internal_ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
+                                        }
+                                )
+                                .execute(ctx, simData);
                     }
                 })
 
