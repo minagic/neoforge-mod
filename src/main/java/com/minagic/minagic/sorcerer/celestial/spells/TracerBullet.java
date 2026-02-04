@@ -168,9 +168,7 @@ public class TracerBullet extends InstanteneousSpell {
         public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
             SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
                     ((ctx, simData) -> {
-                        SimulacraAttachment sim = ctx.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
-
-                        boolean existing = sim.hasSpell(ModSpells.getId(this));
+                        boolean existing = SimulacraAttachment.hasSpell(ctx.target, ModSpells.getId(this));
                         if (existing) return;
                         SimulacraAttachment.addSimulacrum(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
                     })

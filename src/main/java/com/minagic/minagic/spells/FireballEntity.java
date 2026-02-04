@@ -40,6 +40,7 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
         this.isEntityPiercing = false;
         this.setNoGravity(false);
         this.setPos(position.x, position.y, position.z);
+        this.direction = direction;
         this.setDeltaMovement(direction.normalize().scale(SPEED));
     }
 

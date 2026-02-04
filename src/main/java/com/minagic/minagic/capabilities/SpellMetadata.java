@@ -199,8 +199,6 @@ public final class SpellMetadata {
     // DANGER ZONE: DO NOT EDIT
     // =========================
 
-
-
     public static final Codec<Pair<ResourceLocation, String>> PAIR_CODEC = Codec.STRING.comapFlatMap(s -> {
         int i = s.indexOf('|');
         if (i <= 0) return null;

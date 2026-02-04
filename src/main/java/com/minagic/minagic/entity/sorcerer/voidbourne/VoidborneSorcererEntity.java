@@ -83,9 +83,8 @@ public class VoidborneSorcererEntity extends Monster implements ItemSupplier {
             }
 
             sorcererStaff staffItem = (sorcererStaff) stack.getItem();
-            //ResourceLocation activeId = (staffItem.getData(stack).getActive().getSpellId());
-            SimulacraAttachment sim = this.getData(ModAttachments.PLAYER_SIMULACRA);
-            boolean knfActive = sim.hasSpell(KNF_ID);
+
+            boolean knfActive = SimulacraAttachment.hasSpell(this, KNF_ID);
 
             // === Hostile Projectile Nearby? ===
             boolean hostileProjectile = !level().getEntities(this, getBoundingBox().inflate(5), e ->

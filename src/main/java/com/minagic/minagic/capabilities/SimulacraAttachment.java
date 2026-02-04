@@ -67,16 +67,24 @@ public final class SimulacraAttachment implements AutodetectionInterfaces.ILivin
     // =========================
     // STATIC GETTERS
     // =========================
+
+    public static boolean hasSpell(Entity host, ResourceLocation id) {
+        return getAttachment(host).hasSpell(id);
+    }
+
+    public static boolean hasActiveChanneling(Entity host){
+        return getAttachment(host).hasActiveChanneling();
+    }
+
+    public static @Nullable ResourceLocation getActiveChannelingID(Entity host) {
+        return getAttachment(host).getActiveChannelingID();
+    }
     public static Map<ResourceLocation, Float> getAllProgress(Entity host) {
         return getAttachment(host).getAllProgress();
     }
 
-    public static List<SimulacrumSpellSlot> getAllSpellslots(Entity host) {
+    public static List<SimulacrumSpellSlot> getAllSpellSlots(Entity host) {
         return getAttachment(host).getAllSpellSlots();
-    }
-
-    public static boolean hasSpell(Entity host, ResourceLocation id) {
-        return getAttachment(host).hasSpell(id);
     }
 
     // =========================

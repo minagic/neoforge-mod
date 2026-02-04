@@ -16,7 +16,7 @@ import java.util.Optional;
 
 public abstract class SpellProjectileEntity extends Projectile {
     protected double speed = 0;
-    protected final Vec3 direction = Vec3.ZERO;
+    protected Vec3 direction = Vec3.ZERO;
     protected double gravity = 0;
     protected boolean isBlockPiercing = false;
     protected boolean isEntityPiercing = false;

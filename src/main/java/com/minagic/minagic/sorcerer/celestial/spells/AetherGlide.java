@@ -33,8 +33,8 @@ public class AetherGlide extends AutonomousSpell {
     @Override
     public void start(SpellCastContext context, SimulacrumData data){
         super.start(context, data);
-        SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA);
-        if (sim.hasSpell(ModSpells.getId(this))){
+
+        if (SimulacraAttachment.hasSpell(context.target, ModSpells.getId(this))){
             if (context.target instanceof Player player) {
                 player.setPose(Pose.FALL_FLYING);
             }

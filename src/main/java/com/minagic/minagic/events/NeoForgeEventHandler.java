@@ -21,7 +21,7 @@ public class NeoForgeEventHandler {
 
         LivingEntity target = event.getEntity();
 
-        List<SimulacrumSpellSlot> simulacra = SimulacraAttachment.getAllSpellslots(target);
+        List<SimulacrumSpellSlot> simulacra = SimulacraAttachment.getAllSpellSlots(target);
 
         for (SimulacrumSpellSlot slot : simulacra) {
             Spell spell = slot.getSpell();

@@ -25,18 +25,13 @@ public class EntityFreezer {
         if (entry == null) {
 
             entry = new Entry(entity.getDeltaMovement(), tick, entity.position());
-            //entry.add();
             frozen.put(entity, entry);
         } else {
             entry.lastSeenTick = tick; // refresh heartbeat
-            //entry.add();
 
         }
-        if (entity instanceof AbstractArrow arrow) {
-            freezeArrow(arrow, entry);
-        } else {
-            freezeGeneric(entity, entry);
-        }
+
+        freezeArrow(entity, entry);
 
 
     }
@@ -80,8 +75,8 @@ public class EntityFreezer {
 
     // --------------- internal freeze logic ---------------
 
-    private void freezeArrow(AbstractArrow e, Entry entry) {
-        freezeGeneric(e, entry);
+    private void freezeArrow(Entity e, Entry entry) {
+        e.setNoGravity(true);
         Vec3 dir = entry.originalMotion.normalize();
         e.setDeltaMovement(dir.scale(0.001));
         e.setPos(entry.originalPosition);

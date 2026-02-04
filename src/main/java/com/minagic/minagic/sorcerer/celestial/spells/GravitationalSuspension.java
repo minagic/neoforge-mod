@@ -40,8 +40,7 @@ public class GravitationalSuspension extends AutonomousSpell {
     @Override
     public void start(SpellCastContext context, SimulacrumData simulacrumData) {
         super.start(context, simulacrumData);
-        SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA);
-        if(sim.hasSpell(ModSpells.getId(this))) {
+        if(SimulacraAttachment.hasSpell(context.target, ModSpells.getId(this))) {
             context.target.setNoGravity(true);
             context.target.hurtMarked = true;
         }
