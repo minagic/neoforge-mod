@@ -134,10 +134,7 @@ public class DefaultGates {
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            Minagic.LOGGER.debug("Starting mana prerequisite check for {} with {} mana cost for {}", spell, manaCost, ctx.caster);
-            var mana = ctx.caster.getData(ModAttachments.MANA.get());
-            Minagic.LOGGER.debug("Resolved mana attachment: {}, readings: {} / {} mana, test will {}", mana, mana.getMana(), mana.getMaxMana(), mana.getMana() >= manaCost ? "succeed." : "fail.");
-            return mana.getMana() >= manaCost;
+            return ManaAttachment.getMana(ctx.caster) >= manaCost;
         }
 
         @Override
@@ -153,9 +150,7 @@ public class DefaultGates {
 
         @Override
         public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            var mana = ctx.caster.getData(ModAttachments.MANA.get());
-            mana.drainMana(manaCost);
-            ctx.caster.setData(ModAttachments.MANA.get(), mana);
+            ManaAttachment.drainMana(ctx.caster, manaCost);
         }
     }
 
@@ -168,8 +163,7 @@ public class DefaultGates {
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            var mana = ctx.caster.getData(ModAttachments.MANA.get());
-            return mana.getMana() >= manaCost;
+            return ManaAttachment.getMana(ctx.caster) >= manaCost;
         }
 
         @Override
@@ -188,9 +182,7 @@ public class DefaultGates {
 
         @Override
         public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            var mana = ctx.caster.getData(ModAttachments.MANA.get());
-            mana.drainMana(manaCost);
-            ctx.caster.setData(ModAttachments.MANA.get(), mana);
+            ManaAttachment.drainMana(ctx.caster, manaCost);
         }
     }
 

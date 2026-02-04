@@ -24,9 +24,7 @@ public class SpellGateTests {
         Player fakePlayer = helper.makeMockPlayer(GameType.CREATIVE);
         fakePlayer.setPos(1, 2, 1);
 
-        ManaAttachment manaAttachement = fakePlayer.getData(ModAttachments.MANA);
-        manaAttachement.drainMana(manaAttachement.getMana());
-        fakePlayer.setData(ModAttachments.MANA, manaAttachement);
+        ManaAttachment.drainMana(fakePlayer, ManaAttachment.getMana(fakePlayer));
 
         SpellCastContext ctx = new SpellCastContext(fakePlayer);
 
@@ -44,17 +42,13 @@ public class SpellGateTests {
 
         // restore manaAttachement
 
+        ManaAttachment.setMaxMana(fakePlayer, 200);
+        ManaAttachment.restoreMana(fakePlayer, ManaAttachment.getMaxMana(fakePlayer));
 
-        ManaAttachment data = fakePlayer.getData(ModAttachments.MANA);
-        data.setMaxMana(200);
-        data.restoreMana(data.getMaxMana());
-
-        fakePlayer.setData(ModAttachments.MANA, data);
         helper.runAfterDelay(1,
                 () -> {
-                    ManaAttachment data2 = fakePlayer.getData(ModAttachments.MANA);
 
-                    helper.assertTrue(manaAttachement.getMana() == 200, Component.nullToEmpty("ManaAttachment not initialized!"));
+                    helper.assertFalse(ManaAttachment.getMana(fakePlayer) == 0, Component.nullToEmpty("ManaAttachment not initialized!"));
 
                     com.minagic.minagic.spellCasting.SpellCastContext context = new SpellCastContext(fakePlayer);
                     new SpellGateChain()
@@ -65,7 +59,7 @@ public class SpellGateTests {
                             )
                             .execute(context, null);
 
-                    helper.assertTrue(manaAttachement.getMana() == 190, Component.nullToEmpty("Mana should have been spent resulting in 190 mana, got " + manaAttachement.getMana() + " instead"));
+                    helper.assertTrue(ManaAttachment.getMana(fakePlayer) == 190, Component.nullToEmpty("Mana should have been spent resulting in 190 mana, got " + ManaAttachment.getMana(fakePlayer) + " instead"));
                 }
         );
 

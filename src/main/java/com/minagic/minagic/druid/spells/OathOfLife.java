@@ -29,10 +29,9 @@ public class OathOfLife extends AutonomousSpell {
         // identify caster's mana percentage
         SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
                 .setEffect((context, simulacrumData) -> {
-                    ManaAttachment manaAttachement = context.caster.getData(ModAttachments.MANA);
-                    float manaPercentage = manaAttachement.getMana() / (float) manaAttachement.getMaxMana();
+                    float manaPercentage = ManaAttachment.getMana(context.caster)/ (float) ManaAttachment.getMaxMana(context.caster);
                     if (manaPercentage < 0.2f) {
-                        // low manaAttachement, DAMAGE instead
+                        // low mana, DAMAGE instead
                         MinagicDamage damage = new MinagicDamage(context.target, context.caster, context.target, 6.0f, Set.of(
                                 DamageTypes.MAGIC,
                                 DamageTypes.NATURAL
