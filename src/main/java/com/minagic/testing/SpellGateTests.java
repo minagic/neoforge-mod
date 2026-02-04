@@ -1,8 +1,7 @@
 package com.minagic.testing;
 
 
-import com.minagic.minagic.Minagic;
-import com.minagic.minagic.capabilities.Mana;
+import com.minagic.minagic.capabilities.ManaAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.sorcerer.celestial.spells.SolarSurge;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -25,9 +24,7 @@ public class SpellGateTests {
         Player fakePlayer = helper.makeMockPlayer(GameType.CREATIVE);
         fakePlayer.setPos(1, 2, 1);
 
-        Mana mana = fakePlayer.getData(ModAttachments.MANA);
-        mana.drainMana(mana.getMana());
-        fakePlayer.setData(ModAttachments.MANA, mana);
+        ManaAttachment.drainMana(fakePlayer, ManaAttachment.getMana(fakePlayer));
 
         SpellCastContext ctx = new SpellCastContext(fakePlayer);
 
@@ -35,9 +32,7 @@ public class SpellGateTests {
                 .addGate(new DefaultGates.ManaGate(10, new SolarSurge()))
                 .setEffect(
                         (context, simData) ->
-                        {
-                            helper.fail("Effect should not have run due to insufficient mana, worked instead");
-                        }
+                                helper.fail("Effect should not have run due to insufficient mana, worked instead")
                 )
                 .execute(ctx, null);
 
@@ -45,33 +40,26 @@ public class SpellGateTests {
         helper.assertTrue(warnings.contains("Not enough mana to cast Solar Surge."), Component.literal("Message in hud alerts should state: " +
                 "'Not enough mana to cast Solar Surge.', got "+warnings+" instead"));
 
-        // restore mana
+        // restore manaAttachement
 
+        ManaAttachment.setMaxMana(fakePlayer, 200);
+        ManaAttachment.restoreMana(fakePlayer, ManaAttachment.getMaxMana(fakePlayer));
 
-        Mana data = fakePlayer.getData(ModAttachments.MANA);
-        data.setMaxMana(200);
-        data.restoreMana(data.getMaxMana());
-
-        fakePlayer.setData(ModAttachments.MANA, data);
         helper.runAfterDelay(1,
                 () -> {
-                    Mana data2 = fakePlayer.getData(ModAttachments.MANA);
 
-                    helper.assertTrue(mana.getMana() == 200, Component.nullToEmpty("Mana not initialized!"));
+                    helper.assertFalse(ManaAttachment.getMana(fakePlayer) == 0, Component.nullToEmpty("ManaAttachment not initialized!"));
 
                     com.minagic.minagic.spellCasting.SpellCastContext context = new SpellCastContext(fakePlayer);
                     new SpellGateChain()
                             .addGate(new DefaultGates.ManaGate(10, new SolarSurge()))
                             .setEffect(
                                     (context1, simData) ->
-                                    {
-                                        helper.succeed();
-                                    }
+                                            helper.succeed()
                             )
                             .execute(context, null);
-                    data2 = fakePlayer.getData(ModAttachments.MANA);
 
-                    helper.assertTrue(mana.getMana() == 190, Component.nullToEmpty("Mana should have been spent resulting in 190 mana, got " + mana.getMana() + " instead"));
+                    helper.assertTrue(ManaAttachment.getMana(fakePlayer) == 190, Component.nullToEmpty("Mana should have been spent resulting in 190 mana, got " + ManaAttachment.getMana(fakePlayer) + " instead"));
                 }
         );
 
@@ -89,9 +77,7 @@ public class SpellGateTests {
                 .addGate(new DefaultGates.CooldownGate(new SolarSurge(), 20))
                 .setEffect(
                         (context, simData) ->
-                        {
-                            flag.set(true);
-                        }
+                                flag.set(true)
                 )
                 .execute(ctx, null);
 
@@ -101,9 +87,7 @@ public class SpellGateTests {
                 .addGate(new DefaultGates.CooldownGate( new SolarSurge(), 20))
                 .setEffect(
                         (context, simData) ->
-                        {
-                            helper.fail("SpellGate effect should have failed with cooldown, worked instead");
-                        }
+                                helper.fail("SpellGate effect should have failed with cooldown, worked instead")
                 )
                 .execute(ctx, null);
 

@@ -2,9 +2,10 @@ package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.*;
-import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
-import com.minagic.minagic.capabilities.hudAlerts.HudOverrideManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
+import com.minagic.minagic.capabilities.hudAlerts.WhiteFlashAttachment;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -12,32 +13,34 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.function.Supplier;
 
+import java.util.List;
+
 public class ModAttachments {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
             DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, Minagic.MODID);
 
-    public static final Supplier<AttachmentType<PlayerSpellCooldowns>> PLAYER_SPELL_COOLDOWNS =
+    public static final Supplier<AttachmentType<CooldownAttachment>> PLAYER_SPELL_COOLDOWNS =
             ATTACHMENTS.register("player_spell_cooldowns", () ->
-                    AttachmentType.builder(PlayerSpellCooldowns::new)
-                            .serialize(new PlayerSpellCooldowns.Serializer()) // persistent & sync-enabled
-                            .sync(ByteBufCodecs.fromCodec(PlayerSpellCooldowns.CODEC))
+                    AttachmentType.builder(CooldownAttachment::new)
+                            .serialize(new CooldownAttachment.Serializer()) // persistent & sync-enabled
+                            .sync(ByteBufCodecs.fromCodec(CooldownAttachment.CODEC))
                             .build()
             );
 
-    public static final Supplier<AttachmentType<PlayerClass>> PLAYER_CLASS =
+    public static final Supplier<AttachmentType<MagicClass>> PLAYER_CLASS =
             ATTACHMENTS.register("player_class", () ->
-                    AttachmentType.builder(PlayerClass::new)
-                            .serialize(new PlayerClass.Serializer()) // persistent & sync-enabled
-                            .sync(ByteBufCodecs.fromCodec(PlayerClass.CODEC))
+                    AttachmentType.builder(MagicClass::new)
+                            .serialize(new MagicClass.Serializer()) // persistent & sync-enabled
+                            .sync(ByteBufCodecs.fromCodec(MagicClass.CODEC))
                             .copyOnDeath()
                             .build()
             );
 
-    public static final Supplier<AttachmentType<Mana>> MANA =
+    public static final Supplier<AttachmentType<ManaAttachment>> MANA =
             ATTACHMENTS.register("mana", () ->
-                    AttachmentType.builder(Mana::new)
-                            .serialize(new Mana.Serializer()) // persistent & sync-enabled
-                            .sync(ByteBufCodecs.fromCodec(Mana.CODEC))
+                    AttachmentType.builder(ManaAttachment::new)
+                            .serialize(new ManaAttachment.Serializer()) // persistent & sync-enabled
+                            .sync(ByteBufCodecs.fromCodec(ManaAttachment.CODEC))
                             .build()
             );
     public static final Supplier<AttachmentType<SimulacraAttachment>> PLAYER_SIMULACRA =
@@ -48,11 +51,11 @@ public class ModAttachments {
                             .build()
             );
 
-    public static final Supplier<AttachmentType<HudAlertManager>> HUD_ALERTS =
+    public static final Supplier<AttachmentType<HudAlertAttachment>> HUD_ALERTS =
             ATTACHMENTS.register("hud_alerts", () ->
-                    AttachmentType.builder(HudAlertManager::new)
-                            .serialize(new HudAlertManager.Serializer())
-                            .sync(ByteBufCodecs.fromCodec(HudAlertManager.CODEC))
+                    AttachmentType.builder(HudAlertAttachment::new)
+                            .serialize(new HudAlertAttachment.Serializer())
+                            .sync(ByteBufCodecs.fromCodec(HudAlertAttachment.CODEC))
                             .build()
             );
 
@@ -63,13 +66,39 @@ public class ModAttachments {
                             .sync(ByteBufCodecs.fromCodec(SpellMetadata.CODEC))
                             .build());
 
-    public static final Supplier<AttachmentType<HudOverrideManager>> HUD_OVERRIDES =
-            ATTACHMENTS.register("hud_overrides", () ->
-                    AttachmentType.builder(HudOverrideManager::new)
-                            .serialize(new HudOverrideManager.Serializer())
-                            .sync(ByteBufCodecs.fromCodec(HudOverrideManager.CODEC))
-                            .build());
+    public static final Supplier<AttachmentType<WhiteFlashAttachment>> WHITE_FLASH =
+            ATTACHMENTS.register("white_flash_override", () ->
+                    AttachmentType.builder(WhiteFlashAttachment::new)
+                            .serialize(new WhiteFlashAttachment.Serializer())
+                            .sync(ByteBufCodecs.fromCodec(WhiteFlashAttachment.CODEC))
+                            .build()
+            );
 
+
+    private static final List<AttachmentEntry<?>> REGISTERED_ATTACHMENTS = List.of(
+            new AttachmentEntry<>(PLAYER_SPELL_COOLDOWNS, CooldownAttachment::new),
+            new AttachmentEntry<>(PLAYER_CLASS, MagicClass::new),
+            new AttachmentEntry<>(MANA, ManaAttachment::new),
+            new AttachmentEntry<>(PLAYER_SIMULACRA, SimulacraAttachment::new),
+            new AttachmentEntry<>(HUD_ALERTS, HudAlertAttachment::new),
+            new AttachmentEntry<>(SPELL_METADATA, SpellMetadata::new),
+            new AttachmentEntry<>(WHITE_FLASH, WhiteFlashAttachment::new)
+    );
+
+    public static void resetAllAttachments(Entity entity) {
+        for (AttachmentEntry<?> entry : REGISTERED_ATTACHMENTS) {
+            resetAttachment(entity, entry);
+        }
+    }
+
+    private static <T> void resetAttachment(Entity entity, AttachmentEntry<T> entry) {
+
+        entity.setData(entry.typeSupplier().get(), entry.instanceFactory().get());
+    }
+
+    private record AttachmentEntry<T>(Supplier<AttachmentType<T>> typeSupplier,
+                                      Supplier<T> instanceFactory) {
+    }
 
     public static void register(IEventBus bus) {
         ATTACHMENTS.register(bus);

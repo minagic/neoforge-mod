@@ -13,11 +13,9 @@ public record SimulacrumData(
         float threshold,
         LivingEntity host
 ) {
-
-
-    // ===========
-    // Derived fields
-    // ===========
+    // =========================
+    // DERIVED FIELDS
+    // =========================
     public float progress() {
         var spell = ModSpells.get(spellId); // however you get it
         if (spell == null) return 0f;
@@ -31,6 +29,9 @@ public record SimulacrumData(
         return spell.color(progress);
     }
 
+    // =========================
+    // VALIDATION
+    // =========================
     public boolean validate() {
         if (host == null) return false;
         if (!host.isAlive()) return false;
@@ -38,11 +39,17 @@ public record SimulacrumData(
 
     }
 
+    // =========================
+    // ACTIONS
+    // =========================
     public void expireSimulacrum() {
         SimulacraAttachment.removeSimulacrum(host, spellId);
     }
 
-    public float remainingLifetime(){
+    // =========================
+    // INSTANCE GETTERS
+    // =========================
+    public float remainingLifetime() {
         return remainingLifetime;
     }
 }

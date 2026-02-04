@@ -10,7 +10,7 @@ public class SpellGatePolicyGenerator {
 
     public static SpellGateChain build(
             SpellEventPhase phase,
-            List<DefaultGates.ClassGate.AllowedClass> allowedClasses,
+            List<DefaultGates.ClassGate.MagicClassEntry> magicClassEntries,
             @Nullable Integer cooldownTicks,
             @Nullable Integer manaCostOnCast,
             @Nullable Integer manaSustainPerTick,
@@ -23,20 +23,20 @@ public class SpellGatePolicyGenerator {
             case START -> {
                 if (cooldownTicks != null)
                     chain.addGate(new DefaultGates.CooldownGate(spell, cooldownTicks));
-                if (!allowedClasses.isEmpty())
-                    chain.addGate(new DefaultGates.ClassGate(allowedClasses));
+                if (!magicClassEntries.isEmpty())
+                    chain.addGate(new DefaultGates.ClassGate(magicClassEntries));
             }
             case CAST -> {
-                if (!allowedClasses.isEmpty())
-                    chain.addGate(new DefaultGates.ClassGate(allowedClasses));
+                if (!magicClassEntries.isEmpty())
+                    chain.addGate(new DefaultGates.ClassGate(magicClassEntries));
                 if (manaCostOnCast != null)
                     chain.addGate(new DefaultGates.ManaGate(manaCostOnCast, spell));
                 if (requireSimulacrumOnCast)
                     chain.addGate(new DefaultGates.SimulacrumGate());
             }
             case TICK -> {
-                if (!allowedClasses.isEmpty())
-                    chain.addGate(new DefaultGates.ClassGate(allowedClasses));
+                if (!magicClassEntries.isEmpty())
+                    chain.addGate(new DefaultGates.ClassGate(magicClassEntries));
                 if (manaSustainPerTick != null && manaSustainPerTick > 0)
                     chain.addGate(new DefaultGates.ManaSustainGate(manaSustainPerTick));
                 chain.addGate(new DefaultGates.SimulacrumGate());

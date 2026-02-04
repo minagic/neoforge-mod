@@ -5,8 +5,8 @@ import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
-import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
@@ -41,8 +41,8 @@ public class TracerBullet extends InstanteneousSpell {
         this.manaCost = 15;
     }
 
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.AllowedClass(
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
                 PlayerClassEnum.SORCERER,
                 PlayerSubClassEnum.SORCERER_CELESTIAL,
                 3
@@ -168,9 +168,7 @@ public class TracerBullet extends InstanteneousSpell {
         public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
             SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
                     ((ctx, simData) -> {
-                        SimulacraAttachment sim = ctx.target.getData(ModAttachments.PLAYER_SIMULACRA.get());
-
-                        boolean existing = sim.hasSpell(ModSpells.getId(this));
+                        boolean existing = SimulacraAttachment.hasSpell(ctx.target, ModSpells.getId(this));
                         if (existing) return;
                         SimulacraAttachment.addSimulacrum(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
                     })

@@ -1,8 +1,6 @@
 package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import org.jetbrains.annotations.Nullable;
@@ -22,19 +20,6 @@ public abstract class Spell {
 
 
     // CASTING LIFECYCLE METHODS
-
-    public void applyCooldown(SpellCastContext context, int cooldown) {
-        var cooldowns = context.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-        cooldowns.setCooldown(ModSpells.getId(this), cooldown);
-        context.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
-    }
-
-    public void drainMana(SpellCastContext context, int manaCost) {
-        var mana = context.caster.getData(ModAttachments.MANA.get());
-        mana.drainMana(manaCost);
-        context.caster.setData(ModAttachments.MANA.get(), mana);
-    }
-
     public void perform(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         if (context.validate()) {
             return;
@@ -88,7 +73,7 @@ public abstract class Spell {
         return manaCost;
     }
 
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
         return new ArrayList<>();
     }
 

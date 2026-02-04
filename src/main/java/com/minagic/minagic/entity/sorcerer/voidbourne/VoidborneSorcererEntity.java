@@ -2,9 +2,9 @@ package com.minagic.minagic.entity.sorcerer.voidbourne;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.SpellcastingItem;
-import com.minagic.minagic.capabilities.PlayerClass;
-import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.MagicClass;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModItems;
@@ -30,6 +30,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -42,12 +43,8 @@ public class VoidborneSorcererEntity extends Monster implements ItemSupplier {
         this.setGlowingTag(true);
         this.xpReward = 20;
         // a class for free!
-        PlayerClass pc = this.getData(ModAttachments.PLAYER_CLASS);
-        pc.setMainClass(PlayerClassEnum.SORCERER);
-        pc.setSubclassLevel(PlayerSubClassEnum.SORCERER_VOIDBOURNE, 10);
-        this.setData(ModAttachments.PLAYER_CLASS, pc);
-
-        // standard issue staff
+        MagicClass.setMainClass(this, PlayerClassEnum.SORCERER);
+        MagicClass.setSubclassLevel(this, PlayerSubClassEnum.SORCERER_VOIDBOURNE, 10);
 
     }
 
@@ -86,9 +83,8 @@ public class VoidborneSorcererEntity extends Monster implements ItemSupplier {
             }
 
             sorcererStaff staffItem = (sorcererStaff) stack.getItem();
-            //ResourceLocation activeId = (staffItem.getData(stack).getActive().getSpellId());
-            SimulacraAttachment sim = this.getData(ModAttachments.PLAYER_SIMULACRA);
-            boolean knfActive = sim.hasSpell(KNF_ID);
+
+            boolean knfActive = SimulacraAttachment.hasSpell(this, KNF_ID);
 
             // === Hostile Projectile Nearby? ===
             boolean hostileProjectile = !level().getEntities(this, getBoundingBox().inflate(5), e ->
@@ -132,7 +128,7 @@ public class VoidborneSorcererEntity extends Monster implements ItemSupplier {
     }
 
     @Override
-    public ItemStack getItem() {
+    public @NotNull ItemStack getItem() {
         return new ItemStack(Items.WITHER_SKELETON_SKULL);
     }
 

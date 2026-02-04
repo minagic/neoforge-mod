@@ -4,11 +4,10 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.gui.SpellEditorScreen;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.PlayerClass;
+import com.minagic.minagic.capabilities.CooldownAttachment;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.packets.SpellWritePacket;
 import com.minagic.minagic.packets.SyncSpellcastingDataPacket;
-import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellCasting.spellslots.SpellSlot;
@@ -100,11 +99,11 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item {
     }
 
 
-    public double getRemainingCooldown(ItemStack stack, LivingEntity player) {
+    public double getRemainingCooldown(ItemStack stack, LivingEntity living) {
         T data = getData(stack);
         ResourceLocation spellId = data.getActive().getSpellId();
 
-        int tickCooldown = player.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get()).getCooldown(spellId);
+        int tickCooldown = CooldownAttachment.getCooldown(living, spellId);
 
         return Math.floor((tickCooldown) / 2.0) / 10.0;
     }
@@ -140,19 +139,18 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item {
         }
     }
 
-    public boolean canPlayerClassUseSpellcastingItem(PlayerClass playerClass) {
+    public boolean canLivingUseSpellcastingItem(LivingEntity player) {
         return false;
     }
 
     @Override
-    public InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResult.FAIL;
         }
 
         // check if player can use this staff
-        PlayerClass playerClass = player.getData(ModAttachments.PLAYER_CLASS);
-        if (!canPlayerClassUseSpellcastingItem(playerClass)) {
+        if (!canLivingUseSpellcastingItem(player)) {
             serverPlayer.sendSystemMessage(Component.literal("You have zero idea on how to use this..."));
             return InteractionResult.FAIL;
         }

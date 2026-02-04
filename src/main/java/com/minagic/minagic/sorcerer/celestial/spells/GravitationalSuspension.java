@@ -3,8 +3,8 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
@@ -40,8 +40,7 @@ public class GravitationalSuspension extends AutonomousSpell {
     @Override
     public void start(SpellCastContext context, SimulacrumData simulacrumData) {
         super.start(context, simulacrumData);
-        SimulacraAttachment sim = context.target.getData(ModAttachments.PLAYER_SIMULACRA);
-        if(sim.hasSpell(ModSpells.getId(this))) {
+        if(SimulacraAttachment.hasSpell(context.target, ModSpells.getId(this))) {
             context.target.setNoGravity(true);
             context.target.hurtMarked = true;
         }
@@ -63,7 +62,7 @@ public class GravitationalSuspension extends AutonomousSpell {
         Minagic.LOGGER.trace("After cleanup: noGravity={}", context.target.isNoGravity());
     }
 
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses(){
-        return List.of(new DefaultGates.ClassGate.AllowedClass(PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 8));
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses(){
+        return List.of(new DefaultGates.ClassGate.MagicClassEntry(PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 8));
     }
 }

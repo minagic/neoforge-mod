@@ -14,6 +14,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -113,16 +114,15 @@ public class SpellUtils {
                 entity
         );
 
-        HitResult result = world.clip(context);
+        BlockHitResult result = world.clip(context);
 
         if (result.getType() == HitResult.Type.BLOCK) {
-            return ((BlockHitResult) result).getBlockPos();
+            return result.getBlockPos();
         }
 
         return null; // No block hit
     }
 
-    @Nullable
     public static LivingEntity resolveLivingEntityAcrossDimensions(UUID uuid, MinecraftServer server) {
         for (ServerLevel level : server.getAllLevels()) {
             Entity entity = level.getEntity(uuid);
@@ -130,7 +130,7 @@ public class SpellUtils {
                 return living;
             }
         }
-        return null;
+        throw new InvalidParameterException("Entity with UUID: " + uuid + " not found");
     }
 
 }

@@ -1,9 +1,10 @@
 package com.minagic.minagic.druid;
 
 import com.minagic.minagic.api.SpellcastingItem;
-import com.minagic.minagic.capabilities.PlayerClass;
-import com.minagic.minagic.capabilities.PlayerClassEnum;
+import com.minagic.minagic.capabilities.MagicClass;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.registries.ModDataComponents;
+import net.minecraft.world.entity.LivingEntity;
 
 public class DruidHorn extends SpellcastingItem<HornData> {
     public DruidHorn(Properties properties) {
@@ -11,7 +12,7 @@ public class DruidHorn extends SpellcastingItem<HornData> {
     }
 
     @Override
-    public boolean canPlayerClassUseSpellcastingItem(PlayerClass playerClass) {
-        return playerClass.getMainClass() == PlayerClassEnum.DRUID;
+    public boolean canLivingUseSpellcastingItem(LivingEntity player) {
+        return MagicClass.getMainClass(player) == PlayerClassEnum.DRUID;
     }
 }

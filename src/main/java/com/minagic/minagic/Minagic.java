@@ -1,9 +1,6 @@
 package com.minagic.minagic;
 
-import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
-import com.minagic.minagic.capabilities.hudAlerts.HudOverrideManager;
-import com.minagic.minagic.capabilities.hudAlerts.HudOverrideRegistry;
-import com.minagic.minagic.capabilities.hudAlerts.WhiteFlashOverride;
+import com.minagic.minagic.capabilities.AttachmentDispatcher;
 import com.minagic.minagic.entity.sorcerer.voidbourne.VoidborneSorcererEntity;
 import com.minagic.minagic.events.NeoForgeEventHandler;
 import com.minagic.minagic.gui.CooldownOverlay;
@@ -14,18 +11,15 @@ import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaImpactProxyEn
 import com.minagic.minagic.sorcerer.celestial.spells.TracerBullet;
 import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
 import com.minagic.minagic.spellCasting.ClearData;
-import com.minagic.minagic.spellCasting.ManaHandler;
-import com.minagic.minagic.spellCasting.PlayerSimulacraHandler;
-import com.minagic.minagic.spellCasting.SpellCooldownHandler;
 import com.minagic.minagic.spells.FireballEntity;
+import com.minagic.minagic.utilities.ClearAttachmentsCommand;
 import com.minagic.minagic.utilities.EntityFreezer;
 import com.minagic.minagic.utilities.ModEvents;
+import com.minagic.minagic.utilities.SetClassCommand;
 import com.minagic.minagic.utilities.WorldEvents;
-import com.minagic.testing.TestsRegistration;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -46,8 +40,6 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
-
-import java.util.function.Consumer;
 
 import static com.minagic.testing.TestsRegistration.TEST_FUNCTION;
 
@@ -149,19 +141,14 @@ public class Minagic {
 
         ModSpells.register();
         // Register your tick handlers here!
-        NeoForge.EVENT_BUS.register(new MinagicTaskScheduler());
-        NeoForge.EVENT_BUS.register(new ManaHandler());
-        NeoForge.EVENT_BUS.register(new SpellCooldownHandler());
         NeoForge.EVENT_BUS.register(new ClientInputHandler());
         NeoForge.EVENT_BUS.register(new CooldownOverlay());
         NeoForge.EVENT_BUS.register(new WorldEvents());
-        NeoForge.EVENT_BUS.register(new PlayerSimulacraHandler());
         NeoForge.EVENT_BUS.register(new ClearData());
-        NeoForge.EVENT_BUS.register(new HudAlertManager());
-        NeoForge.EVENT_BUS.register(new HudOverrideManager());
         NeoForge.EVENT_BUS.register(ENTITY_FREEZER);
         NeoForge.EVENT_BUS.register(new ModEvents());
         NeoForge.EVENT_BUS.register(NeoForgeEventHandler.class);
+        NeoForge.EVENT_BUS.register(AttachmentDispatcher.class);
 
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
@@ -183,13 +170,13 @@ public class Minagic {
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
-        HudOverrideRegistry.register(ResourceLocation.fromNamespaceAndPath(MODID, "white_flash_primary"), new WhiteFlashOverride(200, 0));
-        HudOverrideRegistry.register(ResourceLocation.fromNamespaceAndPath(MODID, "white_flash_secondary"), new WhiteFlashOverride(3, 0));
+        //HudOverrideRegistry.register(ResourceLocation.fromNamespaceAndPath(MODID, "white_flash_primary"), WhiteFlashOverride::new, WhiteFlashOverride.WhiteFlashData.CODEC);
     }
 
     // Command registration method
     private void onRegisterCommands(RegisterCommandsEvent event) {
-        MinagicTestCommand.register(event.getDispatcher());
+        SetClassCommand.register(event.getDispatcher());
+        ClearAttachmentsCommand.register(event.getDispatcher());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

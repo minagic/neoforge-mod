@@ -5,8 +5,8 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.ChanneledAutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
-import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
@@ -77,8 +77,8 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
         return new Vec3[]{spawnPos, direction};
     }
 
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.AllowedClass(
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
                 PlayerClassEnum.SORCERER,
                 PlayerSubClassEnum.SORCERER_CELESTIAL,
                 17
@@ -156,7 +156,7 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
         }
 
         @Override
-        public void onHitBlock(BlockHitResult result) {
+        public void onHitBlock(@NotNull BlockHitResult result) {
             if (this.level().isClientSide()) return;
             VisualUtils.createParticlesInSphere((ServerLevel) this.level(), this.position(), 4, ParticleTypes.END_ROD, 40);
             AOEHit.applyAOE(

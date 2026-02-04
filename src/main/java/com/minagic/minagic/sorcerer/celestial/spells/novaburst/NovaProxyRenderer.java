@@ -11,15 +11,12 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
-import org.checkerframework.checker.units.qual.N;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
 import java.util.Map;
-import java.util.Random;
 
 public class NovaProxyRenderer extends EntityRenderer<NovaImpactProxyEntity, NovaProxyRenderer.State> {
 
@@ -41,12 +38,12 @@ public class NovaProxyRenderer extends EntityRenderer<NovaImpactProxyEntity, Nov
     }
 
     @Override
-    public State createRenderState() {
+    public @NotNull State createRenderState() {
         return new State();
     }
 
     @Override
-    public void extractRenderState(NovaImpactProxyEntity entity, State state, float partialTick) {
+    public void extractRenderState(@NotNull NovaImpactProxyEntity entity, @NotNull State state, float partialTick) {
         super.extractRenderState(entity, state, partialTick);
         state.progress = SimulacraAttachment.getAllProgress(entity);
         Minagic.LOGGER.debug("Extracted progress map: {}", state.progress);
@@ -57,9 +54,9 @@ public class NovaProxyRenderer extends EntityRenderer<NovaImpactProxyEntity, Nov
     // =========================
     @Override
     public void submit(State state,
-                       PoseStack poseStack,
-                       SubmitNodeCollector collector,
-                       CameraRenderState cameraState) {
+                       @NotNull PoseStack poseStack,
+                       @NotNull SubmitNodeCollector collector,
+                       @NotNull CameraRenderState cameraState) {
 
         if (state.progress.isEmpty()) return;
 
@@ -89,10 +86,6 @@ public class NovaProxyRenderer extends EntityRenderer<NovaImpactProxyEntity, Nov
     }
 
 
-    public ResourceLocation getTextureLocation(NovaImpactProxyEntity entity) {
-        return TextureAtlas.LOCATION_BLOCKS;
-    }
-
     // =========================
     // PRECURSOR
     // =========================
@@ -119,9 +112,6 @@ public class NovaProxyRenderer extends EntityRenderer<NovaImpactProxyEntity, Nov
     // PULSE
     // =========================
     private void renderPulse(PoseStack.Pose pose, VertexConsumer vc, float progress) {
-//            VertexConsumer vc = buffer.getBuffer(RenderType.energySwirl(
-//                    ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/end_gateway_beam.png"), 0, 0));
-
         float radius = 5+ (1-progress)*(1-progress) * 35f;
         renderOrb(pose, vc, radius, 255, 32, 64);
     }
@@ -199,7 +189,7 @@ public class NovaProxyRenderer extends EntityRenderer<NovaImpactProxyEntity, Nov
     }
 
     @Override
-    public boolean shouldRender(NovaImpactProxyEntity entity, Frustum frustum, double camX, double camY, double camZ) {
+    public boolean shouldRender(@NotNull NovaImpactProxyEntity entity, @NotNull Frustum frustum, double camX, double camY, double camZ) {
         return true; // always render if client knows about it
     }
 }

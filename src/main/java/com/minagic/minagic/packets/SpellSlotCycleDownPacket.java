@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
 public record SpellSlotCycleDownPacket() implements CustomPacketPayload {
     // Unique packet ID
@@ -29,7 +30,7 @@ public record SpellSlotCycleDownPacket() implements CustomPacketPayload {
         }
         // get the item in the player's main hand
         ItemStack stack = serverPlayer.getMainHandItem();
-        if (stack.getItem() instanceof SpellcastingItem spellcastingItem) {
+        if (stack.getItem() instanceof SpellcastingItem<?> spellcastingItem) {
             spellcastingItem.cycleSlotDown(serverPlayer, stack);
         }
 
@@ -40,7 +41,7 @@ public record SpellSlotCycleDownPacket() implements CustomPacketPayload {
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

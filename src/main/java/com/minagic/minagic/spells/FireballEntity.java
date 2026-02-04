@@ -13,6 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
@@ -39,6 +40,7 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
         this.isEntityPiercing = false;
         this.setNoGravity(false);
         this.setPos(position.x, position.y, position.z);
+        this.direction = direction;
         this.setDeltaMovement(direction.normalize().scale(SPEED));
     }
 
@@ -77,7 +79,7 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
     }
 
     @Override
-    protected void onHitBlock(BlockHitResult hitResult) {
+    protected void onHitBlock(@NotNull BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
 
         BlockPos center = hitResult.getBlockPos();
@@ -89,7 +91,7 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
     }
 
     @Override
-    protected void onHitEntity(EntityHitResult hitResult) {
+    protected void onHitEntity(@NotNull EntityHitResult hitResult) {
         super.onHitEntity(hitResult);
 
         BlockPos center = hitResult.getEntity().blockPosition();
@@ -100,7 +102,7 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
     }
 
     @Override
-    public net.minecraft.world.item.ItemStack getItem() {
+    public net.minecraft.world.item.@NotNull ItemStack getItem() {
         return new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.FIRE_CHARGE);
     }
 

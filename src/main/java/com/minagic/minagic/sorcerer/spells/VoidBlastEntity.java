@@ -13,6 +13,7 @@ import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.Set;
@@ -33,13 +34,13 @@ public class VoidBlastEntity extends SpellProjectileEntity implements ItemSuppli
     }
 
     @Override
-    protected void onHitBlock(net.minecraft.world.phys.BlockHitResult hitResult) {
+    protected void onHitBlock(net.minecraft.world.phys.@NotNull BlockHitResult hitResult) {
         super.onHitBlock(hitResult);
         this.discard();
     }
 
     @Override
-    protected void onHitEntity(net.minecraft.world.phys.EntityHitResult hitResult) {
+    protected void onHitEntity(net.minecraft.world.phys.@NotNull EntityHitResult hitResult) {
         super.onHitEntity(hitResult);
 
         Entity entity = hitResult.getEntity();
@@ -61,7 +62,7 @@ public class VoidBlastEntity extends SpellProjectileEntity implements ItemSuppli
     }
 
     @Override
-    public ItemStack getItem() {
+    public @NotNull ItemStack getItem() {
         return new ItemStack(net.minecraft.world.item.Items.ENDER_PEARL);
     }
 }

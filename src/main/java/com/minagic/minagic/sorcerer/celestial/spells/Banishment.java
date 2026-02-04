@@ -6,7 +6,8 @@ import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.api.spells.SpellValidator;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.registries.ModSpells;
@@ -16,7 +17,6 @@ import com.minagic.minagic.spellgates.SpellGateChain;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.MathUtils;
 import com.minagic.minagic.utilities.SpellUtils;
-import com.minagic.minagic.utilities.SpellValidationResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -45,25 +45,30 @@ public class Banishment extends Spell implements ISimulacrumSpell {
                         Minagic.LOGGER.debug("Banishment precheck: no metadata, initializing area");
                         SpellMetadata.setBlockPos(context.target, this, "bb_start", context.target.blockPosition());
                         SimulacraAttachment.addSimulacrum(context.target, context, this, -1, 200);
-                        return;
                     }
 
-                    if (!SpellMetadata.has(context.target, this, "bb_end")) {
+                    else if (!SpellMetadata.has(context.target, this, "bb_end")) {
                         Minagic.LOGGER.debug("Banishment precheck: partial metadata detected");
                         BlockPos pos = context.target.blockPosition();
                         int manaCost = (int) MathUtils.areaBetween(SpellMetadata.getBlockPos(context.target, this, "bb_start"), pos);
-                        SpellValidationResult result = SpellValidator.validateMana(this, context, manaCost);
-                        SpellValidator.showFailureIfNeeded(context, result);
 
-                        if (!result.success()) return;
+                        new SpellGateChain()
+                                .addGate(new DefaultGates.ManaGate(manaCost, this))
+                                .setEffect(
+                                        (internal_ctx, data) -> {
+                                            SpellMetadata.setBlockPos(internal_ctx.target, this, "bb_end", pos);
+                                            SimulacraAttachment.addSimulacrum(internal_ctx.target, internal_ctx, this, 1, -1);
+                                        }
+                                )
+                                .execute(context, simulacrumData);
 
-                        SpellMetadata.setBlockPos(context.target, this, "bb_end", pos);
-                        SimulacraAttachment.addSimulacrum(context.target, context, this, 1, -1);
-                        drainMana(context, manaCost);
-                        return;
                     }
-                    Minagic.LOGGER.debug("Banishment precheck: full metadata detected, cancelling spell");
-                    SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
+                    else {
+                        Minagic.LOGGER.debug("Banishment precheck: full metadata detected, cancelling spell");
+                        SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
+                        SpellMetadata.removeBlockPos(context.target, this, "bb_start");
+                        SpellMetadata.removeBlockPos(context.target, this, "bb_end");
+                    }
 
                 }
         ).execute(ctx, simData);
@@ -173,7 +178,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.AllowedClass[]{new DefaultGates.ClassGate.AllowedClass(PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 10)});
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
+        return List.of(new DefaultGates.ClassGate.MagicClassEntry[]{new DefaultGates.ClassGate.MagicClassEntry(PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 10)});
     }
 }

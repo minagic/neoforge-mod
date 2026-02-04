@@ -2,8 +2,10 @@ package com.minagic.minagic.spellgates;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.*;
-import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -14,10 +16,10 @@ import java.util.List;
 
 public class DefaultGates {
     public static class ClassGate implements ISpellGate {
-        private final List<AllowedClass> allowedClasses;
+        private final List<MagicClassEntry> magicClassEntries;
         private String failureMessage;
-        public ClassGate(List<AllowedClass> classes) {
-            this.allowedClasses = classes;
+        public ClassGate(List<MagicClassEntry> classes) {
+            this.magicClassEntries = classes;
         }
 
         @Override
@@ -27,15 +29,14 @@ public class DefaultGates {
             boolean anyClassMatch = false;
             boolean anySubclassMatch = false;
 
-            PlayerClass playerData = caster.getData(ModAttachments.PLAYER_CLASS);
 
+            PlayerClassEnum actualClass = MagicClass.getMainClass(caster);
+            for (MagicClassEntry allowed : magicClassEntries) {
 
-            for (AllowedClass allowed : allowedClasses) {
-                PlayerClassEnum playerClass = playerData.getMainClass();
                 for (PlayerSubClassEnum subClass : PlayerSubClassEnum.values()) {
-                    int level = playerData.getSubclassLevel(subClass);
+                    int level = MagicClass.getSubclassLevel(caster, subClass);
 
-                    if (playerClass != allowed.mainClass()) {
+                    if (actualClass != allowed.mainClass()) {
                         continue;
                     }
 
@@ -60,11 +61,8 @@ public class DefaultGates {
             // Determine fallback message if full match not found
             if (!anyClassMatch) {
                 // Worst case — wrong class
-                PlayerClassEnum actualClass = playerData.getMainClass();
                 failureMessage = actualClass.getUnknownSpellMessage();
             } else if (!anySubclassMatch) {
-                // Mid-case — correct class, wrong subclass
-                PlayerClassEnum actualClass = playerData.getMainClass();
                 failureMessage = actualClass.getSubclassMismatchMessage();
             }
 
@@ -73,7 +71,7 @@ public class DefaultGates {
 
         @Override
         public void onFail(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            HudAlertManager.addToEntity(
+            HudAlertAttachment.addToEntity(
                     ctx.caster,
                     failureMessage,
                     0xFF5555,
@@ -82,7 +80,7 @@ public class DefaultGates {
             );
         }
 
-        public record AllowedClass(
+        public record MagicClassEntry(
                 PlayerClassEnum mainClass,
                 PlayerSubClassEnum subClass,
                 int level
@@ -101,13 +99,12 @@ public class DefaultGates {
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            var cooldowns = ctx.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-            return cooldowns.getCooldown(ModSpells.getId(spell)) <= 0;
+            return !CooldownAttachment.isOnCooldown(ctx.caster, ModSpells.getId(spell));
         }
 
         @Override
         public void onFail(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            HudAlertManager.addToEntity(
+            HudAlertAttachment.addToEntity(
                     ctx.caster,
                     "Spell is on cooldown!",
                     0xFF5555,
@@ -118,9 +115,7 @@ public class DefaultGates {
 
         @Override
         public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            var cooldowns = ctx.caster.getData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get());
-            cooldowns.setCooldown(ModSpells.getId(spell), cooldown);
-            ctx.caster.setData(ModAttachments.PLAYER_SPELL_COOLDOWNS.get(), cooldowns);
+            CooldownAttachment.applyCooldown(ctx.caster, ModSpells.getId(spell), cooldown);
         }
     }
 
@@ -135,15 +130,12 @@ public class DefaultGates {
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            Minagic.LOGGER.debug("Starting mana prerequisite check for {} with {} mana cost for {}", spell, manaCost, ctx.caster);
-            var mana = ctx.caster.getData(ModAttachments.MANA.get());
-            Minagic.LOGGER.debug("Resolved mana attachment: {}, readings: {} / {} mana, test will {}", mana, mana.getMana(), mana.getMaxMana(), mana.getMana() >= manaCost ? "succeed." : "fail.");
-            return mana.getMana() >= manaCost;
+            return ManaAttachment.getMana(ctx.caster) >= manaCost;
         }
 
         @Override
         public void onFail(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            HudAlertManager.addToEntity(
+            HudAlertAttachment.addToEntity(
                     ctx.caster,
                     "Not enough mana to cast " + spell.getString() + ".",
                     0x3366FF, // Blue
@@ -154,9 +146,7 @@ public class DefaultGates {
 
         @Override
         public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            var mana = ctx.caster.getData(ModAttachments.MANA.get());
-            mana.drainMana(manaCost);
-            ctx.caster.setData(ModAttachments.MANA.get(), mana);
+            ManaAttachment.drainMana(ctx.caster, manaCost);
         }
     }
 
@@ -169,8 +159,7 @@ public class DefaultGates {
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            var mana = ctx.caster.getData(ModAttachments.MANA.get());
-            return mana.getMana() >= manaCost;
+            return ManaAttachment.getMana(ctx.caster) >= manaCost;
         }
 
         @Override
@@ -178,7 +167,7 @@ public class DefaultGates {
             if (simData != null) {
                 simData.expireSimulacrum();
             }
-            HudAlertManager.addToEntity(
+            HudAlertAttachment.addToEntity(
                     ctx.caster,
                     "Simulacrum ended: insufficient mana.",
                     0xAA00FF,
@@ -189,9 +178,7 @@ public class DefaultGates {
 
         @Override
         public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            var mana = ctx.caster.getData(ModAttachments.MANA.get());
-            mana.drainMana(manaCost);
-            ctx.caster.setData(ModAttachments.MANA.get(), mana);
+            ManaAttachment.drainMana(ctx.caster, manaCost);
         }
     }
 

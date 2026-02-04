@@ -6,18 +6,12 @@ import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.AutonomousChargedSpell;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.PlayerClassEnum;
-import com.minagic.minagic.capabilities.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
+import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.capabilities.hudAlerts.HudAlertManager;
-import com.minagic.minagic.capabilities.hudAlerts.HudOverrideManager;
-import com.minagic.minagic.capabilities.hudAlerts.HudOverrideRegistry;
-import com.minagic.minagic.capabilities.hudAlerts.IHudOverride;
-import com.minagic.minagic.particles.CelestParticles;
+import com.minagic.minagic.capabilities.hudAlerts.*;
 import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModParticles;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
@@ -32,7 +26,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -66,7 +59,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
                             ServerLevel level = (ServerLevel) ctx.level();
                             LivingEntity target = ctx.target;
 
-                            int t = (int) simData.remainingLifetime();
+                            @SuppressWarnings("DataFlowIssue") int t = (int) simData.remainingLifetime();
 
                             // Live LOS targeting (do NOT cache)
                             BlockPos impact = SpellUtils.getTargetBlockPos(target, 192);
@@ -116,7 +109,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
 
                                 // Blinking HUD alert every 10 ticks
                                 if (t % 10 == 0) {
-                                    HudAlertManager.addToEntity(
+                                    HudAlertAttachment.addToEntity(
                                             target,
                                             "TARGET ACQUIRED. DETONATING.",
                                             0xFFFF3333,
@@ -137,14 +130,15 @@ public class NovaBurst extends AutonomousChargedSpell  {
                         (ctx, simData) -> {
                             BlockPos blockPos = SpellUtils.getTargetBlockPos(ctx.target, 192);
                             if (blockPos == null) return;
-                            NovaImpactProxyEntity proxy = Minagic.NOVA_PROXY.get().create((ServerLevel) ctx.level(), EntitySpawnReason.MOB_SUMMONED);
+                            NovaImpactProxyEntity proxy = Minagic.NOVA_PROXY.get().create(ctx.level(), EntitySpawnReason.MOB_SUMMONED);
                             BlockPos finalBlockPos = new BlockPos(blockPos.getX(), (int)SpellUtils.findSurfaceY(ctx.level(), blockPos.getX(), blockPos.getZ())+20, blockPos.getZ());
+                            assert proxy != null;
                             proxy.setPos(MathUtils.blockPosToVec3(finalBlockPos));
                             proxy.setLifetime(240);
                             proxy.setCasterUUID(ctx.target.getUUID());
                             proxy.setRadius(40);
 
-                            ((ServerLevel)ctx.level()).addFreshEntity(proxy);
+                            ctx.level().addFreshEntity(proxy);
                             SpellCastContext castContext = new SpellCastContext(proxy);
                             new NovaPulsePrecursor().perform(SpellEventPhase.START, castContext, null);
                         }
@@ -153,8 +147,8 @@ public class NovaBurst extends AutonomousChargedSpell  {
     }
 
     @Override
-    public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses(){
-        return List.of(new DefaultGates.ClassGate.AllowedClass(PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 20));
+    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses(){
+        return List.of(new DefaultGates.ClassGate.MagicClassEntry(PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 20));
     }
 
     public static class NovaPulse extends AutonomousSpell {
@@ -203,25 +197,25 @@ public class NovaBurst extends AutonomousChargedSpell  {
                             this
                     )
                     .setEffect((ctx, simData) -> {
-                        float progress = 1-simData.progress();
+                        @SuppressWarnings("DataFlowIssue") float progress = 1-simData.progress();
 
 
                         LivingEntity caster = ctx.target;
                         Level level = ctx.level();
 
-                        IHudOverride primaryFlash = HudOverrideRegistry.getCodec(WHITE_FLASH_PRIMARY);
+
 
                         List<LivingEntity> entities = SpellUtils.findEntitiesInRadius(
                                 level,
                                 caster.position(),
                                 5+(RADIUS-5)*progress*progress,
                                 LivingEntity.class,
-                                e -> e.isAlive(),
+                                LivingEntity::isAlive,
                                 Set.of(caster)
                         );
 
                         for (LivingEntity entity : entities) {
-                            HudOverrideManager.addToEntity(entity, primaryFlash);
+                            WhiteFlashAttachment.start(entity, 200);
                             if ((ctx.target instanceof NovaImpactProxyEntity proxy)) {
                                 MinagicDamage damage = new MinagicDamage(SpellUtils.resolveLivingEntityAcrossDimensions(proxy.getCasterUUID(), Objects.requireNonNull(ctx.level().getServer())),
                                         entity,
@@ -240,7 +234,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
         }
 
         @Override
-        public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+        public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
             return List.of();
         }
 
@@ -260,7 +254,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
             SpellCastContext context = new SpellCastContext(ctx.caster);
             new NovaPulse().perform(SpellEventPhase.START, context, null);
             if (! (ctx.target instanceof NovaImpactProxyEntity novaProxy)) return;
-            LivingEntity player = SpellUtils.resolveLivingEntityAcrossDimensions(novaProxy.getCasterUUID(), ctx.level().getServer());
+            @SuppressWarnings("DataFlowIssue") LivingEntity player = SpellUtils.resolveLivingEntityAcrossDimensions(novaProxy.getCasterUUID(), ctx.level().getServer());
             Vec3 dir = player.position().subtract(ctx.target.position()).normalize();
             player.push(dir.x * 0.5, 0.4, dir.z * 0.5);
             ctx.level().playSound(ctx.target, ctx.target.getOnPos(), SoundEvents.ENDER_DRAGON_DEATH, SoundSource.HOSTILE, 1.5f, 1.2f);
@@ -274,7 +268,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
                             (ctx, simData)->
                             {
                                 RandomSource rand = ctx.level().random;
-                                double angle = (1-simData.progress())*2*Math.PI;
+                                @SuppressWarnings("DataFlowIssue") double angle = (1-simData.progress())*2*Math.PI;
                                 Vec3 origin = ctx.target.position();
                                 Vec3[] targets = MathUtils.twoVectorsWithAngle(origin, angle, rand.nextDouble()*9+6, rand);
                                 for (Vec3 target: targets){
@@ -287,7 +281,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
         }
 
         @Override
-        public List<DefaultGates.ClassGate.AllowedClass> getAllowedClasses() {
+        public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
             return List.of();
         }
     }

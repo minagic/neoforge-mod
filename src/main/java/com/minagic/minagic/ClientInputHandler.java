@@ -13,7 +13,6 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 public class ClientInputHandler {
-    @SuppressWarnings("unchecked")
     @SubscribeEvent
     public void onClientTick(ClientTickEvent.Pre event) {
 
@@ -32,7 +31,7 @@ public class ClientInputHandler {
                 return;
             }
             ItemStack stack = player.getMainHandItem();
-            if (stack.getItem() instanceof SpellcastingItem spellcastingItem) {
+            if (stack.getItem() instanceof SpellcastingItem<?> spellcastingItem) {
                 minecraft.setScreen(spellcastingItem.getEditorScreen(player, stack));
             }
         }
