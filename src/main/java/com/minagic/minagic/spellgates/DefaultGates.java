@@ -192,9 +192,7 @@ public class DefaultGates {
         }
     }
 
-    public static class SimulacrumGate implements ISpellGate {
-        @Override
-        public GatePhase getGatePhase (){return GatePhase.SAFETY;}
+    public static class SimulacrumGate extends ISpellGate.SafetySpellGate {
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
@@ -207,7 +205,7 @@ public class DefaultGates {
         }
     }
 
-    public static class MetadataGate implements ISpellGate {
+    public static class MetadataGate extends ISpellGate.SafetySpellGate{
         private final Spell spell;
         private final List<String> requiredKeys;
         private final boolean exitSimulacrumOnFail;
@@ -234,9 +232,6 @@ public class DefaultGates {
                 simData.expireSimulacrum();
             }
         }
-
-        @Override
-        public GatePhase getGatePhase (){return GatePhase.SAFETY;}
     }
 
 }

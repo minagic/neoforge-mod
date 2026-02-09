@@ -1,7 +1,9 @@
 package com.minagic.minagic.spellgates;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 import javax.annotation.Nullable;
@@ -30,7 +32,14 @@ public class SpellGateChain {
 
     public void execute(SpellCastContext ctx, @Nullable SimulacrumData simData) {
         for (ISpellGate gate : gates) {
-            if (gate.getGatePhase() == ISpellGate.GatePhase.GAMEPLAY && spell.isTechnical()) continue;
+            if (gate.getGatePhase() == ISpellGate.GatePhase.GAMEPLAY && spell.isTechnical()) {
+                Minagic.LOGGER.trace(
+                        "Skipping gameplay gate check {} for technical spell {}",
+                        gate.getClass().getSimpleName(),
+                        ModSpells.getId(spell)
+                );
+                continue;
+            }
             if (!gate.check(ctx, simData)) {
                 gate.onFail(ctx, simData);
                 return;
@@ -42,7 +51,13 @@ public class SpellGateChain {
         }
 
         for (ISpellGate gate : gates) {
-            if (gate.getGatePhase() == ISpellGate.GatePhase.GAMEPLAY && spell.isTechnical()) continue;
+            if (gate.getGatePhase() == ISpellGate.GatePhase.GAMEPLAY && spell.isTechnical()) {
+                Minagic.LOGGER.trace(
+                        "Skipping gameplay gate post-action {} for technical spell {}",
+                        gate.getClass().getSimpleName(),
+                        ModSpells.getId(spell)
+                );
+            }
             gate.post(ctx, simData);
         }
 

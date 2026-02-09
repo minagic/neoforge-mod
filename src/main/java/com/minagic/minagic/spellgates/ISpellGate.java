@@ -23,4 +23,11 @@ public interface ISpellGate {
     // Optional post-action if main spell is cast
     default void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
     }
+
+    abstract class SafetySpellGate implements ISpellGate {
+        @Override
+        public final GatePhase getGatePhase() {
+            return GatePhase.SAFETY;
+        }
+    }
 }
