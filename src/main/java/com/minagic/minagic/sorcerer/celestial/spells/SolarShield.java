@@ -23,13 +23,13 @@ public class SolarShield extends AutonomousSpell implements DefaultEventInterfac
 
     @Override
     public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        new SpellGateChain().addGate(new DefaultGates.PowerSourceCostGate(5, this))
+        new SpellGateChain(this).addGate(new DefaultGates.PowerSourceCostGate(5, this))
                 .setEffect(super::start)
                 .execute(context, simulacrumData);
     }
 
     public void onLivingDamage(LivingDamageEvent.Post event, SpellCastContext ctx, @Nullable SimulacrumData data) {
-        SpellGateChain chain = new SpellGateChain()
+        SpellGateChain chain = new SpellGateChain(this)
                 .addGate(new DefaultGates.SimulacrumGate())
                 .addGate(new DefaultGates.PowerSourceSustainGate(0))
                 .setEffect((context, simData) ->

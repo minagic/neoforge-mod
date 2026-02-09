@@ -194,6 +194,9 @@ public class DefaultGates {
 
     public static class SimulacrumGate implements ISpellGate {
         @Override
+        public GatePhase getGatePhase (){return GatePhase.SAFETY;}
+
+        @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             return simData != null && simData.remainingLifetime() != 0;
         }
@@ -231,6 +234,9 @@ public class DefaultGates {
                 simData.expireSimulacrum();
             }
         }
+
+        @Override
+        public GatePhase getGatePhase (){return GatePhase.SAFETY;}
     }
 
 }

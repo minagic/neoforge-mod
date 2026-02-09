@@ -15,7 +15,7 @@ public class SpellGatePolicyGenerator {
             boolean requireSimulacrumOnCast,
             Spell spell
     ) {
-        SpellGateChain chain = new SpellGateChain();
+        SpellGateChain chain = new SpellGateChain(spell);
 
         switch (phase) {
             case START -> {

@@ -38,7 +38,7 @@ public class Banishment extends Spell implements ISimulacrumSpell, SorceryPowerS
     @Override
     public final void start(SpellCastContext ctx, @Nullable SimulacrumData simData) {
         Minagic.LOGGER.debug("Banishment spell start invoked");
-        new SpellGateChain().setEffect(
+        new SpellGateChain(this).setEffect(
                 (context, simulacrumData) -> {
                     if (!SpellMetadata.has(context.target, this, "bb_start")) {
                         Minagic.LOGGER.debug("Banishment precheck: no metadata, initializing area");
@@ -51,7 +51,7 @@ public class Banishment extends Spell implements ISimulacrumSpell, SorceryPowerS
                         BlockPos pos = context.target.blockPosition();
                         int manaCost = (int) MathUtils.areaBetween(SpellMetadata.getBlockPos(context.target, this, "bb_start"), pos);
 
-                        new SpellGateChain()
+                        new SpellGateChain(this)
                                 .addGate(new DefaultGates.PowerSourceCostGate(manaCost, this))
                                 .setEffect(
                                         (internal_ctx, data) -> {

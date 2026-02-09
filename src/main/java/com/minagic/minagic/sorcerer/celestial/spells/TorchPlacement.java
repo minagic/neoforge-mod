@@ -40,7 +40,7 @@ public class TorchPlacement extends ChargedSpell implements SorceryPowerSourceAt
 
         int manaCost = (int) calibrator.remap(0f, 60).apply(originalCharge);
 
-        SpellGateChain manaChain = new SpellGateChain().addGate(new DefaultGates.PowerSourceCostGate(manaCost, this));
+        SpellGateChain manaChain = new SpellGateChain(this).addGate(new DefaultGates.PowerSourceCostGate(manaCost, this));
         manaChain.setEffect((
                         ((context, simData) ->
                         {

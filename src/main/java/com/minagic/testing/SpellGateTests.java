@@ -2,11 +2,11 @@ package com.minagic.testing;
 
 
 import com.minagic.minagic.capabilities.ManaAttachment;
-import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.sorcerer.celestial.spells.SolarSurge;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
+import com.minagic.minagic.spells.NoneSpell;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -28,7 +28,7 @@ public class SpellGateTests {
 
         SpellCastContext ctx = new SpellCastContext(fakePlayer);
 
-        new SpellGateChain()
+        new SpellGateChain(new NoneSpell())
                 .addGate(new DefaultGates.PowerSourceSustainGate(10))
                 .setEffect(
                         (context, simData) ->
@@ -51,7 +51,7 @@ public class SpellGateTests {
                     helper.assertFalse(ManaAttachment.getMana(fakePlayer) == 0, Component.nullToEmpty("ManaAttachment not initialized!"));
 
                     com.minagic.minagic.spellCasting.SpellCastContext context = new SpellCastContext(fakePlayer);
-                    new SpellGateChain()
+                    new SpellGateChain(new NoneSpell())
                             .addGate(new DefaultGates.PowerSourceCostGate(10, new SolarSurge()))
                             .setEffect(
                                     (context1, simData) ->
@@ -73,7 +73,7 @@ public class SpellGateTests {
         SpellCastContext ctx = new SpellCastContext(fakePlayer);
         AtomicBoolean flag = new AtomicBoolean(false);
 
-        new SpellGateChain()
+        new SpellGateChain(new NoneSpell())
                 .addGate(new DefaultGates.CooldownGate(new SolarSurge(), 20))
                 .setEffect(
                         (context, simData) ->
@@ -83,7 +83,7 @@ public class SpellGateTests {
 
         helper.assertTrue(flag.get(), Component.literal("SpellGate effect should have worked without cooldown, failed instead"));
         ctx = new SpellCastContext(fakePlayer);
-        new SpellGateChain()
+        new SpellGateChain(new NoneSpell())
                 .addGate(new DefaultGates.CooldownGate( new SolarSurge(), 20))
                 .setEffect(
                         (context, simData) ->

@@ -27,7 +27,7 @@ public class AutonomousSpell extends Spell implements ISimulacrumSpell {
                     if (existing) {
                         SimulacraAttachment.removeSimulacrum(ctx.target, ModSpells.getId(this));
                     } else {
-                        new SpellGateChain()
+                        new SpellGateChain(this)
                                 .addGate(new DefaultGates.CooldownGate(this, cooldown))
                                 .setEffect(
                                         (internal_ctx, internal_data) -> {

@@ -50,7 +50,7 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
     }
 
     public void tick(SpellCastContext context, SimulacrumData simulacrumData){
-        new SpellGateChain().addGate(new DefaultGates.SimulacrumGate())
+        new SpellGateChain(this).addGate(new DefaultGates.SimulacrumGate())
                 .setEffect(
                         ((ctx, simData) ->
                         {
@@ -260,7 +260,7 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
         }
 
         public void tick(SpellCastContext context, SimulacrumData simulacrumData){
-            new SpellGateChain().addGate(new DefaultGates.SimulacrumGate())
+            new SpellGateChain(this).addGate(new DefaultGates.SimulacrumGate())
                     .setEffect(
                             (ctx, simData)->
                             {

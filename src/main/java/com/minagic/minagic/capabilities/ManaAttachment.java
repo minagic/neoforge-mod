@@ -18,8 +18,8 @@ import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import org.jetbrains.annotations.NotNull;
 
-
-public final class ManaAttachment implements AutodetectionInterfaces.IRenderableAttachment, AutodetectionInterfaces.ILivingTickableAttachment {
+@Deprecated(forRemoval = true)
+public final class ManaAttachment {
 
     // =========================
     // INTERNAL VARIABLES
@@ -167,7 +167,6 @@ public final class ManaAttachment implements AutodetectionInterfaces.IRenderable
         gui.drawString(font, text, PADDING, y - 10, COLOR_TEXT, false);
     }
 
-    @Override
     public boolean shouldRender(LivingEntity host) {
         return host.getMainHandItem().getItem() instanceof SpellcastingItem<?>;
     }

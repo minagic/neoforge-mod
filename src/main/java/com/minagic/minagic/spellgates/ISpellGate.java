@@ -6,6 +6,14 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import javax.annotation.Nullable;
 
 public interface ISpellGate {
+
+    enum GatePhase {
+        SAFETY,
+        GAMEPLAY
+    }
+
+    default GatePhase getGatePhase(){return GatePhase.GAMEPLAY;}
+
     boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData);
 
     // Optional fallback if check fails
