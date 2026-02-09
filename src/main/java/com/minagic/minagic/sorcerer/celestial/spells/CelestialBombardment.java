@@ -5,11 +5,9 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.ChanneledAutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.spells.AOEHit;
 import com.minagic.minagic.utilities.MathUtils;
@@ -32,10 +30,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
-public class CelestialBombardment extends ChanneledAutonomousSpell {
+public class CelestialBombardment extends ChanneledAutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public CelestialBombardment() {
         super();
@@ -77,17 +74,9 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
         return new Vec3[]{spawnPos, direction};
     }
 
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
-                PlayerClassEnum.SORCERER,
-                PlayerSubClassEnum.SORCERER_CELESTIAL,
-                17
-        ));
-    }
-
     @Override
     public void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, 5, null, false, this)
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, null, 5, null, false, this)
                 .setEffect((context, simulacrumData) -> {
                     int XZRange = 5;
                     int targetCount = 5;
@@ -137,6 +126,16 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
                 .execute(ctx, simData);
 
 
+    }
+
+    @Override
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+    }
+
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 17;
     }
 
     public static class StarShard extends SpellProjectileEntity implements ItemSupplier {

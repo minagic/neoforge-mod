@@ -6,10 +6,9 @@ import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.AutonomousChargedSpell;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.capabilities.hudAlerts.*;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -38,7 +37,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class NovaBurst extends AutonomousChargedSpell  {
+public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
 
     public NovaBurst(){
@@ -125,7 +124,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
     }
 
     public void cast(SpellCastContext context, SimulacrumData simulacrumData){
-        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), cooldown, manaCost, 0, false, this)
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, cooldown, manaCost, 0, false, this)
                 .setEffect(
                         (ctx, simData) -> {
                             BlockPos blockPos = SpellUtils.getTargetBlockPos(ctx.target, 192);
@@ -146,12 +145,7 @@ public class NovaBurst extends AutonomousChargedSpell  {
                 .execute(context, simulacrumData);
     }
 
-    @Override
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses(){
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry(PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 20));
-    }
-
-    public static class NovaPulse extends AutonomousSpell {
+    public static class NovaPulse extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
         private static final ResourceLocation WHITE_FLASH_PRIMARY =
                 ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "white_flash_primary");
@@ -189,7 +183,6 @@ public class NovaBurst extends AutonomousChargedSpell  {
 
             SpellGatePolicyGenerator.build(
                             SpellEventPhase.CAST,
-                            this.getAllowedClasses(),
                             null,
                             null,
                             null,
@@ -232,15 +225,19 @@ public class NovaBurst extends AutonomousChargedSpell  {
                     })
                     .execute(context, simulacrumData);
         }
+        @Override
+        public String getRequiredBloodline() {
+            return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+        }
 
         @Override
-        public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-            return List.of();
+        public int getRequiredAffinityLevel() {
+            return 20;
         }
 
     }
 
-    public static class NovaPulsePrecursor extends AutonomousChargedSpell {
+    public static class NovaPulsePrecursor extends AutonomousChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
         public NovaPulsePrecursor(){
             this.spellName = "Nova Pulse Precursor";
             this.simulacraThreshold = 40;
@@ -279,14 +276,27 @@ public class NovaBurst extends AutonomousChargedSpell  {
                     )
                     .execute(context,simulacrumData);
         }
+        @Override
+        public String getRequiredBloodline() {
+            return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+        }
 
         @Override
-        public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-            return List.of();
+        public int getRequiredAffinityLevel() {
+            return 20;
         }
     }
 
 
 
 
+    @Override
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+    }
+
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 20;
+    }
 }

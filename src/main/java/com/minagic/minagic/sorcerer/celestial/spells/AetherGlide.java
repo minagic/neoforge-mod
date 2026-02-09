@@ -2,14 +2,11 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -19,9 +16,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.List;
-
-public class AetherGlide extends AutonomousSpell {
+public class AetherGlide extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public AetherGlide() {
         this.spellName = "Aether Glide";
@@ -54,7 +49,6 @@ public class AetherGlide extends AutonomousSpell {
     public void tick(SpellCastContext context, SimulacrumData simulacrumData) {
         SpellGatePolicyGenerator.build(
                 SpellEventPhase.TICK,
-                this.getAllowedClasses(),
                 null,
                 null,
                 1,
@@ -131,13 +125,12 @@ public class AetherGlide extends AutonomousSpell {
     }
 
     @Override
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(
-                new DefaultGates.ClassGate.MagicClassEntry(
-                        PlayerClassEnum.SORCERER,
-                        PlayerSubClassEnum.SORCERER_CELESTIAL,
-                        13
-                )
-        );
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+    }
+
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 13;
     }
 }

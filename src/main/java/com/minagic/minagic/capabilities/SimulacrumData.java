@@ -17,14 +17,14 @@ public record SimulacrumData(
     // DERIVED FIELDS
     // =========================
     public float progress() {
-        var spell = ModSpells.get(spellId); // however you get it
+        var spell = ModSpells.get(spellId); // however you getAttachment it
         if (spell == null) return 0f;
         if (!(spell instanceof ISimulacrumSpell simulacrumSpell)) return 0f;
         return simulacrumSpell.progress(this);
     }
 
     public int color(float progress) {
-        var spell = ModSpells.get(spellId); // however you get it
+        var spell = ModSpells.get(spellId); // however you getAttachment it
         if (spell == null) return 0x00000000;
         return spell.color(progress);
     }

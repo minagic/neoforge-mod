@@ -2,12 +2,10 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -16,9 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-public class RadiantBlink extends InstanteneousSpell {
+public class RadiantBlink extends InstanteneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public RadiantBlink() {
         this.spellName = "Radiant Blink";
@@ -30,7 +26,6 @@ public class RadiantBlink extends InstanteneousSpell {
     public void cast(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
         SpellGatePolicyGenerator.build(
                         SpellEventPhase.CAST,
-                        this.getAllowedClasses(),
                         cooldown,
                         manaCost,
                         0, // sustain cost
@@ -101,11 +96,12 @@ public class RadiantBlink extends InstanteneousSpell {
     }
 
     @Override
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
-                PlayerClassEnum.SORCERER,
-                PlayerSubClassEnum.SORCERER_CELESTIAL,
-                7
-        ));
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+    }
+
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 7;
     }
 }

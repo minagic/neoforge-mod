@@ -4,13 +4,11 @@ import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 public class SpellGatePolicyGenerator {
 
     public static SpellGateChain build(
             SpellEventPhase phase,
-            List<DefaultGates.ClassGate.MagicClassEntry> magicClassEntries,
             @Nullable Integer cooldownTicks,
             @Nullable Integer manaCostOnCast,
             @Nullable Integer manaSustainPerTick,
@@ -23,27 +21,23 @@ public class SpellGatePolicyGenerator {
             case START -> {
                 if (cooldownTicks != null)
                     chain.addGate(new DefaultGates.CooldownGate(spell, cooldownTicks));
-                if (!magicClassEntries.isEmpty())
-                    chain.addGate(new DefaultGates.ClassGate(magicClassEntries));
+                chain.addGate(new DefaultGates.PowerSourcePrerequisiteGate(spell));
             }
             case CAST -> {
-                if (!magicClassEntries.isEmpty())
-                    chain.addGate(new DefaultGates.ClassGate(magicClassEntries));
+                chain.addGate(new DefaultGates.PowerSourcePrerequisiteGate(spell));
                 if (manaCostOnCast != null)
-                    chain.addGate(new DefaultGates.ManaGate(manaCostOnCast, spell));
+                    chain.addGate(new DefaultGates.PowerSourceCostGate(manaCostOnCast, spell));
                 if (requireSimulacrumOnCast)
                     chain.addGate(new DefaultGates.SimulacrumGate());
             }
             case TICK -> {
-                if (!magicClassEntries.isEmpty())
-                    chain.addGate(new DefaultGates.ClassGate(magicClassEntries));
+                chain.addGate(new DefaultGates.PowerSourcePrerequisiteGate(spell));
                 if (manaSustainPerTick != null && manaSustainPerTick > 0)
-                    chain.addGate(new DefaultGates.ManaSustainGate(manaSustainPerTick));
+                    chain.addGate(new DefaultGates.PowerSourceSustainGate(manaSustainPerTick));
                 chain.addGate(new DefaultGates.SimulacrumGate());
             }
             case EXIT_SIMULACRUM -> chain.addGate(new DefaultGates.SimulacrumGate());
             case STOP -> {
-                // intentionally left empty
             }
         }
 

@@ -2,12 +2,9 @@ package com.minagic.minagic.druid.spells;
 
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -15,8 +12,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class CircleOfLife extends AutonomousSpell {
     public CircleOfLife() {
@@ -30,7 +25,7 @@ public class CircleOfLife extends AutonomousSpell {
 
     @Override
     public void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, null, manaCost, null, false, this)
                 .setEffect((context, simulacrumData) -> {
                     OathOfLife oath = new OathOfLife();
 
@@ -79,14 +74,4 @@ public class CircleOfLife extends AutonomousSpell {
             );
         }
     }
-
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
-                PlayerClassEnum.DRUID,
-                PlayerSubClassEnum.DRUID_ANIMALS,
-                5
-        ));
-    }
-
-
 }

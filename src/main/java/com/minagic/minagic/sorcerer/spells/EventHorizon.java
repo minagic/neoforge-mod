@@ -2,15 +2,11 @@ package com.minagic.minagic.sorcerer.spells;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.ChanneledSpell;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
 
-import java.util.List;
-
-public class EventHorizon extends ChanneledSpell {
+public class EventHorizon extends ChanneledSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public EventHorizon() {
         super();
 
@@ -21,17 +17,18 @@ public class EventHorizon extends ChanneledSpell {
         // simulacraMaxLifetime left to superclass default
     }
 
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
-                PlayerClassEnum.SORCERER,
-                PlayerSubClassEnum.SORCERER_VOIDBOURNE,
-                20
-        ));
-    }
-
     @Override
     public void cast(SpellCastContext context, SimulacrumData simulacrumData) {
         Minagic.LOGGER.debug("Event Horizon cast invoked for {}", getString());
     }
 
+    @Override
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_VOIDBOURNE;
+    }
+
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 20;
+    }
 }

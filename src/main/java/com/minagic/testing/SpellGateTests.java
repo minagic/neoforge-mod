@@ -29,7 +29,7 @@ public class SpellGateTests {
         SpellCastContext ctx = new SpellCastContext(fakePlayer);
 
         new SpellGateChain()
-                .addGate(new DefaultGates.ManaGate(10, new SolarSurge()))
+                .addGate(new DefaultGates.PowerSourceSustainGate(10))
                 .setEffect(
                         (context, simData) ->
                                 helper.fail("Effect should not have run due to insufficient mana, worked instead")
@@ -52,7 +52,7 @@ public class SpellGateTests {
 
                     com.minagic.minagic.spellCasting.SpellCastContext context = new SpellCastContext(fakePlayer);
                     new SpellGateChain()
-                            .addGate(new DefaultGates.ManaGate(10, new SolarSurge()))
+                            .addGate(new DefaultGates.PowerSourceCostGate(10, new SolarSurge()))
                             .setEffect(
                                     (context1, simData) ->
                                             helper.succeed()

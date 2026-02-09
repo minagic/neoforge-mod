@@ -6,9 +6,8 @@ import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.*;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -27,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 // this will extend raw spell as this is an easier approach
-public class Banishment extends Spell implements ISimulacrumSpell {
+public class Banishment extends Spell implements ISimulacrumSpell, SorceryPowerSourceAttachment.ISorcerySpell {
     public Banishment() {
         spellName = "Banishment";
         cooldown = 20;
@@ -39,7 +38,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
     @Override
     public final void start(SpellCastContext ctx, @Nullable SimulacrumData simData) {
         Minagic.LOGGER.debug("Banishment spell start invoked");
-        new SpellGateChain().addGate(new DefaultGates.ClassGate(this.getAllowedClasses())).setEffect(
+        new SpellGateChain().setEffect(
                 (context, simulacrumData) -> {
                     if (!SpellMetadata.has(context.target, this, "bb_start")) {
                         Minagic.LOGGER.debug("Banishment precheck: no metadata, initializing area");
@@ -53,7 +52,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
                         int manaCost = (int) MathUtils.areaBetween(SpellMetadata.getBlockPos(context.target, this, "bb_start"), pos);
 
                         new SpellGateChain()
-                                .addGate(new DefaultGates.ManaGate(manaCost, this))
+                                .addGate(new DefaultGates.PowerSourceCostGate(manaCost, this))
                                 .setEffect(
                                         (internal_ctx, data) -> {
                                             SpellMetadata.setBlockPos(internal_ctx.target, this, "bb_end", pos);
@@ -89,7 +88,7 @@ public class Banishment extends Spell implements ISimulacrumSpell {
 
     @Override
     public final void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, null, manaCost, null, false, this)
                 .addGate(new DefaultGates.MetadataGate(this, List.of("bb_start", "bb_end"), true))
                 .setEffect((context, simulacrumData) -> {
                     ServerLevel level = (ServerLevel) context.level();
@@ -178,7 +177,12 @@ public class Banishment extends Spell implements ISimulacrumSpell {
     }
 
     @Override
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry[]{new DefaultGates.ClassGate.MagicClassEntry(PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 10)});
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+    }
+
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 10;
     }
 }

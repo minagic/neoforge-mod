@@ -1,8 +1,9 @@
 package com.minagic.minagic.spellCasting;
 
 import com.minagic.minagic.Minagic;
+import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.api.spells.Spell;
-import com.minagic.minagic.spellgates.DefaultGates;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -29,7 +30,7 @@ public class SpellRegistry {
             return null;
         }
 
-        //return id == null || id.equals(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "empty_spell")) ? REGISTRY.get(id) : null;
+        //return id == null || id.equals(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "empty_spell")) ? REGISTRY.getAttachment(id) : null;
     }
 
     public static ResourceLocation getId(Spell spell) {
@@ -37,7 +38,10 @@ public class SpellRegistry {
         return REVERSE.get(spell);
     }
 
-    public static List<Spell> getSpells(LivingEntity target) {
-        return REGISTRY.values().stream().filter(spell -> new DefaultGates.ClassGate(spell.getAllowedClasses()).check(new SpellCastContext(target), null) && !spell.isTechnical()).toList();
+    public static List<Spell> getSpells(SpellcastingItem item) {
+        return REGISTRY.values().stream()
+                .filter(item::canCastSpell)
+                .filter(spell -> !spell.isTechnical())
+                .toList();
     }
 }

@@ -2,11 +2,8 @@ package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 
 // An abstract class representing a spell with casting lifecycle methods and validation.
 public abstract class Spell {
@@ -71,10 +68,6 @@ public abstract class Spell {
     // post cast will drain this much mana from caster
     public final int getManaCost() {
         return manaCost;
-    }
-
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return new ArrayList<>();
     }
 
     public final boolean isTechnical() {

@@ -28,7 +28,7 @@ public record SpellSlotCycleDownPacket() implements CustomPacketPayload {
         if (!(context.player() instanceof ServerPlayer serverPlayer)) {
             return;
         }
-        // get the item in the player's main hand
+        // getAttachment the item in the player's main hand
         ItemStack stack = serverPlayer.getMainHandItem();
         if (stack.getItem() instanceof SpellcastingItem<?> spellcastingItem) {
             spellcastingItem.cycleSlotDown(serverPlayer, stack);

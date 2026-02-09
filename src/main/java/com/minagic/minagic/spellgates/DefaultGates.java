@@ -6,7 +6,8 @@ import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
-import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.capabilities.powersource.AbstractPowerSource;
+import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.world.entity.Entity;
@@ -15,58 +16,31 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class DefaultGates {
-    public static class ClassGate implements ISpellGate {
-        private final List<MagicClassEntry> magicClassEntries;
+    public static class PowerSourcePrerequisiteGate implements ISpellGate {
+
+        private final Spell spell;
         private String failureMessage;
-        public ClassGate(List<MagicClassEntry> classes) {
-            this.magicClassEntries = classes;
+
+        public PowerSourcePrerequisiteGate(Spell spell) {
+            this.spell = spell;
         }
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            Entity caster = ctx.caster;
+            AbstractPowerSource source =
+                    ActivePowerSourceAttachment.getActivePowerSource(ctx.caster);
 
-            boolean anyClassMatch = false;
-            boolean anySubclassMatch = false;
-
-
-            PlayerClassEnum actualClass = MagicClass.getMainClass(caster);
-            for (MagicClassEntry allowed : magicClassEntries) {
-
-                for (PlayerSubClassEnum subClass : PlayerSubClassEnum.values()) {
-                    int level = MagicClass.getSubclassLevel(caster, subClass);
-
-                    if (actualClass != allowed.mainClass()) {
-                        continue;
-                    }
-
-                    anyClassMatch = true;
-
-                    if (subClass != allowed.subClass()) {
-                        continue;
-                    }
-
-                    anySubclassMatch = true;
-
-                    if (level >= allowed.level()) {
-                        // Full match
-                        return true;
-                    } else {
-                        // Best case failure — level too low
-                        failureMessage = allowed.mainClass().getLevelTooLowMessage();
-                    }
-                }
+            if (source == null) {
+                failureMessage = "No active power source.";
+                return false;
             }
 
-            // Determine fallback message if full match not found
-            if (!anyClassMatch) {
-                // Worst case — wrong class
-                failureMessage = actualClass.getUnknownSpellMessage();
-            } else if (!anySubclassMatch) {
-                failureMessage = actualClass.getSubclassMismatchMessage();
+            if (!source.checkPrerequisites(spell)) {
+                failureMessage = "The invoked power rejects this spell.";
+                return false;
             }
 
-            return false;
+            return true;
         }
 
         @Override
@@ -79,12 +53,111 @@ public class DefaultGates {
                     60
             );
         }
+    }
 
-        public record MagicClassEntry(
-                PlayerClassEnum mainClass,
-                PlayerSubClassEnum subClass,
-                int level
-        ) {
+    public static class PowerSourceCostGate implements ISpellGate {
+
+        private final int magicCost;
+        private final Spell spell;
+
+        public PowerSourceCostGate(int magicCost, Spell spell) {
+            this.magicCost = magicCost;
+            this.spell = spell;
+        }
+
+        @Override
+        public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+            AbstractPowerSource source =
+                    ActivePowerSourceAttachment.getActivePowerSource(ctx.caster);
+
+            if (source == null) {
+                return false;
+            }
+
+            return source.canConsume(ctx, simData, magicCost);
+        }
+
+        @Override
+        public void onFail(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+            AbstractPowerSource source =
+                    ActivePowerSourceAttachment.getActivePowerSource(ctx.caster);
+
+            if (source != null) {
+                source.onFail(ctx.caster, magicCost);
+                return;
+            }
+
+            HudAlertAttachment.addToEntity(
+                    ctx.caster,
+                    "You lack the power to cast " + spell.getString() + ".",
+                    0x3366FF,
+                    0,
+                    60
+            );
+        }
+
+        @Override
+        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+            AbstractPowerSource source =
+                    ActivePowerSourceAttachment.getActivePowerSource(ctx.caster);
+
+            if (source != null) {
+                source.consume(ctx, simData, magicCost);
+            }
+        }
+    }
+
+    public static class PowerSourceSustainGate implements ISpellGate {
+
+        private final int magicCost;
+
+        public PowerSourceSustainGate(int magicCost) {
+            this.magicCost = magicCost;
+        }
+
+        @Override
+        public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+            AbstractPowerSource source =
+                    ActivePowerSourceAttachment.getActivePowerSource(ctx.caster);
+
+            if (source == null) {
+                return false;
+            }
+
+            return source.canConsume(ctx, simData, magicCost);
+        }
+
+        @Override
+        public void onFail(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+            if (simData != null) {
+                simData.expireSimulacrum();
+            }
+
+            AbstractPowerSource source =
+                    ActivePowerSourceAttachment.getActivePowerSource(ctx.caster);
+
+            if (source != null) {
+                source.onFail(ctx.caster, magicCost);
+                return;
+            }
+
+            HudAlertAttachment.addToEntity(
+                    ctx.caster,
+                    "The sustaining power collapses.",
+                    0xAA00FF,
+                    0,
+                    40
+            );
+        }
+
+        @Override
+        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+            AbstractPowerSource source =
+                    ActivePowerSourceAttachment.getActivePowerSource(ctx.caster);
+
+            if (source != null) {
+                source.consume(ctx, simData, magicCost);
+            }
         }
     }
 
@@ -116,69 +189,6 @@ public class DefaultGates {
         @Override
         public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             CooldownAttachment.applyCooldown(ctx.caster, ModSpells.getId(spell), cooldown);
-        }
-    }
-
-    public static class ManaGate implements ISpellGate {
-        private final int manaCost;
-        private final Spell spell;
-
-        public ManaGate(int manaCost, Spell spell) {
-            this.manaCost = manaCost;
-            this.spell = spell;
-        }
-
-        @Override
-        public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            return ManaAttachment.getMana(ctx.caster) >= manaCost;
-        }
-
-        @Override
-        public void onFail(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            HudAlertAttachment.addToEntity(
-                    ctx.caster,
-                    "Not enough mana to cast " + spell.getString() + ".",
-                    0x3366FF, // Blue
-                    0,
-                    60
-            );
-        }
-
-        @Override
-        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            ManaAttachment.drainMana(ctx.caster, manaCost);
-        }
-    }
-
-    public static class ManaSustainGate implements ISpellGate {
-        private final int manaCost;
-
-        public ManaSustainGate(int manaCost) {
-            this.manaCost = manaCost;
-        }
-
-        @Override
-        public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            return ManaAttachment.getMana(ctx.caster) >= manaCost;
-        }
-
-        @Override
-        public void onFail(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            if (simData != null) {
-                simData.expireSimulacrum();
-            }
-            HudAlertAttachment.addToEntity(
-                    ctx.caster,
-                    "Simulacrum ended: insufficient mana.",
-                    0xAA00FF,
-                    0,
-                    40
-            );
-        }
-
-        @Override
-        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            ManaAttachment.drainMana(ctx.caster, manaCost);
         }
     }
 

@@ -139,19 +139,13 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item {
         }
     }
 
-    public boolean canLivingUseSpellcastingItem(LivingEntity player) {
+    public boolean canCastSpell(Spell spell) {
         return false;
     }
 
     @Override
     public @NotNull InteractionResult use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
-            return InteractionResult.FAIL;
-        }
-
-        // check if player can use this staff
-        if (!canLivingUseSpellcastingItem(player)) {
-            serverPlayer.sendSystemMessage(Component.literal("You have zero idea on how to use this..."));
             return InteractionResult.FAIL;
         }
 

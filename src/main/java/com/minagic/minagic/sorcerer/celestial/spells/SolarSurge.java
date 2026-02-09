@@ -2,11 +2,9 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -16,9 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-public class SolarSurge extends InstanteneousSpell {
+public class SolarSurge extends InstanteneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public SolarSurge() {
         this.spellName = "Solar Surge";
@@ -28,7 +24,7 @@ public class SolarSurge extends InstanteneousSpell {
 
     @Override
     public void cast(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), cooldown, manaCost, 0, false, this)
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, cooldown, manaCost, 0, false, this)
                 .setEffect((ctx, simData) -> {
                     ServerLevel level = (ServerLevel) ctx.level();
                     LivingEntity target = ctx.target;
@@ -65,9 +61,12 @@ public class SolarSurge extends InstanteneousSpell {
     }
 
     @Override
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
-                PlayerClassEnum.SORCERER, PlayerSubClassEnum.SORCERER_CELESTIAL, 6
-        ));
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+    }
+
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 6;
     }
 }

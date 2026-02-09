@@ -2,19 +2,15 @@ package com.minagic.minagic.sorcerer.spells;
 
 import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.List;
-
-public class VoidBlast extends InstanteneousSpell {
+public class VoidBlast extends InstanteneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public VoidBlast() {
         super();
 
@@ -24,17 +20,9 @@ public class VoidBlast extends InstanteneousSpell {
         // simulacrum values untouched
     }
 
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
-                PlayerClassEnum.SORCERER,
-                PlayerSubClassEnum.SORCERER_VOIDBOURNE,
-                3
-        ));
-    }
-
     @Override
     public void cast(SpellCastContext ctx, SimulacrumData simData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, null, manaCost, null, false, this)
                 .setEffect((context, simulacrumData) -> {
                     LivingEntity player = context.caster;
                     Level level = context.level();
@@ -48,5 +36,15 @@ public class VoidBlast extends InstanteneousSpell {
                 })
                 .execute(ctx, simData);
 
+    }
+
+    @Override
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_VOIDBOURNE;
+    }
+
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 3;
     }
 }

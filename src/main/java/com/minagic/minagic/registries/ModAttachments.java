@@ -4,6 +4,8 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
 import com.minagic.minagic.capabilities.hudAlerts.WhiteFlashAttachment;
+import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.IEventBus;
@@ -74,6 +76,23 @@ public class ModAttachments {
                             .build()
             );
 
+    public static final Supplier<AttachmentType<ActivePowerSourceAttachment>> ACTIVE_POWER_SOURCE =
+            ATTACHMENTS.register("active_power_source", () ->
+                    AttachmentType.builder(ActivePowerSourceAttachment::new)
+                            .serialize(new ActivePowerSourceAttachment.Serializer())
+                            .sync(ByteBufCodecs.fromCodec(ActivePowerSourceAttachment.CODEC))
+                            .build()
+            );
+
+    public static final Supplier<AttachmentType<SorceryPowerSourceAttachment>> SORCERY_POWER_SOURCE =
+            ATTACHMENTS.register("power_source_sourcery", () ->
+                    AttachmentType.builder(SorceryPowerSourceAttachment::new)
+                            .serialize(new SorceryPowerSourceAttachment.Serializer()) // persistent & sync-enabled
+                            .sync(ByteBufCodecs.fromCodec(SorceryPowerSourceAttachment.CODEC))
+                            .copyOnDeath()
+                            .build()
+            );
+
 
     private static final List<AttachmentEntry<?>> REGISTERED_ATTACHMENTS = List.of(
             new AttachmentEntry<>(PLAYER_SPELL_COOLDOWNS, CooldownAttachment::new),
@@ -82,7 +101,9 @@ public class ModAttachments {
             new AttachmentEntry<>(PLAYER_SIMULACRA, SimulacraAttachment::new),
             new AttachmentEntry<>(HUD_ALERTS, HudAlertAttachment::new),
             new AttachmentEntry<>(SPELL_METADATA, SpellMetadata::new),
-            new AttachmentEntry<>(WHITE_FLASH, WhiteFlashAttachment::new)
+            new AttachmentEntry<>(WHITE_FLASH, WhiteFlashAttachment::new),
+            new AttachmentEntry<>(ACTIVE_POWER_SOURCE, ActivePowerSourceAttachment::new),
+            new AttachmentEntry<>(SORCERY_POWER_SOURCE, SorceryPowerSourceAttachment::new)
     );
 
     public static void resetAllAttachments(Entity entity) {

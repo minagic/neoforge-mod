@@ -28,7 +28,7 @@ public record SpellSlotCyclePacket() implements CustomPacketPayload {
             return;
         }
 
-        // get the item in the player's main hand
+        // getAttachment the item in the player's main hand
         var stack = player.getMainHandItem();
         if (stack.getItem() instanceof SpellcastingItem<?> spellcastingItem) {
             spellcastingItem.cycleSlotUp(player, stack);

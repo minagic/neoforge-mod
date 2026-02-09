@@ -51,7 +51,8 @@ public class SpellEditorScreen<T extends SpellcastingItemData> extends AbstractC
     }
 
     protected List<Spell> getAvailableSpells(Player player, ItemStack stack) {
-        return SpellRegistry.getSpells(player);
+        if (! (stack.getItem() instanceof SpellcastingItem<?> spellcastingItem)) return List.of();
+        return SpellRegistry.getSpells(spellcastingItem);
     }
 
     @Override

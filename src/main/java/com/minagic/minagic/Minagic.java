@@ -16,6 +16,7 @@ import com.minagic.minagic.utilities.ClearAttachmentsCommand;
 import com.minagic.minagic.utilities.EntityFreezer;
 import com.minagic.minagic.utilities.ModEvents;
 import com.minagic.minagic.utilities.SetClassCommand;
+import com.minagic.minagic.utilities.SorceryPowerCommand;
 import com.minagic.minagic.utilities.WorldEvents;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -122,11 +123,11 @@ public class Minagic {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
-        // Register the Deferred Register to the mod event bus so blocks get registered
+        // Register the Deferred Register to the mod event bus so blocks getAttachment registered
         BLOCKS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so tabs get registered
+        // Register the Deferred Register to the mod event bus so tabs getAttachment registered
         CREATIVE_MODE_TABS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so entity types get registered
+        // Register the Deferred Register to the mod event bus so entity types getAttachment registered
         ENTITY_TYPES.register(modEventBus);
 
         TEST_FUNCTION.register(modEventBus);
@@ -153,6 +154,7 @@ public class Minagic {
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
         ModAttachments.register(modEventBus);
+        ModPowerSources.register();
         ModParticles.register(modEventBus);
 
 
@@ -177,6 +179,7 @@ public class Minagic {
     private void onRegisterCommands(RegisterCommandsEvent event) {
         SetClassCommand.register(event.getDispatcher());
         ClearAttachmentsCommand.register(event.getDispatcher());
+        SorceryPowerCommand.register(event.getDispatcher());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

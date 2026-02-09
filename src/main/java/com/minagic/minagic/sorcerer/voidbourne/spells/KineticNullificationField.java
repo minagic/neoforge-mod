@@ -3,11 +3,9 @@ package com.minagic.minagic.sorcerer.voidbourne.spells;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.SpellUtils;
 import com.minagic.minagic.utilities.VisualUtils;
@@ -18,7 +16,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import java.util.List;
 import java.util.Set;
 
-public class KineticNullificationField extends AutonomousSpell {
+public class KineticNullificationField extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public KineticNullificationField() {
         this.spellName = "Kinetic Nullification Field";
         this.cooldown = 100;
@@ -26,18 +24,9 @@ public class KineticNullificationField extends AutonomousSpell {
         this.manaCost = 1;
     }
 
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
-                PlayerClassEnum.SORCERER,
-                PlayerSubClassEnum.SORCERER_VOIDBOURNE,
-                3
-        ));
-    }
-
-
     @Override
     public void tick(SpellCastContext ctx, SimulacrumData simData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.TICK, this.getAllowedClasses(), null, null, manaCost, false, this)
+        SpellGatePolicyGenerator.build(SpellEventPhase.TICK, null, null, manaCost, false, this)
                 .setEffect((context, simulacrumData) -> {
                     List<Projectile> targets = SpellUtils.findEntitiesInRadius(
                             context.level(),
@@ -62,5 +51,15 @@ public class KineticNullificationField extends AutonomousSpell {
                 })
                 .execute(ctx, simData);
 
+    }
+
+    @Override
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_VOIDBOURNE;
+    }
+
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 3;
     }
 }

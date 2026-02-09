@@ -3,12 +3,10 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.ChargedSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.SpellUtils;
 import com.minagic.minagic.utilities.VisualUtils;
@@ -22,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class RadiantIllumination extends ChargedSpell {
+public class RadiantIllumination extends ChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public RadiantIllumination() {
         super();
@@ -34,7 +32,7 @@ public class RadiantIllumination extends ChargedSpell {
 
     @Override
     public void tick(SpellCastContext ctx, SimulacrumData simData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.TICK, this.getAllowedClasses(), cooldown, 0, 0, false, this).setEffect(
+        SpellGatePolicyGenerator.build(SpellEventPhase.TICK, cooldown, 0, 0, false, this).setEffect(
                 (context, simulacrumData) -> {
                     super.tick(context, simulacrumData);
                     float progress = Objects.requireNonNull(simulacrumData).progress();
@@ -48,18 +46,9 @@ public class RadiantIllumination extends ChargedSpell {
 
     }
 
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
-                PlayerClassEnum.SORCERER,
-                PlayerSubClassEnum.SORCERER_CELESTIAL,
-                5
-        ));
-    }
-
-
     @Override
     public void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, true, this)
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, null, manaCost, null, true, this)
                 .setEffect((context, simulacrumData) -> {
                     // locate every entity within range
                     float progress = Objects.requireNonNull(simulacrumData).progress();
@@ -87,7 +76,7 @@ public class RadiantIllumination extends ChargedSpell {
     }
 
 
-    public static class RadiantIlluminationBlinder extends AutonomousSpell {
+    public static class RadiantIlluminationBlinder extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
         public RadiantIlluminationBlinder() {
             super();
             this.spellName = "Radiant Blinding";
@@ -101,7 +90,7 @@ public class RadiantIllumination extends ChargedSpell {
         @Override
         // cast a VERY bright hyperdense particlespam around them
         public void cast(SpellCastContext ctx, SimulacrumData simData) {
-            SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+            SpellGatePolicyGenerator.build(SpellEventPhase.CAST, null, manaCost, null, false, this)
                     .setEffect((context, simulacrumData) -> {
                         // locate every entity within range
                         LivingEntity target = context.target;
@@ -131,7 +120,26 @@ public class RadiantIllumination extends ChargedSpell {
                     })
                     .execute(ctx, simData);
         }
+        @Override
+        public String getRequiredBloodline() {
+            return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+        }
+
+        @Override
+        public int getRequiredAffinityLevel() {
+            return 5;
+        }
 
 
+    }
+
+    @Override
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+    }
+
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 5;
     }
 }

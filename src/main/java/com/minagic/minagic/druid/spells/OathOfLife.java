@@ -6,7 +6,6 @@ import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.ManaAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.server.level.ServerLevel;
@@ -27,7 +26,7 @@ public class OathOfLife extends AutonomousSpell {
     @Override
     public void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
         // identify caster's mana percentage
-        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, manaCost, null, false, this)
+        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, null, manaCost, null, false, this)
                 .setEffect((context, simulacrumData) -> {
                     float manaPercentage = ManaAttachment.getMana(context.caster)/ (float) ManaAttachment.getMaxMana(context.caster);
                     if (manaPercentage < 0.2f) {

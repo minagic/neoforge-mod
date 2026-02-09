@@ -5,7 +5,6 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import org.jetbrains.annotations.Nullable;
 
-
 /// An abstract class representing spells that take effect immediately upon casting.
 /// To use, extend this class and implement the cast method, as well as getManaCost, getCooldownTicks and getString.
 public class InstanteneousSpell extends Spell {
@@ -24,7 +23,7 @@ public class InstanteneousSpell extends Spell {
     // lifecycle methods
     @Override
     public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), this.cooldown, this.manaCost, 0, false, this).setEffect(
+        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.cooldown, this.manaCost, 0, false, this).setEffect(
                 ((ctx, simData) -> perform(SpellEventPhase.CAST, ctx, null))
         ).execute(context, simulacrumData);
 

@@ -2,7 +2,6 @@ package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
@@ -40,7 +39,7 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     // lifecycle methods
     @Override
     public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), null, this.manaCost, 0, false, this).setEffect(
+        SpellGatePolicyGenerator.build(SpellEventPhase.START, null, this.manaCost, 0, false, this).setEffect(
                 ((ctx, simData) -> {
 
                     boolean existing = SimulacraAttachment.hasSpell(ctx.target, ModSpells.getId(this));
