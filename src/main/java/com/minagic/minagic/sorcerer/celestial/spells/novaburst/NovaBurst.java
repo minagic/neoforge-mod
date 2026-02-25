@@ -42,6 +42,7 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
 
     public NovaBurst(){
         this.spellName = "Nova Burst";
+        this.idName = "nova_burst";
         // TODO: ADD ACTUAL VALUES
         this.manaCost = 100;
         this.cooldown = 15;
@@ -157,6 +158,7 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
 
         public NovaPulse() {
             this.spellName = "Nova Pulse";
+            this.idName = "nova_pulse";
             this.isTechnical = true;
             this.manaCost = 0;
             this.cooldown = 0;
@@ -240,6 +242,7 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
     public static class NovaPulsePrecursor extends AutonomousChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
         public NovaPulsePrecursor(){
             this.spellName = "Nova Pulse Precursor";
+            this.idName = "nova_pulse_precursor";
             this.simulacraThreshold = 40;
 
             this.isTechnical = true;

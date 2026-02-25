@@ -22,6 +22,7 @@ public class FireballBarrage extends AutonomousSpell implements SorceryPowerSour
         super();
 
         this.spellName = "Fireball Barrage";
+        this.idName = "fireball_barrage";
         this.manaCost = 15;
         this.cooldown = 0;
         this.simulacraThreshold = 5;

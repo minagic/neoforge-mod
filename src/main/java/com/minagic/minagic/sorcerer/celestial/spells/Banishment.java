@@ -11,6 +11,7 @@ import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment
 import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
@@ -29,6 +30,7 @@ import java.util.Set;
 public class Banishment extends Spell implements ISimulacrumSpell, SorceryPowerSourceAttachment.ISorcerySpell {
     public Banishment() {
         spellName = "Banishment";
+        idName = "banishment";
         cooldown = 20;
         manaCost = 1;
     }

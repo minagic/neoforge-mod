@@ -20,6 +20,7 @@ public class AetherGlide extends AutonomousSpell implements SorceryPowerSourceAt
 
     public AetherGlide() {
         this.spellName = "Aether Glide";
+        this.idName = "aether_glide";
         this.manaCost = 0;
         this.cooldown = 0;
         this.simulacraThreshold = 0;

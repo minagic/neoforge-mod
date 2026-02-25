@@ -19,6 +19,7 @@ import java.util.Set;
 public class KineticNullificationField extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public KineticNullificationField() {
         this.spellName = "Kinetic Nullification Field";
+        this.idName = "kinetic_nullification_field";
         this.cooldown = 100;
         this.simulacraMaxLifetime = 300;
         this.manaCost = 1;

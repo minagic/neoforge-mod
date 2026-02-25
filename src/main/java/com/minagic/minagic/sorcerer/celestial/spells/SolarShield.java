@@ -19,6 +19,7 @@ public class SolarShield extends AutonomousSpell implements DefaultEventInterfac
         this.simulacraMaxLifetime = 5;
         this.simulacraThreshold = 0;
         this.spellName = "Solar Shield";
+        this.idName = "solar_shield";
     }
 
     @Override

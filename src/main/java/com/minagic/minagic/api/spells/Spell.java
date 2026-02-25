@@ -1,7 +1,9 @@
 package com.minagic.minagic.api.spells;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -13,6 +15,7 @@ public abstract class Spell {
     protected int simulacraThreshold = 0;
     protected int simulacraMaxLifetime = -1;
     protected String spellName = "No Spell";
+    protected String idName = "no_spell";
     protected boolean isTechnical = false;
 
 
@@ -60,18 +63,14 @@ public abstract class Spell {
         return spellName;
     }
 
-
-    public final int getCooldownTicks() {
-        return cooldown;
-    }
-
     // post cast will drain this much mana from caster
-    public final int getManaCost() {
-        return manaCost;
-    }
 
     public final boolean isTechnical() {
         return isTechnical;
+    }
+
+    public ResourceLocation getID(){
+        return ResourceLocation.fromNamespaceAndPath(Minagic.MODID, idName);
     }
 
     // CASTER VALIDATION METHODS

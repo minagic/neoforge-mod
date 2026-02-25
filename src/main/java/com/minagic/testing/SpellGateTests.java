@@ -1,7 +1,6 @@
 package com.minagic.testing;
 
 
-import com.minagic.minagic.capabilities.ManaAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.sorcerer.celestial.spells.SolarSurge;

@@ -18,6 +18,7 @@ public class RadiantBlink extends InstanteneousSpell implements SorceryPowerSour
 
     public RadiantBlink() {
         this.spellName = "Radiant Blink";
+        this.idName = "radiant_blink";
         this.manaCost = 20;
         this.cooldown = 60;
     }

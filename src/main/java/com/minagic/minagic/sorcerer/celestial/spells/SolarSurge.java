@@ -18,6 +18,7 @@ public class SolarSurge extends InstanteneousSpell implements SorceryPowerSource
 
     public SolarSurge() {
         this.spellName = "Solar Surge";
+        this.idName = "solar_surge";
         this.manaCost = 25;
         this.cooldown = 240;
     }

@@ -23,6 +23,7 @@ public class TorchPlacement extends ChargedSpell implements SorceryPowerSourceAt
         this.manaCost = 0;
         this.simulacraMaxLifetime = 300;
         this.spellName = "Torch Placer";
+        this.idName = "torch_placement";
     }
 
     @Override

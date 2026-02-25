@@ -38,6 +38,7 @@ public class CelestialBombardment extends ChanneledAutonomousSpell implements So
         super();
         this.cooldown = 400;
         this.spellName = "Celestial Bombardment";
+        this.idName = "celestial_bombardment";
         this.simulacraMaxLifetime = 200;
         this.simulacraThreshold = 5;
         this.manaCost = 0;

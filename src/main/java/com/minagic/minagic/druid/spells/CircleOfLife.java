@@ -5,6 +5,7 @@ import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -14,8 +15,10 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class CircleOfLife extends AutonomousSpell {
+
     public CircleOfLife() {
         this.spellName = "Circle Of Life";
+        this.idName = "circle_of_life";
         this.cooldown = 200;
         this.simulacraMaxLifetime = 2000;
         this.manaCost = 5;

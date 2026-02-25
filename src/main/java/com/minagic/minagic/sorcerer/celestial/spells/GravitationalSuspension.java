@@ -15,6 +15,7 @@ public class GravitationalSuspension extends AutonomousSpell implements SorceryP
     public GravitationalSuspension(){
         this.manaCost = 3;
         this.spellName = "Gravitational Suspension";
+        this.idName = "gravitational_suspension";
         this.simulacraMaxLifetime = -1;
         this.simulacraThreshold = 0;
     }

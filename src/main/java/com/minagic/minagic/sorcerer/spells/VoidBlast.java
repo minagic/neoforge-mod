@@ -15,6 +15,7 @@ public class VoidBlast extends InstanteneousSpell implements SorceryPowerSourceA
         super();
 
         this.spellName = "VoidBlast";
+        this.idName = "void_blast";
         this.cooldown = 20 * 3; // 60 ticks
         this.manaCost = 30;
         // simulacrum values untouched

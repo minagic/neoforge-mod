@@ -11,6 +11,7 @@ public class EventHorizon extends ChanneledSpell implements SorceryPowerSourceAt
         super();
 
         this.spellName = "Event Horizon";
+        this.idName = "event_horizon";
         this.manaCost = 100;
         this.simulacraThreshold = 100;
         this.cooldown = 10;

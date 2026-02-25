@@ -1,6 +1,5 @@
 package com.minagic.minagic.registries;
 
-import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.druid.spells.CircleOfLife;
 import com.minagic.minagic.druid.spells.OathOfLife;
@@ -17,41 +16,37 @@ import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-
 public final class ModSpells {
-    public static final Codec<Spell> SPELL_CODEC = ResourceLocation.CODEC.xmap(
-            ModSpells::get,
-            ModSpells::getId
-    );
+
 
     public static void register() {
         // REGISTER ALL SPELLS HERE
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "fireball"), new Fireball());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "empty_spell"), new NoneSpell());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "void_blast"), new VoidBlast());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "fireball_barrage"), new FireballBarrage());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "event_horizon"), new EventHorizon());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "banishment"), new Banishment());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_illumination"), new RadiantIllumination());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_illumination_linder"), new RadiantIllumination.RadiantIlluminationBlinder());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "kinetic_nullification_field"), new KineticNullificationField());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "celestial_bombardment"), new CelestialBombardment());
+        SpellRegistry.register(new Fireball());
+        SpellRegistry.register(new NoneSpell());
+        SpellRegistry.register(new VoidBlast());
+        SpellRegistry.register(new FireballBarrage());
+        SpellRegistry.register(new EventHorizon());
+        SpellRegistry.register(new Banishment());
+        SpellRegistry.register(new RadiantIllumination());
+        SpellRegistry.register(new RadiantIllumination.RadiantIlluminationBlinder());
+        SpellRegistry.register(new KineticNullificationField());
+        SpellRegistry.register(new CelestialBombardment());
 
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "circle_of_life"), new CircleOfLife());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "oath_of_life"), new OathOfLife());
+        SpellRegistry.register(new CircleOfLife());
+        SpellRegistry.register(new OathOfLife());
 
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "tracer_bullet"), new TracerBullet());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "exposure"), new TracerBullet.Exposure());
+        SpellRegistry.register(new TracerBullet());
+        SpellRegistry.register(new TracerBullet.Exposure());
 
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "torch_placement"), new TorchPlacement());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "solar_shield"), new SolarShield());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "solar_surge"), new SolarSurge());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "radiant_blink"), new RadiantBlink());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "gravitational_suspension"), new GravitationalSuspension());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_burst"), new NovaBurst());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_pulse"), new NovaBurst.NovaPulse());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "nova_pulse_precursor"), new NovaBurst.NovaPulsePrecursor());
-        SpellRegistry.register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "aether_glide"), new AetherGlide());
+        SpellRegistry.register(new TorchPlacement());
+        SpellRegistry.register(new SolarShield());
+        SpellRegistry.register(new SolarSurge());
+        SpellRegistry.register(new RadiantBlink());
+        SpellRegistry.register(new GravitationalSuspension());
+        SpellRegistry.register(new NovaBurst());
+        SpellRegistry.register(new NovaBurst.NovaPulse());
+        SpellRegistry.register(new NovaBurst.NovaPulsePrecursor());
+        SpellRegistry.register(new AetherGlide());
 
     }
 
@@ -59,6 +54,7 @@ public final class ModSpells {
         return SpellRegistry.getSpell(id);
     }
 
+    @Deprecated(forRemoval = true)
     public static @Nullable ResourceLocation getId(Spell spell) {
         return SpellRegistry.getId(spell);
     }

@@ -27,6 +27,7 @@ public class RadiantIllumination extends ChargedSpell implements SorceryPowerSou
         this.manaCost = 50;
         this.cooldown = 200;
         this.spellName = "Radiant Illumination";
+        this.idName = "radiant_illumination";
         this.simulacraMaxLifetime = 250;
     }
 
@@ -80,6 +81,7 @@ public class RadiantIllumination extends ChargedSpell implements SorceryPowerSou
         public RadiantIlluminationBlinder() {
             super();
             this.spellName = "Radiant Blinding";
+            this.idName = "radiant_illumination_blinder";
             this.cooldown = 0;
             this.manaCost = 0;
             this.simulacraMaxLifetime = 250;

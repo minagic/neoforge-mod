@@ -3,9 +3,9 @@ package com.minagic.minagic.spellCasting;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.api.spells.Spell;
-import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
+import com.minagic.minagic.registries.ModSpells;
+import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,9 +16,15 @@ public class SpellRegistry {
     private static final Map<Spell, ResourceLocation> REVERSE = new HashMap<>();
 
 
-    public static void register(ResourceLocation id, Spell spell) {
+    public static void register(Spell spell) {
+        ResourceLocation id = spell.getID();
+        if (REGISTRY.containsKey(id)){
+            throw new IllegalArgumentException("Spell with ID " + id + " is already registered");
+        }
+
         REGISTRY.put(id, spell);
         REVERSE.put(spell, id);
+        Minagic.LOGGER.debug("Successfully registered spell: {}/{}", id, spell);
     }
 
     public static Spell getSpell(ResourceLocation id) {
@@ -29,8 +35,6 @@ public class SpellRegistry {
         } else {
             return null;
         }
-
-        //return id == null || id.equals(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "empty_spell")) ? REGISTRY.getAttachment(id) : null;
     }
 
     public static ResourceLocation getId(Spell spell) {
@@ -44,4 +48,13 @@ public class SpellRegistry {
                 .filter(spell -> !spell.isTechnical())
                 .toList();
     }
+
+    public static Map<ResourceLocation, Spell> getFullMap(){
+        return REGISTRY;
+    }
+
+    public static final Codec<Spell> SPELL_CODEC = ResourceLocation.CODEC.xmap(
+            SpellRegistry::getSpell,
+            SpellRegistry::getId
+    );
 }

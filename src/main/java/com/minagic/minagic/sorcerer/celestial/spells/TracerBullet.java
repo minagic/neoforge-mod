@@ -34,6 +34,7 @@ import java.util.Set;
 public class TracerBullet extends InstanteneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public TracerBullet() {
         this.spellName = "Tracer Bullet";
+        this.idName = "tracer_bullet";
         this.cooldown = 30;
         this.manaCost = 15;
     }
@@ -129,6 +130,7 @@ public class TracerBullet extends InstanteneousSpell implements SorceryPowerSour
     public static class Exposure extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
         public Exposure() {
             this.spellName = "Exposure";
+            this.idName = "exposure";
             this.cooldown = 0;
             this.manaCost = 0;
             this.simulacraThreshold = 1;

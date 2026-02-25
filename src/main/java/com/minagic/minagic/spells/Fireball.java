@@ -17,6 +17,7 @@ public class Fireball extends InstanteneousSpell {
         super();
 
         this.spellName = "Fireball";
+        this.idName = "fireball";
         this.cooldown = 40;
         this.manaCost = 30;
         // manaCost and cooldown inherited / preset elsewhere

@@ -11,6 +11,7 @@ import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaImpactProxyEn
 import com.minagic.minagic.sorcerer.celestial.spells.TracerBullet;
 import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
 import com.minagic.minagic.spellCasting.ClearData;
+import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spells.FireballEntity;
 import com.minagic.minagic.utilities.ClearAttachmentsCommand;
 import com.minagic.minagic.utilities.EntityFreezer;
@@ -140,7 +141,6 @@ public class Minagic {
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
 
-        ModSpells.register();
         // Register your tick handlers here!
         NeoForge.EVENT_BUS.register(new ClientInputHandler());
         NeoForge.EVENT_BUS.register(new CooldownOverlay());
@@ -151,11 +151,14 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(NeoForgeEventHandler.class);
         NeoForge.EVENT_BUS.register(AttachmentDispatcher.class);
 
+        ModSpells.register();
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
         ModAttachments.register(modEventBus);
         ModPowerSources.register();
         ModParticles.register(modEventBus);
+
+        Minagic.LOGGER.debug("Loaded {} spells: {}", SpellRegistry.getFullMap().size(), SpellRegistry.getFullMap());
 
 
         // Register packet handlers
