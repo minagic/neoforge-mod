@@ -172,7 +172,7 @@ public class DefaultGates {
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            return !CooldownAttachment.isOnCooldown(ctx.caster, ModSpells.getId(spell));
+            return !CooldownAttachment.isOnCooldown(ctx.caster, spell.getID());
         }
 
         @Override
@@ -188,7 +188,7 @@ public class DefaultGates {
 
         @Override
         public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            CooldownAttachment.applyCooldown(ctx.caster, ModSpells.getId(spell), cooldown);
+            CooldownAttachment.applyCooldown(ctx.caster, spell.getID(), cooldown);
         }
     }
 

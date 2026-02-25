@@ -36,7 +36,7 @@ public class GravitationalSuspension extends AutonomousSpell implements SorceryP
     @Override
     public void start(SpellCastContext context, SimulacrumData simulacrumData) {
         super.start(context, simulacrumData);
-        if(SimulacraAttachment.hasSpell(context.target, ModSpells.getId(this))) {
+        if(SimulacraAttachment.hasSpell(context.target, getID())) {
             context.target.setNoGravity(true);
             context.target.hurtMarked = true;
         }

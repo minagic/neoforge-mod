@@ -30,7 +30,7 @@ public class AetherGlide extends AutonomousSpell implements SorceryPowerSourceAt
     public void start(SpellCastContext context, SimulacrumData data){
         super.start(context, data);
 
-        if (SimulacraAttachment.hasSpell(context.target, ModSpells.getId(this))){
+        if (SimulacraAttachment.hasSpell(context.target, getID())){
             if (context.target instanceof Player player) {
                 player.setPose(Pose.FALL_FLYING);
             }

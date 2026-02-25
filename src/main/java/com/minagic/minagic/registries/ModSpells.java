@@ -49,14 +49,4 @@ public final class ModSpells {
         SpellRegistry.register(new AetherGlide());
 
     }
-
-    public static @Nullable Spell get(ResourceLocation id) {
-        return SpellRegistry.getSpell(id);
-    }
-
-    @Deprecated(forRemoval = true)
-    public static @Nullable ResourceLocation getId(Spell spell) {
-        return SpellRegistry.getId(spell);
-    }
-
 }

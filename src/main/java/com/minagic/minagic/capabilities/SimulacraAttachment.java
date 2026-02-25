@@ -102,7 +102,7 @@ public final class SimulacraAttachment implements AutodetectionInterfaces.ILivin
         addSimulacrum(host, context, spell, threshold, maxLifetime);
 
         SimulacraAttachment att = getAttachment(host);
-        att.setActiveChannelingID(ModSpells.getId(spell));
+        att.setActiveChannelingID(spell.getID());
         host.setData(ModAttachments.PLAYER_SIMULACRA, att);
     }
 
@@ -115,7 +115,7 @@ public final class SimulacraAttachment implements AutodetectionInterfaces.ILivin
 
         SimulacraAttachment att = getAttachment(host);
 
-        ResourceLocation id = ModSpells.getId(spell);
+        ResourceLocation id = spell.getID();
 
         att.backgroundSimulacra.put(
                 id,

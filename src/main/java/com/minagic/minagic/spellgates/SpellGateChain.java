@@ -36,7 +36,7 @@ public class SpellGateChain {
                 Minagic.LOGGER.trace(
                         "Skipping gameplay gate check {} for technical spell {}",
                         gate.getClass().getSimpleName(),
-                        ModSpells.getId(spell)
+                        spell.getID()
                 );
                 continue;
             }
@@ -55,7 +55,7 @@ public class SpellGateChain {
                 Minagic.LOGGER.trace(
                         "Skipping gameplay gate post-action {} for technical spell {}",
                         gate.getClass().getSimpleName(),
-                        ModSpells.getId(spell)
+                        spell.getID()
                 );
             }
             gate.post(ctx, simData);

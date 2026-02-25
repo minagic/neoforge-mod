@@ -42,10 +42,10 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
         SpellGatePolicyGenerator.build(SpellEventPhase.START, null, this.manaCost, 0, false, this).setEffect(
                 ((ctx, simData) -> {
 
-                    boolean existing = SimulacraAttachment.hasSpell(ctx.target, ModSpells.getId(this));
+                    boolean existing = SimulacraAttachment.hasSpell(ctx.target, getID());
 
                     if (existing) {
-                        SimulacraAttachment.removeSimulacrum(ctx.target, ModSpells.getId(this));
+                        SimulacraAttachment.removeSimulacrum(ctx.target, getID());
                     } else {
                         new SpellGateChain(this)
                                 .addGate(new DefaultGates.CooldownGate(this, cooldown))

@@ -66,7 +66,7 @@ public class Banishment extends Spell implements ISimulacrumSpell, SorceryPowerS
                     }
                     else {
                         Minagic.LOGGER.debug("Banishment precheck: full metadata detected, cancelling spell");
-                        SimulacraAttachment.removeSimulacrum(context.target, ModSpells.getId(this));
+                        SimulacraAttachment.removeSimulacrum(context.target, getID());
                         SpellMetadata.removeBlockPos(context.target, this, "bb_start");
                         SpellMetadata.removeBlockPos(context.target, this, "bb_end");
                     }

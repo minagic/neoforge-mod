@@ -159,7 +159,7 @@ public class TracerBullet extends InstanteneousSpell implements SorceryPowerSour
         public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
             SpellGatePolicyGenerator.build(SpellEventPhase.START, this.cooldown, this.manaCost, 0, false, this).setEffect(
                     ((ctx, simData) -> {
-                        boolean existing = SimulacraAttachment.hasSpell(ctx.target, ModSpells.getId(this));
+                        boolean existing = SimulacraAttachment.hasSpell(ctx.target, getID());
                         if (existing) return;
                         SimulacraAttachment.addSimulacrum(ctx.target, ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
                     })

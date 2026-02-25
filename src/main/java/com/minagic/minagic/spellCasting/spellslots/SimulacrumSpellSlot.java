@@ -145,7 +145,7 @@ public class SimulacrumSpellSlot {
         LOGGER.debug("SimulacrumSpellSlot host entity {} with id {}", resolvedHostEntity, hostUUID);
         if (maxLifetime == 0) {
 
-            SimulacraAttachment.removeSimulacrum(resolvedHostEntity, ModSpells.getId(getSpell()));
+            SimulacraAttachment.removeSimulacrum(resolvedHostEntity, getSpell().getID());
             return;
         }
 
@@ -162,7 +162,7 @@ public class SimulacrumSpellSlot {
 
     public SimulacrumData getSpellData() {
         return new SimulacrumData(
-                ModSpells.getId(getSpell()),
+                getSpell().getID(),
                 maxLifetime,
                 originalMaxLifetime,
                 lifetime,

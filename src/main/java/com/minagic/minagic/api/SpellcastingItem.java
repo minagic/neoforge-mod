@@ -112,7 +112,7 @@ public class SpellcastingItem<T extends SpellcastingItemData> extends Item {
     public void writeSpell(ItemStack stack, Level level, LivingEntity player, int slotIndex, Spell spell) {
         if (level.isClientSide()) {
             Minagic.LOGGER.debug("[-SPELL WRITE-] Client-side write request, forwarding to server for slot {}", slotIndex);
-            ClientPacketDistributor.sendToServer(new SpellWritePacket(slotIndex, ModSpells.getId(spell)));
+            ClientPacketDistributor.sendToServer(new SpellWritePacket(slotIndex, spell.getID()));
             return;
         }
         Minagic.LOGGER.debug("[-SPELL WRITE-] Server-side write request accepted for slot {} with spell {}",

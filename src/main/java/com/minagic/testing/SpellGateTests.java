@@ -115,26 +115,26 @@ public class SpellGateTests {
         new SpellGateChain(new NoneSpell())
                 .addGate(new DefaultGates.SimulacrumGate())
                 .setEffect((ctx, simulacrumData)->{helper.fail("SimulacrumGate should have failed with invalid due to 0 remaining lifetime simulacrumData");})
-                .execute(new SpellCastContext(fakePlayer), new SimulacrumData(ModSpells.getId(new NoneSpell()), 0, 100, 1, 1, fakePlayer));
+                .execute(new SpellCastContext(fakePlayer), new SimulacrumData(new NoneSpell().getID(), 0, 100, 1, 1, fakePlayer));
 
         new SpellGateChain(new NoneSpell())
                 .addGate(new DefaultGates.SimulacrumGate())
                 .setEffect((ctx, simulacrumData)->{helper.fail("SimulacrumGate should have failed with invalid due to lifetime above threshold simulacrumData");})
-                .execute(new SpellCastContext(fakePlayer), new SimulacrumData(ModSpells.getId(new NoneSpell()), 1, 100, 10, 1, fakePlayer));
+                .execute(new SpellCastContext(fakePlayer), new SimulacrumData(new NoneSpell().getID(), 1, 100, 10, 1, fakePlayer));
 
         new SpellGateChain(new NoneSpell())
                 .addGate(new DefaultGates.SimulacrumGate())
                 .setEffect((ctx, simulacrumData)->{helper.fail("SimulacrumGate should have failed with invalid due to lifetime above maxLifetime simulacrumData");})
-                .execute(new SpellCastContext(fakePlayer), new SimulacrumData(ModSpells.getId(new NoneSpell()), 1, 100, 200, 300, fakePlayer));
+                .execute(new SpellCastContext(fakePlayer), new SimulacrumData(new NoneSpell().getID(), 1, 100, 200, 300, fakePlayer));
         new SpellGateChain(new NoneSpell())
                 .addGate(new DefaultGates.SimulacrumGate())
                 .setEffect((ctx, simulacrumData)->{helper.fail("SimulacrumGate should have failed with invalid due to remainingLifetime above maxLifetime simulacrumData");})
-                .execute(new SpellCastContext(fakePlayer), new SimulacrumData(ModSpells.getId(new NoneSpell()), 2000, 100, 10, 300, fakePlayer));
+                .execute(new SpellCastContext(fakePlayer), new SimulacrumData(new NoneSpell().getID(), 2000, 100, 10, 300, fakePlayer));
 
         new SpellGateChain(new NoneSpell())
                 .addGate(new DefaultGates.SimulacrumGate())
                 .setEffect((ctx, simulacrumData)->{helper.succeed();})
-                .execute(new SpellCastContext(fakePlayer), new SimulacrumData(ModSpells.getId(new NoneSpell()), 1, 100, 9, 10, fakePlayer));
+                .execute(new SpellCastContext(fakePlayer), new SimulacrumData(new NoneSpell().getID(), 1, 100, 9, 10, fakePlayer));
     }
 
 

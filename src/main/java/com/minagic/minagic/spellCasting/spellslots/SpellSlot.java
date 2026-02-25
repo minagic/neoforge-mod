@@ -5,6 +5,7 @@ import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spells.NoneSpell;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -39,18 +40,18 @@ public class SpellSlot {
     public void resolveSpell() {
         // If we have an ID but no object, resolve it.
         if (spell == null && spellId != null) {
-            if (ModSpells.get(spellId) == null) {
+            if (SpellRegistry.getSpell(spellId) == null) {
                 Minagic.LOGGER.warn("SpellSlot could not resolve spell ID: {}", spellId);
             }
-            this.spell = ModSpells.get(spellId);
+            this.spell = SpellRegistry.getSpell(spellId);
         }
         // If we have an object but no ID, backfill the ID.
         if (spell != null && spellId == null) {
-            if (ModSpells.getId(spell) == null) {
+            if (spell.getID() == null) {
                 Minagic.LOGGER.warn("SpellSlot could not resolve spell: {}", spell);
             }
 
-            this.spellId = ModSpells.getId(spell);
+            this.spellId = spell.getID();
         }
     }
 
@@ -61,7 +62,7 @@ public class SpellSlot {
 
     public void setSpell(Spell spell) {
         this.spell = spell;
-        this.spellId = ModSpells.getId(spell);
+        this.spellId = spell.getID();
     }
 
     // CASTING
