@@ -196,7 +196,12 @@ public class DefaultGates {
 
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            return simData != null && simData.remainingLifetime() != 0;
+            return simData != null
+                    && simData.remainingLifetime() != 0
+                    && simData.lifetime()<=simData.threshold()
+                    && simData.lifetime()<=simData.maxLifetime()
+                    && simData.remainingLifetime()<=simData.maxLifetime();
+
         }
 
         @Override
