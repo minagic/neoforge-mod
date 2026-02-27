@@ -6,6 +6,7 @@ import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.AutonomousChargedSpell;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+@AutoDetection.Spell
 public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
 
@@ -146,6 +148,7 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
                 .execute(context, simulacrumData);
     }
 
+    @AutoDetection.Spell
     public static class NovaPulse extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
         private static final ResourceLocation WHITE_FLASH_PRIMARY =
@@ -239,6 +242,7 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
 
     }
 
+    @AutoDetection.Spell
     public static class NovaPulsePrecursor extends AutonomousChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
         public NovaPulsePrecursor(){
             this.spellName = "Nova Pulse Precursor";

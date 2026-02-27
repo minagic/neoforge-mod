@@ -1,6 +1,7 @@
 package com.minagic.minagic.sorcerer.spells;
 
 import com.minagic.minagic.api.spells.InstanteneousSpell;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
@@ -10,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+@AutoDetection.Spell
 public class VoidBlast extends InstanteneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public VoidBlast() {
         super();

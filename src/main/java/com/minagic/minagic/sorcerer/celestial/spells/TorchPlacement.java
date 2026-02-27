@@ -7,6 +7,7 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
 import com.minagic.minagic.utilities.PowerCalibrator;
+import com.minagic.minagic.capabilities.AutoDetection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.block.Blocks;
 import java.util.HashSet;
 import java.util.Set;
 
+@AutoDetection.Spell
 public class TorchPlacement extends ChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public TorchPlacement() {

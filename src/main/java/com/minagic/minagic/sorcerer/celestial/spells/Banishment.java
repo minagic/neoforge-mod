@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 
-// this will extend raw spell as this is an easier approach
+@AutoDetection.Spell
 public class Banishment extends Spell implements ISimulacrumSpell, SorceryPowerSourceAttachment.ISorcerySpell {
     public Banishment() {
         spellName = "Banishment";

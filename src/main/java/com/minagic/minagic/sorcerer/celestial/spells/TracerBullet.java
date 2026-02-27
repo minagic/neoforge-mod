@@ -5,6 +5,7 @@ import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Set;
 
+@AutoDetection.Spell
 public class TracerBullet extends InstanteneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public TracerBullet() {
         this.spellName = "Tracer Bullet";
@@ -127,6 +129,7 @@ public class TracerBullet extends InstanteneousSpell implements SorceryPowerSour
         }
     }
 
+    @AutoDetection.Spell
     public static class Exposure extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
         public Exposure() {
             this.spellName = "Exposure";

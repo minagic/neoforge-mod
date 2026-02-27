@@ -2,7 +2,7 @@ package com.minagic.minagic.capabilities.powersource;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
-import com.minagic.minagic.capabilities.AutodetectionInterfaces;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -28,8 +28,8 @@ import java.util.Map;
 
 public final class SorceryPowerSourceAttachment
         extends AbstractPowerSource
-        implements AutodetectionInterfaces.ILivingTickableAttachment,
-        AutodetectionInterfaces.IRenderableAttachment {
+        implements AutoDetection.ILivingTickableAttachment,
+        AutoDetection.IRenderableAttachment {
 
     // =========================
     // CONSTANTS

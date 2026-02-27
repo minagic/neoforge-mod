@@ -1,6 +1,7 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.events.DefaultEventInterface;
@@ -12,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import org.jetbrains.annotations.Nullable;
 
+@AutoDetection.Spell
 public class SolarShield extends AutonomousSpell implements DefaultEventInterface.ILivingDamageSpellHandler, SorceryPowerSourceAttachment.ISorcerySpell {
 
     public SolarShield() {

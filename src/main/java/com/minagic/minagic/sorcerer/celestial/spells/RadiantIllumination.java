@@ -3,6 +3,7 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.ChargedSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.registries.ModParticles;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+@AutoDetection.Spell
 public class RadiantIllumination extends ChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public RadiantIllumination() {
@@ -77,6 +79,7 @@ public class RadiantIllumination extends ChargedSpell implements SorceryPowerSou
     }
 
 
+    @AutoDetection.Spell
     public static class RadiantIlluminationBlinder extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
         public RadiantIlluminationBlinder() {
             super();

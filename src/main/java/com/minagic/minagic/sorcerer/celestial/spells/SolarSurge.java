@@ -2,6 +2,7 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.api.spells.InstanteneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+@AutoDetection.Spell
 public class SolarSurge extends InstanteneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public SolarSurge() {

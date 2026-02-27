@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class CooldownAttachment implements AutodetectionInterfaces.ILivingTickableAttachment {
+public final class CooldownAttachment implements AutoDetection.ILivingTickableAttachment {
 
     // =========================
     // INTERNAL VARIABLES

@@ -1,7 +1,9 @@
 package com.minagic.minagic.druid.spells;
 
 import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.capabilities.AutoDetection;
 
+@AutoDetection.Spell
 public class OathOfLife extends AutonomousSpell {
     public OathOfLife() {
         this.manaCost = 8;

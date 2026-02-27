@@ -2,6 +2,7 @@ package com.minagic.minagic.sorcerer.voidbourne.spells;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import java.util.List;
 import java.util.Set;
 
+@AutoDetection.Spell
 public class KineticNullificationField extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public KineticNullificationField() {
         this.spellName = "Kinetic Nullification Field";

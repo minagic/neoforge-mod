@@ -1,6 +1,7 @@
 package com.minagic.minagic.sorcerer.spells;
 
 import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
@@ -17,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
  * A powerful spell that rapidly fires fireballs forward.
  * Intended for Celestial / Pyromancer classes.
  */
+@AutoDetection.Spell
 public class FireballBarrage extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public FireballBarrage() {
         super();

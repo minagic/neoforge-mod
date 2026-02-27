@@ -2,6 +2,7 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
+@AutoDetection.Spell
 public class AetherGlide extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public AetherGlide() {

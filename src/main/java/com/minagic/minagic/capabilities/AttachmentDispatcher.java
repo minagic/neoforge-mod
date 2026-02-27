@@ -40,11 +40,11 @@ public final class AttachmentDispatcher {
                 continue;
             }
 
-            if (attachment instanceof AutodetectionInterfaces.ILivingTickableAttachment) {
+            if (attachment instanceof AutoDetection.ILivingTickableAttachment) {
                 TICKABLE.add(type);
             }
 
-            if (attachment instanceof AutodetectionInterfaces.IRenderableAttachment) {
+            if (attachment instanceof AutoDetection.IRenderableAttachment) {
                 RENDERABLE.add(type);
             }
         }
@@ -67,7 +67,7 @@ public final class AttachmentDispatcher {
         T attachment = living.getData(type);
         try {
 
-            AutodetectionInterfaces.ILivingTickableAttachment tickable = (AutodetectionInterfaces.ILivingTickableAttachment) attachment;
+            AutoDetection.ILivingTickableAttachment tickable = (AutoDetection.ILivingTickableAttachment) attachment;
             tickable.tick(living);
 
             // write back ONLY if mutated
@@ -94,7 +94,7 @@ public final class AttachmentDispatcher {
         T attachment = entity.getData(type);
         try {
 
-            AutodetectionInterfaces.IRenderableAttachment renderable = (AutodetectionInterfaces.IRenderableAttachment) attachment;
+            AutoDetection.IRenderableAttachment renderable = (AutoDetection.IRenderableAttachment) attachment;
             if (renderable.shouldRender(entity)) {
                 renderable.render(entity, gui);
             }

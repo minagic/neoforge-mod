@@ -2,6 +2,7 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.AutonomousSpell;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
@@ -11,6 +12,7 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.world.entity.LivingEntity;
 
+@AutoDetection.Spell
 public class GravitationalSuspension extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public GravitationalSuspension(){
         this.manaCost = 3;
