@@ -2,14 +2,13 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.AutonomousSpell;
-import com.minagic.minagic.api.spells.InstanteneousSpell;
+import com.minagic.minagic.api.spells.InstantaneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.SpellUtils;
@@ -33,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 @AutoDetection.Spell
-public class TracerBullet extends InstanteneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
+public class TracerBullet extends InstantaneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public TracerBullet() {
         this.spellName = "Tracer Bullet";
         this.idName = "tracer_bullet";

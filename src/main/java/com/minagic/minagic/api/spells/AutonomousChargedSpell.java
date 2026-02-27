@@ -39,7 +39,7 @@ public class AutonomousChargedSpell extends Spell implements ISimulacrumSpell {
     // lifecycle methods
     @Override
     public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.START, null, this.manaCost, 0, false, this).setEffect(
+        SpellGatePolicyGenerator.build(SpellEventPhase.START, null, null, null, false, this).setEffect(
                 ((ctx, simData) -> {
 
                     boolean existing = SimulacraAttachment.hasSpell(ctx.target, getID());

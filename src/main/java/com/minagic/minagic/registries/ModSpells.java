@@ -24,8 +24,6 @@ import java.util.Set;
 
 
 public final class ModSpells {
-
-
     public static void register() {
         Reflections reflections = new Reflections("com.minagic.minagic");
 

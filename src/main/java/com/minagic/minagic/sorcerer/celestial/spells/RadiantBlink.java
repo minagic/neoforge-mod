@@ -1,6 +1,6 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
-import com.minagic.minagic.api.spells.InstanteneousSpell;
+import com.minagic.minagic.api.spells.InstantaneousSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacrumData;
@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 @AutoDetection.Spell
-public class RadiantBlink extends InstanteneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
+public class RadiantBlink extends InstantaneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public RadiantBlink() {
         this.spellName = "Radiant Blink";
