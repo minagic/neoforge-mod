@@ -24,15 +24,12 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
 
     @Override
     public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.cooldown, null, null, false, this).setEffect(
-                ((ctx, simData) -> SimulacraAttachment.setChanneling(
-                        ctx.target,
-                        ctx,
-                        this,
-                        getSimulacrumThreshold(),
-                        -1))
-        ).execute(context, simulacrumData);
-
+        SimulacraAttachment.setChanneling(
+                context.target,
+                context,
+                this,
+                getSimulacrumThreshold(),
+                -1);
     }
 
     @Override

@@ -44,4 +44,7 @@ public class HudAlertInstance {
         return alert;
     }
 
+    @Override
+    public String toString(){return alert.message();}
+
 }

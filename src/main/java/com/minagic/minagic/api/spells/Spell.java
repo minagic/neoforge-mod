@@ -12,6 +12,7 @@ public abstract class Spell {
     // properties
     protected int cooldown = 0;
     protected int manaCost = 0;
+    protected int sustainCost = 0;
     protected int simulacraThreshold = 0;
     protected int simulacraMaxLifetime = -1;
     protected String spellName = "No Spell";
@@ -30,6 +31,14 @@ public abstract class Spell {
             }
         }
 
+        dispatchPhase(phase, context, simulacrumData);
+
+    }
+
+    protected void dispatchPhase(SpellEventPhase phase,
+                                 SpellCastContext context,
+                                 @Nullable SimulacrumData simulacrumData) {
+
         switch (phase) {
             case START -> start(context, simulacrumData);
             case STOP -> stop(context, simulacrumData);
@@ -37,9 +46,7 @@ public abstract class Spell {
             case CAST -> cast(context, simulacrumData);
             case TICK -> tick(context, simulacrumData);
         }
-
     }
-
 
     // OVERRIDES TO DEFINE SPELL BEHAVIOR
     // the main spell logic goes here
@@ -62,8 +69,6 @@ public abstract class Spell {
     public final String getString() {
         return spellName;
     }
-
-    // post cast will drain this much mana from caster
 
     public final boolean isTechnical() {
         return isTechnical;

@@ -1,13 +1,10 @@
 package com.minagic.minagic.druid.spells;
 
 import com.minagic.minagic.api.spells.AutonomousSpell;
-import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellCasting.SpellRegistry;
-import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,38 +27,34 @@ public class CircleOfLife extends AutonomousSpell {
 
     @Override
     public void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, null, manaCost, null, false, this)
-                .setEffect((context, simulacrumData) -> {
-                    OathOfLife oath = new OathOfLife();
+        OathOfLife oath = new OathOfLife();
 
-                    var entities = context.level().getEntitiesOfClass(
-                            Animal.class,
-                            context.target.getBoundingBox().inflate(5.0)
-                    );
+        var entities = ctx.level().getEntitiesOfClass(
+                Animal.class,
+                ctx.target.getBoundingBox().inflate(5.0)
+        );
 
-                    for (Animal animal : entities) {
-                        if (animal == context.caster) continue;
-                        if (!animal.isAlive()) continue;
+        for (Animal animal : entities) {
+            if (animal == ctx.caster) continue;
+            if (!animal.isAlive()) continue;
 
-                        // Spawn tiny “life” particle burst
-                        spawnLifeParticle(animal);
+            // Spawn tiny "life" particle burst
+            spawnLifeParticle(animal);
 
-                        // Build a *fresh* context for each target
-                        SpellCastContext subCtx = new SpellCastContext(
-                                context.caster,
-                                animal
-                        );
+            // Build a *fresh* context for each target
+            SpellCastContext subCtx = new SpellCastContext(
+                    ctx.caster,
+                    animal
+            );
 
-                        SimulacraAttachment.addSimulacrum(
-                                subCtx.target,
-                                subCtx,
-                                oath,
-                                oath.getSimulacrumThreshold(),
-                                oath.getSimulacrumMaxLifetime()
-                        );
-                    }
-                })
-                .execute(ctx, simData);
+            SimulacraAttachment.addSimulacrum(
+                    subCtx.target,
+                    subCtx,
+                    oath,
+                    oath.getSimulacrumThreshold(),
+                    oath.getSimulacrumMaxLifetime()
+            );
+        }
 
     }
 

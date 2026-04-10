@@ -6,6 +6,9 @@ import com.minagic.minagic.capabilities.MagicClass;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
+import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModItems;
 import com.minagic.minagic.sorcerer.StaffData;
@@ -43,8 +46,9 @@ public class VoidborneSorcererEntity extends Monster implements ItemSupplier {
         this.setGlowingTag(true);
         this.xpReward = 20;
         // a class for free!
-        MagicClass.setMainClass(this, PlayerClassEnum.SORCERER);
-        MagicClass.setSubclassLevel(this, PlayerSubClassEnum.SORCERER_VOIDBOURNE, 10);
+        ActivePowerSourceAttachment.activate(this, new SorceryPowerSourceAttachment().getId());
+        SorceryPowerSourceAttachment.setRank(this, SorceryPowerSourceAttachment.BLOODLINE_VOIDBOURNE, 20);
+        SorceryPowerSourceAttachment.setAffinity(this, SorceryPowerSourceAttachment.BLOODLINE_VOIDBOURNE, 20);
 
     }
 
@@ -120,10 +124,14 @@ public class VoidborneSorcererEntity extends Monster implements ItemSupplier {
     }
 
     private void tryCastSpell(sorcererStaff item, ItemStack stack) {
+
         if (item.getRemainingCooldown(stack, this) <= 0) {
             SpellCastContext context = new SpellCastContext(this);
             ((SpellcastingItem<?>) this.getItemInHand(InteractionHand.MAIN_HAND).getItem()).getData(stack).getActive().onStart(context);
             ((SpellcastingItem<?>) this.getItemInHand(InteractionHand.MAIN_HAND).getItem()).getData(stack).getActive().onStop(context);
+            Minagic.LOGGER.debug("Sorcerer entity HUD dump: ");
+            HudAlertAttachment hud = getData(ModAttachments.HUD_ALERTS);
+            Minagic.LOGGER.debug(hud.getActiveAlerts().toString());
         }
     }
 

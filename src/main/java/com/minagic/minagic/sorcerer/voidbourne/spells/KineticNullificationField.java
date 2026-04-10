@@ -3,11 +3,9 @@ package com.minagic.minagic.sorcerer.voidbourne.spells;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.capabilities.AutoDetection;
-import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.utilities.SpellUtils;
 import com.minagic.minagic.utilities.VisualUtils;
 import net.minecraft.core.particles.ParticleTypes;
@@ -25,34 +23,31 @@ public class KineticNullificationField extends AutonomousSpell implements Sorcer
         this.cooldown = 100;
         this.simulacraMaxLifetime = 300;
         this.manaCost = 1;
+        this.sustainCost = 1;
     }
 
     @Override
     public void tick(SpellCastContext ctx, SimulacrumData simData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.TICK, null, null, manaCost, false, this)
-                .setEffect((context, simulacrumData) -> {
-                    List<Projectile> targets = SpellUtils.findEntitiesInRadius(
-                            context.level(),
-                            context.target.position(),
-                            5.8,
-                            Projectile.class,
-                            e -> true,
-                            Set.of()
-                    );
-                    for (Projectile projectile : targets) {
-                        Minagic.LOGGER.debug("Kinetic Nullification detected target {}", projectile);
-                        Minagic.ENTITY_FREEZER.freeze(projectile, (ServerLevel) context.level());
-                    }
+        List<Projectile> targets = SpellUtils.findEntitiesInRadius(
+                ctx.level(),
+                ctx.target.position(),
+                5.8,
+                Projectile.class,
+                e -> true,
+                Set.of()
+        );
+        for (Projectile projectile : targets) {
+            Minagic.LOGGER.debug("Kinetic Nullification detected target {}", projectile);
+            Minagic.ENTITY_FREEZER.freeze(projectile, (ServerLevel) ctx.level());
+        }
 
-                    VisualUtils.createParticlesInSphere(
-                            (ServerLevel) context.level(),
-                            context.target.position(),
-                            5,
-                            ParticleTypes.SMOKE,
-                            150
-                    );
-                })
-                .execute(ctx, simData);
+        VisualUtils.createParticlesInSphere(
+                (ServerLevel) ctx.level(),
+                ctx.target.position(),
+                5,
+                ParticleTypes.SMOKE,
+                150
+        );
 
     }
 

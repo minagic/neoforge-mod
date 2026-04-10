@@ -23,9 +23,7 @@ public class InstantaneousSpell extends Spell {
     // lifecycle methods
     @Override
     public final void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.cooldown, null, null, false, this).setEffect(
-                ((ctx, simData) -> perform(SpellEventPhase.CAST, ctx, null))
-        ).execute(context, simulacrumData);
+        perform(SpellEventPhase.CAST, context, null);
 
     }
 

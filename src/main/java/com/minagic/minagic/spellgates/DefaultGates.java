@@ -194,19 +194,47 @@ public class DefaultGates {
 
     public static class SimulacrumGate extends ISpellGate.SafetySpellGate {
 
+        private static final String REASON_NULL = "SimulacrumData is null";
+        private static final String REASON_EXPIRED = "Simulacrum remaining lifetime is 0";
+        private static final String REASON_THRESHOLD = "Simulacrum lifetime exceeds threshold";
+        private static final String REASON_MAX_LIFETIME = "Simulacrum lifetime exceeds maxLifetime";
+        private static final String REASON_REMAINING_MAX = "Simulacrum remaining lifetime exceeds maxLifetime";
+
+        private String lastFailureReason = null;
+
         @Override
         public boolean check(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-            return simData != null
-                    && simData.remainingLifetime() != 0
-                    && simData.lifetime()<=simData.threshold()
-                    && simData.lifetime()<=simData.maxLifetime()
-                    && simData.remainingLifetime()<=simData.maxLifetime();
+            lastFailureReason = getFailureReason(simData);
+            return lastFailureReason == null;
+        }
 
+        private @Nullable String getFailureReason(@Nullable SimulacrumData simData) {
+            if (simData == null) {
+                return REASON_NULL;
+            }
+
+            if (simData.remainingLifetime() == 0) {
+                return REASON_EXPIRED;
+            }
+
+            if (simData.lifetime() > simData.maxLifetime()) {
+                return REASON_MAX_LIFETIME;
+            }
+
+            if (simData.remainingLifetime() > simData.maxLifetime()) {
+                return REASON_REMAINING_MAX;
+            }
+
+            return null; // all good
         }
 
         @Override
-        public void onFail(SpellCastContext context, @Nullable SimulacrumData simulacrumData){
-            Minagic.LOGGER.warn("Simulacrum gate failed for caster {}", context.caster.getName().getString());
+        public void onFail(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
+            Minagic.LOGGER.warn(
+                    "Simulacrum gate failed for caster {}: {}",
+                    context.caster.getName().getString(),
+                    lastFailureReason != null ? lastFailureReason : "Unknown reason"
+            );
         }
     }
 
