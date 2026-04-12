@@ -3,7 +3,7 @@ package com.minagic.minagic.sorcerer.celestial.mechanics;
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
-import com.minagic.minagic.sorcerer.celestial.spells.CelestialBombardment;
+import com.minagic.minagic.rendering.DefaultProjectilePortalRenderers;
 import com.minagic.minagic.spells.AOEHit;
 import com.minagic.minagic.utilities.ProjectilePortal;
 import com.minagic.minagic.utilities.VisualUtils;
@@ -62,5 +62,10 @@ public class StarShard extends SpellProjectileEntity implements ItemSupplier, Pr
     @Override
     public @NotNull ItemStack getItem() {
         return new ItemStack(Items.PRISMARINE_CRYSTALS);
+    }
+
+    @Override
+    public String rendererID() {
+        return new DefaultProjectilePortalRenderers.StarShardPortalRenderer().getId();
     }
 }

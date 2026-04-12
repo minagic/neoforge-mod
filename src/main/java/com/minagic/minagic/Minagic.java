@@ -155,6 +155,7 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(AttachmentDispatcher.class);
 
         ModSpells.register();
+        ProjectilePortalRenderers.register();
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
         ModAttachments.register(modEventBus);
@@ -168,9 +169,7 @@ public class Minagic {
         MinagicNetwork network = new MinagicNetwork();
         network.register(modEventBus);
 
-        // Register client-side mod event handlers
-
-        modEventBus.register(new ClientModEvents());
+        // Client-side mod event handlers are registered via @EventBusSubscriber in ClientModEvents.
 
         // Register commands (optional)
         NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);

@@ -31,4 +31,12 @@ public class AutoDetection {
 
     }
 
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface ProjectilePortalRenderer {
+
+    }
+
+
+
 }

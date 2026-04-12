@@ -6,9 +6,11 @@ import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.registries.ProjectilePortalRendererRegistry;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.serialization.Codec;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -16,6 +18,11 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HumanoidArm;
@@ -28,6 +35,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,69 +48,40 @@ public class ProjectilePortal extends LivingEntity implements ItemSupplier {
         return new ItemStack(Items.GLOWSTONE);
     }
 
-    public interface IPortalableProjectile{
-        default void render(ProjectilePortal portal,
-                           @NotNull PoseStack poseStack,
-                           @NotNull SubmitNodeCollector collector,
-                           @NotNull CameraRenderState cameraState){
-            poseStack.pushPose();
-
-            collector.submitCustomGeometry(
-                    poseStack,
-                    RenderType.debugQuads(),
-                    (pose, consumer) -> renderEllipse(pose, consumer, 1.5f, 0.75f, 180, 8, 48)
-            );
+    public static abstract class ProjectilePortalRenderer {
+        protected String id;
+        public final String getId(){
+            return Minagic.MODID+ ":projectile_portal_renderer/"+id;
         }
 
-        default void renderEllipse(PoseStack.Pose pose,
-                              VertexConsumer vc,
-                              float radiusX,
-                              float radiusY,
-                              int alpha,
-                              int bands,
-                              int segments) {
-            Matrix4f mat = pose.pose();
+        public abstract void render(
+                ProjectilePortal portal,
+                PoseStack poseStack,
+                SubmitNodeCollector collector,
+                CameraRenderState cameraState
+        );
 
-            for (int band = 0; band < bands; band++) {
-                float r1 = (float) band / bands;
-                float r2 = (float) (band + 1) / bands;
-
-                float innerX = radiusX * r1;
-                float innerY = radiusY * r1;
-                float outerX = radiusX * r2;
-                float outerY = radiusY * r2;
-
-                for (int i = 0; i < segments; i++) {
-                    float t1 = (float) (2.0 * Math.PI * i / segments);
-                    float t2 = (float) (2.0 * Math.PI * (i + 1) / segments);
-
-                    Vec3 v11 = ellipsePoint(innerX, innerY, t1);
-                    Vec3 v12 = ellipsePoint(innerX, innerY, t2);
-                    Vec3 v21 = ellipsePoint(outerX, outerY, t1);
-                    Vec3 v22 = ellipsePoint(outerX, outerY, t2);
-
-                    addVertexColor(vc, mat, v11, alpha);
-                    addVertexColor(vc, mat, v21, alpha);
-                    addVertexColor(vc, mat, v22, alpha);
-                    addVertexColor(vc, mat, v12, alpha);
-                }
-            }
-        }
-        default Vec3 ellipsePoint(float radiusX, float radiusY, float theta) {
-            float x = Mth.cos(theta) * radiusX;
-            float y = Mth.sin(theta) * radiusY;
-            return new Vec3(x, y, 0.0);
+        @Override
+        public boolean equals(Object obj) {
+            return obj != null && this.getClass() == obj.getClass();
         }
 
-        default void addVertexColor(VertexConsumer vc, Matrix4f mat, Vec3 v, int alpha) {
-            vc.addVertex(mat, (float) v.x, (float) v.y, (float) v.z)
-                    .setColor(100, 100, 255, alpha);
+        @Override
+        public int hashCode() {
+            return this.getClass().hashCode();
         }
-
 
     }
 
+    public interface IPortalableProjectile{
+        String rendererID();
+    }
+
+    private static final EntityDataAccessor<String> PORTAL_RENDERER_ID =
+            SynchedEntityData.defineId(ProjectilePortal.class, EntityDataSerializers.STRING);
+
     private SpellProjectileEntity projectile;
+    private String rendererID;
 
     public ProjectilePortal(EntityType<? extends LivingEntity> type, Level level) {
         super(type, level);
@@ -112,16 +92,27 @@ public class ProjectilePortal extends LivingEntity implements ItemSupplier {
 
         super(Minagic.PROJECTILE_PORTAL.get(), level);
         Minagic.LOGGER.info("Creating a new portal for {} with delay {}", projectile, delay);
-        if (! (projectile instanceof IPortalableProjectile)){
+        if (! (projectile instanceof IPortalableProjectile portalableProjectile)){
             throw new IllegalArgumentException("Selected projectile was not portalable");
+        }
+        else{
+            this.entityData.set(PORTAL_RENDERER_ID, portalableProjectile.rendererID());
         }
         this.projectile = projectile;
         projectile.createPhysicsIfNull();
-        SimulacraAttachment.addSimulacrum(this, new SpellCastContext(this), new SpawnPortalEntity(), delay, delay);
+        int actualDelay = delay + this.random.nextInt(40) - 20;
+        SimulacraAttachment.addSimulacrum(this, new SpellCastContext(this), new SpawnPortalEntity(), actualDelay, actualDelay);
         faceVelocity(projectile.physics.direction());
         this.setNoGravity(true);
         this.setPos(projectile.position());
         Minagic.LOGGER.info("Portal's spatial: pos {}, heading {}", this.position(), this.projectile.physics.direction());
+    }
+
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(PORTAL_RENDERER_ID, "");
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -177,6 +168,22 @@ public class ProjectilePortal extends LivingEntity implements ItemSupplier {
 
     }
 
+    @Override
+    protected void addAdditionalSaveData(ValueOutput output) {
+        String id = this.entityData.get(PORTAL_RENDERER_ID);
+        if (id != null && !id.isBlank()) {
+            output.putString("portal_renderer", id);
+        }
+    }
+
+    @Override
+    protected void readAdditionalSaveData(ValueInput input) {
+        input.read("portal_renderer", Codec.STRING).ifPresent(id -> {
+            Minagic.LOGGER.debug("Loaded portal renderer from NBT: {}", id);
+            this.entityData.set(PORTAL_RENDERER_ID, id);
+        });
+    }
+
     // === RENDERER ===
 
     public static class Renderer extends EntityRenderer<ProjectilePortal, ProjectilePortal.Renderer.State> {
@@ -197,6 +204,7 @@ public class ProjectilePortal extends LivingEntity implements ItemSupplier {
 
         @Override
         public void extractRenderState(@NotNull ProjectilePortal portal, @NotNull State state, float partialTick){
+            super.extractRenderState(portal, state, partialTick);
             state.portal = portal;
         }
 
@@ -207,9 +215,26 @@ public class ProjectilePortal extends LivingEntity implements ItemSupplier {
                            @NotNull CameraRenderState cameraState){
 
             ProjectilePortal portal = state.portal;
-            IPortalableProjectile renderable = (IPortalableProjectile) portal.projectile;
-            renderable.render(portal, poseStack, collector, cameraState);
+            String id = portal.entityData.get(PORTAL_RENDERER_ID);
+
+            if (id == null || id.isBlank()) {
+                Minagic.LOGGER.debug("Renderer id not yet synced, skipping render");
+                return;
+            }
+
+            ProjectilePortalRenderer renderer =
+                    ProjectilePortalRendererRegistry.getProjectilePortalRenderer(id);
+
+            if (renderer == null) {
+                Minagic.LOGGER.warn("No renderer found for id {}", id);
+                Minagic.LOGGER.debug("Found the following ids: {}", ProjectilePortalRendererRegistry.REGISTRY);
+                return;
+            }
+
+            renderer.render(portal, poseStack, collector, cameraState);
+
         }
+
 
 
     }
