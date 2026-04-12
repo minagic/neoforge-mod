@@ -1,36 +1,22 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
-import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.ChanneledAutonomousSpell;
-import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
+import com.minagic.minagic.sorcerer.celestial.mechanics.StarShard;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spells.AOEHit;
 import com.minagic.minagic.utilities.MathUtils;
 import com.minagic.minagic.utilities.SpellUtils;
-import com.minagic.minagic.utilities.VisualUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.ItemSupplier;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.LegacyRandomSource;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
 
 @AutoDetection.Spell
 public class CelestialBombardment extends ChanneledAutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
@@ -136,46 +122,4 @@ public class CelestialBombardment extends ChanneledAutonomousSpell implements So
         return 17;
     }
 
-    public static class StarShard extends SpellProjectileEntity implements ItemSupplier {
-        public StarShard(EntityType<? extends CelestialBombardment.StarShard> type, Level level) {
-            super(type, level);
-            this.speed = 0f;
-        }
-
-        public StarShard(Level level, Vec3 position, Vec3 direction) {
-            super(Minagic.STAR_SHARD.get(), level);
-
-            this.speed = 1;
-            this.direction = direction;
-            this.isEntityPiercing = false;
-            this.setPos(position.x, position.y, position.z);
-
-        }
-
-        public StarShard(Level level, PhysicsData physics){
-            super(Minagic.STAR_SHARD.get(), level);
-            this.physics = physics;
-        }
-
-        @Override
-        public void onHitBlock(@NotNull BlockHitResult result) {
-            if (this.level().isClientSide()) return;
-            VisualUtils.createParticlesInSphere((ServerLevel) this.level(), this.position(), 4, ParticleTypes.END_ROD, 40);
-            AOEHit.applyAOE(
-                    this.getOwner(),
-                    this,
-                    Set.of(DamageTypes.RADIANT),
-                    12,
-                    4,
-                    result.getBlockPos()
-            );
-            this.discard();
-        }
-
-
-        @Override
-        public @NotNull ItemStack getItem() {
-            return new ItemStack(Items.PRISMARINE_CRYSTALS);
-        }
-    }
 }

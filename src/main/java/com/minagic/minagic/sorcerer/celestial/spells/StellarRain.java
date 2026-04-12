@@ -1,12 +1,13 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.InstantaneousSpell;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
+import com.minagic.minagic.sorcerer.celestial.mechanics.StarShard;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.utilities.ProjectilePortal;
 import com.minagic.minagic.utilities.SpellUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
@@ -27,6 +28,7 @@ public class StellarRain extends InstantaneousSpell implements SorceryPowerSourc
 
     @Override
     public void cast(SpellCastContext context, @org.jetbrains.annotations.Nullable SimulacrumData simulacrumData) {
+        Minagic.LOGGER.info("Initating Stellar Rain");
         LivingEntity caster = context.caster;
         BlockPos targetedBlock = SpellUtils.getTargetBlockPos(caster, 32);
         if (targetedBlock == null) {
@@ -45,14 +47,16 @@ public class StellarRain extends InstantaneousSpell implements SorceryPowerSourc
                     (int) SpellUtils.findSurfaceY(context.level(), currentBlockPos.getX(), currentBlockPos.getZ()),
                     currentBlockPos.getZ());
             targets.add(currentBlockPos);
-            Minagic.LOGGER.debug("Celestial Bombardment locked target {}", currentBlockPos);
+            Minagic.LOGGER.debug("Stellar Rain locked target {}", currentBlockPos);
 
         }
 
         for (BlockPos target : targets){
             Vec3 pos = new Vec3(target.getX(), target.getY()+100, target.getZ());
-            CelestialBombardment.StarShard shard = new CelestialBombardment.StarShard(context.level(), pos, new Vec3(0, -1, 0));
-            context.level().addFreshEntity(shard);
+            StarShard shard = new StarShard(context.level(), pos, new Vec3(0, -1, 0));
+            ProjectilePortal portal = new ProjectilePortal(context.level(), shard, 120);
+            context.level().addFreshEntity(portal);
+
         }
 
     }

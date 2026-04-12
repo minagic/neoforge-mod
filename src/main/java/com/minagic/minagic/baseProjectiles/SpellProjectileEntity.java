@@ -2,6 +2,8 @@ package com.minagic.minagic.baseProjectiles;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.utilities.EntityFreezer;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -9,6 +11,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +39,20 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
             boolean pierceEntities,
             int maxEntityPierce,
             boolean isFrozen
-    ){
+    ) {
+
+        public static final Codec<PhysicsData> CODEC = RecordCodecBuilder.create(instance ->
+                instance.group(
+                        Codec.DOUBLE.fieldOf("speed").forGetter(PhysicsData::speed),
+                        Vec3.CODEC.fieldOf("direction").forGetter(PhysicsData::direction),
+                        Codec.DOUBLE.fieldOf("gravity").forGetter(PhysicsData::gravity),
+                        Codec.BOOL.fieldOf("pierceBlocks").forGetter(PhysicsData::pierceBlocks),
+                        Codec.BOOL.fieldOf("pierceEntities").forGetter(PhysicsData::pierceEntities),
+                        Codec.INT.fieldOf("maxEntityPierce").forGetter(PhysicsData::maxEntityPierce),
+                        Codec.BOOL.fieldOf("isFrozen").forGetter(PhysicsData::isFrozen)
+                ).apply(instance, PhysicsData::new)
+        );
+
         public PhysicsData decreasedHitLimit(){
             return new PhysicsData(
                     speed,
@@ -43,7 +60,7 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
                     gravity,
                     pierceBlocks,
                     pierceEntities,
-                    maxEntityPierce-1,
+                    maxEntityPierce - 1,
                     isFrozen
             );
         }
@@ -59,6 +76,7 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
                     true
             );
         }
+
         public PhysicsData unfreeze(){
             return new PhysicsData(
                     speed,
@@ -72,14 +90,14 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
         }
     }
 
-    protected @Nullable PhysicsData physics;
+    public @Nullable PhysicsData physics;
 
     public SpellProjectileEntity(EntityType<? extends SpellProjectileEntity> type, Level level) {
         super(type, level);
     }
 
     @Deprecated
-    protected void createPhysicsIfNull(){
+    public void createPhysicsIfNull(){
 
         if (this.physics == null){
             Minagic.LOGGER.debug("Creating Physics Data");
@@ -98,6 +116,41 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
                 false
         );
 
+    }
+
+    @Override
+    protected void addAdditionalSaveData(ValueOutput output) {
+        // --- Physics ---
+        if (this.physics != null) {
+            output.store("physics", PhysicsData.CODEC, this.physics);
+        }
+    }
+
+    @Override
+    protected void readAdditionalSaveData(ValueInput input) {
+        this.physics = input.read("physics", PhysicsData.CODEC)
+                .orElse(new PhysicsData(
+                        0.0,
+                        Vec3.ZERO,
+                        0.0,
+                        false,
+                        false,
+                        0,
+                        false
+                ));
+
+        // --- Sanity guard (VERY important) ---
+        if (this.physics.direction().lengthSqr() < 1e-6) {
+            this.physics = new PhysicsData(
+                    this.physics.speed(),
+                    new Vec3(0, 0, 1), // safe fallback direction
+                    this.physics.gravity(),
+                    this.physics.pierceBlocks(),
+                    this.physics.pierceEntities(),
+                    this.physics.maxEntityPierce(),
+                    this.physics.isFrozen()
+            );
+        }
     }
 
     @Override

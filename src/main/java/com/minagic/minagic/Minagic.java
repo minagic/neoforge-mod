@@ -6,19 +6,14 @@ import com.minagic.minagic.events.NeoForgeEventHandler;
 import com.minagic.minagic.gui.CooldownOverlay;
 import com.minagic.minagic.packets.MinagicNetwork;
 import com.minagic.minagic.registries.*;
-import com.minagic.minagic.sorcerer.celestial.spells.CelestialBombardment;
+import com.minagic.minagic.sorcerer.celestial.mechanics.StarShard;
 import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaImpactProxyEntity;
 import com.minagic.minagic.sorcerer.celestial.spells.TracerBullet;
 import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
 import com.minagic.minagic.spellCasting.ClearData;
 import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.spells.FireballEntity;
-import com.minagic.minagic.utilities.ClearAttachmentsCommand;
-import com.minagic.minagic.utilities.EntityFreezer;
-import com.minagic.minagic.utilities.ModEvents;
-import com.minagic.minagic.utilities.SetClassCommand;
-import com.minagic.minagic.utilities.SorceryPowerCommand;
-import com.minagic.minagic.utilities.WorldEvents;
+import com.minagic.minagic.utilities.*;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -91,9 +86,9 @@ public class Minagic {
                             .updateInterval(1) // Update interval
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":tracer_bullet_projectile"))));
 
-    public static final DeferredHolder<EntityType<?>, EntityType<CelestialBombardment.StarShard>> STAR_SHARD =
+    public static final DeferredHolder<EntityType<?>, EntityType<StarShard>> STAR_SHARD =
             ENTITY_TYPES.register("star_shard",
-                    () -> EntityType.Builder.<CelestialBombardment.StarShard>of(CelestialBombardment.StarShard::new, MobCategory.MISC)
+                    () -> EntityType.Builder.<StarShard>of(StarShard::new, MobCategory.MISC)
                             .sized(0.5F, 0.5F) // Size of the entity
                             .clientTrackingRange(32) // Tracking range
                             .updateInterval(1) // Update interval
@@ -113,6 +108,14 @@ public class Minagic {
                     .clientTrackingRange(64)
                     .updateInterval(1)
                     .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "nova_proxy"))));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<ProjectilePortal>> PROJECTILE_PORTAL =
+            ENTITY_TYPES.register("projectile_portal",
+                    () -> EntityType.Builder.<ProjectilePortal>of(ProjectilePortal::new, MobCategory.MISC)
+                            .sized(0.1f, 0.1f)
+                            .clientTrackingRange(64)
+                            .updateInterval(1)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "projectile_portal"))));
 
     public static final EntityFreezer ENTITY_FREEZER = new EntityFreezer();
 
@@ -152,6 +155,7 @@ public class Minagic {
         NeoForge.EVENT_BUS.register(AttachmentDispatcher.class);
 
         ModSpells.register();
+        ProjectilePortalRenderers.register();
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
         ModAttachments.register(modEventBus);
@@ -165,9 +169,7 @@ public class Minagic {
         MinagicNetwork network = new MinagicNetwork();
         network.register(modEventBus);
 
-        // Register client-side mod event handlers
-
-        modEventBus.register(new ClientModEvents());
+        // Client-side mod event handlers are registered via @EventBusSubscriber in ClientModEvents.
 
         // Register commands (optional)
         NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);

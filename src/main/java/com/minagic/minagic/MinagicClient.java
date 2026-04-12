@@ -2,6 +2,7 @@ package com.minagic.minagic;
 
 import com.minagic.minagic.entity.sorcerer.voidbourne.VoidborneSorcererEntity;
 import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaImpactProxyEntity;
+import com.minagic.minagic.utilities.ProjectilePortal;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -39,5 +40,10 @@ public class MinagicClient {
         event.put(
                 Minagic.NOVA_PROXY.get(),
                 NovaImpactProxyEntity.createAttributes().build());
+
+        event.put(
+                Minagic.PROJECTILE_PORTAL.get(),
+                ProjectilePortal.createAttributes().build()
+        );
     }
 }
