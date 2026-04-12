@@ -146,10 +146,15 @@ public class CelestialBombardment extends ChanneledAutonomousSpell implements So
             super(Minagic.STAR_SHARD.get(), level);
 
             this.speed = 1;
+            this.direction = direction;
             this.isEntityPiercing = false;
             this.setPos(position.x, position.y, position.z);
-            this.setDeltaMovement(direction.normalize().scale(this.speed));
 
+        }
+
+        public StarShard(Level level, PhysicsData physics){
+            super(Minagic.STAR_SHARD.get(), level);
+            this.physics = physics;
         }
 
         @Override

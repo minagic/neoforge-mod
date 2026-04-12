@@ -165,7 +165,7 @@ public final class SorceryPowerSourceAttachment
 
     @Override
     public boolean shouldRender(LivingEntity host) {
-        Minagic.LOGGER.debug("Attempting rendering for host: {}, found attachment: {}, it is {}instance of SorceryPowerAttachment", host, getActivePowerSource(host), getActivePowerSource(host) instanceof SorceryPowerSourceAttachment ? "" : "not an ");
+        //Minagic.LOGGER.debug("Attempting rendering for host: {}, found attachment: {}, it is {}instance of SorceryPowerAttachment", host, getActivePowerSource(host), getActivePowerSource(host) instanceof SorceryPowerSourceAttachment ? "" : "not an ");
         return getActivePowerSource(host) instanceof SorceryPowerSourceAttachment;
     }
 

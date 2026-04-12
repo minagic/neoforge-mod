@@ -1,5 +1,7 @@
 package com.minagic.minagic.baseProjectiles;
 
+import com.minagic.minagic.Minagic;
+import com.minagic.minagic.utilities.EntityFreezer;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -9,13 +11,14 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class SpellProjectileEntity extends Projectile {
+public abstract class SpellProjectileEntity extends Projectile implements EntityFreezer.IFreezibleEntity {
     protected double speed = 0;
     protected Vec3 direction = Vec3.ZERO;
     protected double gravity = 0;
@@ -23,21 +26,94 @@ public abstract class SpellProjectileEntity extends Projectile {
     protected boolean isEntityPiercing = false;
     protected int maxPierce = 10000000; // effectively infinite
 
+
+    public record PhysicsData(
+            double speed,
+            Vec3 direction,
+            double gravity,
+            boolean pierceBlocks,
+            boolean pierceEntities,
+            int maxEntityPierce,
+            boolean isFrozen
+    ){
+        public PhysicsData decreasedHitLimit(){
+            return new PhysicsData(
+                    speed,
+                    direction,
+                    gravity,
+                    pierceBlocks,
+                    pierceEntities,
+                    maxEntityPierce-1,
+                    isFrozen
+            );
+        }
+
+        public PhysicsData freeze(){
+            return new PhysicsData(
+                    speed,
+                    direction,
+                    gravity,
+                    pierceBlocks,
+                    pierceEntities,
+                    maxEntityPierce,
+                    true
+            );
+        }
+        public PhysicsData unfreeze(){
+            return new PhysicsData(
+                    speed,
+                    direction,
+                    gravity,
+                    pierceBlocks,
+                    pierceEntities,
+                    maxEntityPierce,
+                    false
+            );
+        }
+    }
+
+    protected @Nullable PhysicsData physics;
+
     public SpellProjectileEntity(EntityType<? extends SpellProjectileEntity> type, Level level) {
         super(type, level);
-        this.setNoGravity(gravity == 0);
-        this.setDeltaMovement(direction.normalize().scale(speed));
+    }
+
+    @Deprecated
+    protected void createPhysicsIfNull(){
+
+        if (this.physics == null){
+            Minagic.LOGGER.debug("Creating Physics Data");
+            this.physics = buildFromLegacy();
+        }
+    }
+    @Deprecated
+    protected PhysicsData buildFromLegacy(){
+        return new PhysicsData(
+                this.speed,
+                this.direction,
+                this.gravity,
+                this.isBlockPiercing,
+                this.isEntityPiercing,
+                this.maxPierce,
+                false
+        );
+
     }
 
     @Override
     public void tick() {
         super.tick();
+        if (isFrozen()){
+            Minagic.LOGGER.debug("FROZEN, cancelling movement");
+            return;
+        }
+        createPhysicsIfNull();
+        Vec3 dir = this.physics.direction.normalize();
+        Vec3 delta = dir.scale(this.physics.speed).add(0.0, -this.physics.gravity, 0.0);
 
-        faceVelocity(this);
-
+        faceVelocity();
 
         Vec3 currentPos = this.position();
-        Vec3 delta = this.getDeltaMovement().add(0, -gravity, 0);
         Vec3 nextPos = currentPos.add(delta);
 
         // --- BLOCK COLLISION ---
@@ -59,7 +135,6 @@ public abstract class SpellProjectileEntity extends Projectile {
 
         // --- MOVE PROJECTILE ---
         this.setPos(nextPos.x, nextPos.y, nextPos.z);
-        this.setDeltaMovement(delta);
         this.setBoundingBox(this.makeBoundingBox());
     }
 
@@ -101,36 +176,75 @@ public abstract class SpellProjectileEntity extends Projectile {
     }
 
     // ---- hooks ---------------------------------------------------------------
+    @Override
+    protected void onHitEntity(@NotNull EntityHitResult hitResult) {
+        assert this.physics != null;
+        if (this.physics.maxEntityPierce < 0) {
+            return;
+        }
+
+        super.onHitEntity(hitResult);
+        hitEntity(hitResult);
+        this.physics = this.physics.decreasedHitLimit();
+    }
+
+    @Override
+    protected void onHitBlock(@NotNull BlockHitResult hitResult) {
+        assert this.physics != null;
+        if (this.physics.pierceBlocks){
+            return;
+        }
+        super.onHitBlock(hitResult);
+        hitBlock(hitResult);
+    }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         // no synced fields
     }
 
+    protected void hitBlock(BlockHitResult hitResult){
+        // no-op
+    }
+
+    protected void hitEntity(EntityHitResult hitResult){
+        // no-op
+    }
+
+
+    public void faceVelocity() {
+        assert this.physics != null;
+        Vec3 flightDirection = this.physics.direction;
+        if (flightDirection.lengthSqr() < 1e-6) return;
+
+        float yaw = (float)(Mth.atan2(flightDirection.z, flightDirection.x) * (180F / Math.PI)) - 90F;
+        float pitch = (float)(-(Mth.atan2(flightDirection.y,
+                Math.sqrt(flightDirection.x * flightDirection.x + flightDirection.z * flightDirection.z)) * (180F / Math.PI)));
+
+        this.setYRot(yaw);
+        this.setXRot(pitch);
+    }
+
+    // IFreezibleEntity
+
     @Override
-    protected void onHitEntity(@NotNull EntityHitResult hitResult) {
-        if (maxPierce <= 0) {
-            return;
+    public void freeze(){
+        Minagic.LOGGER.debug("[SPELL PROJECTILE ENTITY] Freezing speed");
+        assert this.physics != null;
+        this.physics = this.physics.freeze();
+    }
+
+    @Override
+    public void unfreeze(){
+        assert this.physics != null;
+        this.physics = this.physics.unfreeze();
+    }
+
+    @Override
+    public boolean isFrozen(){
+        if (this.physics == null){
+            return false;
         }
-
-        super.onHitEntity(hitResult);
-        maxPierce--;
-    }
-
-    @Override
-    protected void onHitBlock(@NotNull BlockHitResult hitResult) {
-        super.onHitBlock(hitResult);
-    }
-
-    public static void faceVelocity(Entity e) {
-        Vec3 v = e.getDeltaMovement();
-        if (v.lengthSqr() < 1e-6) return;
-
-        float yaw = (float)(Mth.atan2(v.z, v.x) * (180F / Math.PI)) - 90F;
-        float pitch = (float)(-(Mth.atan2(v.y,
-                Math.sqrt(v.x * v.x + v.z * v.z)) * (180F / Math.PI)));
-
-        e.setYRot(yaw);
-        e.setXRot(pitch);
+        return this.physics.isFrozen;
     }
 }

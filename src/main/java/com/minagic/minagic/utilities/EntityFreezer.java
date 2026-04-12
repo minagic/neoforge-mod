@@ -13,14 +13,18 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class EntityFreezer {
+    public interface IFreezibleEntity {
+        void freeze();
+        void unfreeze();
+        boolean isFrozen();
+    }
 
     // Tracks who is frozen and when they were last updated.
     private final Map<Entity, Entry> frozen = new HashMap<>();
 
-    // Call this whenever the radar sweeps an entity on this tick.
     public void freeze(Entity entity, ServerLevel level) {
         long tick = level.getGameTime();
-
+        // this is for tracking to freeze/unfreeze
         Entry entry = frozen.get(entity);
         if (entry == null) {
 
@@ -30,8 +34,13 @@ public class EntityFreezer {
             entry.lastSeenTick = tick; // refresh heartbeat
 
         }
-
-        freezeArrow(entity, entry);
+        if (entity instanceof IFreezibleEntity freezibleEntity){
+            Minagic.LOGGER.debug("Freezing entity: {}", entity);
+            freezibleEntity.freeze();
+        }
+        else{
+            freezeArrow(entity, entry);
+        }
 
 
     }
@@ -57,19 +66,19 @@ public class EntityFreezer {
 
             if (entity.isRemoved() || tick - entry.lastSeenTick > timeout) {
                 // Restore momentum
-                Minagic.LOGGER.debug("Restoring frozen entity momentum: {}", entry.momentum);
-                entity.setDeltaMovement(entry.momentum);
-                entity.setPos(entry.originalPosition);
-                entity.setNoGravity(false);
+                if (entity instanceof IFreezibleEntity freezibleEntity){
+                    freezibleEntity.unfreeze();
+                }
+                else {
+                    Minagic.LOGGER.debug("Restoring frozen entity momentum: {}", entry.momentum);
+                    entity.setDeltaMovement(entry.momentum);
+                    entity.setPos(entry.originalPosition);
+                    entity.setNoGravity(false);
+                }
                 it.remove();
 
             }
         }
-    }
-
-    private void freezeGeneric(Entity e, Entry entry) {
-        e.setDeltaMovement(Vec3.ZERO);
-        e.setNoGravity(true);
     }
 
 
