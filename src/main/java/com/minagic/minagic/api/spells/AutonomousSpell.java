@@ -2,7 +2,6 @@ package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
@@ -15,31 +14,32 @@ import org.jetbrains.annotations.Nullable;
  * as a background simulacrum when cast. Runs indefinitely (maxLifetime = -1)
  * until toggled again.
  */
-public class AutonomousSpell extends Spell implements ISimulacrumSpell {
+public class AutonomousSpell extends GatedSpell implements ISimulacrumSpell {
 
+    @Override
+    public SpellGateChain getGateChain(SpellEventPhase phase){
+        if (phase == SpellEventPhase.START){
+            return new SpellGateChain(this).addGate(new DefaultGates.PowerSourcePrerequisiteGate(this));
+        }
+        return defaultGateChain(phase);
+    }
 
     @Override
     public void start(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.START, this.getAllowedClasses(), null, this.manaCost, 0, false, this).setEffect(
-                ((ctx, simData) -> {
+        boolean existing = SimulacraAttachment.hasSpell(context.target, getID());
 
-                    boolean existing = SimulacraAttachment.hasSpell(ctx.target, ModSpells.getId(this));
-
-                    if (existing) {
-                        SimulacraAttachment.removeSimulacrum(ctx.target, ModSpells.getId(this));
-                    } else {
-                        new SpellGateChain()
-                                .addGate(new DefaultGates.CooldownGate(this, cooldown))
-                                .setEffect(
-                                        (internal_ctx, internal_data) -> {
-                                            SimulacraAttachment.addSimulacrum(internal_ctx.target, internal_ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
-                                        }
-                                )
-                                .execute(ctx, simData);
-                    }
-                })
-
-        ).execute(context, simulacrumData);
+        if (existing) {
+            SimulacraAttachment.removeSimulacrum(context.target, getID());
+        } else {
+            new SpellGateChain(this)
+                    .addGate(new DefaultGates.CooldownGate(this, cooldown))
+                    .setEffect(
+                            (internal_ctx, internal_data) -> {
+                                SimulacraAttachment.addSimulacrum(internal_ctx.target, internal_ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
+                            }
+                    )
+                    .execute(context, simulacrumData);
+        }
 
 
     }

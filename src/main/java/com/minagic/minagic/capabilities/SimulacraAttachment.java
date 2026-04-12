@@ -3,7 +3,6 @@ package com.minagic.minagic.capabilities;
 import com.minagic.minagic.api.spells.ISimulacrumSpell;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.registries.ModAttachments;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellCasting.spellslots.SimulacrumSpellSlot;
 import com.mojang.serialization.Codec;
@@ -27,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public final class SimulacraAttachment implements AutodetectionInterfaces.ILivingTickableAttachment, AutodetectionInterfaces.IRenderableAttachment {
+public final class SimulacraAttachment implements AutoDetection.ILivingTickableAttachment, AutoDetection.IRenderableAttachment {
 
     // =========================
     // INTERNAL VARIABLES
@@ -102,7 +101,7 @@ public final class SimulacraAttachment implements AutodetectionInterfaces.ILivin
         addSimulacrum(host, context, spell, threshold, maxLifetime);
 
         SimulacraAttachment att = getAttachment(host);
-        att.setActiveChannelingID(ModSpells.getId(spell));
+        att.setActiveChannelingID(spell.getID());
         host.setData(ModAttachments.PLAYER_SIMULACRA, att);
     }
 
@@ -115,7 +114,7 @@ public final class SimulacraAttachment implements AutodetectionInterfaces.ILivin
 
         SimulacraAttachment att = getAttachment(host);
 
-        ResourceLocation id = ModSpells.getId(spell);
+        ResourceLocation id = spell.getID();
 
         att.backgroundSimulacra.put(
                 id,

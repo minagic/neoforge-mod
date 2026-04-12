@@ -3,7 +3,12 @@ package com.minagic.minagic.capabilities;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.LivingEntity;
 
-public class AutodetectionInterfaces {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+public class AutoDetection {
     public interface IRenderableAttachment {
         // SIDE EFFECTS ARE FORBIDDEN: CLIENT SIDE ONLY
         // =========================
@@ -18,6 +23,12 @@ public class AutodetectionInterfaces {
         // API
         // =========================
         void tick(LivingEntity host); // DO NOT RESOLVE ATTACHMENT, WORK WITH CURRENT STATE!!!
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    public @interface Spell {
+
     }
 
 }

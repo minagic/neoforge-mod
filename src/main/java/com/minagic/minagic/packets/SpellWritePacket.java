@@ -4,6 +4,7 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.registries.ModSpells;
+import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -42,7 +43,7 @@ public record SpellWritePacket(int slotIndex,
         ItemStack stack = serverPlayer.getMainHandItem();
         if (!(stack.getItem() instanceof SpellcastingItem<?> item)) return;
 
-        Spell spell = ModSpells.get(pkt.spellId());
+        Spell spell = SpellRegistry.getSpell(pkt.spellId());
         if (spell == null) return;
 
         item.writeSpell(stack, serverPlayer.level(), serverPlayer, pkt.slotIndex(), spell); // <- this now runs on the server

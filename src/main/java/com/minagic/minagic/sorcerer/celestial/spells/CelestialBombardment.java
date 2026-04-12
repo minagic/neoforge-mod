@@ -3,14 +3,11 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.ChanneledAutonomousSpell;
-import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
-import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import com.minagic.minagic.spells.AOEHit;
 import com.minagic.minagic.utilities.MathUtils;
 import com.minagic.minagic.utilities.SpellUtils;
@@ -25,6 +22,7 @@ import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -32,18 +30,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
-public class CelestialBombardment extends ChanneledAutonomousSpell {
+@AutoDetection.Spell
+public class CelestialBombardment extends ChanneledAutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public CelestialBombardment() {
         super();
         this.cooldown = 400;
         this.spellName = "Celestial Bombardment";
+        this.idName = "celestial_bombardment";
         this.simulacraMaxLifetime = 200;
         this.simulacraThreshold = 5;
-        this.manaCost = 0;
+        this.manaCost = 5;
     }
 
     private static Vec3[] computeFiringSolution(Vec3 sourcePos, Vec3 mainTargetPos, Vec3 targetPos, double altitude, double angleDeg) {
@@ -77,66 +76,64 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
         return new Vec3[]{spawnPos, direction};
     }
 
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
-                PlayerClassEnum.SORCERER,
-                PlayerSubClassEnum.SORCERER_CELESTIAL,
-                17
-        ));
+    @Override
+    public void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+        int XZRange = 5;
+        int targetCount = 5;
+        int YRange = 3;
+
+
+        LivingEntity target = ctx.target;
+
+        BlockPos targetedBlock = SpellUtils.getTargetBlockPos(target, 48);
+        if (targetedBlock == null) {
+            return;
+        }
+        // generate targets
+        RandomSource random = ctx.level().random;
+
+        ArrayList<BlockPos> targets = new ArrayList<>();
+        for (int i = 0; i < targetCount; i++) {
+            int XOffset = random.nextInt(-XZRange, XZRange);
+            int ZOffset = random.nextInt(-XZRange, XZRange);
+
+            BlockPos currentBlockPos = new BlockPos(targetedBlock.getX() + XOffset, 0, targetedBlock.getZ() + ZOffset);
+            currentBlockPos = new BlockPos(currentBlockPos.getX(),
+                    (int) SpellUtils.findSurfaceY(ctx.level(), currentBlockPos.getX(), currentBlockPos.getZ()),
+                    currentBlockPos.getZ());
+            targets.add(currentBlockPos);
+            Minagic.LOGGER.debug("Celestial Bombardment locked target {}", currentBlockPos);
+
+        }
+
+
+        double baseAltitude = SpellUtils.findSurfaceY(ctx.level(), ctx.target.position().x, ctx.target.position().z);
+
+
+        ArrayList<Integer> altitudes = new ArrayList<>();
+        for (int i = 0; i < targetCount; i++) {
+            altitudes.add((int) baseAltitude + random.nextInt(-YRange, YRange) + 50);
+        }
+
+        for (int i = 0; i < targetCount; i++) {
+            Vec3[] pos_dir = computeFiringSolution(ctx.caster.position(), MathUtils.blockPosToVec3(targetedBlock), MathUtils.blockPosToVec3(targets.get(i)), altitudes.get(i), 35);
+            StarShard shard = new StarShard(ctx.level(), pos_dir[0], pos_dir[1]);
+            Minagic.LOGGER.debug("Celestial Bombardment spawning StarShard at {}", Arrays.toString(pos_dir));
+            shard.setOwner(ctx.caster);
+            ctx.level().addFreshEntity(shard);
+        }
+
+
     }
 
     @Override
-    public void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
-        SpellGatePolicyGenerator.build(SpellEventPhase.CAST, this.getAllowedClasses(), null, 5, null, false, this)
-                .setEffect((context, simulacrumData) -> {
-                    int XZRange = 5;
-                    int targetCount = 5;
-                    int YRange = 3;
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+    }
 
-
-                    LivingEntity target = context.target;
-
-                    BlockPos targetedBlock = SpellUtils.getTargetBlockPos(target, 48);
-                    if (targetedBlock == null) {
-                        return;
-                    }
-                    // generate targets
-                    RandomSource random = context.level().random;
-
-                    ArrayList<BlockPos> targets = new ArrayList<>();
-                    for (int i = 0; i < targetCount; i++) {
-                        int XOffset = random.nextInt(-XZRange, XZRange);
-                        int ZOffset = random.nextInt(-XZRange, XZRange);
-
-                        BlockPos currentBlockPos = new BlockPos(targetedBlock.getX() + XOffset, 0, targetedBlock.getZ() + ZOffset);
-                        currentBlockPos = new BlockPos(currentBlockPos.getX(),
-                                (int) SpellUtils.findSurfaceY(context.level(), currentBlockPos.getX(), currentBlockPos.getZ()),
-                                currentBlockPos.getZ());
-                        targets.add(currentBlockPos);
-                        Minagic.LOGGER.debug("Celestial Bombardment locked target {}", currentBlockPos);
-
-                    }
-
-
-                    double baseAltitude = SpellUtils.findSurfaceY(context.level(), context.target.position().x, context.target.position().z);
-
-
-                    ArrayList<Integer> altitudes = new ArrayList<>();
-                    for (int i = 0; i < targetCount; i++) {
-                        altitudes.add((int) baseAltitude + random.nextInt(-YRange, YRange) + 50);
-                    }
-
-                    for (int i = 0; i < targetCount; i++) {
-                        Vec3[] pos_dir = computeFiringSolution(context.caster.position(), MathUtils.blockPosToVec3(targetedBlock), MathUtils.blockPosToVec3(targets.get(i)), altitudes.get(i), 35);
-                        StarShard shard = new StarShard(context.level(), pos_dir[0], pos_dir[1]);
-                        Minagic.LOGGER.debug("Celestial Bombardment spawning StarShard at {}", Arrays.toString(pos_dir));
-                        shard.setOwner(context.caster);
-                        context.level().addFreshEntity(shard);
-                    }
-                })
-                .execute(ctx, simData);
-
-
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 17;
     }
 
     public static class StarShard extends SpellProjectileEntity implements ItemSupplier {
@@ -149,10 +146,15 @@ public class CelestialBombardment extends ChanneledAutonomousSpell {
             super(Minagic.STAR_SHARD.get(), level);
 
             this.speed = 1;
+            this.direction = direction;
             this.isEntityPiercing = false;
             this.setPos(position.x, position.y, position.z);
-            this.setDeltaMovement(direction.normalize().scale(this.speed));
 
+        }
+
+        public StarShard(Level level, PhysicsData physics){
+            super(Minagic.STAR_SHARD.get(), level);
+            this.physics = physics;
         }
 
         @Override

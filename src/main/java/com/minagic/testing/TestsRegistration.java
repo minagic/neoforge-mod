@@ -16,9 +16,9 @@ public class TestsRegistration {
             MODID
     );
 
-    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> MANA_GATE_TEST = TEST_FUNCTION.register(
-            "mana_gate_test",
-            () -> SpellGateTests::testManaGates
+    public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> SIMULACRUM_GATE_TEST = TEST_FUNCTION.register(
+            "simulacrum_gate_test",
+            () -> SpellGateTests::testSimulacrumGates
     );
 
     public static final DeferredHolder<Consumer<GameTestHelper>, Consumer<GameTestHelper>> COOLDOWN_GATE_TEST = TEST_FUNCTION.register(

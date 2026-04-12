@@ -2,11 +2,11 @@ package com.minagic.minagic.wizard;
 
 import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.api.gui.SpellEditorScreen;
+import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.MagicClass;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.gui.WizardWandEditorScreen;
 import com.minagic.minagic.registries.ModDataComponents;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -16,8 +16,8 @@ public class WizardWand extends SpellcastingItem<WizardWandData> {
     }
 
     @Override
-    public boolean canLivingUseSpellcastingItem(LivingEntity player) {
-        return MagicClass.getMainClass(player) == PlayerClassEnum.WIZARD;
+    public boolean canCastSpell(Spell spell) {
+        return false;
     }
 
     @SuppressWarnings("unchecked")

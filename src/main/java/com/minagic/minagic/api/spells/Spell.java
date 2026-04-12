@@ -1,21 +1,22 @@
 package com.minagic.minagic.api.spells;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 
 // An abstract class representing a spell with casting lifecycle methods and validation.
 public abstract class Spell {
     // properties
     protected int cooldown = 0;
     protected int manaCost = 0;
+    protected int sustainCost = 0;
     protected int simulacraThreshold = 0;
     protected int simulacraMaxLifetime = -1;
     protected String spellName = "No Spell";
+    protected String idName = "no_spell";
     protected boolean isTechnical = false;
 
 
@@ -30,6 +31,14 @@ public abstract class Spell {
             }
         }
 
+        dispatchPhase(phase, context, simulacrumData);
+
+    }
+
+    protected void dispatchPhase(SpellEventPhase phase,
+                                 SpellCastContext context,
+                                 @Nullable SimulacrumData simulacrumData) {
+
         switch (phase) {
             case START -> start(context, simulacrumData);
             case STOP -> stop(context, simulacrumData);
@@ -37,9 +46,7 @@ public abstract class Spell {
             case CAST -> cast(context, simulacrumData);
             case TICK -> tick(context, simulacrumData);
         }
-
     }
-
 
     // OVERRIDES TO DEFINE SPELL BEHAVIOR
     // the main spell logic goes here
@@ -63,22 +70,12 @@ public abstract class Spell {
         return spellName;
     }
 
-
-    public final int getCooldownTicks() {
-        return cooldown;
-    }
-
-    // post cast will drain this much mana from caster
-    public final int getManaCost() {
-        return manaCost;
-    }
-
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return new ArrayList<>();
-    }
-
     public final boolean isTechnical() {
         return isTechnical;
+    }
+
+    public ResourceLocation getID(){
+        return ResourceLocation.fromNamespaceAndPath(Minagic.MODID, idName);
     }
 
     // CASTER VALIDATION METHODS

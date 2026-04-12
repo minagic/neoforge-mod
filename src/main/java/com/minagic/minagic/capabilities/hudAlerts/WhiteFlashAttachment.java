@@ -1,6 +1,6 @@
 package com.minagic.minagic.capabilities.hudAlerts;
 
-import com.minagic.minagic.capabilities.AutodetectionInterfaces;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.registries.ModAttachments;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -16,8 +16,8 @@ import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 public final class WhiteFlashAttachment
-        implements AutodetectionInterfaces.ILivingTickableAttachment,
-        AutodetectionInterfaces.IRenderableAttachment {
+        implements AutoDetection.ILivingTickableAttachment,
+        AutoDetection.IRenderableAttachment {
 
     // =========================
     // INTERNAL STATE

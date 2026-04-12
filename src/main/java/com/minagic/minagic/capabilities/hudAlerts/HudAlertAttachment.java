@@ -1,6 +1,6 @@
 package com.minagic.minagic.capabilities.hudAlerts;
 
-import com.minagic.minagic.capabilities.AutodetectionInterfaces;
+import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.registries.ModAttachments;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class HudAlertAttachment implements AutodetectionInterfaces.IRenderableAttachment, AutodetectionInterfaces.ILivingTickableAttachment {
+public class HudAlertAttachment implements AutoDetection.IRenderableAttachment, AutoDetection.ILivingTickableAttachment {
     private final List<HudAlertInstance> ACTIVE_ALERTS = new ArrayList<>();
 
     public static void addToEntity(Entity entity, String msg, int color, int priority, int durationTicks) {

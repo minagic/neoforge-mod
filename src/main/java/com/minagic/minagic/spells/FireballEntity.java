@@ -95,7 +95,7 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
         super.onHitEntity(hitResult);
 
         BlockPos center = hitResult.getEntity().blockPosition();
-        AOEHit.applyAOE(this.getOwner(), this, Set.of(DamageTypes.MAGIC, DamageTypes.FIRE, DamageTypes.ELEMENTAL), 0, RADIUS, center);
+        AOEHit.applyAOE(this.getOwner(), this, Set.of(DamageTypes.MAGIC, DamageTypes.FIRE, DamageTypes.ELEMENTAL), 10, RADIUS, center);
         spawnAOESparkParticles(level(), hitResult.getLocation(), RADIUS);
 
         this.discard();

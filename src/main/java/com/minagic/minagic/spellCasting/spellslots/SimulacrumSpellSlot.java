@@ -8,6 +8,7 @@ import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.minagic.minagic.utilities.SpellUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -30,7 +31,7 @@ public class SimulacrumSpellSlot {
             Codec.INT.fieldOf("max_lifetime").forGetter(slot -> slot.maxLifetime),
             Codec.INT.optionalFieldOf("lifetime", 0).forGetter(slot -> slot.lifetime),
             Codec.INT.fieldOf("original_max_lifetime").forGetter(slot -> slot.originalMaxLifetime),
-            ModSpells.SPELL_CODEC.fieldOf("spell").forGetter(SimulacrumSpellSlot::getSpell)
+            SpellRegistry.SPELL_CODEC.fieldOf("spell").forGetter(SimulacrumSpellSlot::getSpell)
     ).apply(instance, (hostId, casterUUID, targetUUID, threshold, maxLifetime, lifetime, originalMaxLifetime, spell) -> {
         if (!(spell instanceof ISimulacrumSpell simulacrumSpell)) {
             throw new IllegalArgumentException("Spell is not an ISimulacrumSpell: " + spell);
@@ -144,7 +145,7 @@ public class SimulacrumSpellSlot {
         LOGGER.debug("SimulacrumSpellSlot host entity {} with id {}", resolvedHostEntity, hostUUID);
         if (maxLifetime == 0) {
 
-            SimulacraAttachment.removeSimulacrum(resolvedHostEntity, ModSpells.getId(getSpell()));
+            SimulacraAttachment.removeSimulacrum(resolvedHostEntity, getSpell().getID());
             return;
         }
 
@@ -161,7 +162,7 @@ public class SimulacrumSpellSlot {
 
     public SimulacrumData getSpellData() {
         return new SimulacrumData(
-                ModSpells.getId(getSpell()),
+                getSpell().getID(),
                 maxLifetime,
                 originalMaxLifetime,
                 lifetime,

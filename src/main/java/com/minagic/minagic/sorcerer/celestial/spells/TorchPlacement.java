@@ -1,23 +1,23 @@
 package com.minagic.minagic.sorcerer.celestial.spells;
 
 import com.minagic.minagic.api.spells.ChargedSpell;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
 import com.minagic.minagic.utilities.PowerCalibrator;
+import com.minagic.minagic.capabilities.AutoDetection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-public class TorchPlacement extends ChargedSpell {
+@AutoDetection.Spell
+public class TorchPlacement extends ChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public TorchPlacement() {
         super();
@@ -25,6 +25,7 @@ public class TorchPlacement extends ChargedSpell {
         this.manaCost = 0;
         this.simulacraMaxLifetime = 300;
         this.spellName = "Torch Placer";
+        this.idName = "torch_placement";
     }
 
     @Override
@@ -42,7 +43,7 @@ public class TorchPlacement extends ChargedSpell {
 
         int manaCost = (int) calibrator.remap(0f, 60).apply(originalCharge);
 
-        SpellGateChain manaChain = new SpellGateChain().addGate(new DefaultGates.ManaGate(manaCost, this));
+        SpellGateChain manaChain = new SpellGateChain(this).addGate(new DefaultGates.PowerSourceCostGate(manaCost, this));
         manaChain.setEffect((
                         ((context, simData) ->
                         {
@@ -103,12 +104,14 @@ public class TorchPlacement extends ChargedSpell {
 
     }
 
-    public List<DefaultGates.ClassGate.MagicClassEntry> getAllowedClasses() {
-        return List.of(new DefaultGates.ClassGate.MagicClassEntry(
-                PlayerClassEnum.SORCERER,
-                PlayerSubClassEnum.SORCERER_CELESTIAL,
-                3
-        ));
+    @Override
+    public String getRequiredBloodline() {
+        return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
+    }
+
+    @Override
+    public int getRequiredAffinityLevel() {
+        return 3;
     }
 
 }

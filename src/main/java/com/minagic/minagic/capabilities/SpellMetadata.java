@@ -40,7 +40,7 @@ public final class SpellMetadata {
     // INTERNAL KEY BUILDER
     // =========================
     private static Pair<ResourceLocation, String> makeKey(Spell spell, String key) {
-        return Pair.of(ModSpells.getId(spell), key);
+        return Pair.of(spell.getID(), key);
     }
 
     // =========================
