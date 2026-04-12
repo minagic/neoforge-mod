@@ -72,14 +72,14 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
         }
     }
 
-    protected @Nullable PhysicsData physics;
+    public @Nullable PhysicsData physics;
 
     public SpellProjectileEntity(EntityType<? extends SpellProjectileEntity> type, Level level) {
         super(type, level);
     }
 
     @Deprecated
-    protected void createPhysicsIfNull(){
+    public void createPhysicsIfNull(){
 
         if (this.physics == null){
             Minagic.LOGGER.debug("Creating Physics Data");

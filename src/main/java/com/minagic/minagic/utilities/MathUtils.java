@@ -2,8 +2,13 @@ package com.minagic.minagic.utilities;
 
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.Math.abs;
 
@@ -81,5 +86,18 @@ public class MathUtils {
         return v.scale(cos)
                 .add(axis.cross(v).scale(sin))
                 .add(axis.scale(axis.dot(v) * (1 - cos)));
+    }
+
+    public static List<Vector3f> buildEllipsePoints(float radiusX, float radiusY, int segments) {
+        List<Vector3f> points = new ArrayList<>(segments + 1);
+
+        for (int i = 0; i <= segments; i++) {
+            float t = (float) (i * (Math.PI * 2.0) / segments);
+            float x = Mth.cos(t) * radiusX;
+            float y = Mth.sin(t) * radiusY;
+            points.add(new Vector3f(x, y, 0.0f));
+        }
+
+        return points;
     }
 }

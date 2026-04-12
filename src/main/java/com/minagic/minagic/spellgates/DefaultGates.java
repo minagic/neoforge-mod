@@ -228,7 +228,7 @@ public class DefaultGates {
             return null; // all good
         }
 
-        @Override
+         @Override
         public void onFail(SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
             Minagic.LOGGER.warn(
                     "Simulacrum gate failed for caster {}: {}",
