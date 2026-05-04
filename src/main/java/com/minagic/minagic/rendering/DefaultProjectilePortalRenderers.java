@@ -1,5 +1,5 @@
 package com.minagic.minagic.rendering;
-
+    
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.utilities.ProjectilePortal;
 import com.mojang.blaze3d.vertex.PoseStack;

@@ -125,6 +125,10 @@ public class ProjectilePortal extends LivingEntity implements ItemSupplier {
 
 
     public void spawn(Level level){
+        if (this.projectile == null) {
+            Minagic.LOGGER.debug("Portal collapsed: intent lost across reload");
+            this.discard();
+        }
         Minagic.LOGGER.info("Portal executes: Spawning {} at {}", projectile, this.position());
         level.addFreshEntity(projectile);
     }
