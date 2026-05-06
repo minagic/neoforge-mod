@@ -1,9 +1,8 @@
-package com.minagic.minagic.packets;
+package com.minagic.minagic.common.network.packets;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.SpellcastingItem;
 import com.minagic.minagic.api.spells.Spell;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellRegistry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

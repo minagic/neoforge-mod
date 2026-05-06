@@ -1,4 +1,4 @@
-package com.minagic.minagic;
+package com.minagic.minagic.client.input;
 
 import net.minecraft.client.KeyMapping;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;

@@ -3,6 +3,7 @@ package com.minagic.minagic.sorcerer.celestial.mechanics;
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
+import com.minagic.minagic.common.registry.ModEntityTypes;
 import com.minagic.minagic.rendering.DefaultProjectilePortalRenderers;
 import com.minagic.minagic.spells.AOEHit;
 import com.minagic.minagic.utilities.ProjectilePortal;
@@ -27,7 +28,7 @@ public class StarShard extends SpellProjectileEntity implements ItemSupplier, Pr
     }
 
     public StarShard(Level level, Vec3 position, Vec3 direction) {
-        super(Minagic.STAR_SHARD.get(), level);
+        super(ModEntityTypes.STAR_SHARD.get(), level);
 
         this.speed = 1;
         this.direction = direction;
@@ -39,7 +40,7 @@ public class StarShard extends SpellProjectileEntity implements ItemSupplier, Pr
     }
 
     public StarShard(Level level, PhysicsData physics) {
-        super(Minagic.STAR_SHARD.get(), level);
+        super(ModEntityTypes.STAR_SHARD.get(), level);
         this.physics = physics;
     }
 

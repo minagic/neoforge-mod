@@ -4,6 +4,7 @@ import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
+import com.minagic.minagic.common.registry.ModEntityTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -24,7 +25,7 @@ public class VoidBlastEntity extends SpellProjectileEntity implements ItemSuppli
     }
 
     public VoidBlastEntity(Level level, Vec3 Pos, Vec3 direction) {
-        super(Minagic.VOID_BLAST_ENTITY.get(), level);
+        super(ModEntityTypes.VOID_BLAST_ENTITY.get(), level);
         this.speed = 0.5;
         this.gravity = 0.0;
         this.isBlockPiercing = false;

@@ -3,6 +3,7 @@ package com.minagic.minagic.spells;
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
+import com.minagic.minagic.common.registry.ModEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -33,7 +34,7 @@ public class FireballEntity extends SpellProjectileEntity implements ItemSupplie
 
     // Custom constructor
     public FireballEntity(Level level, Vec3 position, Vec3 direction) {
-        super(Minagic.FIREBALL.get(), level);
+        super(ModEntityTypes.FIREBALL.get(), level);
 
         this.speed = SPEED;
         this.gravity = GRAVITY;

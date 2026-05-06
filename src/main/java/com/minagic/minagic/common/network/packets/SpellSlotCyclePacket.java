@@ -1,4 +1,4 @@
-package com.minagic.minagic.packets;
+package com.minagic.minagic.common.network.packets;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.SpellcastingItem;

@@ -1,4 +1,4 @@
-package com.minagic.minagic.gui;
+package com.minagic.minagic.client.hud;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.SpellcastingItem;

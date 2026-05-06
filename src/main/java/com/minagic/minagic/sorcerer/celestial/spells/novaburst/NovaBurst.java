@@ -12,6 +12,7 @@ import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
 import com.minagic.minagic.capabilities.hudAlerts.*;
+import com.minagic.minagic.common.registry.ModEntityTypes;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
@@ -129,7 +130,7 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
     public void cast(SpellCastContext context, SimulacrumData simulacrumData){
         BlockPos blockPos = SpellUtils.getTargetBlockPos(context.target, 192);
         if (blockPos == null) return;
-        NovaImpactProxyEntity proxy = Minagic.NOVA_PROXY.get().create(context.level(), EntitySpawnReason.MOB_SUMMONED);
+        NovaImpactProxyEntity proxy = ModEntityTypes.NOVA_PROXY.get().create(context.level(), EntitySpawnReason.MOB_SUMMONED);
         BlockPos finalBlockPos = new BlockPos(blockPos.getX(), (int) SpellUtils.findSurfaceY(context.level(), blockPos.getX(), blockPos.getZ()) + 20, blockPos.getZ());
         assert proxy != null;
         proxy.setPos(MathUtils.blockPosToVec3(finalBlockPos));

@@ -1,6 +1,7 @@
 package com.minagic.minagic.sorcerer.celestial.spells.novaburst;
 
 import com.minagic.minagic.Minagic;
+import com.minagic.minagic.common.registry.ModEntityTypes;
 import com.minagic.minagic.utilities.MathUtils;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
@@ -47,7 +48,7 @@ public class NovaImpactProxyEntity extends Monster implements ItemSupplier {
     }
 
     public NovaImpactProxyEntity(Level level, BlockPos position, int lifetime, UUID casterUUID, float radius) {
-        this(Minagic.NOVA_PROXY.get(), level);
+        this(ModEntityTypes.NOVA_PROXY.get(), level);
         this.setPos(MathUtils.blockPosToVec3(position));
         setLifetime(lifetime);
         setCasterUUID(casterUUID);

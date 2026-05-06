@@ -6,6 +6,7 @@ import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.common.registry.ModEntityTypes;
 import com.minagic.minagic.registries.ProjectilePortalRendererRegistry;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -90,7 +91,7 @@ public class ProjectilePortal extends LivingEntity implements ItemSupplier {
     public ProjectilePortal(Level level, SpellProjectileEntity projectile, int delay){
 
 
-        super(Minagic.PROJECTILE_PORTAL.get(), level);
+        super(ModEntityTypes.PROJECTILE_PORTAL.get(), level);
         Minagic.LOGGER.info("Creating a new portal for {} with delay {}", projectile, delay);
         if (! (projectile instanceof IPortalableProjectile portalableProjectile)){
             throw new IllegalArgumentException("Selected projectile was not portalable");

@@ -1,5 +1,6 @@
 package com.minagic.minagic;
 
+import com.minagic.minagic.common.registry.ModEntityTypes;
 import com.minagic.minagic.entity.sorcerer.voidbourne.VoidborneSorcererEntity;
 import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaImpactProxyEntity;
 import com.minagic.minagic.utilities.ProjectilePortal;
@@ -35,14 +36,14 @@ public class MinagicClient {
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
-        event.put(Minagic.VOIDBOURNE_SORCERER_ENEMY.get(),
+        event.put(ModEntityTypes.VOIDBOURNE_SORCERER_ENEMY.get(),
                 VoidborneSorcererEntity.createAttributes().build());
         event.put(
-                Minagic.NOVA_PROXY.get(),
+                ModEntityTypes.NOVA_PROXY.get(),
                 NovaImpactProxyEntity.createAttributes().build());
 
         event.put(
-                Minagic.PROJECTILE_PORTAL.get(),
+                ModEntityTypes.PROJECTILE_PORTAL.get(),
                 ProjectilePortal.createAttributes().build()
         );
     }

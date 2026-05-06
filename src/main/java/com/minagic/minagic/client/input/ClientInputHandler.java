@@ -1,10 +1,10 @@
-package com.minagic.minagic;
+package com.minagic.minagic.client.input;
 
 //import com.minagic.minagic.gui.StaffSpellScreen;
 
 import com.minagic.minagic.api.SpellcastingItem;
-import com.minagic.minagic.packets.SpellSlotCycleDownPacket;
-import com.minagic.minagic.packets.SpellSlotCyclePacket;
+import com.minagic.minagic.common.network.packets.SpellSlotCycleDownPacket;
+import com.minagic.minagic.common.network.packets.SpellSlotCyclePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;

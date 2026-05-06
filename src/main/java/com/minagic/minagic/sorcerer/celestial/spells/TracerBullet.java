@@ -9,6 +9,7 @@ import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
+import com.minagic.minagic.common.registry.ModEntityTypes;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.SpellUtils;
 import net.minecraft.client.Minecraft;
@@ -74,7 +75,7 @@ import java.util.Set;
             }
 
             public TracerBulletProjectile(Level level, Vec3 position, Vec3 direction, SpellCastContext context) {
-                super(Minagic.TRACER_BULLET_PROJECTILE.get(), level);
+                super(ModEntityTypes.TRACER_BULLET_PROJECTILE.get(), level);
 
                 this.speed = 1;
                 this.gravity = 0.01;

@@ -15,6 +15,8 @@ import net.minecraft.world.entity.projectile.Projectile;
 import java.util.List;
 import java.util.Set;
 
+import static com.minagic.minagic.common.events.CommonEventRegistration.ENTITY_FREEZER;
+
 @AutoDetection.Spell
 public class KineticNullificationField extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public KineticNullificationField() {
@@ -38,7 +40,7 @@ public class KineticNullificationField extends AutonomousSpell implements Sorcer
         );
         for (Projectile projectile : targets) {
             Minagic.LOGGER.debug("Kinetic Nullification detected target {}", projectile);
-            Minagic.ENTITY_FREEZER.freeze(projectile, (ServerLevel) ctx.level());
+            ENTITY_FREEZER.freeze(projectile, (ServerLevel) ctx.level());
         }
 
         VisualUtils.createParticlesInSphere(
