@@ -3,7 +3,6 @@ package com.minagic.minagic.spellgates;
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 
 import javax.annotation.Nullable;
@@ -11,6 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SpellGateChain {
+    /**
+     * SpellGateChain execution model:
+     *
+     * 1. Execute all gate checks in order
+     * 2. First failing gate aborts chain
+     * 3. Failing gate owns failure handling
+     * 4. Effect executes only if all gates pass
+     * 5. All gates receive postEffect() after successful execution
+     */
     final List<ISpellGate> gates = new ArrayList<>();
     SpellEffect effect;
     Spell spell;
@@ -53,12 +61,13 @@ public class SpellGateChain {
         for (ISpellGate gate : gates) {
             if (gate.getGatePhase() == ISpellGate.GatePhase.GAMEPLAY && spell.isTechnical()) {
                 Minagic.LOGGER.trace(
-                        "Skipping gameplay gate post-action {} for technical spell {}",
+                        "Skipping gameplay gate postEffect-action {} for technical spell {}",
                         gate.getClass().getSimpleName(),
                         spell.getID()
                 );
+                continue;
             }
-            gate.post(ctx, simData);
+            gate.postEffect(ctx, simData);
         }
 
     }

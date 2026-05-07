@@ -101,7 +101,15 @@ public abstract class GatedSpell extends Spell {
         StringBuilder result = new StringBuilder("=== %s ===\n".formatted(this.getString()));
         for (SpellEventPhase phase: SpellEventPhase.values()){
             result.append(phase.name()).append(": \n");
-            result.append(Objects.requireNonNull(getGateChain(phase)).describe());
+            SpellGateChain chain = getGateChain(phase);
+
+            if (chain == null) {
+
+                result.append("(no gates)\n");
+                continue;
+
+            }
+            result.append(chain.describe());
         }
         return result.toString();
     }

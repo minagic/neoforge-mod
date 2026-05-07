@@ -110,7 +110,7 @@ public class DefaultGates {
         }
 
         @Override
-        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+        public void postEffect(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             AbstractPowerSource source =
                     ActivePowerSourceAttachment.getActivePowerSource(ctx.caster);
 
@@ -183,7 +183,7 @@ public class DefaultGates {
         }
 
         @Override
-        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+        public void postEffect(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             AbstractPowerSource source =
                     ActivePowerSourceAttachment.getActivePowerSource(ctx.caster);
 
@@ -238,7 +238,7 @@ public class DefaultGates {
         }
 
         @Override
-        public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+        public void postEffect(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             CooldownAttachment.applyCooldown(ctx.caster, spell.getID(), cooldown);
         }
 
