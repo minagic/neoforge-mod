@@ -33,7 +33,7 @@ public class SpellGatePolicyGenerator {
             case TICK -> {
                 chain.addGate(new DefaultGates.PowerSourcePrerequisiteGate(spell));
                 if (manaSustainPerTick != null && manaSustainPerTick > 0)
-                    chain.addGate(new DefaultGates.PowerSourceSustainGate(manaSustainPerTick));
+                    chain.addGate(new DefaultGates.PowerSourceSustainGate(manaSustainPerTick, spell));
                 chain.addGate(new DefaultGates.SimulacrumGate());
             }
             case EXIT_SIMULACRUM -> chain.addGate(new DefaultGates.SimulacrumGate());

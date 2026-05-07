@@ -2,15 +2,11 @@ package com.minagic.minagic.spellgates;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
-import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
 import com.minagic.minagic.capabilities.*;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
 import com.minagic.minagic.capabilities.powersource.AbstractPowerSource;
 import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -52,6 +48,23 @@ public class DefaultGates {
                     0,
                     60
             );
+        }
+
+        @Override
+        public String describe() {
+            return """
+                    PowerSourcePrerequisite - GAMEPLAY
+                      Gate Prerequisites:
+                        - none
+                      Checks:
+                        - active power source exists
+                        - power source supports spell: '%s'
+                      On Failure:
+                        - display failure message
+                      Side Effects:
+                        - none
+                    """
+                    .formatted(this.spell.getString());
         }
     }
 
@@ -105,14 +118,33 @@ public class DefaultGates {
                 source.consume(ctx, simData, magicCost);
             }
         }
+
+        @Override
+        public String describe() {
+            return """
+                    PowerSourceCost - GAMEPLAY
+                      Gate Prerequisites:
+                        - PowerSourcePrerequisite
+                      Checks:
+                        - active power source exists
+                        - active power source can consume %d magic cost
+                      On Failure:
+                        - display failure message specific to active power source and spell: %s
+                      Side Effects:
+                        - drain %d magic cost from active power source
+                    """
+                    .formatted(this.magicCost, this.spell.getString(), this.magicCost);
+        }
     }
 
     public static class PowerSourceSustainGate implements ISpellGate {
 
         private final int magicCost;
+        private final Spell spell;
 
-        public PowerSourceSustainGate(int magicCost) {
+        public PowerSourceSustainGate(int magicCost, Spell spell) {
             this.magicCost = magicCost;
+            this.spell = spell;
         }
 
         @Override
@@ -143,7 +175,7 @@ public class DefaultGates {
 
             HudAlertAttachment.addToEntity(
                     ctx.caster,
-                    "The sustaining power collapses.",
+                    "The sustaining power for " + spell.getString() + " collapses.",
                     0xAA00FF,
                     0,
                     40
@@ -158,6 +190,25 @@ public class DefaultGates {
             if (source != null) {
                 source.consume(ctx, simData, magicCost);
             }
+        }
+
+        @Override
+        public String describe() {
+            return """
+                    PowerSourceSustain - GAMEPLAY
+                      Gate Prerequisites:
+                        - PowerSourcePrerequisite
+                        - Simulacrum
+                      Checks:
+                        - active power source exists
+                        - active power source can consume %d magic cost
+                      On Failure:
+                        - display failure message specific to active power source and spell: %s
+                        - expire host simulacrum if provided
+                      Side Effects:
+                        - drain %d magic cost from active power source
+                    """
+                    .formatted(this.magicCost, this.spell.getString(), this.magicCost);
         }
     }
 
@@ -189,6 +240,22 @@ public class DefaultGates {
         @Override
         public void post(SpellCastContext ctx, @Nullable SimulacrumData simData) {
             CooldownAttachment.applyCooldown(ctx.caster, spell.getID(), cooldown);
+        }
+
+        @Override
+        public String describe() {
+            return """
+                    Cooldown - GAMEPLAY
+                      Gate Prerequisites:
+                        - none
+                      Checks:
+                        - spell %s is not on cooldown for caster
+                      On Failure:
+                        - display failure message to caster
+                      Side Effects:
+                        - add %d ticks to %s for caster
+                    """
+                    .formatted(this.spell.getString(), this.cooldown, this.spell.getString());
         }
     }
 
@@ -236,6 +303,24 @@ public class DefaultGates {
                     lastFailureReason != null ? lastFailureReason : "Unknown reason"
             );
         }
+
+        @Override
+        public String describe() {
+            return """
+                    Simulacrum - SAFETY
+                      Gate Prerequisites:
+                        - none
+                      Checks:
+                        - provided simulacrum data exists
+                        - provided simulacrum data's remaining lifetime is not 0
+                        - provided simulacrum data's lifetime does not exceed maximum lifetime
+                        - provided simulacrum data's remaining lifetime does not exceed maximum lifetime
+                      On Failure:
+                        - display failure message as warning in logs
+                      Side Effects:
+                        - none
+                    """;
+        }
     }
 
     public static class MetadataGate extends ISpellGate.SafetySpellGate{
@@ -264,6 +349,22 @@ public class DefaultGates {
             if (this.exitSimulacrumOnFail) {
                 simData.expireSimulacrum();
             }
+        }
+
+        @Override
+        public String describe() {
+            return """
+                    Metadata - SAFETY
+                      Gate Prerequisites:
+                        - Simulacrum
+                      Checks:
+                        - provided data keys exist in caster's metadata for spell: %s
+                      On Failure:
+                        - %s
+                      Side Effects:
+                        - none
+                    """
+                    .formatted(this.spell.getString(), this.exitSimulacrumOnFail ? "expire simulacrum" : "none");
         }
     }
 

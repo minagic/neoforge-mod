@@ -2,6 +2,7 @@ package com.minagic.minagic.spellgates;
 
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 
@@ -30,4 +31,6 @@ public interface ISpellGate {
             return GatePhase.SAFETY;
         }
     }
+
+    String describe();
 }

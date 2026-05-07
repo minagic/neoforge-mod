@@ -6,6 +6,8 @@ import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 
 public abstract class GatedSpell extends Spell {
     protected GatedSpell() {
@@ -64,21 +66,23 @@ public abstract class GatedSpell extends Spell {
             }
 
             case CAST -> {
+                if (properties.requireSimulacrumOnCast())
+                    chain.addGate(new DefaultGates.SimulacrumGate());
                 chain.addGate(new DefaultGates.PowerSourcePrerequisiteGate(this));
 
                 chain.addGate(new DefaultGates.PowerSourceCostGate(properties.manaCost(), this));
 
-                if (properties.requireSimulacrumOnCast())
-                    chain.addGate(new DefaultGates.SimulacrumGate());
+
             }
 
             case TICK -> {
+                chain.addGate(new DefaultGates.SimulacrumGate());
                 chain.addGate(new DefaultGates.PowerSourcePrerequisiteGate(this));
 
                 if (properties.sustainCost() > 0)
-                    chain.addGate(new DefaultGates.PowerSourceSustainGate(properties.sustainCost()));
+                    chain.addGate(new DefaultGates.PowerSourceSustainGate(properties.sustainCost(), this));
 
-                chain.addGate(new DefaultGates.SimulacrumGate());
+
             }
 
             case EXIT_SIMULACRUM -> {
@@ -91,5 +95,14 @@ public abstract class GatedSpell extends Spell {
         }
 
         return chain;
+    }
+
+    public String describeSpellChain(){
+        StringBuilder result = new StringBuilder("=== %s ===\n".formatted(this.getString()));
+        for (SpellEventPhase phase: SpellEventPhase.values()){
+            result.append(phase.name()).append(": \n");
+            result.append(Objects.requireNonNull(getGateChain(phase)).describe());
+        }
+        return result.toString();
     }
 }

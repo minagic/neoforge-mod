@@ -1,5 +1,6 @@
 package com.minagic.minagic.common.commands;
 
+import com.minagic.minagic.common.commands.handlers.CheckGateChain;
 import com.minagic.minagic.utilities.ClearAttachmentsCommand;
 import com.minagic.minagic.utilities.SetClassCommand;
 import com.minagic.minagic.utilities.SorceryPowerCommand;
@@ -16,5 +17,6 @@ public class CommandEventRegistration {
         SetClassCommand.register(event.getDispatcher());
         ClearAttachmentsCommand.register(event.getDispatcher());
         SorceryPowerCommand.register(event.getDispatcher());
+        CheckGateChain.register(event.getDispatcher());
     }
 }

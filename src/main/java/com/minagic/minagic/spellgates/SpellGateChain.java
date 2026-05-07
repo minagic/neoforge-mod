@@ -68,4 +68,11 @@ public class SpellGateChain {
         void execute(SpellCastContext ctx, @Nullable SimulacrumData simData);
     }
 
+    public String describe(){
+        StringBuilder result = new StringBuilder();
+        for (ISpellGate gate: this.gates){
+            result.append(gate.describe()).append("\n");
+        }
+        return result.toString();
+    }
 }

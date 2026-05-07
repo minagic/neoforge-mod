@@ -35,7 +35,7 @@ public class SolarShield extends AutonomousSpell implements DefaultEventInterfac
     public void onLivingDamage(LivingDamageEvent.Post event, SpellCastContext ctx, @Nullable SimulacrumData data) {
         SpellGateChain chain = new SpellGateChain(this)
                 .addGate(new DefaultGates.SimulacrumGate())
-                .addGate(new DefaultGates.PowerSourceSustainGate(0))
+                .addGate(new DefaultGates.PowerSourceSustainGate(0, this))
                 .setEffect((context, simData) ->
                         ((ServerLevel) context.level()).sendParticles(
                                 ParticleTypes.SOUL_FIRE_FLAME,
