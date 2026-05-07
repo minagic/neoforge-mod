@@ -17,10 +17,11 @@ import org.jetbrains.annotations.Nullable;
 public class RadiantBlink extends InstantaneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public RadiantBlink() {
-        this.spellName = "Radiant Blink";
-        this.idName = "radiant_blink";
-        this.manaCost = 20;
-        this.cooldown = 60;
+        super(InstantaneousSpell.defaultProperties()
+                .withSpellName("Radiant Blink")
+                .withIdName("radiant_blink")
+                .withManaCost(20)
+                .withCooldown(60));
     }
 
     @Override

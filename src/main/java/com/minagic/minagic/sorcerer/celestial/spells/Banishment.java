@@ -27,10 +27,11 @@ import java.util.Set;
 @AutoDetection.Spell
 public class Banishment extends Spell implements ISimulacrumSpell, SorceryPowerSourceAttachment.ISorcerySpell {
     public Banishment() {
-        spellName = "Banishment";
-        idName = "banishment";
-        cooldown = 20;
-        manaCost = 1;
+        super(Spell.defaultProperties()
+                .withSpellName("Banishment")
+                .withIdName("banishment")
+                .withCooldown(20)
+                .withManaCost(1));
     }
 
     // lifecycle

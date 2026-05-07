@@ -6,6 +6,7 @@ import com.minagic.minagic.capabilities.AutoDetection;
 @AutoDetection.Spell
 public class NoneSpell extends Spell {
     public NoneSpell() {
-        this.idName = "none_spell";
+        super(Spell.defaultProperties()
+                .withIdName("none_spell"));
     }
 }

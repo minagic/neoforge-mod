@@ -5,7 +5,6 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.api.spells.AutonomousChargedSpell;
 import com.minagic.minagic.api.spells.AutonomousSpell;
-import com.minagic.minagic.api.spells.GatedSpell.SpellPolicyData;
 import com.minagic.minagic.api.spells.SpellEventPhase;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
@@ -44,13 +43,12 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
 
 
     public NovaBurst(){
-        this.spellName = "Nova Burst";
-        this.idName = "nova_burst";
-        // TODO: ADD ACTUAL VALUES
-        this.manaCost = 100;
-        this.cooldown = 15;
-
-        this.simulacraThreshold = 60;
+        super(AutonomousChargedSpell.defaultProperties()
+                .withSpellName("Nova Burst")
+                .withIdName("nova_burst")
+                .withManaCost(100)
+                .withCooldown(15)
+                .withSimulacraThreshold(60));
     }
 
     public void tick(SpellCastContext context, SimulacrumData simulacrumData){
@@ -155,13 +153,15 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
         private static final double RADIUS = 40.0;
 
         public NovaPulse() {
-            this.spellName = "Nova Pulse";
-            this.idName = "nova_pulse";
-            this.isTechnical = true;
-            this.manaCost = 0;
-            this.cooldown = 0;
-            this.simulacraMaxLifetime = 200;
-            this.simulacraThreshold = 5;
+            super(AutonomousSpell.defaultProperties()
+                    .withSpellName("Nova Pulse")
+                    .withIdName("nova_pulse")
+                    .withTechnical(true)
+                    .withManaCost(0)
+                    .withCooldown(0)
+                    .withSimulacraMaxLifetime(200)
+                    .withSimulacraThreshold(5)
+                    .withRequireSimulacrumOnCast(true));
         }
 
         // =========================================
@@ -212,19 +212,6 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
         }
 
         @Override
-        protected SpellPolicyData getPolicyData(SpellEventPhase phase) {
-            SpellPolicyData base = super.getPolicyData(phase);
-            if (phase == SpellEventPhase.CAST) {
-                return new SpellPolicyData(
-                        base.cooldownTicks(),
-                        base.manaCostOnCast(),
-                        base.manaSustainPerTick(),
-                        true
-                );
-            }
-            return base;
-        }
-        @Override
         public String getRequiredBloodline() {
             return SorceryPowerSourceAttachment.BLOODLINE_CELESTIAL;
         }
@@ -239,13 +226,13 @@ public class NovaBurst extends AutonomousChargedSpell implements SorceryPowerSou
     @AutoDetection.Spell
     public static class NovaPulsePrecursor extends AutonomousChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
         public NovaPulsePrecursor(){
-            this.spellName = "Nova Pulse Precursor";
-            this.idName = "nova_pulse_precursor";
-            this.simulacraThreshold = 40;
-
-            this.isTechnical = true;
-            this.manaCost = 0;
-            this.cooldown = 0;
+            super(AutonomousChargedSpell.defaultProperties()
+                    .withSpellName("Nova Pulse Precursor")
+                    .withIdName("nova_pulse_precursor")
+                    .withSimulacraThreshold(40)
+                    .withTechnical(true)
+                    .withManaCost(0)
+                    .withCooldown(0));
         }
 
         public void cast(SpellCastContext ctx, SimulacrumData simData){

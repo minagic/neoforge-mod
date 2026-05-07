@@ -155,10 +155,11 @@ public class ProjectilePortal extends LivingEntity implements ItemSupplier {
     public static class SpawnPortalEntity extends AutonomousChargedSpell {
 
         public SpawnPortalEntity() {
-            this.spellName = "Spawn ProjectilePortal Entity";
-            this.idName = "spawn_portal_entity";
-            this.cooldown = 0;
-            this.isTechnical = true;
+            super(AutonomousChargedSpell.defaultProperties()
+                    .withSpellName("Spawn ProjectilePortal Entity")
+                    .withIdName("spawn_portal_entity")
+                    .withCooldown(0)
+                    .withTechnical(true));
         }
 
         @Override

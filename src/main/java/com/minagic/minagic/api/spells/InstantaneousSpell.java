@@ -2,21 +2,26 @@ package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import org.jetbrains.annotations.Nullable;
 
 /// An abstract class representing spells that take effect immediately upon casting.
 /// To use, extend this class and implement the cast method, as well as getManaCost, getCooldownTicks and getString.
 public class InstantaneousSpell extends Spell {
     public InstantaneousSpell() {
-        super();
+        this(defaultProperties());
+    }
 
-        this.spellName = "InstantaneousSpell";
-        this.manaCost = 0;
-        this.cooldown = 0;
+    protected InstantaneousSpell(SpellProperties properties) {
+        super(properties);
+    }
 
-        this.simulacraThreshold = 0;
-        this.simulacraMaxLifetime = 0;
+    protected static SpellProperties defaultProperties() {
+        return Spell.defaultProperties()
+                .withSpellName("InstantaneousSpell")
+                .withManaCost(0)
+                .withCooldown(0)
+                .withSimulacraThreshold(0)
+                .withSimulacraMaxLifetime(0);
     }
 
 

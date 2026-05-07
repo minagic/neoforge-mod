@@ -14,12 +14,11 @@ import net.minecraft.world.phys.Vec3;
 public class Fireball extends InstantaneousSpell {
 
     public Fireball() {
-        super();
-
-        this.spellName = "Fireball";
-        this.idName = "fireball";
-        this.cooldown = 40;
-        this.manaCost = 30;
+        super(InstantaneousSpell.defaultProperties()
+                .withSpellName("Fireball")
+                .withIdName("fireball")
+                .withCooldown(40)
+                .withManaCost(30));
     }
 
     @Override

@@ -36,10 +36,11 @@ import java.util.Set;
     @AutoDetection.Spell
     public class TracerBullet extends InstantaneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
         public TracerBullet() {
-            this.spellName = "Tracer Bullet";
-            this.idName = "tracer_bullet";
-            this.cooldown = 30;
-            this.manaCost = 15;
+            super(InstantaneousSpell.defaultProperties()
+                    .withSpellName("Tracer Bullet")
+                    .withIdName("tracer_bullet")
+                    .withCooldown(30)
+                    .withManaCost(15));
         }
 
         @Override
@@ -129,13 +130,14 @@ import java.util.Set;
         @AutoDetection.Spell
         public static class Exposure extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
             public Exposure() {
-                this.spellName = "Exposure";
-                this.idName = "exposure";
-                this.cooldown = 0;
-                this.manaCost = 0;
-                this.simulacraThreshold = 1;
-                this.simulacraMaxLifetime = 200;
-                this.isTechnical = true;
+                super(AutonomousSpell.defaultProperties()
+                        .withSpellName("Exposure")
+                        .withIdName("exposure")
+                        .withCooldown(0)
+                        .withManaCost(0)
+                        .withSimulacraThreshold(1)
+                        .withSimulacraMaxLifetime(200)
+                        .withTechnical(true));
             }
 
             @Override

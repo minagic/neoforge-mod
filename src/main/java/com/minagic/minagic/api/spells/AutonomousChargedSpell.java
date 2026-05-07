@@ -2,32 +2,33 @@ package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
-import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import org.jetbrains.annotations.Nullable;
 
 /// / An abstract class representing spells that are charged up over time before being released.
 public class AutonomousChargedSpell extends GatedSpell implements ISimulacrumSpell {
     public AutonomousChargedSpell() {
-        super();
+        this(defaultProperties());
+    }
 
-        this.spellName = "AutonomousChargedSpell";
-        this.manaCost = 0;
-        this.cooldown = 0;
+    protected AutonomousChargedSpell(SpellProperties properties) {
+        super(properties);
+    }
 
-        // Lifetime equals threshold in original behavior:
-        // maxLifetime = simulacrumThreshold, but since you initialize by constructor,
-        // we set both here.
-        this.simulacraThreshold = 0;
-        this.simulacraMaxLifetime = 0;
+    protected static SpellProperties defaultProperties() {
+        return Spell.defaultProperties()
+                .withSpellName("AutonomousChargedSpell")
+                .withManaCost(0)
+                .withCooldown(0)
+                .withSimulacraThreshold(0)
+                .withSimulacraMaxLifetime(0);
     }
 
     @Override
     public int getSimulacrumThreshold() {
-        return simulacraThreshold;
+        return properties.simulacraThreshold();
     }
 
     @Override
@@ -53,7 +54,7 @@ public class AutonomousChargedSpell extends GatedSpell implements ISimulacrumSpe
             SimulacraAttachment.removeSimulacrum(context.target, getID());
         } else {
             new SpellGateChain(this)
-                    .addGate(new DefaultGates.CooldownGate(this, cooldown))
+                    .addGate(new DefaultGates.CooldownGate(this, properties.cooldown()))
                     .setEffect(
                             (internal_ctx, internal_data) -> {
                                 SimulacraAttachment.addSimulacrum(internal_ctx.target, internal_ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());

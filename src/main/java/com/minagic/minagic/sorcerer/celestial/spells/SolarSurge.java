@@ -17,10 +17,11 @@ import org.jetbrains.annotations.Nullable;
 public class SolarSurge extends InstantaneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public SolarSurge() {
-        this.spellName = "Solar Surge";
-        this.idName = "solar_surge";
-        this.manaCost = 25;
-        this.cooldown = 240;
+        super(InstantaneousSpell.defaultProperties()
+                .withSpellName("Solar Surge")
+                .withIdName("solar_surge")
+                .withManaCost(25)
+                .withCooldown(240));
     }
 
     @Override

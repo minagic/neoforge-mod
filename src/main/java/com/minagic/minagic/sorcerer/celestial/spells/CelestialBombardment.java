@@ -22,13 +22,13 @@ import java.util.Arrays;
 public class CelestialBombardment extends ChanneledAutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public CelestialBombardment() {
-        super();
-        this.cooldown = 400;
-        this.spellName = "Celestial Bombardment";
-        this.idName = "celestial_bombardment";
-        this.simulacraMaxLifetime = 200;
-        this.simulacraThreshold = 5;
-        this.manaCost = 5;
+        super(ChanneledAutonomousSpell.defaultProperties()
+                .withCooldown(400)
+                .withSpellName("Celestial Bombardment")
+                .withIdName("celestial_bombardment")
+                .withSimulacraMaxLifetime(200)
+                .withSimulacraThreshold(5)
+                .withManaCost(5));
     }
 
     private static Vec3[] computeFiringSolution(Vec3 sourcePos, Vec3 mainTargetPos, Vec3 targetPos, double altitude, double angleDeg) {

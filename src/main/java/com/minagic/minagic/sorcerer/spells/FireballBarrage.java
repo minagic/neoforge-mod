@@ -19,13 +19,12 @@ import net.minecraft.world.phys.Vec3;
 @AutoDetection.Spell
 public class FireballBarrage extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public FireballBarrage() {
-        super();
-
-        this.spellName = "Fireball Barrage";
-        this.idName = "fireball_barrage";
-        this.manaCost = 15;
-        this.cooldown = 0;
-        this.simulacraThreshold = 5;
+        super(AutonomousSpell.defaultProperties()
+                .withSpellName("Fireball Barrage")
+                .withIdName("fireball_barrage")
+                .withManaCost(15)
+                .withCooldown(0)
+                .withSimulacraThreshold(5));
     }
 
     @Override

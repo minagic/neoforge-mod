@@ -12,12 +12,13 @@ import net.minecraft.world.entity.LivingEntity;
 @AutoDetection.Spell
 public class GravitationalSuspension extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public GravitationalSuspension(){
-        this.manaCost = 3;
-        this.sustainCost = 3;
-        this.spellName = "Gravitational Suspension";
-        this.idName = "gravitational_suspension";
-        this.simulacraMaxLifetime = -1;
-        this.simulacraThreshold = 0;
+        super(AutonomousSpell.defaultProperties()
+                .withManaCost(3)
+                .withSustainCost(3)
+                .withSpellName("Gravitational Suspension")
+                .withIdName("gravitational_suspension")
+                .withSimulacraMaxLifetime(-1)
+                .withSimulacraThreshold(0));
     }
 
     @Override

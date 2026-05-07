@@ -8,13 +8,13 @@ import org.jetbrains.annotations.Nullable;
 
 
 public abstract class GatedSpell extends Spell {
-    public record SpellPolicyData(
-            @Nullable Integer cooldownTicks,
-            @Nullable Integer manaCostOnCast,
-            @Nullable Integer manaSustainPerTick,
-            boolean requireSimulacrumOnCast
-    ) {}
+    protected GatedSpell() {
+        super();
+    }
 
+    protected GatedSpell(SpellProperties properties) {
+        super(properties);
+    }
 
     @Override
     public void perform(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
@@ -50,25 +50,15 @@ public abstract class GatedSpell extends Spell {
     }
 
     protected SpellGateChain defaultGateChain(SpellEventPhase phase) {
-        return buildPolicy(phase, getPolicyData(phase));
+        return buildPolicy(phase);
     }
 
-    protected SpellPolicyData getPolicyData(SpellEventPhase phase) {
-        return switch (phase) {
-            case START -> new SpellPolicyData(cooldown, null, null, false);
-            case CAST -> new SpellPolicyData(null, manaCost, null, false);
-            case TICK -> new SpellPolicyData(null, null, sustainCost, false);
-            default -> new SpellPolicyData(null, null, null, false);
-        };
-    }
-
-    protected SpellGateChain buildPolicy(SpellEventPhase phase, SpellPolicyData data) {
+    protected SpellGateChain buildPolicy(SpellEventPhase phase) {
         SpellGateChain chain = new SpellGateChain(this);
 
         switch (phase) {
             case START -> {
-                if (data.cooldownTicks() != null)
-                    chain.addGate(new DefaultGates.CooldownGate(this, data.cooldownTicks()));
+                chain.addGate(new DefaultGates.CooldownGate(this, properties.cooldown()));
 
                 chain.addGate(new DefaultGates.PowerSourcePrerequisiteGate(this));
             }
@@ -76,18 +66,17 @@ public abstract class GatedSpell extends Spell {
             case CAST -> {
                 chain.addGate(new DefaultGates.PowerSourcePrerequisiteGate(this));
 
-                if (data.manaCostOnCast() != null)
-                    chain.addGate(new DefaultGates.PowerSourceCostGate(data.manaCostOnCast(), this));
+                chain.addGate(new DefaultGates.PowerSourceCostGate(properties.manaCost(), this));
 
-                if (data.requireSimulacrumOnCast())
+                if (properties.requireSimulacrumOnCast())
                     chain.addGate(new DefaultGates.SimulacrumGate());
             }
 
             case TICK -> {
                 chain.addGate(new DefaultGates.PowerSourcePrerequisiteGate(this));
 
-                if (data.manaSustainPerTick() != null && data.manaSustainPerTick() > 0)
-                    chain.addGate(new DefaultGates.PowerSourceSustainGate(data.manaSustainPerTick()));
+                if (properties.sustainCost() > 0)
+                    chain.addGate(new DefaultGates.PowerSourceSustainGate(properties.sustainCost()));
 
                 chain.addGate(new DefaultGates.SimulacrumGate());
             }

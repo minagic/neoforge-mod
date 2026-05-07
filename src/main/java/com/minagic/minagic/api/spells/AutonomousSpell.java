@@ -2,11 +2,9 @@ package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
-import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.spellgates.DefaultGates;
 import com.minagic.minagic.spellgates.SpellGateChain;
-import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -15,6 +13,13 @@ import org.jetbrains.annotations.Nullable;
  * until toggled again.
  */
 public class AutonomousSpell extends GatedSpell implements ISimulacrumSpell {
+    protected AutonomousSpell() {
+        super();
+    }
+
+    protected AutonomousSpell(SpellProperties properties) {
+        super(properties);
+    }
 
     @Override
     public SpellGateChain getGateChain(SpellEventPhase phase){
@@ -32,7 +37,7 @@ public class AutonomousSpell extends GatedSpell implements ISimulacrumSpell {
             SimulacraAttachment.removeSimulacrum(context.target, getID());
         } else {
             new SpellGateChain(this)
-                    .addGate(new DefaultGates.CooldownGate(this, cooldown))
+                    .addGate(new DefaultGates.CooldownGate(this, properties.cooldown()))
                     .setEffect(
                             (internal_ctx, internal_data) -> {
                                 SimulacraAttachment.addSimulacrum(internal_ctx.target, internal_ctx, this, getSimulacrumThreshold(), getSimulacrumMaxLifetime());
@@ -59,12 +64,12 @@ public class AutonomousSpell extends GatedSpell implements ISimulacrumSpell {
 
     @Override
     public int getSimulacrumThreshold() {
-        return this.simulacraThreshold;
+        return properties.simulacraThreshold();
     }
 
     @Override
     public int getSimulacrumMaxLifetime() {
-        return this.simulacraMaxLifetime;
+        return properties.simulacraMaxLifetime();
     }
 
     @Override

@@ -16,12 +16,13 @@ import org.jetbrains.annotations.Nullable;
 public class CircleOfLife extends AutonomousSpell {
 
     public CircleOfLife() {
-        this.spellName = "Circle Of Life";
-        this.idName = "circle_of_life";
-        this.cooldown = 200;
-        this.simulacraMaxLifetime = 2000;
-        this.manaCost = 5;
-        this.simulacraThreshold = 10;
+        super(AutonomousSpell.defaultProperties()
+                .withSpellName("Circle Of Life")
+                .withIdName("circle_of_life")
+                .withCooldown(200)
+                .withSimulacraMaxLifetime(2000)
+                .withManaCost(5)
+                .withSimulacraThreshold(10));
     }
 
 

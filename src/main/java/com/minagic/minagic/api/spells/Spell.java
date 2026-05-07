@@ -6,18 +6,89 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 
 // An abstract class representing a spell with casting lifecycle methods and validation.
 public abstract class Spell {
-    // properties
-    protected int cooldown = 0;
-    protected int manaCost = 0;
-    protected int sustainCost = 0;
-    protected int simulacraThreshold = 0;
-    protected int simulacraMaxLifetime = -1;
-    protected String spellName = "No Spell";
-    protected String idName = "no_spell";
-    protected boolean isTechnical = false;
+    protected final SpellProperties properties;
+
+    protected Spell() {
+        this(defaultProperties());
+    }
+
+    protected Spell(SpellProperties properties) {
+        this.properties = properties;
+    }
+
+    protected static SpellProperties defaultProperties() {
+        return SpellProperties.DEFAULT;
+    }
+
+    protected record SpellProperties(
+            int cooldown,
+            int manaCost,
+            int sustainCost,
+            int simulacraThreshold,
+            int simulacraMaxLifetime,
+            String spellName,
+            String idName,
+            boolean isTechnical,
+            boolean requireSimulacrumOnCast
+    ) {
+        private static final SpellProperties DEFAULT = new SpellProperties(
+                0,
+                0,
+                0,
+                0,
+                -1,
+                "No Spell",
+                "no_spell",
+                false,
+                false
+        );
+
+        public SpellProperties {
+            Objects.requireNonNull(spellName, "spellName");
+            Objects.requireNonNull(idName, "idName");
+        }
+
+        public SpellProperties withCooldown(int cooldown) {
+            return new SpellProperties(cooldown, manaCost, sustainCost, simulacraThreshold, simulacraMaxLifetime, spellName, idName, isTechnical, requireSimulacrumOnCast);
+        }
+
+        public SpellProperties withManaCost(int manaCost) {
+            return new SpellProperties(cooldown, manaCost, sustainCost, simulacraThreshold, simulacraMaxLifetime, spellName, idName, isTechnical, requireSimulacrumOnCast);
+        }
+
+        public SpellProperties withSustainCost(int sustainCost) {
+            return new SpellProperties(cooldown, manaCost, sustainCost, simulacraThreshold, simulacraMaxLifetime, spellName, idName, isTechnical, requireSimulacrumOnCast);
+        }
+
+        public SpellProperties withSimulacraThreshold(int simulacraThreshold) {
+            return new SpellProperties(cooldown, manaCost, sustainCost, simulacraThreshold, simulacraMaxLifetime, spellName, idName, isTechnical, requireSimulacrumOnCast);
+        }
+
+        public SpellProperties withSimulacraMaxLifetime(int simulacraMaxLifetime) {
+            return new SpellProperties(cooldown, manaCost, sustainCost, simulacraThreshold, simulacraMaxLifetime, spellName, idName, isTechnical, requireSimulacrumOnCast);
+        }
+
+        public SpellProperties withSpellName(String spellName) {
+            return new SpellProperties(cooldown, manaCost, sustainCost, simulacraThreshold, simulacraMaxLifetime, spellName, idName, isTechnical, requireSimulacrumOnCast);
+        }
+
+        public SpellProperties withIdName(String idName) {
+            return new SpellProperties(cooldown, manaCost, sustainCost, simulacraThreshold, simulacraMaxLifetime, spellName, idName, isTechnical, requireSimulacrumOnCast);
+        }
+
+        public SpellProperties withTechnical(boolean technical) {
+            return new SpellProperties(cooldown, manaCost, sustainCost, simulacraThreshold, simulacraMaxLifetime, spellName, idName, technical, requireSimulacrumOnCast);
+        }
+
+        public SpellProperties withRequireSimulacrumOnCast(boolean requireSimulacrumOnCast) {
+            return new SpellProperties(cooldown, manaCost, sustainCost, simulacraThreshold, simulacraMaxLifetime, spellName, idName, isTechnical, requireSimulacrumOnCast);
+        }
+    }
 
 
     // CASTING LIFECYCLE METHODS
@@ -67,15 +138,15 @@ public abstract class Spell {
     }
 
     public final String getString() {
-        return spellName;
+        return properties.spellName();
     }
 
     public final boolean isTechnical() {
-        return isTechnical;
+        return properties.isTechnical();
     }
 
     public ResourceLocation getID(){
-        return ResourceLocation.fromNamespaceAndPath(Minagic.MODID, idName);
+        return ResourceLocation.fromNamespaceAndPath(Minagic.MODID, properties.idName());
     }
 
     // CASTER VALIDATION METHODS

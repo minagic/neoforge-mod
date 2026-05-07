@@ -17,11 +17,12 @@ import org.jetbrains.annotations.Nullable;
 public class SolarShield extends AutonomousSpell implements DefaultEventInterface.ILivingDamageSpellHandler, SorceryPowerSourceAttachment.ISorcerySpell {
 
     public SolarShield() {
-        this.cooldown = 3;
-        this.simulacraMaxLifetime = 5;
-        this.simulacraThreshold = 0;
-        this.spellName = "Solar Shield";
-        this.idName = "solar_shield";
+        super(AutonomousSpell.defaultProperties()
+                .withCooldown(3)
+                .withSimulacraMaxLifetime(5)
+                .withSimulacraThreshold(0)
+                .withSpellName("Solar Shield")
+                .withIdName("solar_shield"));
     }
 
     @Override

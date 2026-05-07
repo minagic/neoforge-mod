@@ -12,13 +12,11 @@ import net.minecraft.world.phys.Vec3;
 @AutoDetection.Spell
 public class VoidBlast extends InstantaneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public VoidBlast() {
-        super();
-
-        this.spellName = "VoidBlast";
-        this.idName = "void_blast";
-        this.cooldown = 20 * 3; // 60 ticks
-        this.manaCost = 30;
-        // simulacrum values untouched
+        super(InstantaneousSpell.defaultProperties()
+                .withSpellName("VoidBlast")
+                .withIdName("void_blast")
+                .withCooldown(20 * 3)
+                .withManaCost(30));
     }
 
     @Override

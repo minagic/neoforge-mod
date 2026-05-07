@@ -3,19 +3,24 @@ package com.minagic.minagic.api.spells;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import org.jetbrains.annotations.Nullable;
 
 public class ChanneledSpell extends Spell implements ISimulacrumSpell {
     public ChanneledSpell() {
-        super();
+        this(defaultProperties());
+    }
 
-        this.spellName = "ChanneledAutonomousSpell";
-        this.manaCost = 20;
-        this.cooldown = 30;
+    protected ChanneledSpell(SpellProperties properties) {
+        super(properties);
+    }
 
-        this.simulacraThreshold = 0;
-        this.simulacraMaxLifetime = -1; // no max lifetime
+    protected static SpellProperties defaultProperties() {
+        return Spell.defaultProperties()
+                .withSpellName("ChanneledAutonomousSpell")
+                .withManaCost(20)
+                .withCooldown(30)
+                .withSimulacraThreshold(0)
+                .withSimulacraMaxLifetime(-1);
     }
 
 
@@ -50,12 +55,12 @@ public class ChanneledSpell extends Spell implements ISimulacrumSpell {
 
     @Override
     public int getSimulacrumThreshold() {
-        return this.simulacraThreshold;
+        return properties.simulacraThreshold();
     }
 
     @Override
     public int getSimulacrumMaxLifetime() {
-        return this.simulacraMaxLifetime;
+        return properties.simulacraMaxLifetime();
     }
 
     @Override

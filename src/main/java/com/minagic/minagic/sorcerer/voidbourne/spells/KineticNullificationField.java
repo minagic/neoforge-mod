@@ -20,12 +20,13 @@ import static com.minagic.minagic.common.events.CommonEventRegistration.ENTITY_F
 @AutoDetection.Spell
 public class KineticNullificationField extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public KineticNullificationField() {
-        this.spellName = "Kinetic Nullification Field";
-        this.idName = "kinetic_nullification_field";
-        this.cooldown = 100;
-        this.simulacraMaxLifetime = 300;
-        this.manaCost = 1;
-        this.sustainCost = 1;
+        super(AutonomousSpell.defaultProperties()
+                .withSpellName("Kinetic Nullification Field")
+                .withIdName("kinetic_nullification_field")
+                .withCooldown(100)
+                .withSimulacraMaxLifetime(300)
+                .withManaCost(1)
+                .withSustainCost(1));
     }
 
     @Override

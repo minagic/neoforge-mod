@@ -10,14 +10,12 @@ import com.minagic.minagic.spellCasting.SpellCastContext;
 @AutoDetection.Spell
 public class EventHorizon extends ChanneledSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
     public EventHorizon() {
-        super();
-
-        this.spellName = "Event Horizon";
-        this.idName = "event_horizon";
-        this.manaCost = 100;
-        this.simulacraThreshold = 100;
-        this.cooldown = 10;
-        // simulacraMaxLifetime left to superclass default
+        super(ChanneledSpell.defaultProperties()
+                .withSpellName("Event Horizon")
+                .withIdName("event_horizon")
+                .withManaCost(100)
+                .withSimulacraThreshold(100)
+                .withCooldown(10));
     }
 
     @Override

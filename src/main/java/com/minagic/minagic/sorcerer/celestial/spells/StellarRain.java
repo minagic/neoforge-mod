@@ -20,10 +20,11 @@ import java.util.ArrayList;
 public class StellarRain extends InstantaneousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public StellarRain() {
-        this.spellName = "Stellar Rain";
-        this.idName = "stellar_rain";
-        this.cooldown = 0;
-        this.manaCost = 40;
+        super(InstantaneousSpell.defaultProperties()
+                .withSpellName("Stellar Rain")
+                .withIdName("stellar_rain")
+                .withCooldown(0)
+                .withManaCost(40));
     }
 
     @Override

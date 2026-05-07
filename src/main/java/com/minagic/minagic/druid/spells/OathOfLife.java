@@ -6,13 +6,14 @@ import com.minagic.minagic.capabilities.AutoDetection;
 @AutoDetection.Spell
 public class OathOfLife extends AutonomousSpell {
     public OathOfLife() {
-        this.manaCost = 8;
-        this.cooldown = 0;
-        this.spellName = "Oath of Life";
-        this.idName = "oath_of_life";
-        this.simulacraThreshold = 5;
-        this.simulacraMaxLifetime = 20; // 1 second (20 ticks)
-        this.isTechnical = true;
+        super(AutonomousSpell.defaultProperties()
+                .withManaCost(8)
+                .withCooldown(0)
+                .withSpellName("Oath of Life")
+                .withIdName("oath_of_life")
+                .withSimulacraThreshold(5)
+                .withSimulacraMaxLifetime(20)
+                .withTechnical(true));
     }
 
 }

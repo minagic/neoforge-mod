@@ -3,7 +3,6 @@ package com.minagic.minagic.sorcerer.celestial.spells;
 import com.minagic.minagic.api.spells.AutonomousSpell;
 import com.minagic.minagic.api.spells.ChargedSpell;
 import com.minagic.minagic.api.spells.SpellEventPhase;
-import com.minagic.minagic.api.spells.GatedSpell.SpellPolicyData;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
@@ -25,12 +24,13 @@ import java.util.Set;
 public class RadiantIllumination extends ChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public RadiantIllumination() {
-        super();
-        this.manaCost = 50;
-        this.cooldown = 200;
-        this.spellName = "Radiant Illumination";
-        this.idName = "radiant_illumination";
-        this.simulacraMaxLifetime = 250;
+        super(ChargedSpell.defaultProperties()
+                .withManaCost(50)
+                .withCooldown(200)
+                .withSpellName("Radiant Illumination")
+                .withIdName("radiant_illumination")
+                .withSimulacraMaxLifetime(250)
+                .withRequireSimulacrumOnCast(true));
     }
 
     @Override
@@ -43,20 +43,6 @@ public class RadiantIllumination extends ChargedSpell implements SorceryPowerSou
         VisualUtils.spawnRadialParticleRing(ctx.level(), ctx.target.position(), radius * 32, density, ModParticles.CELEST_PARTICLES.get());
 
 
-    }
-
-    @Override
-    protected SpellPolicyData getPolicyData(SpellEventPhase phase) {
-        SpellPolicyData base = super.getPolicyData(phase);
-        if (phase == SpellEventPhase.CAST) {
-            return new SpellPolicyData(
-                    base.cooldownTicks(),
-                    base.manaCostOnCast(),
-                    base.manaSustainPerTick(),
-                    true
-            );
-        }
-        return base;
     }
 
     @Override
@@ -88,14 +74,14 @@ public class RadiantIllumination extends ChargedSpell implements SorceryPowerSou
     @AutoDetection.Spell
     public static class RadiantIlluminationBlinder extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
         public RadiantIlluminationBlinder() {
-            super();
-            this.spellName = "Radiant Blinding";
-            this.idName = "radiant_illumination_blinder";
-            this.cooldown = 0;
-            this.manaCost = 0;
-            this.simulacraMaxLifetime = 250;
-            this.simulacraThreshold = 1;
-            this.isTechnical = true;
+            super(AutonomousSpell.defaultProperties()
+                    .withSpellName("Radiant Blinding")
+                    .withIdName("radiant_illumination_blinder")
+                    .withCooldown(0)
+                    .withManaCost(0)
+                    .withSimulacraMaxLifetime(250)
+                    .withSimulacraThreshold(1)
+                    .withTechnical(true));
         }
 
         @Override

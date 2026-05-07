@@ -20,12 +20,12 @@ import java.util.Set;
 public class TorchPlacement extends ChargedSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public TorchPlacement() {
-        super();
-        this.cooldown = 300;
-        this.manaCost = 0;
-        this.simulacraMaxLifetime = 300;
-        this.spellName = "Torch Placer";
-        this.idName = "torch_placement";
+        super(ChargedSpell.defaultProperties()
+                .withCooldown(300)
+                .withManaCost(0)
+                .withSimulacraMaxLifetime(300)
+                .withSpellName("Torch Placer")
+                .withIdName("torch_placement"));
     }
 
     @Override

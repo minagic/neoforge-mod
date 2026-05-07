@@ -18,12 +18,13 @@ import net.minecraft.world.phys.Vec3;
 public class AetherGlide extends AutonomousSpell implements SorceryPowerSourceAttachment.ISorcerySpell {
 
     public AetherGlide() {
-        this.spellName = "Aether Glide";
-        this.idName = "aether_glide";
-        this.manaCost = 0;
-        this.sustainCost = 1;
-        this.cooldown = 0;
-        this.simulacraThreshold = 0;
+        super(AutonomousSpell.defaultProperties()
+                .withSpellName("Aether Glide")
+                .withIdName("aether_glide")
+                .withManaCost(0)
+                .withSustainCost(1)
+                .withCooldown(0)
+                .withSimulacraThreshold(0));
     }
 
     @Override

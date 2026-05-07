@@ -3,20 +3,24 @@ package com.minagic.minagic.api.spells;
 import com.minagic.minagic.capabilities.SimulacraAttachment;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.spellCasting.SpellCastContext;
-import com.minagic.minagic.spellgates.DefaultGates;
-import com.minagic.minagic.spellgates.SpellGateChain;
-import com.minagic.minagic.spellgates.SpellGatePolicyGenerator;
 import org.jetbrains.annotations.Nullable;
 
 public class ChargedSpell extends GatedSpell implements ISimulacrumSpell {
     public ChargedSpell() {
-        super(); // keep whatever superclass initialization you rely on
+        this(defaultProperties());
+    }
 
-        this.manaCost = 0;               // default for charged spells
-        this.cooldown = 0;               // stays default unless you override elsewhere
-        this.spellName = "Charged Spell";
-        this.simulacraThreshold = 0;     // cannot be autocast
-        this.simulacraMaxLifetime = 0;   // default max lifetime for charged spells
+    protected ChargedSpell(SpellProperties properties) {
+        super(properties);
+    }
+
+    protected static SpellProperties defaultProperties() {
+        return Spell.defaultProperties()
+                .withManaCost(0)
+                .withCooldown(0)
+                .withSpellName("Charged Spell")
+                .withSimulacraThreshold(0)
+                .withSimulacraMaxLifetime(0);
     }
 
 
@@ -49,12 +53,12 @@ public class ChargedSpell extends GatedSpell implements ISimulacrumSpell {
 
     @Override
     public int getSimulacrumThreshold() {
-        return this.simulacraThreshold;
+        return properties.simulacraThreshold();
     }
 
     @Override
     public int getSimulacrumMaxLifetime() {
-        return this.simulacraMaxLifetime;
+        return properties.simulacraMaxLifetime();
     }
 
     // HUD
