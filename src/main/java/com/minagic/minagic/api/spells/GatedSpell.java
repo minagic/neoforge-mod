@@ -20,7 +20,7 @@ public abstract class GatedSpell extends Spell {
 
     @Override
     public void perform(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        if (context.validate()) {
+        if (!context.validate()) {
             return;
         }
 

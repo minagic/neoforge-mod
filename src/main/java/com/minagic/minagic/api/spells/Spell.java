@@ -93,7 +93,7 @@ public abstract class Spell {
 
     // CASTING LIFECYCLE METHODS
     public void perform(SpellEventPhase phase, SpellCastContext context, @Nullable SimulacrumData simulacrumData) {
-        if (context.validate()) {
+        if (!context.validate()) {
             return;
         }
         if (simulacrumData != null) {
