@@ -5,7 +5,7 @@ import net.minecraft.world.level.Level;
 
 public class SpellCastContext {
     public final LivingEntity caster;
-    public LivingEntity target;
+    public final LivingEntity target;
 
 
     public SpellCastContext(LivingEntity caster) {
