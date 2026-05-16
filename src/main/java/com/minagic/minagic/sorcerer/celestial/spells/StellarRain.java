@@ -54,7 +54,7 @@ public class StellarRain extends InstantaneousSpell implements SorceryPowerSourc
 
         for (BlockPos target : targets){
             Vec3 pos = new Vec3(target.getX(), target.getY()+100, target.getZ());
-            StarShard shard = new StarShard(context.level(), pos, new Vec3(0, -1, 0));
+            StarShard shard = new StarShard(context.level(), pos, new Vec3(0, -1, 0), 4);
             ProjectilePortal portal = new ProjectilePortal(context.level(), shard, 120);
             context.level().addFreshEntity(portal);
 

@@ -2,8 +2,10 @@ package com.minagic.minagic.api.spells;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.common.events.custom.StatCollectEvent;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.stats.Stat;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -168,5 +170,7 @@ public abstract class Spell {
     public int hashCode() {
         return this.getClass().hashCode();
     }
+
+    public <T extends StatCollectEvent> void contributeTo(T event){}
 
 }

@@ -5,6 +5,7 @@ import com.minagic.minagic.registries.ModSpells;
 import com.minagic.minagic.spellCasting.SpellRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 
 public record SimulacrumData(
         ResourceLocation spellId,
@@ -44,7 +45,7 @@ public record SimulacrumData(
     // ACTIONS
     // =========================
     public void expireSimulacrum() {
-        SimulacraAttachment.removeSimulacrum(host, spellId);
+        SimulacraAttachment.removeSimulacrum((Entity)host, spellId);
     }
 
     // =========================

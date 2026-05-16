@@ -5,6 +5,10 @@ import com.minagic.minagic.api.spells.ChanneledAutonomousSpell;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacrumData;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
+import com.minagic.minagic.common.events.custom.StatCollectEvent;
+import com.minagic.minagic.scaling.DefaultActions;
+import com.minagic.minagic.scaling.DefaultStats;
+import com.minagic.minagic.scaling.SpellStatCollector;
 import com.minagic.minagic.sorcerer.celestial.mechanics.StarShard;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.minagic.minagic.utilities.MathUtils;
@@ -31,7 +35,7 @@ public class CelestialBombardment extends ChanneledAutonomousSpell implements So
                 .withManaCost(5));
     }
 
-    private static Vec3[] computeFiringSolution(Vec3 sourcePos, Vec3 mainTargetPos, Vec3 targetPos, double altitude, double angleDeg) {
+    static Vec3[] computeFiringSolution(Vec3 sourcePos, Vec3 mainTargetPos, Vec3 targetPos, double altitude, double angleDeg) {
         // Normalize Y positions
         Vec3 flatSource = new Vec3(sourcePos.x, 0, sourcePos.z);
         Vec3 flatMainTarget = new Vec3(mainTargetPos.x, 0, mainTargetPos.z);
@@ -64,6 +68,10 @@ public class CelestialBombardment extends ChanneledAutonomousSpell implements So
 
     @Override
     public void cast(SpellCastContext ctx, @Nullable SimulacrumData simData) {
+        SpellStatCollector collector = new SpellStatCollector();
+        collector.injectContext(this, ctx, simData);
+        collector.beginCollection();
+
         int XZRange = 5;
         int targetCount = 5;
         int YRange = 3;
@@ -103,7 +111,7 @@ public class CelestialBombardment extends ChanneledAutonomousSpell implements So
 
         for (int i = 0; i < targetCount; i++) {
             Vec3[] pos_dir = computeFiringSolution(ctx.caster.position(), MathUtils.blockPosToVec3(targetedBlock), MathUtils.blockPosToVec3(targets.get(i)), altitudes.get(i), 35);
-            StarShard shard = new StarShard(ctx.level(), pos_dir[0], pos_dir[1]);
+            StarShard shard = new StarShard(ctx.level(), pos_dir[0], pos_dir[1], collector.getStat(DefaultStats.Spell.AOE_RADIUS).intValue());
             Minagic.LOGGER.debug("Celestial Bombardment spawning StarShard at {}", Arrays.toString(pos_dir));
             shard.setOwner(ctx.caster);
             ctx.level().addFreshEntity(shard);
@@ -122,4 +130,8 @@ public class CelestialBombardment extends ChanneledAutonomousSpell implements So
         return 17;
     }
 
+    @Override
+    public <T extends StatCollectEvent> void contributeTo(T event){
+        event.contribute(DefaultStats.Spell.AOE_RADIUS, new DefaultActions.OVERRIDE<Float>(), 4f, -1, "Default value from "+this.getString());
+    }
 }

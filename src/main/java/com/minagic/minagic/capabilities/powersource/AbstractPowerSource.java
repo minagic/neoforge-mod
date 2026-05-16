@@ -2,6 +2,8 @@ package com.minagic.minagic.capabilities.powersource;
 
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.common.events.custom.StatCollectEvent;
+import com.minagic.minagic.scaling.StatCollector;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -71,5 +73,7 @@ public abstract class AbstractPowerSource {
     }
 
     public abstract void deactivate();
+
+    public abstract <T extends StatCollectEvent> void contributeTo(T event);
 
 }

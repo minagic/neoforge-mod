@@ -2,6 +2,7 @@ package com.minagic.minagic.common.events;
 
 import com.minagic.minagic.capabilities.AttachmentDispatcher;
 import com.minagic.minagic.common.commands.CommandEventRegistration;
+import com.minagic.minagic.common.events.custom.handlers.StatCollectHandler;
 import com.minagic.minagic.events.NeoForgeEventHandler;
 import com.minagic.minagic.spellCasting.ClearData;
 import com.minagic.minagic.utilities.EntityFreezer;
@@ -23,5 +24,6 @@ public final class CommonEventRegistration {
         NeoForge.EVENT_BUS.register(NeoForgeEventHandler.class);
         NeoForge.EVENT_BUS.register(AttachmentDispatcher.class);
         NeoForge.EVENT_BUS.register(CommandEventRegistration.class);
+        NeoForge.EVENT_BUS.register(StatCollectHandler.class);
     }
 }

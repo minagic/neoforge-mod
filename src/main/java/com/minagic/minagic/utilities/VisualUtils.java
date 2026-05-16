@@ -27,7 +27,7 @@ public class VisualUtils {
         double offset = 2.0 / density;
         double increment = Math.PI * (3.0 - Math.sqrt(5.0)); // golden angle
 
-        for (int i = 0; i < density; i++) {
+        for (int i = 0; i < density*radius*radius; i++) {
             double y = i * offset - 1 + (offset / 2);
             double r = Math.sqrt(1 - y * y);
 

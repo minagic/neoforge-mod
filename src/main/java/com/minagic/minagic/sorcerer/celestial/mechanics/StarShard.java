@@ -26,15 +26,17 @@ public class StarShard extends SpellProjectileEntity implements ItemSupplier, Pr
         super(type, level);
         this.speed = 0f;
     }
+    private int AOE_RADIUS;
 
-    public StarShard(Level level, Vec3 position, Vec3 direction) {
+    public StarShard(Level level, Vec3 position, Vec3 direction, int AOE_RADIUS) {
         super(ModEntityTypes.STAR_SHARD.get(), level);
 
         this.speed = 1;
         this.direction = direction;
         this.isEntityPiercing = false;
         this.setPos(position.x, position.y, position.z);
-
+        this.AOE_RADIUS = AOE_RADIUS;
+        Minagic.LOGGER.info("Created: AOE_RADIUS: {}", AOE_RADIUS);
         createPhysicsIfNull();
 
     }
@@ -47,13 +49,14 @@ public class StarShard extends SpellProjectileEntity implements ItemSupplier, Pr
     @Override
     public void onHitBlock(@NotNull BlockHitResult result) {
         if (this.level().isClientSide()) return;
-        VisualUtils.createParticlesInSphere((ServerLevel) this.level(), this.position(), 4, ParticleTypes.END_ROD, 40);
+        Minagic.LOGGER.info("AOE RADIUS: {}", AOE_RADIUS);
+        VisualUtils.createParticlesInSphere((ServerLevel) this.level(), this.position(), AOE_RADIUS, ParticleTypes.END_ROD, 15);
         AOEHit.applyAOE(
                 this.getOwner(),
                 this,
                 Set.of(DamageTypes.RADIANT),
                 12,
-                4,
+                AOE_RADIUS,
                 result.getBlockPos()
         );
         this.discard();

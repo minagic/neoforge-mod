@@ -49,7 +49,7 @@ public class KineticNullificationField extends AutonomousSpell implements Sorcer
                 ctx.target.position(),
                 5,
                 ParticleTypes.SMOKE,
-                150
+                15
         );
 
     }

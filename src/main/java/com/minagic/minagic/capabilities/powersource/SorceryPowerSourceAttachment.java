@@ -4,7 +4,11 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.api.spells.Spell;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.SimulacrumData;
+import com.minagic.minagic.common.events.custom.StatCollectEvent;
 import com.minagic.minagic.registries.ModAttachments;
+import com.minagic.minagic.scaling.DefaultActions;
+import com.minagic.minagic.scaling.DefaultStats;
+import com.minagic.minagic.scaling.StatCollector;
 import com.minagic.minagic.spellCasting.SpellCastContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -363,7 +367,11 @@ public final class SorceryPowerSourceAttachment
         host.setData(ModAttachments.SORCERY_POWER_SOURCE, att);
     }
 
+    @Override
+    public <T extends StatCollectEvent> void contributeTo(T event) {
+        event.contribute(DefaultStats.Spell.AOE_RADIUS, new DefaultActions.ADD(), Math.max(0, (float) event.context().caster.position().y-100), 0, "Celestial sorcery powers");
 
+    }
 
     // =========================
     // CODEC
