@@ -2,9 +2,13 @@ package com.minagic.minagic.utilities;
 
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -100,4 +104,11 @@ public class MathUtils {
 
         return points;
     }
+
+    public static Vec3 hadamard(Vec3 A, Vec3 B){
+        return new Vec3(A.x*B.x, A.y*B.y, A.z*B.z);
+    }
+
+
+
 }

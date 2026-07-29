@@ -7,7 +7,10 @@ import com.minagic.minagic.particles.CelestParticles;
 import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaProxyRenderer;
 import com.minagic.minagic.utilities.ProjectilePortal;
+import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.EntityType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -21,6 +24,7 @@ public class ClientModEvents {
 
     @SubscribeEvent
     public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        Minagic.LOGGER.info("Registering entity renderers");
         event.registerEntityRenderer(ModEntityTypes.FIREBALL.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.VOID_BLAST_ENTITY.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.TRACER_BULLET_PROJECTILE.get(), ThrownItemRenderer::new);
@@ -28,6 +32,28 @@ public class ClientModEvents {
         event.registerEntityRenderer(ModEntityTypes.VOIDBOURNE_SORCERER_ENEMY.get(), ThrownItemRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.NOVA_PROXY.get(), NovaProxyRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.PROJECTILE_PORTAL.get(), ProjectilePortal.Renderer::new);
+        event.registerEntityRenderer(ModEntityTypes.ARCANE_SHIP.get(), ArcaneShipEntity.Renderer::new);
+        Minagic.LOGGER.info(
+
+                "Registered renderer for {}",
+
+                ModEntityTypes.ARCANE_SHIP.getId()
+
+        );
+
+        EntityType<ArcaneShipEntity> registeredType =
+                ModEntityTypes.ARCANE_SHIP.get();
+
+        Minagic.LOGGER.info(
+                "Ship renderer key: id={}, identity={}",
+                BuiltInRegistries.ENTITY_TYPE.getKey(registeredType),
+                System.identityHashCode(registeredType)
+        );
+
+        event.registerEntityRenderer(
+                registeredType,
+                ArcaneShipEntity.Renderer::new
+        );
     }
 
     @SubscribeEvent

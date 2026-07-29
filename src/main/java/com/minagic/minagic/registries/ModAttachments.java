@@ -2,10 +2,13 @@ package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.*;
+import com.minagic.minagic.capabilities.hudAlerts.FlightControls;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
 import com.minagic.minagic.capabilities.hudAlerts.WhiteFlashAttachment;
 import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
+import com.minagic.minagic.capabilities.powersource.ShipPowerSourceAttachment;
 import com.minagic.minagic.capabilities.powersource.SorceryPowerSourceAttachment;
+import com.minagic.minagic.capabilities.powersource.WizardryPowerSourceAttachment;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.IEventBus;
@@ -83,6 +86,27 @@ public class ModAttachments {
                             .serialize(new SorceryPowerSourceAttachment.Serializer()) // persistent & sync-enabled
                             .sync(ByteBufCodecs.fromCodec(SorceryPowerSourceAttachment.CODEC))
                             .copyOnDeath()
+                            .build()
+            );
+    public static final Supplier<AttachmentType<ShipPowerSourceAttachment>> SHIP_POWER_SOURCE =
+            ATTACHMENTS.register("power_source_ship", () ->
+                    AttachmentType.builder(ShipPowerSourceAttachment::new)
+                            .serialize(new ShipPowerSourceAttachment.Serializer()) // persistent & sync-enabled
+                            .sync(ByteBufCodecs.fromCodec(ShipPowerSourceAttachment.CODEC))
+                            .copyOnDeath()
+                            .build()
+            );
+    public static final Supplier<AttachmentType<WizardryPowerSourceAttachment>> WIZARDRY_POWER_SOURCE =
+            ATTACHMENTS.register("power_source_wizardry", () ->
+                    AttachmentType.builder(WizardryPowerSourceAttachment::new)
+                            .build()
+            );
+
+    public static final Supplier<AttachmentType<FlightControls>> FLIGHT_CONTROLS =
+            ATTACHMENTS.register("flight_controls_override", () ->
+                    AttachmentType.builder(FlightControls::new)
+                            .serialize(new FlightControls.Serializer())
+                            .sync(ByteBufCodecs.fromCodec(FlightControls.CODEC))
                             .build()
             );
 

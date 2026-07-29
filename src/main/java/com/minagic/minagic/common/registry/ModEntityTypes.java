@@ -8,6 +8,7 @@ import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaImpactProxyEn
 import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
 import com.minagic.minagic.spells.FireballEntity;
 import com.minagic.minagic.utilities.ProjectilePortal;
+import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -79,6 +80,13 @@ public final class ModEntityTypes {
                             .clientTrackingRange(64)
                             .updateInterval(1)
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "projectile_portal"))));
+    public static final DeferredHolder<EntityType<?>, EntityType<ArcaneShipEntity>> ARCANE_SHIP =
+            ENTITY_TYPES.register("arcane_ship",
+                    () -> EntityType.Builder.<ArcaneShipEntity>of(ArcaneShipEntity::new, MobCategory.MISC)
+                            .sized(3f, 1f)
+                            .clientTrackingRange(64)
+                            .updateInterval(1)
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "arcane_ship"))));
 
 
     public static void register(IEventBus bus) {

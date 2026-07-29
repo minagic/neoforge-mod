@@ -41,6 +41,8 @@ public class VoidborneSorcererEntity extends Monster implements ItemSupplier {
     private static final ResourceLocation KNF_ID = ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "kinetic_nullification_field");
     private static final ResourceLocation VOIDBLAST_ID = ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "void_blast");
 
+
+
     public VoidborneSorcererEntity(EntityType<? extends Monster> type, Level level) {
         super(type, level);
         this.setGlowingTag(true);

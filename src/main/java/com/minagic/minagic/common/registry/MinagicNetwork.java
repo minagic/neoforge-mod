@@ -1,10 +1,7 @@
 package com.minagic.minagic.common.registry;
 
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.common.network.packets.SpellSlotCycleDownPacket;
-import com.minagic.minagic.common.network.packets.SpellSlotCyclePacket;
-import com.minagic.minagic.common.network.packets.SpellWritePacket;
-import com.minagic.minagic.common.network.packets.SyncSpellcastingDataPacket;
+import com.minagic.minagic.common.network.packets.*;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -28,6 +25,12 @@ public class MinagicNetwork {
                 SpellWritePacket.TYPE,
                 SpellWritePacket.STREAM_CODEC,
                 SpellWritePacket::handle
+        );
+
+        registrar.playToServer(
+                ClientShipInputPacket.TYPE,
+                ClientShipInputPacket.STREAM_CODEC,
+                ClientShipInputPacket::handle
         );
 
         registrar.playToClient(

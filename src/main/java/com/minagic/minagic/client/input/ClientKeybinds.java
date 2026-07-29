@@ -5,9 +5,13 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import org.lwjgl.glfw.GLFW;
 
 public class ClientKeybinds {
+    public static KeyMapping ROLL_RIGHT;
+    public static  KeyMapping ROLL_LEFT;
     public static KeyMapping CYCLE_SPELL;
     public static KeyMapping CYCLE_SPELL_DOWN;
     public static KeyMapping SHOW_SPELL_HUD;
+    public static KeyMapping DESCEND;
+    public static KeyMapping SHIP_FREELOOK;
 
     public static void registerKeybinds(RegisterKeyMappingsEvent event) {
         CYCLE_SPELL = new KeyMapping(
@@ -31,6 +35,51 @@ public class ClientKeybinds {
                 KeyMapping.Category.MISC
         );
         event.register(SHOW_SPELL_HUD);
+
+        DESCEND = new KeyMapping(
+
+                "key.minagic.ship.descend",
+
+                GLFW.GLFW_KEY_C,
+                KeyMapping.Category.MISC
+
+
+        );
+
+        event.register(DESCEND);
+
+        ROLL_LEFT = new KeyMapping(
+
+                "key.minagic.ship.roll_left",
+
+                GLFW.GLFW_KEY_Q,
+
+                KeyMapping.Category.MISC
+        );
+
+        event.register(ROLL_LEFT);
+
+        ROLL_RIGHT = new KeyMapping(
+
+                "key.minagic.ship.roll_right",
+
+                GLFW.GLFW_KEY_E,
+                KeyMapping.Category.MISC
+
+        );
+
+        event.register(ROLL_RIGHT);
+
+        SHIP_FREELOOK = new KeyMapping(
+
+                "key.minagic.ship.free_look",
+
+                GLFW.GLFW_KEY_Z,
+                KeyMapping.Category.MISC
+
+        );
+
+        event.register(SHIP_FREELOOK);
     }
 
 }
