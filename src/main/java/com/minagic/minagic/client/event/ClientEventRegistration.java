@@ -11,6 +11,7 @@ public class ClientEventRegistration {
         neoBus.register(new ClientInputHandler());
         neoBus.register(new CooldownOverlay());
         neoBus.register(new ClientShipInputHandler());
+        neoBus.register(LivingRenderingEvent.class);
         modBus.register(ClientModEvents.class);
     }
 }

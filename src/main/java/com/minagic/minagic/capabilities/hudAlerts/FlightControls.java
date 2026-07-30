@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import org.joml.Matrix3x2fStack;
@@ -383,7 +384,133 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
 
         );
 
+        // Target tracking
+        ArcaneShipEntity ship = (ArcaneShipEntity) host.getVehicle();
+        assert ship != null;
+        Vec3 targetPoint = host.getEyePosition(1f).add(new Vec3(ship.getCurrentTarget()).scale(100));
+        Vec3 ndc = Minecraft.getInstance()
+                .gameRenderer
+                .projectPointToScreen(new Vec3(targetPoint.toVector3f()));
 
+        int screenX = (int)((ndc.x + 1.0) * 0.5 * gui.guiWidth());
+        int screenY = (int)((1.0 - ndc.y) * 0.5 * gui.guiHeight());
+        drawFlightTarget(gui, screenX + 1, screenY + 1, 0xA0000000);
+        drawFlightTarget(gui, screenX,     screenY,     0xFFD050FF);
+
+
+    }
+
+    private static void drawFlightTarget(
+            GuiGraphics gui,
+            int centerX,
+            int centerY,
+            int color
+    ) {
+        int radius = 8;
+        int arm = 5;
+
+        // Upper-left angle: ┘-like, pointing toward center
+        drawLine(
+                gui,
+                centerX - radius - arm, centerY - radius,
+                centerX - radius,       centerY - radius,
+                color
+        );
+        drawLine(
+                gui,
+                centerX - radius, centerY - radius,
+                centerX - radius, centerY - radius + arm,
+                color
+        );
+
+        // Upper-right angle: └-like, pointing toward center
+        drawLine(
+                gui,
+                centerX + radius,       centerY - radius,
+                centerX + radius + arm, centerY - radius,
+                color
+        );
+        drawLine(
+                gui,
+                centerX + radius, centerY - radius,
+                centerX + radius, centerY - radius + arm,
+                color
+        );
+
+        // Bottom angle: ∧-like, pointing toward center
+        drawLine(
+                gui,
+                centerX - arm, centerY + radius + arm,
+                centerX,       centerY + radius,
+                color
+        );
+        drawLine(
+                gui,
+                centerX,       centerY + radius,
+                centerX + arm, centerY + radius + arm,
+                color
+        );
+    }
+
+    private static void drawLine(
+            GuiGraphics gui,
+            int x1,
+            int y1,
+            int x2,
+            int y2,
+            int color
+    ) {
+        if (y1 == y2) {
+            gui.fill(
+                    Math.min(x1, x2),
+                    y1,
+                    Math.max(x1, x2) + 1,
+                    y1 + 1,
+                    color
+            );
+            return;
+        }
+
+        if (x1 == x2) {
+            gui.fill(
+                    x1,
+                    Math.min(y1, y2),
+                    x1 + 1,
+                    Math.max(y1, y2) + 1,
+                    color
+            );
+            return;
+        }
+
+        // Simple one-pixel Bresenham line for the bottom chevron.
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+        int sx = x1 < x2 ? 1 : -1;
+        int sy = y1 < y2 ? 1 : -1;
+        int error = dx - dy;
+
+        int x = x1;
+        int y = y1;
+
+        while (true) {
+            gui.fill(x, y, x + 1, y + 1, color);
+
+            if (x == x2 && y == y2) {
+                break;
+            }
+
+            int doubledError = error * 2;
+
+            if (doubledError > -dy) {
+                error -= dy;
+                x += sx;
+            }
+
+            if (doubledError < dx) {
+                error += dx;
+                y += sy;
+            }
+        }
     }
 
     @Override

@@ -1,0 +1,13 @@
+{
+
+  "required": true,
+  "package": "com.minagic.minagic.mixins",
+  "client": [
+
+    "client.LivingEntityRendererMixin",
+    "client.LivingEntityRenderStateMixin",
+    "client.CameraMixin"
+
+  ]
+
+}

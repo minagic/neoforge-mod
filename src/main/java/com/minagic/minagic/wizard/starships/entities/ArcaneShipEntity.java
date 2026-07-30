@@ -90,6 +90,14 @@ public class ArcaneShipEntity extends LivingEntity {
                     EntityDataSerializers.QUATERNION
             );
 
+
+
+    public static final EntityDataAccessor<Boolean> UPDATE_TARGET =
+            SynchedEntityData.defineId(ArcaneShipEntity.class, EntityDataSerializers.BOOLEAN);
+
+    public static final EntityDataAccessor<Vector3f> CURRENT_TARGET =
+            SynchedEntityData.defineId(ArcaneShipEntity.class, EntityDataSerializers.VECTOR3);
+
     public ArcaneShipEntity(EntityType<? extends ArcaneShipEntity> entity, Level level) {
         super(entity, level);
         Minagic.LOGGER.info(
@@ -149,6 +157,7 @@ public class ArcaneShipEntity extends LivingEntity {
     public void acceptInputs(ClientShipInputHandler.ShipInput input) {
         currentInput = input;
         updateTarget = input.pitch > 0.5F;
+        entityData.set(UPDATE_TARGET, updateTarget);
     }
     @Override
     public void tick() {
@@ -261,6 +270,7 @@ public class ArcaneShipEntity extends LivingEntity {
 
 
         Vector3f target = lookDirection.toVector3f();
+        entityData.set(CURRENT_TARGET, target);
 
         if (target.lengthSquared() < VECTOR_EPSILON) {
             return;
@@ -404,88 +414,7 @@ public class ArcaneShipEntity extends LivingEntity {
                 .normalize();
     }
 
-    private enum AxisType {
-        YAW,
-        PITCH
-    }
 
-    private void applyBestLocalRotation(
-            Vector3f target,
-            AxisType axis,
-            float maximumStep
-    ) {
-        float currentScore = forwardDot(
-                orientation,
-                target
-        );
-
-        Quaternionf positiveCandidate =
-                new Quaternionf(orientation);
-
-        Quaternionf negativeCandidate =
-                new Quaternionf(orientation);
-
-        switch (axis) {
-            case YAW -> {
-                positiveCandidate.rotateLocalY(maximumStep);
-                negativeCandidate.rotateLocalY(-maximumStep);
-            }
-
-            case PITCH -> {
-                positiveCandidate.rotateLocalX(maximumStep);
-                negativeCandidate.rotateLocalX(-maximumStep);
-            }
-        }
-
-        positiveCandidate.normalize();
-        negativeCandidate.normalize();
-
-        float positiveScore = forwardDot(
-                positiveCandidate,
-                target
-        );
-
-        float negativeScore = forwardDot(
-                negativeCandidate,
-                target
-        );
-
-        Quaternionf bestCandidate;
-        float bestScore;
-
-        if (positiveScore >= negativeScore) {
-            bestCandidate = positiveCandidate;
-            bestScore = positiveScore;
-        } else {
-            bestCandidate = negativeCandidate;
-            bestScore = negativeScore;
-        }
-
-        /*
-         * Never apply a rotation unless it actually improves alignment.
-         *
-         * dot = 1   means perfectly aligned
-         * dot = -1  means exactly opposite
-         */
-        if (bestScore > currentScore + IMPROVEMENT_EPSILON) {
-            orientation.set(bestCandidate);
-        }
-    }
-
-
-
-    private static final double AIM_DEADZONE_RADIANS = Math.toRadians(0.25);
-    private static float forwardDot(
-            Quaternionf candidate,
-            Vector3f target
-    ) {
-        Vector3f candidateForward =
-                new Quaternionf(candidate)
-                        .transform(new Vector3f(LOCAL_FORWARD))
-                        .normalize();
-
-        return candidateForward.dot(target);
-    }
     @Override
     protected void defineSynchedData(
             SynchedEntityData.Builder builder
@@ -496,12 +425,31 @@ public class ArcaneShipEntity extends LivingEntity {
                 ORIENTATION,
                 new Quaternionf()
         );
+
+        builder.define(
+                UPDATE_TARGET,
+                false
+        );
+
+        builder.define(
+                CURRENT_TARGET,
+                new Vector3f()
+        );
+
     }
 
     public Quaternionf getOrientation() {
         return new Quaternionf(
                 entityData.get(ORIENTATION)
         );
+    }
+
+    public boolean getUpdateTarget(){
+        return entityData.get(UPDATE_TARGET);
+    }
+
+    public Vector3f getCurrentTarget(){
+        return entityData.get(CURRENT_TARGET);
     }
 
 //    private void tickShipRotation() {
