@@ -1,11 +1,13 @@
 package com.minagic.minagic.capabilities.hudAlerts;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -387,7 +389,9 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
         // Target tracking
         ArcaneShipEntity ship = (ArcaneShipEntity) host.getVehicle();
         assert ship != null;
-        Vec3 targetPoint = host.getEyePosition(1f).add(new Vec3(ship.getCurrentTarget()).scale(100));
+        Vec3 targetPoint = new Vec3(ship.getCurrentTarget());
+        targetPoint = Minecraft.getInstance().gameRenderer.getMainCamera().position().add(targetPoint.scale(100));
+
         Vec3 ndc = Minecraft.getInstance()
                 .gameRenderer
                 .projectPointToScreen(new Vec3(targetPoint.toVector3f()));
@@ -396,8 +400,46 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
         int screenY = (int)((1.0 - ndc.y) * 0.5 * gui.guiHeight());
         drawFlightTarget(gui, screenX + 1, screenY + 1, 0xA0000000);
         drawFlightTarget(gui, screenX,     screenY,     0xFFD050FF);
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
 
+        Vec3 cameraPos = camera.getPosition();
 
+        drawDirection(gui, cameraPos, new Vec3(ship.getCurrentTarget()), 0xFFFF0000);   // Red - ship target
+        drawDirection(gui, cameraPos, host.getLookAngle(),             0xFF00FF00);   // Green - player look
+        drawDirection(gui, cameraPos, new Vec3(camera.getLookVector()),  0xFF0000FF);   // Blue - camera forward
+
+        Camera cam = Minecraft.getInstance().gameRenderer.getMainCamera();
+
+        Vector3f f = new Vector3f(0, 0, 1);
+        f.rotate(cam.rotation());
+
+        Vec3 point = cam.getPosition().add(
+                f.x * 100,
+                f.y * 100,
+                f.z * 100
+        );
+
+        Vec3 NDC = Minecraft.getInstance()
+                .gameRenderer
+                .projectPointToScreen(point);
+        Minagic.LOGGER.info("Detected camera forward NDC: {}", NDC);
+    }
+
+    private static void drawDirection(GuiGraphics gui, Vec3 origin, Vec3 direction, int color) {
+        Vec3 point = origin.add(direction.normalize().scale(100.0));
+
+        Vec3 ndc = Minecraft.getInstance()
+                .gameRenderer
+                .projectPointToScreen(point);
+
+        if (ndc == null) {
+            return;
+        }
+
+        int x = (int) ((ndc.x + 1.0) * 0.5 * gui.guiWidth());
+        int y = (int) ((1.0 - ndc.y) * 0.5 * gui.guiHeight());
+
+        gui.fill(x - 2, y - 2, x + 3, y + 3, color);
     }
 
     private static void drawFlightTarget(
@@ -511,6 +553,36 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
                 y += sy;
             }
         }
+    }
+
+    private static float extractRollRadians(Quaternionf orientation) {
+        Vector3f forward = new Vector3f(0.0F, 0.0F, 1.0F)
+                .rotate(orientation)
+                .normalize();
+
+        Vector3f shipUp = new Vector3f(0.0F, 1.0F, 0.0F)
+                .rotate(orientation)
+                .normalize();
+
+        Vector3f worldUp = new Vector3f(0.0F, 1.0F, 0.0F);
+
+        Vector3f referenceRight = new Vector3f(worldUp).cross(forward);
+
+        // Forward is nearly vertical, so roll becomes ambiguous.
+        if (referenceRight.lengthSquared() < 1.0E-6F) {
+            return 0.0F;
+        }
+
+        referenceRight.normalize();
+
+        Vector3f referenceUp = new Vector3f(forward)
+                .cross(referenceRight)
+                .normalize();
+
+        float sinRoll = shipUp.dot(referenceRight);
+        float cosRoll = shipUp.dot(referenceUp);
+
+        return (float) Math.atan2(sinRoll, cosRoll);
     }
 
     @Override

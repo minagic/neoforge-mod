@@ -191,7 +191,18 @@ public class ArcaneShipEntity extends LivingEntity {
         LivingEntity pilot = getPilot();
 
         if (pilot != null && updateTarget) {
-            trackEyesight(pilot.getLookAngle());
+            Vec3 lookWorld = pilot.getLookAngle();
+
+            Quaternionf rollOnly = new Quaternionf()
+                    .rotateLocalY((float) Math.PI/2)
+                    .rotateAxis(rollAngle, this.getLookAngle().toVector3f());
+
+            Vector3f corrected = new Vector3f(lookWorld.toVector3f());
+
+
+            rollOnly.transform(corrected);
+
+            trackEyesight(new Vec3(corrected));
         }
 
         /*
@@ -879,6 +890,8 @@ public class ArcaneShipEntity extends LivingEntity {
             return true;
         }
     }
+
+
 
     private String debugIdentity() {
 

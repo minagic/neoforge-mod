@@ -5,6 +5,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,6 +18,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class CameraMixin {
     @Shadow
     protected abstract void setRotation(float yaw, float pitch);
+
+    @Shadow
+    protected abstract void setPosition(double x, double y, double z);
 
     @Shadow
     protected Quaternionf rotation;
@@ -34,7 +38,31 @@ public abstract class CameraMixin {
 
                                             CallbackInfo ci){
         if (cameraEntity.getVehicle() instanceof ArcaneShipEntity ship){
-            Quaternionf shipRotation = ship.getOrientation();
+            Quaternionf shipRotation = new Quaternionf(ship.getOrientation());
+
+            Vector3f localCockpitOffset = new Vector3f(
+
+                    0.0F,
+
+                    1.2F,
+
+                    0.8F
+
+            );
+
+            Vector3f worldOffset = shipRotation.transform(localCockpitOffset);
+
+            Vec3 desiredPosition = ship.getPosition(partialTick).add(
+
+                    worldOffset.x,
+
+                    worldOffset.y,
+
+                    worldOffset.z
+
+            );
+
+            this.setPosition( desiredPosition.x,  desiredPosition.y,  desiredPosition.z);
 
             Vector3f shipUp = new Vector3f(0.0F, 1.0F, 0.0F)
                     .rotate(shipRotation);
@@ -69,8 +97,10 @@ public abstract class CameraMixin {
             float cosRoll = shipUp.dot(referenceUp);
 
             float roll = (float) Mth.atan2(sinRoll, cosRoll);
-            this.setRotation(yaw, pitch);
-            this.rotation.rotateZ(roll);
+            this.rotation
+                    .set(ship.getOrientation())
+                    .rotateY((float) Math.PI);
+
         }
     }
 
