@@ -33,6 +33,9 @@ import org.joml.*;
 
 import java.lang.Math;
 
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+
 public class ArcaneShipEntity extends LivingEntity {
     private ClientShipInputHandler.ShipInput currentInput =
             ClientShipInputHandler.ShipInput.NONE;
@@ -56,10 +59,10 @@ public class ArcaneShipEntity extends LivingEntity {
     private static final float VECTOR_EPSILON = 1.0E-6F;
 
     private static final float ROLL_ACCELERATION =
-            (float) Math.toRadians(0.25F);
+            (float) Math.toRadians(0.05F);
 
     private static final float MAX_ROLL_VELOCITY =
-            (float) Math.toRadians(5.0F);
+            (float) Math.toRadians(0.1F);
 
     private static final float ROLL_DRAG = 0.96F;
     private static final float ROLL_STOP_EPSILON = 1.0E-5F;
@@ -75,13 +78,16 @@ public class ArcaneShipEntity extends LivingEntity {
 
     private float rollAngle;
     private float rollVelocity;
-
+    private float pendingPitch;
+    private float pendingYaw;
     private boolean updateTarget = true;
 
     /*
      * Final orientation used by movement, synchronization and rendering.
      */
     private final Quaternionf orientation = new Quaternionf();
+
+    private final Quaternionf pilotAim = new Quaternionf();
 
 
     public static final EntityDataAccessor<Quaternionf> ORIENTATION =
@@ -97,6 +103,8 @@ public class ArcaneShipEntity extends LivingEntity {
 
     public static final EntityDataAccessor<Vector3f> CURRENT_TARGET =
             SynchedEntityData.defineId(ArcaneShipEntity.class, EntityDataSerializers.VECTOR3);
+
+
 
     public ArcaneShipEntity(EntityType<? extends ArcaneShipEntity> entity, Level level) {
         super(entity, level);
@@ -136,6 +144,7 @@ public class ArcaneShipEntity extends LivingEntity {
     ) {
         if (!level().isClientSide()) {
             player.startRiding(this);
+            pilotAim.set(orientation);
         }
 
         return InteractionResult.SUCCESS;
@@ -156,9 +165,14 @@ public class ArcaneShipEntity extends LivingEntity {
     }
     public void acceptInputs(ClientShipInputHandler.ShipInput input) {
         currentInput = input;
-        updateTarget = input.pitch > 0.5F;
-        entityData.set(UPDATE_TARGET, updateTarget);
+
+        this.pendingYaw -= input.yaw*AIM_SPEED;
+        this.pendingPitch -= input.pitch*AIM_SPEED;
+
+        //entityData.set(UPDATE_TARGET, updateTarget);
     }
+
+    float AIM_SPEED = 1/30F;
     @Override
     public void tick() {
         setNoGravity(true);
@@ -191,7 +205,12 @@ public class ArcaneShipEntity extends LivingEntity {
         LivingEntity pilot = getPilot();
 
         if (pilot != null && updateTarget) {
-            trackEyesight(pilot.getLookAngle());
+
+//            Vector3f target = new Vector3f(0, 0, 1);
+//
+//            target.rotate(pilotAim);
+
+            trackEyesight();
         }
 
         /*
@@ -266,17 +285,14 @@ public class ArcaneShipEntity extends LivingEntity {
      * Used only for the exactly-180-degree case, where left and right
      * are mathematically equally valid.
      */
-    private void trackEyesight(Vec3 lookDirection) {
+    private void trackEyesight() {
 
 
-        Vector3f target = lookDirection.toVector3f();
-        entityData.set(CURRENT_TARGET, target);
-
-        if (target.lengthSquared() < VECTOR_EPSILON) {
-            return;
-        }
-
-        target.normalize();
+//        if (target.lengthSquared() < VECTOR_EPSILON) {
+//            return;
+//        }
+//
+//        target.normalize();
 
         Vector3f shipRight = new Quaternionf(orientation)
                 .transform(new Vector3f(1.0F, 0.0F, 0.0F))
@@ -290,42 +306,24 @@ public class ArcaneShipEntity extends LivingEntity {
                 .transform(new Vector3f(0.0F, 0.0F, 1.0F))
                 .normalize();
 
-        Minagic.LOGGER.info("Roll: {}, Pitch Axis: {}, Yaw Axis: {}, Roll Axis: {}", rollAngle, shipRight, shipUp, shipForward);
 
-        /*
-         * Signed angular errors in the craft's rolled frame.
-         *
-         * Positive/negative signs may need inversion to match your mouse
-         * convention, but these are the correct physical axes.
-         */
-        float yawError = (float) Math.atan2(
-                target.dot(shipRight),
-                target.dot(shipForward)
-        );
 
-        float pitchError = (float) Math.atan2(
-                target.dot(shipUp),
-                target.dot(shipForward)
-        );
+        float pitch = Mth.clamp(pendingPitch, -MAX_AIM_STEP, MAX_AIM_STEP);
 
-        float yawStep = Mth.clamp(
-                yawError,
-                -MAX_AIM_STEP,
-                MAX_AIM_STEP
-        );
+        float yaw = Mth.clamp(pendingYaw, -MAX_AIM_STEP, MAX_AIM_STEP);
 
-        float pitchStep = Mth.clamp(
-                -pitchError,
-                -MAX_AIM_STEP,
-                MAX_AIM_STEP
-        );
 
-        Quaternionf steeringDelta = new Quaternionf()
-                .rotationAxis(yawStep, shipUp)
-                .rotateAxis(pitchStep, shipRight);
 
-        steeringDelta.transform(trackedForward);
-        trackedForward.normalize();
+        orientation
+                .rotateY(yaw)
+                .rotateX(pitch)
+                .normalize();
+        pendingPitch -= pitch;
+        pendingYaw -= yaw;
+        Quaternionf remainingCorrection = new Quaternionf().rotateX(pendingPitch).rotateY(pendingYaw);
+                //.rotateZ(rollAngle);
+        Vector3f target = remainingCorrection.transform(orientation.transform(new Vector3f(0, 0, 1)));
+        entityData.set(CURRENT_TARGET, target);
     }
 
     private void tickRollInput() {
@@ -336,13 +334,14 @@ public class ArcaneShipEntity extends LivingEntity {
         );
 
         if (Math.abs(input) > 0.001F) {
-            rollVelocity += input * ROLL_ACCELERATION;
+            rollVelocity = input;
         } else {
-            rollVelocity *= ROLL_DRAG;
 
-            if (Math.abs(rollVelocity) < ROLL_STOP_EPSILON) {
-                rollVelocity = 0.0F;
-            }
+            rollVelocity = 0.0F;
+
+        }
+        if (getPilot() != null) {
+            FlightControls.setRollSpeed(getPilot(), rollVelocity);
         }
 
         rollVelocity = Mth.clamp(
@@ -354,6 +353,8 @@ public class ArcaneShipEntity extends LivingEntity {
         rollAngle = wrapRadians(
                 rollAngle + rollVelocity
         );
+
+
     }
 
     private static float wrapRadians(float angle) {
@@ -369,26 +370,21 @@ public class ArcaneShipEntity extends LivingEntity {
         /*
          * Construct the zero-roll frame.
          */
-        Vector3f right =
-                new Vector3f(WORLD_UP).cross(forward);
+        Vector3f right = new Quaternionf(orientation)
+                .transform(new Vector3f(1.0F, 0.0F, 0.0F));
+        right.fma(
+                -right.dot(forward),
+                forward
+        );
 
         /*
          * When flying almost vertically, WORLD_UP and forward are parallel,
          * so they cannot define a right vector. Preserve the prior right
          * direction projected onto the new forward plane.
          */
+
         if (right.lengthSquared() < VECTOR_EPSILON) {
-            right = new Quaternionf(orientation)
-                    .transform(new Vector3f(1.0F, 0.0F, 0.0F));
-
-            right.fma(
-                    -right.dot(forward),
-                    forward
-            );
-
-            if (right.lengthSquared() < VECTOR_EPSILON) {
-                right.set(1.0F, 0.0F, 0.0F);
-            }
+            right.set(1.0F, 0.0F, 0.0F);
         }
 
         right.normalize();
@@ -409,9 +405,10 @@ public class ArcaneShipEntity extends LivingEntity {
 
 
         orientation
-                .setFromNormalized(basis)
+                //.setFromNormalized(basis)
                 .rotateZ(rollAngle)
                 .normalize();
+
     }
 
 
@@ -428,7 +425,7 @@ public class ArcaneShipEntity extends LivingEntity {
 
         builder.define(
                 UPDATE_TARGET,
-                false
+                true
         );
 
         builder.define(
@@ -570,7 +567,7 @@ public class ArcaneShipEntity extends LivingEntity {
         ) {
             super.extractRenderState(entity, state, partialTick);
             state.orientation.set(entity.getEntityData().get(ORIENTATION));
-            Minagic.LOGGER.info("Entity: {}, quaternion: {}", entity.debugIdentity(), entity.getEntityData().get(ORIENTATION));
+            //Minagic.LOGGER.info("Entity: {}, quaternion: {}", entity.debugIdentity(), entity.getEntityData().get(ORIENTATION));
 
 
         }
@@ -588,7 +585,7 @@ public class ArcaneShipEntity extends LivingEntity {
         ) {
 
             poseStack.pushPose();
-            Minagic.LOGGER.info("quaternion:{}" ,state.orientation.toString());
+            //Minagic.LOGGER.info("quaternion:{}" ,state.orientation.toString());
             poseStack.mulPose(state.orientation);
 
             collector.submitCustomGeometry(

@@ -4,6 +4,7 @@ import com.minagic.minagic.common.network.packets.ClientShipInputPacket;
 import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
 import net.minecraft.client.Options;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
@@ -113,122 +114,95 @@ public class ClientShipInputHandler {
         // =========================
 
         public ShipInput readInputs(
+
                 Minecraft minecraft,
+
                 KeyMapping descendKey,
+
                 KeyMapping rollLeftKey,
+
                 KeyMapping rollRightKey,
-                KeyMapping freelook,
+
                 ArcaneShipEntity ship
+
         ) {
+
             LocalPlayer player = minecraft.player;
 
             if (player == null || minecraft.screen != null) {
-                resetMouseState();
+
                 return ShipInput.NONE;
+
             }
 
             Options options = minecraft.options;
 
-            // =========================
-            // TRANSLATIONAL INPUT
-            // =========================
-
             float forward = axis(
+
                     options.keyUp.isDown(),
+
                     options.keyDown.isDown()
+
             );
 
             float strafe = axis(
+
                     options.keyLeft.isDown(),
+
                     options.keyRight.isDown()
+
             );
 
             float vertical = axis(
-                    options.keyJump.isDown(),
-                    descendKey.isDown()
-            );
 
-            // =========================
-            // ROLL INPUT
-            // =========================
+                    options.keyJump.isDown(),
+
+                    descendKey.isDown()
+
+            );
 
             float roll = axis(
-                    rollRightKey.isDown(),
-                    rollLeftKey.isDown()
+                    rollLeftKey.isDown(),
+
+                    rollRightKey.isDown()
+
+
+
             );
 
-            // =========================
-            // MOUSE INPUT
-            // =========================
+            MouseHandler mouse = minecraft.mouseHandler;
 
-            float yaw = 0.0F;
-            float pitch = freelook.isDown() ? 0 : 1;
-//            if (!freelook.isDown()) {
-//
-//                Vec3 desired = player.getLookAngle();
-//                Vector3f f = ship.getOrientation().transform(new Vector3f(0,0,1));
-//                Vec3 fwd = new Vec3(f.x, f.y, f.z);
-//                Vec3 error = fwd.cross(desired);
-//
-//                Vector3f right = ship.getOrientation().transform(new Vector3f(1,0,0));
-//                Vector3f up    = ship.getOrientation().transform(new Vector3f(0,1,0));
-//
-//                yaw =
-//                        (float)error.dot(new Vec3(up.x, up.y, up.z));
-//
-//                pitch = (float)-error.dot(new Vec3(right.x, right.y, right.z));
-////                if (previousLook != null) {
-////
-////                    // Small-angle rotation between the two look vectors.
-////
-////                    Vec3 delta = previousLook.cross(currentLook);
-////
-////                    Quaternionf q = new Quaternionf(ship.getOrientation()).normalize();
-////
-////                    Vector3f right = q.transform(new Vector3f(1, 0, 0));
-////
-////                    Vector3f up    = q.transform(new Vector3f(0, 1, 0));
-////
-////                    // Project the world-space rotation onto the ship's local axes.
-////
-////                    yaw = (float) delta.dot(new Vec3(up.x, up.y, up.z));
-////
-////                    pitch = (float) delta.dot(new Vec3(right.x, right.y, right.z));
-////
-////                    // Tune these!
-////
-////                    yaw *= 2.0F;
-////
-////                    pitch *= 2.0F;
-////
-////                    yaw = Mth.clamp(yaw, -1.0F, 1.0F);
-////
-////                    pitch = Mth.clamp(pitch, -1.0F, 1.0F);
-////
-////                }
-////
-////                previousLook = currentLook;
-//
-//            }
-//
-//            else {
-//
-//                // Avoid a huge jump when leaving freelook.
-//
-//                previousLook = player.getLookAngle();
-//
-//            }
+            float yaw = (float) mouse.getXVelocity();
 
+            float pitch = (float) mouse.getYVelocity();
 
+            // Apply vanilla sign convention.
+
+            yaw = Mth.clamp(yaw, -1.0F, 1.0F);
+
+            pitch = Mth.clamp(-pitch, -1.0F, 1.0F);
+
+            if (ClientKeybinds.SHIP_FREELOOK.isDown()) {
+                yaw = 0;
+                pitch = 0;
+            }
 
             return new ShipInput(
+
                     vertical,
+
                     forward,
+
                     strafe,
+
                     pitch,
+
                     yaw,
+
                     roll
+
             );
+
         }
 
         // =========================
@@ -272,7 +246,7 @@ public class ClientShipInputHandler {
 
         }
 
-        ShipInput input = reader.readInputs(minecraft, ClientKeybinds.DESCEND, ClientKeybinds.ROLL_RIGHT, ClientKeybinds.ROLL_LEFT, ClientKeybinds.SHIP_FREELOOK, ship);
+        ShipInput input = reader.readInputs(minecraft, ClientKeybinds.DESCEND, ClientKeybinds.ROLL_RIGHT, ClientKeybinds.ROLL_LEFT, ship);
 
 
         ClientPacketDistributor.sendToServer(

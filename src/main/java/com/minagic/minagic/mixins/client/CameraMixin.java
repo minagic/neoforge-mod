@@ -1,10 +1,14 @@
 package com.minagic.minagic.mixins.client;
 
+import com.minagic.minagic.client.input.ClientKeybinds;
 import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
 import net.minecraft.client.Camera;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,6 +37,11 @@ public abstract class CameraMixin {
                                             float partialTick,
 
                                             CallbackInfo ci){
+
+        if (Minecraft.getInstance().options.getCameraType() != CameraType.FIRST_PERSON){
+            return;
+        }
+        if (ClientKeybinds.SHIP_FREELOOK.isDown()) return;
         if (cameraEntity.getVehicle() instanceof ArcaneShipEntity ship){
             Quaternionf shipRotation = ship.getOrientation();
 
@@ -73,5 +82,63 @@ public abstract class CameraMixin {
             this.rotation.rotateZ(roll);
         }
     }
+
+    @Inject(method = "setup", at = @At("TAIL"))
+
+    private void minagic$placeCameraInCockpit(
+
+            BlockGetter level,
+
+            Entity cameraEntity,
+
+            boolean detached,
+
+            boolean mirrored,
+
+            float partialTick,
+
+            CallbackInfo ci
+
+    ) {
+
+        if (!(cameraEntity.getVehicle() instanceof ArcaneShipEntity ship)) {
+
+            return;
+        }
+
+        if (Minecraft.getInstance().options.getCameraType() != CameraType.FIRST_PERSON){
+            return;
+        }
+
+        Vector3f localCockpitOffset = new Vector3f(
+
+                0.0F,
+
+                1.2F,
+
+                0.8F
+
+        );
+
+        Vector3f worldOffset = new Quaternionf(ship.getOrientation())
+
+                .transform(localCockpitOffset);
+
+        Vec3 desiredPosition = ship.getPosition(partialTick).add(
+
+                worldOffset.x,
+
+                worldOffset.y,
+
+                worldOffset.z
+
+        );
+
+        this.setPosition(desiredPosition.x, desiredPosition.y, desiredPosition.z);
+
+    }
+
+    @Shadow
+    protected abstract void setPosition(double x, double y, double z);
 
 }

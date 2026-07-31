@@ -24,9 +24,11 @@ import org.joml.Vector3f;
 
 public class FlightControls implements AutoDetection.IRenderableAttachment {
     private Quaternionf craftOrientation;
+    private float rollSpeed;
 
-    private FlightControls(float x, float y, float z, float w) {
+    private FlightControls(float x, float y, float z, float w, float rollSpeed) {
         this.craftOrientation = new Quaternionf(x, y, z, w);
+        this.rollSpeed = rollSpeed;
     }
 
     public FlightControls() {
@@ -36,11 +38,12 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
     private Quaternionf getCraftOrientation() {
         return craftOrientation;
     }
+    private float getRollSpeed (){return rollSpeed;}
 
     private void setCraftOrientation(Quaternionf craftOrientation) {
         this.craftOrientation = craftOrientation;
     }
-
+    private void setRollSpeed(float rollSpeed){this.rollSpeed = rollSpeed;}
     private static FlightControls getAttachment(Entity host) {
         return host.getData(ModAttachments.FLIGHT_CONTROLS);
     }
@@ -57,7 +60,12 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
         FlightControls attachment = getAttachment(host);
         attachment.setCraftOrientation(craftOrientation);
         writeAttachment(host, attachment);
+    }
 
+    public static void setRollSpeed(Entity host, float rollSpeed){
+        FlightControls attachment = getAttachment(host);
+        attachment.setRollSpeed(rollSpeed);
+        writeAttachment(host, attachment);
     }
 
     @Override
@@ -215,6 +223,7 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
                 true
         );
 
+
         Vector3f shipRight = q.transform(
 
                 new Vector3f(1.0F, 0.0F, 0.0F)
@@ -278,6 +287,33 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
                 true
         );
 
+        y+=line;
+        gui.drawString(
+                font,
+                String.format(
+                        "RollSpeed: % .3f",
+                        rollSpeed
+                ),
+                x, y,
+                0xFFFF55FF,
+                true
+        );
+
+        y+=line;
+
+        Vector3f target = ((ArcaneShipEntity)host.getVehicle()).getCurrentTarget();
+        gui.drawString(
+                font,
+                String.format(
+                        "target: % .3f, % .3f, %.3f",
+                        target.x,
+                        target.y,
+                        target.z
+                ),
+                x, y,
+                0xFFFF55FF,
+                true
+        );
         final int HORIZON_COLOR = 0xFFFFFFFF;
 
         final float PIXELS_PER_RADIAN = 60.0F;
@@ -520,10 +556,11 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
 
 
     public static final Codec<FlightControls> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.FLOAT.fieldOf("message").forGetter(fc -> fc.craftOrientation.x),
-            Codec.FLOAT.fieldOf("color").forGetter(fc -> fc.craftOrientation.y),
-            Codec.FLOAT.fieldOf("priority").forGetter(fc -> fc.craftOrientation.z),
-            Codec.FLOAT.fieldOf("durationTicks").forGetter(fc -> fc.craftOrientation.w)
+            Codec.FLOAT.fieldOf("x").forGetter(fc -> fc.craftOrientation.x),
+            Codec.FLOAT.fieldOf("y").forGetter(fc -> fc.craftOrientation.y),
+            Codec.FLOAT.fieldOf("z").forGetter(fc -> fc.craftOrientation.z),
+            Codec.FLOAT.fieldOf("w").forGetter(fc -> fc.craftOrientation.w),
+            Codec.FLOAT.fieldOf("rollSpeed").forGetter(fc -> fc.rollSpeed)
     ).apply(instance, FlightControls::new));
 
     public static final class Serializer implements IAttachmentSerializer<FlightControls> {
@@ -532,10 +569,11 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
         public FlightControls read(IAttachmentHolder holder, ValueInput input) {
             try {
                 float x = input.read("x", Codec.FLOAT).get();
-                float y = input.read("x", Codec.FLOAT).get();
-                float z = input.read("x", Codec.FLOAT).get();
-                float w = input.read("x", Codec.FLOAT).get();
-                return new FlightControls(x, y, z, w);
+                float y = input.read("y", Codec.FLOAT).get();
+                float z = input.read("z", Codec.FLOAT).get();
+                float w = input.read("w", Codec.FLOAT).get();
+                float roll = input.read("roll", Codec.FLOAT).get();
+                return new FlightControls(x, y, z, w, roll);
             } catch (Exception e) {
                 return new FlightControls();
             }
@@ -548,7 +586,7 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
             output.store("y", Codec.FLOAT, attachment.craftOrientation.y);
             output.store("z", Codec.FLOAT, attachment.craftOrientation.z);
             output.store("w", Codec.FLOAT, attachment.craftOrientation.w);
-
+            output.store("roll", Codec.FLOAT, attachment.rollSpeed);
             return true;
         }
     }
