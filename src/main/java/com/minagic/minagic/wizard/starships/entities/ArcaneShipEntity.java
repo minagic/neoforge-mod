@@ -2,12 +2,11 @@ package com.minagic.minagic.wizard.starships.entities;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.hudAlerts.FlightControls;
+import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
 import com.minagic.minagic.client.input.ClientShipInputHandler;
-import com.minagic.minagic.common.registry.ModEntityTypes;
-import com.minagic.minagic.utilities.MathUtils;
+import com.minagic.minagic.wizard.starships.utilities.*;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -17,8 +16,9 @@ import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -32,78 +32,30 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 
 import java.lang.Math;
-
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 public class ArcaneShipEntity extends LivingEntity {
-    private ClientShipInputHandler.ShipInput currentInput =
-            ClientShipInputHandler.ShipInput.NONE;
-
-    private Vec3 thrustControl = Vec3.ZERO;
-
-    private static final Vec3 ENGINE_MAX =
-            new Vec3(1.0D, 3.0D, 10.0D);
-
-    private static final double VELOCITY_RESPONSE = 0.7D;
-
-    private static final Vector3f LOCAL_FORWARD =
-            new Vector3f(0.0F, 0.0F, 1.0F);
-
-    private static final Vector3f WORLD_UP =
-            new Vector3f(0.0F, 1.0F, 0.0F);
-
-    private static final float MAX_AIM_STEP =
-            (float) Math.toRadians(0.5F);
-
-    private static final float VECTOR_EPSILON = 1.0E-6F;
-
-    private static final float ROLL_ACCELERATION =
-            (float) Math.toRadians(0.05F);
-
-    private static final float MAX_ROLL_VELOCITY =
-            (float) Math.toRadians(0.1F);
-
-    private static final float ROLL_DRAG = 0.96F;
-    private static final float ROLL_STOP_EPSILON = 1.0E-5F;
-
-    /*
-     * Actual flight-control state.
-     *
-     * The quaternion is rebuilt from these values each tick rather than
-     * incrementally accumulating yaw and pitch rotations.
-     */
-    private final Vector3f trackedForward =
-            new Vector3f(LOCAL_FORWARD);
-
-    private float rollAngle;
-    private float rollVelocity;
-    private float pendingPitch;
-    private float pendingYaw;
-    private boolean updateTarget = true;
-
-    /*
-     * Final orientation used by movement, synchronization and rendering.
-     */
-    private final Quaternionf orientation = new Quaternionf();
-
-    private final Quaternionf pilotAim = new Quaternionf();
+    public ShipState state = ShipState.DEFAULT();
+    float K = 0.02f;
+    protected List<DragSurface> getDragProfile(){
+        return  List.of(
+                new DragSurface(new Vec3(0, 0, 1), 3f, K),
+                new DragSurface(new Vec3(0, 0, -1), 3f, K),
+                new DragSurface(new Vec3(0, 1, 0), 18f, K),
+                new DragSurface(new Vec3(0, -1, 0), 18f, K),
+                new DragSurface(new Vec3(1, 0, 0), 6f, K),
+                new DragSurface(new Vec3(-1, 0, 0), 6f, K)
+        );
+    }
 
 
-    public static final EntityDataAccessor<Quaternionf> ORIENTATION =
+    public static final EntityDataAccessor<ShipState> SHIP_STATE =
             SynchedEntityData.defineId(
                     ArcaneShipEntity.class,
-                    EntityDataSerializers.QUATERNION
+                    ShipState.ENTITY_DATA_SERIALIZER
             );
-
-
-
-    public static final EntityDataAccessor<Boolean> UPDATE_TARGET =
-            SynchedEntityData.defineId(ArcaneShipEntity.class, EntityDataSerializers.BOOLEAN);
-
-    public static final EntityDataAccessor<Vector3f> CURRENT_TARGET =
-            SynchedEntityData.defineId(ArcaneShipEntity.class, EntityDataSerializers.VECTOR3);
-
 
 
     public ArcaneShipEntity(EntityType<? extends ArcaneShipEntity> entity, Level level) {
@@ -118,6 +70,7 @@ public class ArcaneShipEntity extends LivingEntity {
 
         );
         this.setNoGravity(true);
+        ActivePowerSourceAttachment.activate(this, ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "power_source_ship"));
     }
 
     @Override
@@ -144,7 +97,6 @@ public class ArcaneShipEntity extends LivingEntity {
     ) {
         if (!level().isClientSide()) {
             player.startRiding(this);
-            pilotAim.set(orientation);
         }
 
         return InteractionResult.SUCCESS;
@@ -157,257 +109,91 @@ public class ArcaneShipEntity extends LivingEntity {
     }
 
     public LivingEntity getPilot(){
-        Entity passanger = getFirstPassenger();
-        if (passanger instanceof LivingEntity livingEntity){
+        Entity passenger = getFirstPassenger();
+        if (passenger instanceof LivingEntity livingEntity){
             return livingEntity;
         }
         return null;
     }
     public void acceptInputs(ClientShipInputHandler.ShipInput input) {
-        currentInput = input;
-
-        this.pendingYaw -= input.yaw*AIM_SPEED;
-        this.pendingPitch -= input.pitch*AIM_SPEED;
-
-        //entityData.set(UPDATE_TARGET, updateTarget);
+        state = state.acceptShipInput(input);
+        entityData.set(SHIP_STATE, state);
     }
 
-    float AIM_SPEED = 1/30F;
+
+    public ShipState getState(){
+        return entityData.get(SHIP_STATE);
+    }
+
+
     @Override
     public void tick() {
+        float impactVelocity = (float) this.getDeltaMovement().y;
+        boolean wasOnGround = this.onGround();
         setNoGravity(true);
+
         super.tick();
 
-        if (level().isClientSide()) {
-            return;
-        }
+        if (level().isClientSide()) {return;}
 
-        thrustControl = new Vec3(
-                Mth.clamp(
-                        thrustControl.x + currentInput.strafe * 0.01D,
-                        -1.0D,
-                        1.0D
-                ),
-                Mth.clamp(
-                        thrustControl.y + currentInput.vertical * 0.01D,
-                        -1.0D,
-                        1.0D
-                ),
-                Mth.clamp(
-                        thrustControl.z + currentInput.forward * 0.01D,
-                        -1.0D,
-                        1.0D
-                )
-        );
-
-        tickRollInput();
+        state = state.parseShipInput(this);
+        entityData.set(SHIP_STATE, state);
 
         LivingEntity pilot = getPilot();
 
-        if (pilot != null && updateTarget) {
 
-//            Vector3f target = new Vector3f(0, 0, 1);
-//
-//            target.rotate(pilotAim);
-
-            trackEyesight();
-        }
-
-        /*
-         * Orientation is an output of trackedForward + rollAngle.
-         * It is not incrementally yawed and pitched.
-         */
-        rebuildOrientation();
-
-        tickShipMovement();
-
-        /*
-         * Always store a new Quaternionf so SynchedEntityData detects and
-         * transmits the changed value.
-         */
+        ShipPhysics.tickTranslational(this);
+        state = ShipPhysics.tickRotational(this);
         entityData.set(
-                ORIENTATION,
-                new Quaternionf(orientation)
+                SHIP_STATE,
+                state
         );
 
         if (pilot != null) {
             FlightControls.setCraftOrientation(
                     pilot,
-                    new Quaternionf(orientation)
+                    new Quaternionf(state.orientation())
             );
-        }
-    }
-    public void tickShipMovement() {
-        Vec3 thrust = MathUtils.hadamard(
-                thrustControl,
-                ENGINE_MAX
-        );
-
-        Quaternionf normalizedOrientation =
-                new Quaternionf(orientation).normalize();
-
-        Vector3f rightF = normalizedOrientation.transform(
-                new Vector3f(1.0F, 0.0F, 0.0F)
-        );
-
-        Vector3f upF = normalizedOrientation.transform(
-                new Vector3f(0.0F, 1.0F, 0.0F)
-        );
-
-        Vector3f forwardF = normalizedOrientation.transform(
-                new Vector3f(LOCAL_FORWARD)
-        );
-
-        Vec3 shipRight =
-                new Vec3(rightF.x, rightF.y, rightF.z);
-
-        Vec3 shipUp =
-                new Vec3(upF.x, upF.y, upF.z);
-
-        Vec3 shipForward =
-                new Vec3(forwardF.x, forwardF.y, forwardF.z);
-
-        Vec3 worldThrust = shipRight.scale(thrust.x)
-                .add(shipUp.scale(thrust.y))
-                .add(shipForward.scale(thrust.z));
-
-        Vec3 nextVelocity = getDeltaMovement().lerp(
-                worldThrust,
-                VELOCITY_RESPONSE
-        );
-
-        setDeltaMovement(nextVelocity);
-    }
-
-    private static final float IMPROVEMENT_EPSILON = 1.0E-6F;
-
-    /*
-     * Used only for the exactly-180-degree case, where left and right
-     * are mathematically equally valid.
-     */
-    private void trackEyesight() {
-
-
-//        if (target.lengthSquared() < VECTOR_EPSILON) {
-//            return;
-//        }
-//
-//        target.normalize();
-
-        Vector3f shipRight = new Quaternionf(orientation)
-                .transform(new Vector3f(1.0F, 0.0F, 0.0F))
-                .normalize();
-
-        Vector3f shipUp = new Quaternionf(orientation)
-                .transform(new Vector3f(0.0F, 1.0F, 0.0F))
-                .normalize();
-
-        Vector3f shipForward = new Quaternionf(orientation)
-                .transform(new Vector3f(0.0F, 0.0F, 1.0F))
-                .normalize();
-
-
-
-        float pitch = Mth.clamp(pendingPitch, -MAX_AIM_STEP, MAX_AIM_STEP);
-
-        float yaw = Mth.clamp(pendingYaw, -MAX_AIM_STEP, MAX_AIM_STEP);
-
-
-
-        orientation
-                .rotateY(yaw)
-                .rotateX(pitch)
-                .normalize();
-        pendingPitch -= pitch;
-        pendingYaw -= yaw;
-        Quaternionf remainingCorrection = new Quaternionf().rotateX(pendingPitch).rotateY(pendingYaw);
-                //.rotateZ(rollAngle);
-        Vector3f target = remainingCorrection.transform(orientation.transform(new Vector3f(0, 0, 1)));
-        entityData.set(CURRENT_TARGET, target);
-    }
-
-    private void tickRollInput() {
-        float input = Mth.clamp(
-                currentInput.roll,
-                -1.0F,
-                1.0F
-        );
-
-        if (Math.abs(input) > 0.001F) {
-            rollVelocity = input;
-        } else {
-
-            rollVelocity = 0.0F;
-
-        }
-        if (getPilot() != null) {
-            FlightControls.setRollSpeed(getPilot(), rollVelocity);
+            pilot.fallDistance = 0d;
         }
 
-        rollVelocity = Mth.clamp(
-                rollVelocity,
-                -MAX_ROLL_VELOCITY,
-                MAX_ROLL_VELOCITY
-        );
-
-        rollAngle = wrapRadians(
-                rollAngle + rollVelocity
-        );
+       if (wasOnGround){applyLandingDamage(impactVelocity);}
 
 
     }
+    private static final double SAFE_LANDING_SPEED = 0.25;
 
-    private static float wrapRadians(float angle) {
-        return Mth.wrapDegrees(
-                (float) Math.toDegrees(angle)
-        ) * Mth.DEG_TO_RAD;
-    }
+    private static final double DAMAGE_PER_EXCESS_SPEED = 20.0;
 
-    private void rebuildOrientation() {
-        Vector3f forward =
-                new Vector3f(trackedForward).normalize();
+    private void applyLandingDamage(double verticalVelocity) {
 
-        /*
-         * Construct the zero-roll frame.
-         */
-        Vector3f right = new Quaternionf(orientation)
-                .transform(new Vector3f(1.0F, 0.0F, 0.0F));
-        right.fma(
-                -right.dot(forward),
-                forward
-        );
+        double downwardSpeed = Math.max(0.0, -verticalVelocity);
 
-        /*
-         * When flying almost vertically, WORLD_UP and forward are parallel,
-         * so they cannot define a right vector. Preserve the prior right
-         * direction projected onto the new forward plane.
-         */
+        double excessSpeed = downwardSpeed - SAFE_LANDING_SPEED;
 
-        if (right.lengthSquared() < VECTOR_EPSILON) {
-            right.set(1.0F, 0.0F, 0.0F);
+        if (excessSpeed <= 0.0) {
+
+            return;
+
         }
 
-        right.normalize();
+        float damage = (float) (
+                excessSpeed * DAMAGE_PER_EXCESS_SPEED
+        );
+        hurtServer(
 
-        Vector3f up = new Vector3f(forward)
-                .cross(right)
-                .normalize();
+                (ServerLevel) this.level(),
+                damageSources().fall(),
+                damage
+        );
 
-        Matrix3f basis = new Matrix3f()
-                .setColumn(0, right)
-                .setColumn(1, up)
-                .setColumn(2, forward);
+    }
 
-        Minagic.LOGGER.info("R {}", right);
-        Minagic.LOGGER.info("U {}", up);
-        Minagic.LOGGER.info("F {}", forward);
-        Minagic.LOGGER.info("R×U {}", new Vector3f(right).cross(up));
+    @Override
 
+    public void travel(@NotNull Vec3 ignoredInput) {
 
-        orientation
-                //.setFromNormalized(basis)
-                .rotateZ(rollAngle)
-                .normalize();
+        this.move(MoverType.SELF, getDeltaMovement());
 
     }
 
@@ -418,50 +204,8 @@ public class ArcaneShipEntity extends LivingEntity {
     ) {
         super.defineSynchedData(builder);
 
-        builder.define(
-                ORIENTATION,
-                new Quaternionf()
-        );
-
-        builder.define(
-                UPDATE_TARGET,
-                true
-        );
-
-        builder.define(
-                CURRENT_TARGET,
-                new Vector3f()
-        );
-
+        builder.define(SHIP_STATE, ShipState.DEFAULT());
     }
-
-    public Quaternionf getOrientation() {
-        return new Quaternionf(
-                entityData.get(ORIENTATION)
-        );
-    }
-
-    public boolean getUpdateTarget(){
-        return entityData.get(UPDATE_TARGET);
-    }
-
-    public Vector3f getCurrentTarget(){
-        return entityData.get(CURRENT_TARGET);
-    }
-
-//    private void tickShipRotation() {
-//
-//        Vec3 rotThrust = MathUtils.hadamard(rotControl, ROT_MAX);
-//        Minagic.LOGGER.info("Entity: {}, quaternion before {}", this.debugIdentity(), orientation);
-//        orientation = orientation.rotateLocalX((float) Math.toRadians(rotThrust.x));
-//        orientation = orientation.rotateLocalY((float) Math.toRadians(rotThrust.y));
-//        orientation = orientation.rotateLocalZ((float) Math.toRadians(rotThrust.z));
-//        orientation = orientation.normalize();
-//
-//        entityData.set(ORIENTATION, new Quaternionf(orientation));
-//        Minagic.LOGGER.info("Entity: {}, quaternion after {}", this.debugIdentity(), orientation);
-//        snapPassengersToShipRotation();
-//    }
 
     @Override
 
@@ -502,31 +246,55 @@ public class ArcaneShipEntity extends LivingEntity {
                 .yRot(-getYRot() * Mth.DEG_TO_RAD);
     }
 
-    private void snapPassengersToShipRotation() {
-
-        for (Entity passenger : getPassengers()) {
-
-            passenger.setYRot(getYRot());
-
-            passenger.setXRot(getXRot());
-
-            passenger.setYHeadRot(getYRot());
-
-            if (passenger instanceof LivingEntity living) {
-
-                living.setYBodyRot(getYRot());
-
-            }
-
-        }
-
+    public PhysicsData getPhysicsData() {
+        return new PhysicsData(
+                getDragProfile(),
+                new Vec3(Math.toRadians(1f), Math.toRadians(1f), Math.toRadians(2f)),
+                0.7f,
+                2F,
+                1/30F,
+                createEngines()
+        );
     }
 
-    private static int clampDiscrete(float value) {
+    private static Map<EngineDirection, EngineSystem> createEngines() {
+        EnumMap<EngineDirection, EngineSystem> engines =
+                new EnumMap<>(EngineDirection.class);
 
-        return Float.compare(value, 0);
+        engines.put(
+                EngineDirection.FORWARD,
+                new EngineSystem(1.00F, 8.0F)
+        );
 
+        engines.put(
+                EngineDirection.BACKWARD,
+                new EngineSystem(0.45F, 5.0F)
+        );
+
+        engines.put(
+                EngineDirection.RIGHT,
+                new EngineSystem(0.55F, 5.0F)
+        );
+
+        engines.put(
+                EngineDirection.LEFT,
+                new EngineSystem(0.55F, 5.0F)
+        );
+
+        engines.put(
+                EngineDirection.UP,
+                new EngineSystem(0.80F, 7.0F)
+        );
+
+        engines.put(
+                EngineDirection.DOWN,
+                new EngineSystem(0.35F, 4.0F)
+        );
+
+        return engines;
     }
+
+
     // DANGER ZONE
     public static class Renderer
             extends EntityRenderer<ArcaneShipEntity, Renderer.State> {
@@ -554,9 +322,57 @@ public class ArcaneShipEntity extends LivingEntity {
 
         }
 
+
+
         @Override
         public @NotNull State createRenderState() {
             return new State();
+        }
+        private static final float DEBUG_AXIS_LENGTH = 4.0F;
+
+        private void renderAxes(
+                PoseStack.Pose pose,
+                VertexConsumer consumer
+        ) {
+            Matrix4f matrix = pose.pose();
+
+            addLine(
+                    consumer, matrix,
+                    0,0,0,
+                    DEBUG_AXIS_LENGTH,0,0,
+                    255,0,0,255
+            );
+
+            addLine(
+                    consumer, matrix,
+                    0,0,0,
+                    0,DEBUG_AXIS_LENGTH,0,
+                    0,255,0,255
+            );
+
+            addLine(
+                    consumer, matrix,
+                    0,0,0,
+                    0,0,DEBUG_AXIS_LENGTH,
+                    0,128,255,255
+            );
+        }
+        private void addLine(
+                VertexConsumer consumer,
+                Matrix4f matrix,
+
+                float x1, float y1, float z1,
+                float x2, float y2, float z2,
+
+                int r, int g, int b, int a
+        ) {
+            consumer.addVertex(matrix, x1, y1, z1)
+                    .setColor(r, g, b, a)
+                    .setNormal(0, 1, 0);
+
+            consumer.addVertex(matrix, x2, y2, z2)
+                    .setColor(r, g, b, a)
+                    .setNormal(0, 1, 0);
         }
 
         @Override
@@ -566,7 +382,7 @@ public class ArcaneShipEntity extends LivingEntity {
                 float partialTick
         ) {
             super.extractRenderState(entity, state, partialTick);
-            state.orientation.set(entity.getEntityData().get(ORIENTATION));
+            state.orientation.set(entity.getEntityData().get(SHIP_STATE).orientation());
             //Minagic.LOGGER.info("Entity: {}, quaternion: {}", entity.debugIdentity(), entity.getEntityData().get(ORIENTATION));
 
 
@@ -741,6 +557,8 @@ public class ArcaneShipEntity extends LivingEntity {
                     255,80,80,255
             );
 
+            //this.renderAxes(pose, consumer);
+
         }
 
 
@@ -877,7 +695,7 @@ public class ArcaneShipEntity extends LivingEntity {
         }
     }
 
-    private String debugIdentity() {
+    public String debugIdentity() {
 
         return String.format(
 

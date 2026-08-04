@@ -20,7 +20,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 
-public record ClientShipInputPacket(float vertical, float forward, float strafe, float pitch, float yaw, float roll) implements CustomPacketPayload {
+public record ClientShipInputPacket(float vertical, float forward, float strafe, float pitch, float yaw, float roll, boolean reset) implements CustomPacketPayload {
     public static final Type<ClientShipInputPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "client_ship_input_packet"));
     public static final Codec<ClientShipInputPacket> CODEC = RecordCodecBuilder.create(instance ->
@@ -30,7 +30,8 @@ public record ClientShipInputPacket(float vertical, float forward, float strafe,
                     Codec.FLOAT.fieldOf("strafe").forGetter(ClientShipInputPacket::strafe),
                     Codec.FLOAT.fieldOf("pitch").forGetter(ClientShipInputPacket::pitch),
                     Codec.FLOAT.fieldOf("yaw").forGetter(ClientShipInputPacket::yaw),
-                    Codec.FLOAT.fieldOf("roll").forGetter(ClientShipInputPacket::roll)
+                    Codec.FLOAT.fieldOf("roll").forGetter(ClientShipInputPacket::roll),
+                    Codec.BOOL.fieldOf("reset").forGetter(ClientShipInputPacket::reset)
             ).apply(instance, ClientShipInputPacket::new)
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientShipInputPacket> STREAM_CODEC =
@@ -47,6 +48,8 @@ public record ClientShipInputPacket(float vertical, float forward, float strafe,
                     ClientShipInputPacket::yaw,
                     ByteBufCodecs.FLOAT,
                     ClientShipInputPacket::roll,
+                    ByteBufCodecs.BOOL,
+                    ClientShipInputPacket::reset,
                     ClientShipInputPacket::new
             );
 
@@ -56,6 +59,7 @@ public record ClientShipInputPacket(float vertical, float forward, float strafe,
         //if (ship.getControllingPassenger() != serverPlayer) return;
 
         ship.acceptInputs(ClientShipInputHandler.ShipInput.fromPacket(pkt));
+
 
 
     }

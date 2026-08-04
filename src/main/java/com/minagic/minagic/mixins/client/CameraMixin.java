@@ -43,7 +43,7 @@ public abstract class CameraMixin {
         }
         if (ClientKeybinds.SHIP_FREELOOK.isDown()) return;
         if (cameraEntity.getVehicle() instanceof ArcaneShipEntity ship){
-            Quaternionf shipRotation = ship.getOrientation();
+            Quaternionf shipRotation = ship.getState().orientation();
 
             Vector3f shipUp = new Vector3f(0.0F, 1.0F, 0.0F)
                     .rotate(shipRotation);
@@ -120,7 +120,7 @@ public abstract class CameraMixin {
 
         );
 
-        Vector3f worldOffset = new Quaternionf(ship.getOrientation())
+        Vector3f worldOffset = new Quaternionf(ship.getState().orientation())
 
                 .transform(localCockpitOffset);
 

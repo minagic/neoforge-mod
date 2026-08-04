@@ -14,6 +14,7 @@ public final class ModRegistries {
         ModAttachments.register(modEventBus);
         ModParticles.register(modEventBus);
         MinagicNetwork.register(modEventBus);
+        ModEntityDataSerializers.register(modEventBus);
 
         ModSpells.register();
         ModPowerSources.register();

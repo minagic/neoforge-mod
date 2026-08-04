@@ -35,5 +35,9 @@ public class ClientInputHandler {
                 minecraft.setScreen(spellcastingItem.getEditorScreen(player, stack));
             }
         }
+
+        if (ClientKeybinds.SHIP_TEST != null && ClientKeybinds.SHIP_TEST.consumeClick()){
+            ShipFlightTestRunner.runAllTests();
+        }
     }
 }

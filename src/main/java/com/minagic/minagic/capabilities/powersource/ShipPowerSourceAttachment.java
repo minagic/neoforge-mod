@@ -17,6 +17,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 
 public final class ShipPowerSourceAttachment
@@ -73,7 +74,7 @@ public final class ShipPowerSourceAttachment
     @Override
     public boolean canConsume(
             @NotNull SpellCastContext context,
-            @NotNull SimulacrumData simulacrum,
+            @Nullable SimulacrumData simulacrum,
             int magicCost
     ) {
         return magicCost >= 0 && fuel >= magicCost;
@@ -82,7 +83,7 @@ public final class ShipPowerSourceAttachment
     @Override
     public void consume(
             @NotNull SpellCastContext context,
-            @NotNull SimulacrumData simulacrum,
+            @Nullable SimulacrumData simulacrum,
             int magicCost
     ) {
         if (magicCost <= 0) {

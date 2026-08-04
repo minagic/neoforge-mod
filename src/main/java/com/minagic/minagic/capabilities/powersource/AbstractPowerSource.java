@@ -40,13 +40,13 @@ public abstract class AbstractPowerSource {
 
     public abstract boolean canConsume(
             @NotNull SpellCastContext context,
-            @NotNull SimulacrumData simulacrum,
+            @Nullable SimulacrumData simulacrum,
             int magicCost
     );
 
     public abstract void consume(
             @NotNull SpellCastContext context,
-            @NotNull SimulacrumData simulacrum,
+            @Nullable SimulacrumData simulacrum,
             int magicCost
     );
 

@@ -2,11 +2,17 @@ package com.minagic.minagic.client.input;
 
 import com.minagic.minagic.common.network.packets.ClientShipInputPacket;
 import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
+import com.minagic.minagic.wizard.starships.utilities.ShipState;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.Options;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -21,26 +27,15 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class ClientShipInputHandler {
-    public static class ShipInput{
-        public float vertical;
-        public float forward;
-        public float strafe;
+    public record ShipInput(float vertical, float forward, float strafe, float pitch, float yaw, float roll){
 
-        public float pitch;
-        public float yaw;
-        public float roll;
 
-        public ShipInput(float vertical, float forward, float strafe, float pitch, float yaw, float roll) {
-            this.vertical = vertical;
-            this.forward = forward;
-            this.strafe = strafe;
-            this.pitch = pitch;
-            this.yaw = yaw;
-            this.roll = roll;
+        public ShipInput uninvertYawPitch(){
+            return new ShipInput(vertical, forward, strafe, -pitch, -yaw, roll);
         }
 
         public ClientShipInputPacket createPacket(){
-            return new ClientShipInputPacket(vertical, forward, strafe, pitch, yaw, roll);
+            return new ClientShipInputPacket(vertical, forward, strafe, pitch, yaw, roll, false);
         }
 
         public static ShipInput fromPacket(ClientShipInputPacket pkt){
@@ -48,7 +43,7 @@ public class ClientShipInputHandler {
 
         }
 
-        public static ShipInput NONE = new ShipInput(0,0,0,0,0,0);
+        public static ShipInput NONE() {return new ShipInput(0,0,0,0,0,0);}
 
         public ShipInput sanitized() {
 
@@ -86,6 +81,33 @@ public class ClientShipInputHandler {
         public String toString(){
             return "Ship input: Vertical: %f, Forward: %f, Strafe: %f, Pitch: %f, Yaw: %f, Roll: %f ".formatted(vertical, forward, strafe, pitch, yaw, roll);
         }
+
+        public static Codec<ShipInput> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.FLOAT.fieldOf("strafe").forGetter(si -> si.strafe),
+                Codec.FLOAT.fieldOf("vertical").forGetter(si -> si.vertical),
+                Codec.FLOAT.fieldOf("forward").forGetter(si -> si.forward),
+                Codec.FLOAT.fieldOf("pitch").forGetter(si -> si.pitch),
+                Codec.FLOAT.fieldOf("yaw").forGetter(si -> si.yaw),
+                Codec.FLOAT.fieldOf("roll").forGetter(si -> si.roll)
+
+        ).apply(instance, ShipInput::new));
+
+        public static StreamCodec<FriendlyByteBuf, ShipInput> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.FLOAT,
+                ShipInput::strafe,
+                ByteBufCodecs.FLOAT,
+                ShipInput::vertical,
+                ByteBufCodecs.FLOAT,
+                ShipInput::forward,
+                ByteBufCodecs.FLOAT,
+                ShipInput::pitch,
+                ByteBufCodecs.FLOAT,
+                ShipInput::yaw,
+                ByteBufCodecs.FLOAT,
+                ShipInput::roll,
+                ShipInput::new
+
+        );
     }
 
 
@@ -131,7 +153,7 @@ public class ClientShipInputHandler {
 
             if (player == null || minecraft.screen != null) {
 
-                return ShipInput.NONE;
+                return ShipInput.NONE();
 
             }
 

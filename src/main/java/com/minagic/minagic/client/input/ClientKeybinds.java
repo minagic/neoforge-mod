@@ -12,6 +12,7 @@ public class ClientKeybinds {
     public static KeyMapping SHOW_SPELL_HUD;
     public static KeyMapping DESCEND;
     public static KeyMapping SHIP_FREELOOK;
+    public static KeyMapping SHIP_TEST;
 
     public static void registerKeybinds(RegisterKeyMappingsEvent event) {
         CYCLE_SPELL = new KeyMapping(
@@ -80,6 +81,14 @@ public class ClientKeybinds {
         );
 
         event.register(SHIP_FREELOOK);
+
+        SHIP_TEST = new KeyMapping(
+                "key.minagic.ship.testRot",
+                GLFW.GLFW_KEY_B,
+                KeyMapping.Category.MISC
+        );
+
+        event.register(SHIP_TEST);
     }
 
 }
