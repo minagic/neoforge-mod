@@ -33,9 +33,10 @@ public abstract class ArcaneShipProjectile extends SpellProjectileEntity {
     @Override
     public void hitEntity(EntityHitResult hitResult){
         if (this.level().isClientSide()) return;
+        if (!(hitResult.getEntity() instanceof LivingEntity living)) return;
         MinagicDamage damage = new MinagicDamage(
                 (Entity) SpellUtils.resolveLivingEntityAcrossDimensions(sourceUUID, level().getServer()),
-                (LivingEntity) hitResult.getEntity(),
+                living,
                 SpellUtils.resolveLivingEntityAcrossDimensions(shipUUID, level().getServer()),
                 baseDmg, tags);
         damage.hurt((ServerLevel) this.level());
