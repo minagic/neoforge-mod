@@ -116,7 +116,7 @@ public abstract class CameraMixin {
 
                 1.2F,
 
-                0.8F
+                3F
 
         );
 
