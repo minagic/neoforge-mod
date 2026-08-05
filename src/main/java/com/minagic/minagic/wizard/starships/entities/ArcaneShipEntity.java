@@ -276,6 +276,43 @@ public class ArcaneShipEntity extends LivingEntity {
         );
     }
 
+    public Ordnance getOrdnance(){
+        Ordnance mk1MissileRack = new Ordnance(
+
+                (level, position, direction, pilot, ship) ->
+
+                        new MK1Missile(
+
+                                ModEntityTypes.MK1_MISSILE.get(),
+
+                                level
+
+                        ).create(
+
+                                level,
+
+                                position,
+
+                                direction,
+
+                                pilot,
+
+                                ship
+
+                        ),
+
+                new Vec3(0.0, -0.3, 2.5),
+
+                new Vec3(0.0, 0.0, 1.0),
+
+                500,
+
+                4
+
+        );
+        return mk1MissileRack;
+    }
+
     public static class MK1Bullet extends ArcaneShipProjectile implements ItemSupplier {
 
         public MK1Bullet(EntityType<? extends ArcaneShipProjectile> type, Level level) {

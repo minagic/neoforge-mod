@@ -9,6 +9,7 @@ import com.minagic.minagic.sorcerer.spells.VoidBlastEntity;
 import com.minagic.minagic.spells.FireballEntity;
 import com.minagic.minagic.utilities.ProjectilePortal;
 import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
+import com.minagic.minagic.wizard.starships.entities.MK1Missile;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -94,6 +95,13 @@ public final class ModEntityTypes {
                             .clientTrackingRange(32) // Tracking range
                             .updateInterval(1) // Update interval
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":mk1_bullet"))));
+    public static final DeferredHolder<EntityType<?>, EntityType<MK1Missile>> MK1_MISSILE =
+            ENTITY_TYPES.register("mk1_missile",
+                    () -> EntityType.Builder.<MK1Missile>of(MK1Missile::new, MobCategory.MISC)
+                            .sized(0.5F, 0.5F) // Size of the entity
+                            .clientTrackingRange(32) // Tracking range
+                            .updateInterval(1) // Update interval
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":mk1_missile"))));
 
 
     public static void register(IEventBus bus) {

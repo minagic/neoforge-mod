@@ -1,5 +1,6 @@
 package com.minagic.minagic.utilities;
 
+import com.minagic.minagic.Minagic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -131,7 +132,8 @@ public class SpellUtils {
             }
         }
 
-        throw new InvalidParameterException("Entity with UUID: " + uuid + " not found");
+        Minagic.LOGGER.error("Entity with UUID: " + uuid + " not found");
+        return null;
     }
 
 }

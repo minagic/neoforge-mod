@@ -88,6 +88,18 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
                     false
             );
         }
+
+        public ProjectilePhysicsData changeDirection(Vec3 direction){
+            return new ProjectilePhysicsData(
+                    speed,
+                    direction,
+                    gravity,
+                    pierceBlocks,
+                    pierceEntities,
+                    maxEntityPierce ,
+                    isFrozen
+            );
+        }
     }
 
 
@@ -154,6 +166,51 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
         }
     }
 
+
+    public interface HomingComputer {
+
+        Vec3 changeDir(
+
+                SpellProjectileEntity projectile,
+
+                Vec3 currentDirection
+
+        );
+
+        boolean stillLockedOn(SpellProjectileEntity projectile);
+
+        HomingComputer NONE = new NoHomingComputer();
+
+
+
+    }
+
+
+
+    public static final class NoHomingComputer implements HomingComputer {
+
+        @Override
+
+        public Vec3 changeDir(
+
+                SpellProjectileEntity projectile,
+
+                Vec3 currentDirection
+
+        ) {
+
+            return currentDirection;
+
+        }
+
+        public boolean stillLockedOn(SpellProjectileEntity projectile){
+            return true;
+        }
+
+    }
+
+
+    public HomingComputer computer = HomingComputer.NONE;
     @Override
     public void tick() {
         super.tick();
@@ -162,6 +219,7 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
             return;
         }
         createPhysicsIfNull();
+        this.physics = this.physics.changeDirection(computer.changeDir(this, this.physics.direction));
         Vec3 dir = this.physics.direction.normalize();
         Vec3 delta = dir.scale(this.physics.speed).add(0.0, -this.physics.gravity, 0.0);
 

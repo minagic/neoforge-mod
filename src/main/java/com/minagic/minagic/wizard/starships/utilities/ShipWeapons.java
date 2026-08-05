@@ -29,4 +29,9 @@ public class ShipWeapons {
 
     }
 
+    public static void fireOrdnance(ArcaneShipEntity ship){
+        if (ship.getPilot() == null) return;
+        ship.getOrdnance().fire(ship, ship.getPilot().getUUID());
+    }
+
 }

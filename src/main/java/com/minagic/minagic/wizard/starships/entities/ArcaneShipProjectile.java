@@ -40,5 +40,6 @@ public abstract class ArcaneShipProjectile extends SpellProjectileEntity {
                 SpellUtils.resolveLivingEntityAcrossDimensions(shipUUID, level().getServer()),
                 baseDmg, tags);
         damage.hurt((ServerLevel) this.level());
+        this.discard();
     }
 }
