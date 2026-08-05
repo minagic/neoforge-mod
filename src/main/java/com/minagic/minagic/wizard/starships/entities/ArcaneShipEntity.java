@@ -1,12 +1,16 @@
 package com.minagic.minagic.wizard.starships.entities;
 
+import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
+import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.capabilities.hudAlerts.FlightControls;
 import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
 import com.minagic.minagic.client.input.ClientShipInputHandler;
+import com.minagic.minagic.common.registry.ModEntityTypes;
 import com.minagic.minagic.wizard.starships.utilities.*;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -26,15 +30,18 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ItemSupplier;
+import net.minecraft.world.item.ItemFrameItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 
 import java.lang.Math;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ArcaneShipEntity extends LivingEntity {
     public ShipState state = ShipState.DEFAULT();
@@ -97,6 +104,8 @@ public class ArcaneShipEntity extends LivingEntity {
     ) {
         if (!level().isClientSide()) {
             player.startRiding(this);
+            ActivePowerSourceAttachment.getActivePowerSource(player).deactivate();
+            ActivePowerSourceAttachment.activate(player, ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "power_source_wizardry"));
         }
 
         return InteractionResult.SUCCESS;
@@ -257,13 +266,50 @@ public class ArcaneShipEntity extends LivingEntity {
         );
     }
 
-    private static Map<EngineDirection, EngineSystem> createEngines() {
+    public PrimaryData getPrimaryData(){
+        return new PrimaryData(
+                List.of(new Vec3(1.3, 0, 3.2),new Vec3(-1.3, 0, 3.2), new Vec3(0, 0, 3.2)),
+                List.of(new Vec3(0, 0, 1), new Vec3(0, 0, 1), new Vec3(0, 0, 1)),
+                2,
+                1,
+                new MK1Bullet(ModEntityTypes.MK1_BULLET.get(), this.level())
+        );
+    }
+
+    public static class MK1Bullet extends ArcaneShipProjectile implements ItemSupplier {
+
+        public MK1Bullet(EntityType<? extends ArcaneShipProjectile> type, Level level) {
+            super(type, level);
+        }
+
+        @Override
+        public ArcaneShipProjectile create(Level level, Vec3 pos, Vec3 dir, UUID sourceUUID, UUID shipUUID) {
+            MK1Bullet bullet = new MK1Bullet(ModEntityTypes.MK1_BULLET.get(), level);
+            bullet.baseDmg = 10;
+            bullet.shipUUID = shipUUID;
+            bullet.sourceUUID = sourceUUID;
+            bullet.direction = dir;
+            bullet.speed = 5;
+            bullet.gravity = 0;
+            bullet.setPos(pos);
+            bullet.tags = Set.of(DamageTypes.MAGIC, DamageTypes.INJURY, DamageTypes.ETHEREAL);
+            level.addFreshEntity(bullet);
+            return bullet;
+        }
+
+        @Override
+        public ItemStack getItem() {
+            return new ItemStack(Items.PRISMARINE_SHARD);
+        }
+    }
+
+    protected static Map<EngineDirection, EngineSystem> createEngines() {
         EnumMap<EngineDirection, EngineSystem> engines =
                 new EnumMap<>(EngineDirection.class);
 
         engines.put(
                 EngineDirection.FORWARD,
-                new EngineSystem(1.00F, 8.0F)
+                new EngineSystem(0.5F, 8.0F)
         );
 
         engines.put(
@@ -283,18 +329,16 @@ public class ArcaneShipEntity extends LivingEntity {
 
         engines.put(
                 EngineDirection.UP,
-                new EngineSystem(0.80F, 7.0F)
+                new EngineSystem(0.4F, 7.0F)
         );
 
         engines.put(
                 EngineDirection.DOWN,
-                new EngineSystem(0.35F, 4.0F)
+                new EngineSystem(0.2F, 4.0F)
         );
 
         return engines;
     }
-
-
     // DANGER ZONE
     public static class Renderer
             extends EntityRenderer<ArcaneShipEntity, Renderer.State> {

@@ -9,6 +9,7 @@ import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -25,6 +26,7 @@ import org.joml.Matrix3x2fStack;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.List;
 
 
 public class FlightControls implements AutoDetection.IRenderableAttachment {
@@ -572,6 +574,8 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
         drawFlightTarget(gui, screenX + 1, screenY + 1, 0xA0000000);
         drawFlightTarget(gui, screenX, screenY, 0xFFD050FF);
 
+        drawPrimaryReticles(ship, gui);
+
 
     }
 
@@ -720,6 +724,222 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
                 y += sy;
             }
         }
+    }
+
+    private static final double PRIMARY_RETICLE_RANGE = 100.0;
+    private static final double VECTOR_EPSILON = 1.0E-8;
+
+    private static void drawPrimaryReticles(
+            ArcaneShipEntity ship,
+            GuiGraphics gui
+    ) {
+        List<Vec3> positions = ship.getPrimaryData().positions();
+        List<Vec3> directions = ship.getPrimaryData().directions();
+
+        int volleyCount = Math.min(
+                positions.size(),
+                directions.size()
+        );
+
+        if (volleyCount == 0) {
+            return;
+        }
+
+        /*
+         * Never mutate the quaternion stored in ShipState.
+         */
+        Quaternionf orientation =
+                new Quaternionf(ship.getState().orientation())
+                        .normalize();
+
+        Minecraft minecraft = Minecraft.getInstance();
+        Camera camera = minecraft.gameRenderer.getMainCamera();
+
+        /*
+         * This is the direction which projectPointToScreen() considers the
+         * center of the visible screen.
+         */
+        Vector3f cameraForwardF = new Vector3f(
+                0.0F,
+                0.0F,
+                1.0F
+        );
+
+        camera.rotation().transform(cameraForwardF);
+
+        Vec3 cameraForward = new Vec3(cameraForwardF).normalize();
+        Vec3 cameraPosition = camera.position();
+
+        for (int i = 0; i < volleyCount; i++) {
+            Vec3 localPosition = positions.get(i);
+            Vec3 localDirection = directions.get(i);
+
+            if (localDirection.lengthSqr() < VECTOR_EPSILON) {
+                continue;
+            }
+
+            /*
+             * Convert the muzzle offset from ship-local coordinates into
+             * world coordinates.
+             */
+            Vector3f worldOffsetF =
+                    orientation.transform(
+                            localPosition.toVector3f(),
+                            new Vector3f()
+                    );
+
+            Vec3 muzzleWorldPosition = ship.position().add(
+                    worldOffsetF.x,
+                    worldOffsetF.y,
+                    worldOffsetF.z
+            );
+
+            /*
+             * Convert the barrel direction from ship-local coordinates into
+             * world coordinates.
+             */
+            Vector3f worldDirectionF =
+                    orientation.transform(
+                            localDirection.toVector3f(),
+                            new Vector3f()
+                    ).normalize();
+
+            Vec3 worldDirection =
+                    new Vec3(worldDirectionF);
+
+            /*
+             * Pick a point some distance along the barrel ray.
+             */
+            Vec3 targetPoint = muzzleWorldPosition.add(
+                    worldDirection.scale(PRIMARY_RETICLE_RANGE)
+            );
+
+            /*
+             * Do not draw a mirrored marker for a point behind the camera.
+             */
+            Vec3 cameraToTarget =
+                    targetPoint.subtract(cameraPosition);
+
+            if (cameraToTarget.dot(cameraForward) <= 0.0) {
+                continue;
+            }
+
+            Vec3 ndc = minecraft.gameRenderer
+                    .projectPointToScreen(targetPoint);
+
+            if (!Double.isFinite(ndc.x)
+                    || !Double.isFinite(ndc.y)
+                    || !Double.isFinite(ndc.z)) {
+                continue;
+            }
+
+            int screenX = Math.round(
+                    (float) (
+                            (ndc.x + 1.0)
+                                    * 0.5
+                                    * gui.guiWidth()
+                    )
+            );
+
+            int screenY = Math.round(
+                    (float) (
+                            (1.0 - ndc.y)
+                                    * 0.5
+                                    * gui.guiHeight()
+                    )
+            );
+
+            /*
+             * Skip markers outside the visible GUI. You could clamp these
+             * later if you want edge indicators.
+             */
+            if (screenX < 0
+                    || screenX >= gui.guiWidth()
+                    || screenY < 0
+                    || screenY >= gui.guiHeight()) {
+                continue;
+            }
+
+            drawPrimaryReticle(
+                    gui,
+                    screenX,
+                    screenY,
+                    i
+            );
+        }
+    }
+    private static void drawPrimaryReticle(
+            GuiGraphics gui,
+            int centerX,
+            int centerY,
+            int index
+    ) {
+        final int color = 0xFFFF5555;
+        final int shadow = 0xA0000000;
+
+        /*
+         * Slightly vary the radius so overlapping gun markers remain visible.
+         */
+        int radius = 3 + index % 2;
+
+        drawPrimaryReticleShape(
+                gui,
+                centerX + 1,
+                centerY + 1,
+                radius,
+                shadow
+        );
+
+        drawPrimaryReticleShape(
+                gui,
+                centerX,
+                centerY,
+                radius,
+                color
+        );
+    }
+
+    private static void drawPrimaryReticleShape(
+            GuiGraphics gui,
+            int centerX,
+            int centerY,
+            int radius,
+            int color
+    ) {
+        /*
+         * Four disconnected ticks around the computed bore point.
+         */
+        gui.fill(
+                centerX - radius - 2,
+                centerY,
+                centerX - radius,
+                centerY + 1,
+                color
+        );
+
+        gui.fill(
+                centerX + radius + 1,
+                centerY,
+                centerX + radius + 3,
+                centerY + 1,
+                color
+        );
+
+        gui.fill(
+                centerX,
+                centerY - radius - 2,
+                centerX + 1,
+                centerY - radius,
+                color
+        );
+
+        gui.fill(
+                centerX,
+                centerY + radius + 1,
+                centerX + 1,
+                centerY + radius + 3,
+                color
+        );
     }
 
     @Override

@@ -1,9 +1,11 @@
 package com.minagic.minagic.utilities;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.MagicClassEnums.DeityEnum;
 import com.minagic.minagic.capabilities.MagicClass;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerClassEnum;
 import com.minagic.minagic.capabilities.MagicClassEnums.PlayerSubClassEnum;
+import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
 import com.minagic.minagic.registries.ModAttachments;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -13,6 +15,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.neoforge.server.command.EnumArgument;
 
@@ -38,52 +41,7 @@ public class SetClassCommand {
     }
 
     private static int apply(CommandContext<CommandSourceStack> ctx, boolean withDeity, boolean withSubclasses) throws CommandSyntaxException {
-        PlayerClassEnum main = ctx.getArgument("main", PlayerClassEnum.class);
-
-        MagicClass pc = new MagicClass();
-        pc.setMainClass(main);
-
-        if (withDeity) {
-            DeityEnum deity = ctx.getArgument("deity", DeityEnum.class);
-            if (!pc.setDeity(deity)) {
-                ctx.getSource().sendFailure(Component.literal("Invalid deity " + deity.name() + " for " + main.name()));
-                return 0;
-            }
-        }
-
-        if (withSubclasses) {
-            String subclassesRaw = StringArgumentType.getString(ctx, "subclasses");
-
-            for (String entry : subclassesRaw.split(",")) {
-                String[] pair = entry.trim().split(":");
-                if (pair.length != 2) {
-                    ctx.getSource().sendFailure(Component.literal("Invalid subclass format: " + entry));
-                    return 0;
-                }
-
-                try {
-                    PlayerSubClassEnum subclass = PlayerSubClassEnum.valueOf(pair[0].toUpperCase(Locale.ROOT));
-                    int level = Integer.parseInt(pair[1]);
-
-                    if (!pc.setSubclassLevel(subclass, level)) {
-                        ctx.getSource().sendFailure(Component.literal("Subclass " + subclass.name() + " is not valid for " + main.name()));
-                        return 0;
-                    }
-
-                } catch (Exception e) {
-                    ctx.getSource().sendFailure(Component.literal("Error parsing subclass: " + entry));
-                    return 0;
-                }
-            }
-        }
-
-        for (Entity entity : EntityArgument.getEntities(ctx, "player")) {
-            entity.setData(ModAttachments.PLAYER_CLASS, pc);
-            ctx.getSource().sendSuccess(() ->
-                    Component.literal("Updated class of " + entity.getName().getString() + " to " + main.name()), true);
-        }
-
-
-        return 1;
+        ActivePowerSourceAttachment.activate(ctx.getSource().getEntity(), ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "power_source_wizardry"));
+        return 0;
     }
 }

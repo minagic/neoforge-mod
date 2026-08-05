@@ -99,6 +99,8 @@ public class ModAttachments {
     public static final Supplier<AttachmentType<WizardryPowerSourceAttachment>> WIZARDRY_POWER_SOURCE =
             ATTACHMENTS.register("power_source_wizardry", () ->
                     AttachmentType.builder(WizardryPowerSourceAttachment::new)
+                            .serialize(new WizardryPowerSourceAttachment.Serializer())
+                            .copyOnDeath()
                             .build()
             );
 

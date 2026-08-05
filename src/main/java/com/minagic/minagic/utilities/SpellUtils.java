@@ -126,10 +126,11 @@ public class SpellUtils {
     public static LivingEntity resolveLivingEntityAcrossDimensions(UUID uuid, MinecraftServer server) {
         for (ServerLevel level : server.getAllLevels()) {
             Entity entity = level.getEntity(uuid);
-            if (entity instanceof LivingEntity living && living.isAlive()) {
+            if (entity instanceof LivingEntity living) {
                 return living;
             }
         }
+
         throw new InvalidParameterException("Entity with UUID: " + uuid + " not found");
     }
 

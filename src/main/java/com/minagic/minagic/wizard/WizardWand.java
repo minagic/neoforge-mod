@@ -17,7 +17,7 @@ public class WizardWand extends SpellcastingItem<WizardWandData> {
 
     @Override
     public boolean canCastSpell(Spell spell) {
-        return false;
+        return true;
     }
 
     @SuppressWarnings("unchecked")

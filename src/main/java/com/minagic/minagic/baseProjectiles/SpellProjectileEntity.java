@@ -31,7 +31,7 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
     protected int maxPierce = 10000000; // effectively infinite
 
 
-    public record PhysicsData(
+    public record ProjectilePhysicsData(
             double speed,
             Vec3 direction,
             double gravity,
@@ -41,20 +41,20 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
             boolean isFrozen
     ) {
 
-        public static final Codec<PhysicsData> CODEC = RecordCodecBuilder.create(instance ->
+        public static final Codec<ProjectilePhysicsData> CODEC = RecordCodecBuilder.create(instance ->
                 instance.group(
-                        Codec.DOUBLE.fieldOf("speed").forGetter(PhysicsData::speed),
-                        Vec3.CODEC.fieldOf("direction").forGetter(PhysicsData::direction),
-                        Codec.DOUBLE.fieldOf("gravity").forGetter(PhysicsData::gravity),
-                        Codec.BOOL.fieldOf("pierceBlocks").forGetter(PhysicsData::pierceBlocks),
-                        Codec.BOOL.fieldOf("pierceEntities").forGetter(PhysicsData::pierceEntities),
-                        Codec.INT.fieldOf("maxEntityPierce").forGetter(PhysicsData::maxEntityPierce),
-                        Codec.BOOL.fieldOf("isFrozen").forGetter(PhysicsData::isFrozen)
-                ).apply(instance, PhysicsData::new)
+                        Codec.DOUBLE.fieldOf("speed").forGetter(ProjectilePhysicsData::speed),
+                        Vec3.CODEC.fieldOf("direction").forGetter(ProjectilePhysicsData::direction),
+                        Codec.DOUBLE.fieldOf("gravity").forGetter(ProjectilePhysicsData::gravity),
+                        Codec.BOOL.fieldOf("pierceBlocks").forGetter(ProjectilePhysicsData::pierceBlocks),
+                        Codec.BOOL.fieldOf("pierceEntities").forGetter(ProjectilePhysicsData::pierceEntities),
+                        Codec.INT.fieldOf("maxEntityPierce").forGetter(ProjectilePhysicsData::maxEntityPierce),
+                        Codec.BOOL.fieldOf("isFrozen").forGetter(ProjectilePhysicsData::isFrozen)
+                ).apply(instance, ProjectilePhysicsData::new)
         );
 
-        public PhysicsData decreasedHitLimit(){
-            return new PhysicsData(
+        public ProjectilePhysicsData decreasedHitLimit(){
+            return new ProjectilePhysicsData(
                     speed,
                     direction,
                     gravity,
@@ -65,8 +65,8 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
             );
         }
 
-        public PhysicsData freeze(){
-            return new PhysicsData(
+        public ProjectilePhysicsData freeze(){
+            return new ProjectilePhysicsData(
                     speed,
                     direction,
                     gravity,
@@ -77,8 +77,8 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
             );
         }
 
-        public PhysicsData unfreeze(){
-            return new PhysicsData(
+        public ProjectilePhysicsData unfreeze(){
+            return new ProjectilePhysicsData(
                     speed,
                     direction,
                     gravity,
@@ -90,7 +90,8 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
         }
     }
 
-    public @Nullable PhysicsData physics;
+
+    public @Nullable SpellProjectileEntity.ProjectilePhysicsData physics;
 
     public SpellProjectileEntity(EntityType<? extends SpellProjectileEntity> type, Level level) {
         super(type, level);
@@ -105,8 +106,8 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
         }
     }
     @Deprecated
-    protected PhysicsData buildFromLegacy(){
-        return new PhysicsData(
+    protected ProjectilePhysicsData buildFromLegacy(){
+        return new ProjectilePhysicsData(
                 this.speed,
                 this.direction,
                 this.gravity,
@@ -122,14 +123,14 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
     protected void addAdditionalSaveData(ValueOutput output) {
         // --- Physics ---
         if (this.physics != null) {
-            output.store("physics", PhysicsData.CODEC, this.physics);
+            output.store("physics", ProjectilePhysicsData.CODEC, this.physics);
         }
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
-        this.physics = input.read("physics", PhysicsData.CODEC)
-                .orElse(new PhysicsData(
+        this.physics = input.read("physics", ProjectilePhysicsData.CODEC)
+                .orElse(new ProjectilePhysicsData(
                         0.0,
                         Vec3.ZERO,
                         0.0,
@@ -141,7 +142,7 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
 
         // --- Sanity guard (VERY important) ---
         if (this.physics.direction().lengthSqr() < 1e-6) {
-            this.physics = new PhysicsData(
+            this.physics = new ProjectilePhysicsData(
                     this.physics.speed(),
                     new Vec3(0, 0, 1), // safe fallback direction
                     this.physics.gravity(),

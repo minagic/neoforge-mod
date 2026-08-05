@@ -56,7 +56,7 @@ public class ShipPhysics {
 
         Vec3 worldForce = new Vec3(worldThrust);
         Vec3 drag = computeDragVector(ship);
-        Vec3 gravity = new Vec3(0, -0.08, 0).scale(ship.getPhysicsData().mass());
+        Vec3 gravity = new Vec3(0, -0.1, 0).scale(ship.getPhysicsData().mass());
 
         Vec3 net = worldForce.add(drag).add(gravity);
 
@@ -69,20 +69,8 @@ public class ShipPhysics {
         Vec3 acceleration = net.scale(1.0 / ship.getPhysicsData().mass());
         Vec3 nextVelocity = oldVelocity.add(acceleration);
 
-        Minagic.LOGGER.info(
-                "BEFORE set: old={} force={} accel={} calculated={}",
-                oldVelocity,
-                net,
-                acceleration,
-                nextVelocity
-        );
-
         ship.setDeltaMovement(nextVelocity);
 
-        Minagic.LOGGER.info(
-                "AFTER set: stored={}",
-                ship.getDeltaMovement()
-        );
     }
 
     public static Vec3 computeDragVector(ArcaneShipEntity ship) {

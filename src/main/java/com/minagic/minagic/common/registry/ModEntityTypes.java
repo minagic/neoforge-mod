@@ -87,6 +87,13 @@ public final class ModEntityTypes {
                             .clientTrackingRange(64)
                             .updateInterval(1)
                             .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MODID, "arcane_ship"))));
+    public static final DeferredHolder<EntityType<?>, EntityType<ArcaneShipEntity.MK1Bullet>> MK1_BULLET =
+            ENTITY_TYPES.register("mk1_bullet",
+                    () -> EntityType.Builder.<ArcaneShipEntity.MK1Bullet>of(ArcaneShipEntity.MK1Bullet::new, MobCategory.MISC)
+                            .sized(0.5F, 0.5F) // Size of the entity
+                            .clientTrackingRange(32) // Tracking range
+                            .updateInterval(1) // Update interval
+                            .build(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(MODID + ":mk1_bullet"))));
 
 
     public static void register(IEventBus bus) {

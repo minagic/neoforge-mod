@@ -41,7 +41,7 @@ public class StarShard extends SpellProjectileEntity implements ItemSupplier, Pr
 
     }
 
-    public StarShard(Level level, PhysicsData physics) {
+    public StarShard(Level level, ProjectilePhysicsData physics) {
         super(ModEntityTypes.STAR_SHARD.get(), level);
         this.physics = physics;
     }

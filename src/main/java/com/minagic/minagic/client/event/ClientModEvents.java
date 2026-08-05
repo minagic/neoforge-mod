@@ -33,6 +33,7 @@ public class ClientModEvents {
         event.registerEntityRenderer(ModEntityTypes.NOVA_PROXY.get(), NovaProxyRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.PROJECTILE_PORTAL.get(), ProjectilePortal.Renderer::new);
         event.registerEntityRenderer(ModEntityTypes.ARCANE_SHIP.get(), ArcaneShipEntity.Renderer::new);
+        event.registerEntityRenderer(ModEntityTypes.MK1_BULLET.get(), ThrownItemRenderer::new);
         Minagic.LOGGER.info(
 
                 "Registered renderer for {}",

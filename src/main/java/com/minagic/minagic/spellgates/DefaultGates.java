@@ -284,7 +284,7 @@ public class DefaultGates {
                 return REASON_EXPIRED;
             }
 
-            if (simData.lifetime() > simData.maxLifetime()) {
+            if (simData.lifetime() > simData.maxLifetime() && simData.maxLifetime() != -1 ) {// specifically unreachable
                 return REASON_MAX_LIFETIME;
             }
 
