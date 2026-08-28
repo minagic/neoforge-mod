@@ -1,5 +1,6 @@
 package com.minagic.minagic.capabilities.hudAlerts;
 
+import com.minagic.minagic.Minagic;
 import com.minagic.minagic.capabilities.AutoDetection;
 import com.minagic.minagic.capabilities.powersource.AbstractPowerSource;
 import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
@@ -7,6 +8,10 @@ import com.minagic.minagic.capabilities.powersource.ShipPowerSourceAttachment;
 import com.minagic.minagic.client.input.ShipFlightTestRunner;
 import com.minagic.minagic.registries.ModAttachments;
 import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
+import com.minagic.minagic.wizard.starships.entities.ArcaneShipMissileComputer;
+import com.minagic.minagic.wizard.starships.utilities.Ordnance;
+import com.minagic.minagic.wizard.starships.utilities.OrdnanceRegistry;
+import com.minagic.minagic.wizard.starships.utilities.OrdnanceState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Camera;
@@ -18,6 +23,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.neoforged.neoforge.attachment.IAttachmentSerializer;
@@ -575,6 +581,44 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
         drawFlightTarget(gui, screenX, screenY, 0xFFD050FF);
 
         drawPrimaryReticles(ship, gui);
+        renderOrdnanceHud(gui, ship);
+
+        // draw acquisition reticle
+        if (ArcaneShipMissileComputer.getStrikePosition(ship) != null){
+            Vec3 position = ArcaneShipMissileComputer.getStrikePosition(ship);
+            Vec3 ndc = Minecraft.getInstance().gameRenderer.projectPointToScreen(position);
+
+            int screenTargetX = Math.round(
+                    (float) (
+                            (ndc.x + 1.0)
+                                    * 0.5
+                                    * gui.guiWidth()
+                    )
+            );
+
+            int screenTargetY = Math.round(
+                    (float) (
+                            (1.0 - ndc.y)
+                                    * 0.5
+                                    * gui.guiHeight()
+                    )
+            );
+
+            drawTriangleAtPosition(gui, screenTargetX, screenTargetY, ship.getOrdnance().available() > 0 ? 0xFFFF0000 : 0xFFFFFF00);
+
+
+        }
+    }
+
+    private static void drawTriangleAtPosition(GuiGraphics gui, int x, int y, int color){
+        float size = 6f;
+        Vec2 point1 = new Vec2(x, y-size);
+        Vec2 point2 = new Vec2((float) (x+size/Math.sqrt(2)), (float) (y+size/Math.sqrt(2)));
+        Vec2 point3 = new Vec2((float) (x-size/Math.sqrt(2)), (float) (y+size/Math.sqrt(2)));
+
+        drawLine(gui, (int) point1.x, (int) point1.y, (int) point2.x, (int) point2.y, color);
+        drawLine(gui, (int) point2.x, (int) point2.y, (int) point3.x, (int) point3.y, color);
+        drawLine(gui, (int) point3.x, (int) point3.y, (int) point1.x, (int) point1.y, color);
 
 
     }
@@ -938,6 +982,296 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
                 centerY + radius + 1,
                 centerX + 1,
                 centerY + radius + 3,
+                color
+        );
+    }
+
+    private static final int ORDNANCE_READY_COLOR       = 0xFF55FF55;
+
+    private static final int ORDNANCE_BUILDING_COLOR    = 0xFFFFFF55;
+
+    private static final int ORDNANCE_UNAVAILABLE_COLOR = 0xFFFF5555;
+
+    private static final int ORDNANCE_OUTLINE_COLOR     = 0xCC000000;
+
+    private static final int ORDNANCE_TEXT_COLOR        = 0xFFFFFFFF;
+
+    private static final int ORDNANCE_PANEL_WIDTH  = 110;
+
+    private static final int ORDNANCE_PANEL_HEIGHT = 72;
+
+    private static final int MOUNT_ICON_WIDTH  = 7;
+
+    private static final int MOUNT_ICON_HEIGHT = 11;
+
+    public static void renderOrdnanceHud(
+            GuiGraphics gui,
+            ArcaneShipEntity ship
+    ) {
+        OrdnanceState state = ship
+                .getEntityData()
+                .get(ArcaneShipEntity.ORDNANCE_STATE);
+
+        if (state == null) {
+            return;
+        }
+
+        Ordnance ordnance =
+                OrdnanceRegistry.get(state.ordnanceID());
+
+        if (ordnance == null) {
+            return;
+        }
+
+        List<Vec3> positions = ordnance.localPosition();
+
+        if (positions.isEmpty()) {
+            return;
+        }
+
+        int mountCount = positions.size();
+
+        int available = Mth.clamp(
+                state.available(),
+                0,
+                mountCount
+        );
+
+        int mountIndex = ordnance.maxStock() - state.available() -1;
+
+        int panelLeft =
+                gui.guiWidth() - ORDNANCE_PANEL_WIDTH - 8;
+
+        int panelTop =
+                gui.guiHeight() - ORDNANCE_PANEL_HEIGHT - 8;
+
+        int panelRight =
+                panelLeft + ORDNANCE_PANEL_WIDTH;
+
+        int panelBottom =
+                panelTop + ORDNANCE_PANEL_HEIGHT;
+
+        // Dark translucent panel.
+        gui.fill(
+                panelLeft,
+                panelTop,
+                panelRight,
+                panelBottom,
+                0x90000000
+        );
+
+        Font font = Minecraft.getInstance().font;
+
+        gui.drawString(
+                font,
+                "ORDNANCE",
+                panelLeft + 5,
+                panelTop + 5,
+                ORDNANCE_TEXT_COLOR,
+                true
+        );
+
+        gui.drawString(
+                font,
+                available + " / " + mountCount,
+                panelRight - 30,
+                panelTop + 5,
+                ORDNANCE_TEXT_COLOR,
+                true
+        );
+
+        /*
+         * Determine the local X/Z extents so that the physical mount layout
+         * can be fitted into the HUD panel.
+         */
+        double minX = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY;
+        double minZ = Double.POSITIVE_INFINITY;
+        double maxZ = Double.NEGATIVE_INFINITY;
+
+        for (Vec3 position : positions) {
+            minX = Math.min(minX, position.x);
+            maxX = Math.max(maxX, position.x);
+
+            minZ = Math.min(minZ, position.z);
+            maxZ = Math.max(maxZ, position.z);
+        }
+
+        double width = Math.max(maxX - minX, 1.0);
+        double depth = Math.max(maxZ - minZ, 1.0);
+
+        int drawingLeft = panelLeft + 10;
+        int drawingRight = panelRight - 10;
+        int drawingTop = panelTop + 21;
+        int drawingBottom = panelBottom - 14;
+
+        /*
+         * The next unavailable mount after all currently ready mounts is the
+         * mount being fabricated.
+         */
+        int rebuildingIndex =
+                available < mountCount
+                        ? Math.floorMod(
+                        mountIndex + available,
+                        mountCount
+                )
+                        : -1;
+
+        for (int index = 0; index < mountCount; index++) {
+            Vec3 localPosition = positions.get(index);
+
+
+            float normalizedZ =
+                    (float) ((localPosition.z - minZ) / depth);
+
+            float normalizedX =
+
+                    (float) ((localPosition.x - minX) / width);
+
+            int iconX = Math.round(
+
+                    Mth.lerp(
+
+                            1.0F - normalizedX,
+
+                            drawingLeft,
+
+                            drawingRight
+
+                    )
+
+            );
+            /*
+             * Local +Z is drawn toward the top of the HUD diagram.
+             * Remove the `1.0F -` if you want +Z toward the bottom.
+             */
+            int iconY = Math.round(
+                    Mth.lerp(
+                            1.0F - normalizedZ,
+                            drawingTop,
+                            drawingBottom
+                    )
+            );
+
+            int color;
+
+            if (index > mountIndex) {
+
+                color = ORDNANCE_READY_COLOR;
+
+            } else if (index == mountIndex && mountIndex < mountCount) {
+
+                color = ORDNANCE_BUILDING_COLOR;
+
+            } else {
+
+                color = ORDNANCE_UNAVAILABLE_COLOR;
+
+            }
+
+            drawOrdnanceMount(
+                    gui,
+                    iconX,
+                    iconY,
+                    color
+            );
+        }
+
+        if (rebuildingIndex >= 0) {
+            int percent = Mth.clamp(
+                    Math.round(state.buildProgress() * 100.0F),
+                    0,
+                    100
+            );
+
+            gui.drawString(
+                    font,
+                    "BUILD " + percent + "%",
+                    panelLeft + 5,
+                    panelBottom - 10,
+                    ORDNANCE_BUILDING_COLOR,
+                    true
+            );
+        }
+    }
+
+    private static boolean isReadyMount(
+            int candidateIndex,
+            int mountIndex,
+            int available,
+            int mountCount
+    ) {
+        if (available <= 0) {
+            return false;
+        }
+
+        if (available >= mountCount) {
+            return true;
+        }
+
+        int distanceFromNextMount =
+                Math.floorMod(
+                        candidateIndex - mountIndex,
+                        mountCount
+                );
+
+        return distanceFromNextMount < available;
+    }
+    private static void drawOrdnanceMount(
+            GuiGraphics gui,
+            int centerX,
+            int centerY,
+            int color
+    ) {
+        int halfWidth = MOUNT_ICON_WIDTH / 2;
+        int halfHeight = MOUNT_ICON_HEIGHT / 2;
+
+        int left = centerX - halfWidth;
+        int right = centerX + halfWidth;
+        int top = centerY - halfHeight;
+        int bottom = centerY + halfHeight;
+
+        // Outline/body shadow.
+        gui.fill(
+                left - 1,
+                top + 2,
+                right + 2,
+                bottom + 1,
+                ORDNANCE_OUTLINE_COLOR
+        );
+
+        // Missile body.
+        gui.fill(
+                left,
+                top + 2,
+                right + 1,
+                bottom,
+                color
+        );
+
+        // Pointed nose.
+        gui.fill(
+                centerX - 1,
+                top,
+                centerX + 2,
+                top + 2,
+                color
+        );
+
+        // Small fins.
+        gui.fill(
+                left - 2,
+                bottom - 3,
+                left,
+                bottom,
+                color
+        );
+
+        gui.fill(
+                right + 1,
+                bottom - 3,
+                right + 3,
+                bottom,
                 color
         );
     }

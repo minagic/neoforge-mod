@@ -1,6 +1,7 @@
 package com.minagic.minagic.registries;
 
 import com.minagic.minagic.Minagic;
+import com.minagic.minagic.wizard.starships.utilities.OrdnanceState;
 import com.minagic.minagic.wizard.starships.utilities.ShipState;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.neoforged.bus.api.IEventBus;
@@ -23,6 +24,15 @@ public final class ModEntityDataSerializers {
             SERIALIZERS.register(
                     "ship_state",
                     () -> ShipState.ENTITY_DATA_SERIALIZER
+            );
+
+    public static final DeferredHolder<
+            EntityDataSerializer<?>,
+            EntityDataSerializer<OrdnanceState>
+            > ORDNANCE_STATE =
+            SERIALIZERS.register(
+                    "ship_ordnance_state",
+                    () -> OrdnanceState.ENTITY_DATA_SERIALIZER
             );
 
     private ModEntityDataSerializers() {

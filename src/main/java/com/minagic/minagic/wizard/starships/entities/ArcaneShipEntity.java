@@ -2,15 +2,17 @@ package com.minagic.minagic.wizard.starships.entities;
 
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.capabilities.hudAlerts.FlightControls;
+import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
 import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
 import com.minagic.minagic.client.input.ClientShipInputHandler;
 import com.minagic.minagic.common.registry.ModEntityTypes;
+import com.minagic.minagic.wizard.starships.entities.models.wizard_fighter;
+import com.minagic.minagic.wizard.starships.rendering.OrdnanceRenderer;
 import com.minagic.minagic.wizard.starships.utilities.*;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -18,6 +20,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -31,11 +34,12 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ItemSupplier;
-import net.minecraft.world.item.ItemFrameItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
@@ -43,9 +47,15 @@ import org.joml.*;
 import java.lang.Math;
 import java.util.*;
 
+import static net.minecraft.world.level.block.Blocks.AIR;
+
 public class ArcaneShipEntity extends LivingEntity {
     public ShipState state = ShipState.DEFAULT();
     float K = 0.02f;
+
+    public Vector3f getCockpitOffset(){
+        return new Vector3f(0, 1f, 0);
+    }
     protected List<DragSurface> getDragProfile(){
         return  List.of(
                 new DragSurface(new Vec3(0, 0, 1), 3f, K),
@@ -63,7 +73,11 @@ public class ArcaneShipEntity extends LivingEntity {
                     ArcaneShipEntity.class,
                     ShipState.ENTITY_DATA_SERIALIZER
             );
-
+    public static final EntityDataAccessor<OrdnanceState> ORDNANCE_STATE =
+            SynchedEntityData.defineId(
+                    ArcaneShipEntity.class,
+                    OrdnanceState.ENTITY_DATA_SERIALIZER
+            );
 
     public ArcaneShipEntity(EntityType<? extends ArcaneShipEntity> entity, Level level) {
         super(entity, level);
@@ -110,6 +124,8 @@ public class ArcaneShipEntity extends LivingEntity {
 
         return InteractionResult.SUCCESS;
     }
+
+    public OrdnanceState ordnance = new OrdnanceState(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "ordnance_mk1_missile_rack"), 3, 0f);
 
 
     @Override
@@ -164,11 +180,24 @@ public class ArcaneShipEntity extends LivingEntity {
                     new Quaternionf(state.orientation())
             );
             pilot.fallDistance = 0d;
+            if(this.checkGPWS()){
+                HudAlertAttachment.addToEntity(pilot, "Terrain, Pull Up", 0xFFFF0000, 1, 30);
+            }
         }
 
        if (wasOnGround){applyLandingDamage(impactVelocity);}
 
+       this.ordnance = ordnance.tickProgress(this);
+       entityData.set(ORDNANCE_STATE, ordnance);
 
+
+    }
+
+    private boolean checkGPWS(){
+        if( this.level().isClientSide())return false;
+        Vec3 course = this.getDeltaMovement().scale(70);
+        HitResult hit = this.level().clip(new ClipContext(this.position(), this.position().add(course), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+        return hit.getType() == HitResult.Type.BLOCK;
     }
     private static final double SAFE_LANDING_SPEED = 0.25;
 
@@ -214,6 +243,8 @@ public class ArcaneShipEntity extends LivingEntity {
         super.defineSynchedData(builder);
 
         builder.define(SHIP_STATE, ShipState.DEFAULT());
+        builder.define(ORDNANCE_STATE, OrdnanceState.DEFAULT());
+
     }
 
     @Override
@@ -276,41 +307,8 @@ public class ArcaneShipEntity extends LivingEntity {
         );
     }
 
-    public Ordnance getOrdnance(){
-        Ordnance mk1MissileRack = new Ordnance(
-
-                (level, position, direction, pilot, ship) ->
-
-                        new MK1Missile(
-
-                                ModEntityTypes.MK1_MISSILE.get(),
-
-                                level
-
-                        ).create(
-
-                                level,
-
-                                position,
-
-                                direction,
-
-                                pilot,
-
-                                ship
-
-                        ),
-
-                new Vec3(0.0, -0.3, 2.5),
-
-                new Vec3(0.0, 0.0, 1.0),
-
-                500,
-
-                4
-
-        );
-        return mk1MissileRack;
+    public OrdnanceState getOrdnance(){
+        return ordnance;
     }
 
     public static class MK1Bullet extends ArcaneShipProjectile implements ItemSupplier {
@@ -380,6 +378,8 @@ public class ArcaneShipEntity extends LivingEntity {
     public static class Renderer
             extends EntityRenderer<ArcaneShipEntity, Renderer.State> {
 
+
+
         // =========================
         // MODEL DIMENSIONS
         // =========================
@@ -387,9 +387,11 @@ public class ArcaneShipEntity extends LivingEntity {
         private static final float WIDTH = 3.0F;
         private static final float HEIGHT = 1.0F;
         private static final float LENGTH = 6.0F;
+        private static EntityModel<State> model;
 
         public Renderer(EntityRendererProvider.Context context) {
             super(context);
+            this.model = new wizard_fighter<State>(context.bakeLayer(wizard_fighter.LAYER_LOCATION));
             Minagic.LOGGER.info("Constructed ArcaneShip renderer");
         }
 
@@ -400,6 +402,8 @@ public class ArcaneShipEntity extends LivingEntity {
         public static class State extends EntityRenderState {
 
             public Quaternionf orientation = new Quaternionf();
+            public OrdnanceState ordnanceState = OrdnanceState.DEFAULT();
+            public int packedLight;
 
         }
 
@@ -411,33 +415,7 @@ public class ArcaneShipEntity extends LivingEntity {
         }
         private static final float DEBUG_AXIS_LENGTH = 4.0F;
 
-        private void renderAxes(
-                PoseStack.Pose pose,
-                VertexConsumer consumer
-        ) {
-            Matrix4f matrix = pose.pose();
 
-            addLine(
-                    consumer, matrix,
-                    0,0,0,
-                    DEBUG_AXIS_LENGTH,0,0,
-                    255,0,0,255
-            );
-
-            addLine(
-                    consumer, matrix,
-                    0,0,0,
-                    0,DEBUG_AXIS_LENGTH,0,
-                    0,255,0,255
-            );
-
-            addLine(
-                    consumer, matrix,
-                    0,0,0,
-                    0,0,DEBUG_AXIS_LENGTH,
-                    0,128,255,255
-            );
-        }
         private void addLine(
                 VertexConsumer consumer,
                 Matrix4f matrix,
@@ -464,7 +442,15 @@ public class ArcaneShipEntity extends LivingEntity {
         ) {
             super.extractRenderState(entity, state, partialTick);
             state.orientation.set(entity.getEntityData().get(SHIP_STATE).orientation());
-            //Minagic.LOGGER.info("Entity: {}, quaternion: {}", entity.debugIdentity(), entity.getEntityData().get(ORIENTATION));
+            state.ordnanceState = entity.getEntityData().get(ORDNANCE_STATE).copy();
+            state.packedLight = getPackedLightCoords(
+
+                    entity,
+
+                    partialTick
+
+            );
+           // Minagic.LOGGER.info("Entity: {}, quaternion: {}", entity.debugIdentity(), entity.getEntityData().get(ORIENTATION));
 
 
         }
@@ -480,16 +466,19 @@ public class ArcaneShipEntity extends LivingEntity {
                 @NotNull SubmitNodeCollector collector,
                 @NotNull CameraRenderState cameraState
         ) {
-
+            ResourceLocation FIGHTER_TEXTURE = ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "textures/entity/arcane_ship_fighter.png");
             poseStack.pushPose();
-            //Minagic.LOGGER.info("quaternion:{}" ,state.orientation.toString());
             poseStack.mulPose(state.orientation);
 
-            collector.submitCustomGeometry(
-                    poseStack,
-                    RenderType.debugQuads(),
-                    this::renderShipBody
-            );
+            collector.submitModel(model, state, poseStack, RenderType.entityTranslucent(FIGHTER_TEXTURE), state.packedLight,
+
+                    OverlayTexture.NO_OVERLAY,
+
+                    0x00000000,
+
+                    null);
+
+            renderOrdnance(poseStack, collector, state);
 
             poseStack.popPose();
         }
@@ -639,6 +628,27 @@ public class ArcaneShipEntity extends LivingEntity {
             );
 
             //this.renderAxes(pose, consumer);
+
+        }
+
+        // Ordnance
+        private void renderOrdnance(PoseStack pose, SubmitNodeCollector collector, State state){
+            OrdnanceState ordnanceState = state.ordnanceState;
+            Ordnance ordnance = OrdnanceRegistry.get(ordnanceState.ordnanceID());
+            OrdnanceRenderer renderer = ordnance.renderer();
+            int buildIndex = ordnance.maxStock() - ordnanceState.available() - 1;
+            for(int index =0; index < ordnance.maxStock(); index++){
+                OrdnanceRenderer.MountRenderState renderState;
+                if (index>buildIndex) {
+                    renderState = OrdnanceRenderer.MountRenderState.READY;
+                } else if (index == buildIndex && buildIndex < ordnance.maxStock()) {
+                    renderState = OrdnanceRenderer.MountRenderState.BUILDING;
+                }
+                else {
+                    renderState = OrdnanceRenderer.MountRenderState.EMPTY;
+                }
+                renderer.render(pose, collector, ordnance.localPosition().get(index), ordnance.localDirection().get(index), renderState);
+            }
 
         }
 

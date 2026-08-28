@@ -100,6 +100,54 @@ public class ArcaneShipMissileComputer implements SpellProjectileEntity.HomingCo
         return cachedShip;
     }
 
+    public static Vec3 getStrikePosition(ArcaneShipEntity ship){
+        Vec3 origin = ship.position();
+        Vector3f forwardF = ship.getState()
+                .orientation()
+                .transform(new Vector3f(0.0F, 0.0F, 1.0F));
+
+        Vec3 shipForward = new Vec3(forwardF).normalize();
+
+        AABB searchBox = ship
+                .getBoundingBox()
+                .inflate(TARGET_RANGE);
+
+        Optional<LivingEntity> nearest =
+                ship.level()
+                        .getEntitiesOfClass(
+                                LivingEntity.class,
+                                searchBox
+                        )
+                        .stream()
+                        .filter(entity -> {
+                            Vec3 toEntity = entity
+                                    .getBoundingBox()
+                                    .getCenter()
+                                    .subtract(origin);
+
+                            if (toEntity.lengthSqr() < 1.0E-8) {
+                                return false;
+                            }
+
+                            return toEntity
+                                    .normalize()
+                                    .dot(shipForward) >= MIN_ALIGNMENT;
+                        })
+                        .min(
+                                Comparator.comparingDouble(entity ->
+                                        targetScore(
+                                                origin,
+                                                shipForward,
+                                                (LivingEntity) entity
+                                        )
+                                )
+                        );
+        if (nearest.isEmpty()) return null;
+        return nearest.get().position();
+
+
+    }
+
     private void resolveLaunchContext(ArcaneShipProjectile projectile) {
         if (cachedPilot == null
                 || !cachedPilot.isAlive()
@@ -153,6 +201,8 @@ public class ArcaneShipMissileComputer implements SpellProjectileEntity.HomingCo
         return acquired;
     }
 
+
+
     @Nullable
     private LivingEntity acquireTarget(ArcaneShipProjectile projectile) {
         if (cachedShip == null) {
@@ -205,7 +255,7 @@ public class ArcaneShipMissileComputer implements SpellProjectileEntity.HomingCo
         return nearest.orElse(null);
     }
 
-    private double targetScore(
+    private static double targetScore(
             Vec3 origin,
             Vec3 forward,
             LivingEntity candidate

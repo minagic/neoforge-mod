@@ -110,15 +110,7 @@ public abstract class CameraMixin {
             return;
         }
 
-        Vector3f localCockpitOffset = new Vector3f(
-
-                0.0F,
-
-                1.2F,
-
-                3F
-
-        );
+        Vector3f localCockpitOffset = ship.getCockpitOffset();
 
         Vector3f worldOffset = new Quaternionf(ship.getState().orientation())
 

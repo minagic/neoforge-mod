@@ -8,6 +8,7 @@ import com.minagic.minagic.registries.ModParticles;
 import com.minagic.minagic.sorcerer.celestial.spells.novaburst.NovaProxyRenderer;
 import com.minagic.minagic.utilities.ProjectilePortal;
 import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
+import com.minagic.minagic.wizard.starships.entities.models.wizard_fighter;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
@@ -56,6 +57,10 @@ public class ClientModEvents {
                 registeredType,
                 ArcaneShipEntity.Renderer::new
         );
+        event.registerEntityRenderer(
+                ModEntityTypes.ARCANE_FIGHTER.get(),
+                ArcaneShipEntity.Renderer::new
+        );
     }
 
     @SubscribeEvent
@@ -63,7 +68,11 @@ public class ClientModEvents {
         ClientKeybinds.registerKeybinds(event);
     }
 
+    @SubscribeEvent
+    public static void onRegisterRenderingLayers(EntityRenderersEvent.RegisterLayerDefinitions event){
+        event.registerLayerDefinition(wizard_fighter.LAYER_LOCATION,  wizard_fighter::createBodyLayer);
 
+    }
     @SubscribeEvent
     public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(ModParticles.CELEST_PARTICLES.get(), CelestParticles.Provider::new);

@@ -179,8 +179,8 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
 
         boolean stillLockedOn(SpellProjectileEntity projectile);
 
+        //Vec3 currentLockOnPosition();
         HomingComputer NONE = new NoHomingComputer();
-
 
 
     }
@@ -201,6 +201,9 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
 
             return currentDirection;
 
+        }
+        public Vec3 currentLockOnPosition(){
+            return Vec3.ZERO;
         }
 
         public boolean stillLockedOn(SpellProjectileEntity projectile){

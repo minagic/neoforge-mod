@@ -1,6 +1,7 @@
 package com.minagic.minagic.common.registry;
 
 import com.minagic.minagic.registries.*;
+import com.minagic.minagic.wizard.starships.utilities.OrdnanceRegistry;
 import com.minagic.testing.TestsRegistration;
 import net.neoforged.bus.api.IEventBus;
 
@@ -19,6 +20,7 @@ public final class ModRegistries {
         ModSpells.register();
         ModPowerSources.register();
         ProjectilePortalRenderers.register();
+        OrdnanceRegistry.defaultMissiles();
 
 
         TestsRegistration.TEST_FUNCTION.register(modEventBus);
