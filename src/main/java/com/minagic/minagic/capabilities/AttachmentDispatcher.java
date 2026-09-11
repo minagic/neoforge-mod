@@ -41,10 +41,12 @@ public final class AttachmentDispatcher {
             }
 
             if (attachment instanceof AutoDetection.ILivingTickableAttachment) {
+
                 TICKABLE.add(type);
             }
 
             if (attachment instanceof AutoDetection.IRenderableAttachment) {
+
                 RENDERABLE.add(type);
             }
         }
@@ -96,7 +98,11 @@ public final class AttachmentDispatcher {
 
             AutoDetection.IRenderableAttachment renderable = (AutoDetection.IRenderableAttachment) attachment;
             if (renderable.shouldRender(entity)) {
+                long t0 = System.nanoTime();
                 renderable.render(entity, gui);
+                if (Minecraft.getInstance().getFps() < 20) {
+                    Minagic.LOGGER.info("Rendering {} took {} ns, current FPS is measured at {}", renderable, System.nanoTime() - t0, Minecraft.getInstance().getFps());
+                }
             }
 
         }

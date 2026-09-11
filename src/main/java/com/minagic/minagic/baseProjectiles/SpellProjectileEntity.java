@@ -2,6 +2,10 @@ package com.minagic.minagic.baseProjectiles;
 
 import com.minagic.minagic.Minagic;
 import com.minagic.minagic.utilities.EntityFreezer;
+import com.minagic.minagic.wizard.starships.utilities.weapons.flight.IGuidingSystem;
+import com.minagic.minagic.wizard.starships.utilities.weapons.flight.NoGuidanceSystem;
+import com.minagic.minagic.wizard.starships.utilities.weapons.targeting.NoTargetingComputer;
+import com.minagic.minagic.wizard.starships.utilities.weapons.targeting.TargetingComputer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -16,11 +20,9 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class SpellProjectileEntity extends Projectile implements EntityFreezer.IFreezibleEntity {
     protected double speed = 0;
@@ -213,7 +215,8 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
     }
 
 
-    public HomingComputer computer = HomingComputer.NONE;
+    public TargetingComputer computer = new NoTargetingComputer();
+    public IGuidingSystem guidingSystem = new NoGuidanceSystem();
     @Override
     public void tick() {
         super.tick();
@@ -222,7 +225,9 @@ public abstract class SpellProjectileEntity extends Projectile implements Entity
             return;
         }
         createPhysicsIfNull();
-        this.physics = this.physics.changeDirection(computer.changeDir(this, this.physics.direction));
+
+
+        this.physics = this.physics.changeDirection(guidingSystem.correctCourse(this, computer.lockOnPosition(this.level())));
         Vec3 dir = this.physics.direction.normalize();
         Vec3 delta = dir.scale(this.physics.speed).add(0.0, -this.physics.gravity, 0.0);
 

@@ -38,12 +38,11 @@ public abstract class CameraMixin {
 
                                             CallbackInfo ci){
 
-        if (Minecraft.getInstance().options.getCameraType() != CameraType.FIRST_PERSON){
-            return;
-        }
+
         if (ClientKeybinds.SHIP_FREELOOK.isDown()) return;
         if (cameraEntity.getVehicle() instanceof ArcaneShipEntity ship){
-            Quaternionf shipRotation = ship.getState().orientation();
+            Quaternionf shipRotation = new Quaternionf(ship.getState().orientation());
+            if (Minecraft.getInstance().options.getCameraType() == CameraType.THIRD_PERSON_FRONT) shipRotation.rotateLocalY((float) Math.PI);
 
             Vector3f shipUp = new Vector3f(0.0F, 1.0F, 0.0F)
                     .rotate(shipRotation);
@@ -105,12 +104,12 @@ public abstract class CameraMixin {
 
             return;
         }
-
+        Vector3f localCockpitOffset = ship.getCockpitOffset();
         if (Minecraft.getInstance().options.getCameraType() != CameraType.FIRST_PERSON){
-            return;
+            localCockpitOffset = ship.getCockpitOffset().add(new Vector3f(0, 2, -4));
         }
 
-        Vector3f localCockpitOffset = ship.getCockpitOffset();
+
 
         Vector3f worldOffset = new Quaternionf(ship.getState().orientation())
 

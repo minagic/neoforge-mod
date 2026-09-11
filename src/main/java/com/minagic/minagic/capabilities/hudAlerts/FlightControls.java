@@ -12,12 +12,15 @@ import com.minagic.minagic.wizard.starships.entities.ArcaneShipMissileComputer;
 import com.minagic.minagic.wizard.starships.utilities.Ordnance;
 import com.minagic.minagic.wizard.starships.utilities.OrdnanceRegistry;
 import com.minagic.minagic.wizard.starships.utilities.OrdnanceState;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,6 +36,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 
 public class FlightControls implements AutoDetection.IRenderableAttachment {
@@ -437,7 +442,7 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
 
         // Avoid mutating the synchronized quaternion.
 
-        Quaternionf orientation = new Quaternionf(craftOrientation).normalize();
+        Quaternionf orientation = new Quaternionf(ship2.getState().orientation()).normalize();
 
         Vector3f forward = orientation.transform(
 
@@ -580,12 +585,13 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
         drawFlightTarget(gui, screenX + 1, screenY + 1, 0xA0000000);
         drawFlightTarget(gui, screenX, screenY, 0xFFD050FF);
 
-        drawPrimaryReticles(ship, gui);
+        //drawPrimaryReticles(ship, gui);
         renderOrdnanceHud(gui, ship);
 
         // draw acquisition reticle
-        if (ArcaneShipMissileComputer.getStrikePosition(ship) != null){
-            Vec3 position = ArcaneShipMissileComputer.getStrikePosition(ship);
+        OrdnanceState ordnanceState = ship.getEntityData().get(ArcaneShipEntity.ORDNANCE_STATE);
+        if (ordnanceState.lockOnPosition().lengthSquared() > VECTOR_EPSILON){
+            Vec3 position = new Vec3( ordnanceState.lockOnPosition());
             Vec3 ndc = Minecraft.getInstance().gameRenderer.projectPointToScreen(position);
 
             int screenTargetX = Math.round(
@@ -604,9 +610,83 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
                     )
             );
 
-            drawTriangleAtPosition(gui, screenTargetX, screenTargetY, ship.getOrdnance().available() > 0 ? 0xFFFF0000 : 0xFFFFFF00);
+
+            float TICKROT = 0.25f;
+            pose = gui.pose();
+
+            pose.pushMatrix();
+            pose.translate(screenTargetX, screenTargetY);
+            pose.rotate(ship.tickCount*TICKROT);
+            drawReticleTrillipse(gui, ordnanceState.available() > 0 ? 0xFFFF0000 : 0xFFFFFF00, 0, 0);
+            pose.popMatrix();
+
+            gui.drawString(font, ordnanceState.lockOnDescription(), screenTargetX+20, screenTargetY-20, ordnanceState.available() > 0 ? 0xFFFF0000 : 0xFFFFFF00);
 
 
+        }
+        float scale = 15f;
+        ArcaneShipEntity.Renderer renderer = (ArcaneShipEntity.Renderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(ship);
+        ArcaneShipEntity.Renderer.State state = renderer.createRenderState();
+        renderer.extractRenderState(ship, state, 0);
+        gui.submitEntityRenderState(state,scale,     new Vector3f(0.0f, state.boundingBoxHeight / 2.0f, 0.0f), new Quaternionf().rotationZ((float) (Math.PI)), null, 10, 100, 210, 300);
+
+    }
+    public static float trillipse(int x, int y){
+        float thirdPoint = (float) (-5+5*1.75);
+        return (float) (Math.sqrt((x-5)*(x-5) + (y-5)*(y-5)) + Math.sqrt((x+5)*(x+5) + (y-5)*(y-5)) + Math.sqrt((x)*(x) + (y+thirdPoint)*(y+thirdPoint)) - 20f);
+    }
+    private static void drawReticleTrillipse(GuiGraphics gui, int color, int x, int y){
+
+        drawArbitrary(x,  y, 20, 20, FlightControls::trillipse, (xl, xy) -> false, gui, color);
+    }
+    // attempt to implement arbitrary function draw
+    private static void drawArbitrary(
+            int screenX,
+            int screenY,
+            int w,
+            int h,
+            BiFunction<Integer, Integer, Float> func,
+            BiFunction<Integer, Integer, Boolean> restricted,
+            GuiGraphics gui,
+            int color
+    ) {
+        float[][] values = new float[w + 1][h + 1];
+
+        for (int y = 0; y <= h; y++) {
+            for (int x = 0; x <= w; x++) {
+                int localX = x - w / 2;
+                int localY = y - h / 2;
+
+                values[x][y] = func.apply(localX, localY);
+            }
+        }
+
+        for (int x = 0; x < w; x++) {
+            for (int y = 0; y < h; y++) {
+
+                float a = values[x][y];
+                float b = values[x + 1][y];
+                float c = values[x][y + 1];
+                float d = values[x + 1][y + 1];
+
+                float min = Math.min(Math.min(a, b), Math.min(c, d));
+                float max = Math.max(Math.max(a, b), Math.max(c, d));
+
+                int localX = x - w / 2;
+                int localY = y - h / 2;
+
+                if (min <= 0 && max >= 0 &&
+                        !restricted.apply(localX, localY)) {
+
+                    gui.fill(
+                            screenX + localX,
+                            screenY + localY,
+                            screenX + localX + 1,
+                            screenY + localY + 1,
+                            color
+                    );
+                }
+            }
         }
     }
 
@@ -816,7 +896,7 @@ public class FlightControls implements AutoDetection.IRenderableAttachment {
 
         for (int i = 0; i < volleyCount; i++) {
             Vec3 localPosition = positions.get(i);
-            Vec3 localDirection = directions.get(i);
+            Vec3 localDirection = directions.get(i).scale(-1);
 
             if (localDirection.lengthSqr() < VECTOR_EPSILON) {
                 continue;

@@ -102,7 +102,7 @@ public class ArcaneShipMissileComputer implements SpellProjectileEntity.HomingCo
 
     public static Vec3 getStrikePosition(ArcaneShipEntity ship){
         Vec3 origin = ship.position();
-        Vector3f forwardF = ship.getState()
+        Vector3f forwardF = ship.state
                 .orientation()
                 .transform(new Vector3f(0.0F, 0.0F, 1.0F));
 
@@ -211,7 +211,7 @@ public class ArcaneShipMissileComputer implements SpellProjectileEntity.HomingCo
 
         Vec3 origin = cachedShip.position();
 
-        Vector3f forwardF = cachedShip.getState()
+        Vector3f forwardF = cachedShip.state
                 .orientation()
                 .transform(new Vector3f(0.0F, 0.0F, 1.0F));
 
@@ -313,3 +313,4 @@ public class ArcaneShipMissileComputer implements SpellProjectileEntity.HomingCo
         this.cachedTarget = null;
     }
 }
+

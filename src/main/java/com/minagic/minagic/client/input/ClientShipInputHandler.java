@@ -65,6 +65,14 @@ public class ClientShipInputHandler {
             );
 
         }
+        public boolean isEqualToTarget(ShipInput target){
+            return this.forward == target.forward &&
+                    this.pitch==target.pitch &&
+                    this.yaw == target.yaw &&
+                    this.strafe == target.strafe &&
+                    this.vertical == target.vertical &&
+                    this.roll == target.roll;
+        }
 
         private static float sanitizeAxis(float value) {
 
@@ -196,13 +204,13 @@ public class ClientShipInputHandler {
 
             float yaw = (float) mouse.getXVelocity();
 
-            float pitch = (float) mouse.getYVelocity();
+            float pitch = (float)- mouse.getYVelocity();
 
             // Apply vanilla sign convention.
 
-            yaw = Mth.clamp(yaw, -1.0F, 1.0F);
-
-            pitch = Mth.clamp(-pitch, -1.0F, 1.0F);
+//            yaw = Mth.clamp(yaw, -1.0F, 1.0F);
+//
+//            pitch = Mth.clamp(-pitch, -1.0F, 1.0F);
 
             if (ClientKeybinds.SHIP_FREELOOK.isDown()) {
                 yaw = 0;
@@ -249,7 +257,7 @@ public class ClientShipInputHandler {
     }
 
     private ShipInputReader reader = new ShipInputReader();
-
+    private ShipInput last = ShipInput.NONE();
     @SubscribeEvent
     public void onClientTick(ClientTickEvent.Post event){
         Minecraft minecraft = Minecraft.getInstance();
@@ -269,7 +277,7 @@ public class ClientShipInputHandler {
         }
 
         ShipInput input = reader.readInputs(minecraft, ClientKeybinds.DESCEND, ClientKeybinds.ROLL_RIGHT, ClientKeybinds.ROLL_LEFT, ship);
-
+        //if (input.isEqualToTarget(last)) return;
 
         ClientPacketDistributor.sendToServer(
 

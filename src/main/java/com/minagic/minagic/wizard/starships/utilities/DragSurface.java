@@ -9,7 +9,7 @@ public record DragSurface(Vec3 localNormal, float area, float coefficient){
             ArcaneShipEntity ship
     ) {
         Vec3 worldNormal = new Vec3(
-                ship.getState().orientation()
+                ship.state.orientation()
                         .transform(localNormal.toVector3f())
         ).normalize();
 

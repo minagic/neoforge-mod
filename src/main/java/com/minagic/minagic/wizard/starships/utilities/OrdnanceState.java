@@ -6,6 +6,7 @@ import com.minagic.minagic.capabilities.powersource.AbstractPowerSource;
 import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
 import com.minagic.minagic.capabilities.powersource.ShipPowerSourceAttachment;
 import com.minagic.minagic.spellCasting.SpellCastContext;
+import com.minagic.minagic.utilities.CUSTOM_CODEC;
 import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
 import com.minagic.minagic.wizard.starships.entities.ArcaneShipProjectile;
 import com.mojang.serialization.Codec;
@@ -26,12 +27,17 @@ import java.util.UUID;
 public record OrdnanceState (
         ResourceLocation ordnanceID,
         int available,
-        float buildProgress
+        float buildProgress,
+        Vector3f lockOnPosition,
+        String lockOnDescription
 ) {
     public static Codec<OrdnanceState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("ordnance_id").forGetter(OrdnanceState::ordnanceID),
             Codec.INT.fieldOf("available").forGetter(OrdnanceState::available),
-            Codec.FLOAT.fieldOf("build_progress").forGetter(OrdnanceState::buildProgress)
+            Codec.FLOAT.fieldOf("build_progress").forGetter(OrdnanceState::buildProgress),
+            CUSTOM_CODEC.VECTOR3.fieldOf("lock_on_position").forGetter(OrdnanceState::lockOnPosition),
+            Codec.STRING.fieldOf("lock_on_description").forGetter(OrdnanceState::lockOnDescription)
+
     ).apply(instance, OrdnanceState::new));
 
     public static StreamCodec<ByteBuf, OrdnanceState> STREAM_CODEC = ByteBufCodecs.fromCodec(CODEC);
@@ -53,17 +59,17 @@ public record OrdnanceState (
     };
 
     public static OrdnanceState DEFAULT() {
-        return new OrdnanceState(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "ordnance_no_rack"), 3, 0f);
+        return new OrdnanceState(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "ordnance_no_rack"), 3, 0f, new Vector3f(0, 0, 0), "no_target");
     }
 
     public OrdnanceState copy(){
-        return new OrdnanceState(ordnanceID, available, buildProgress);
+        return new OrdnanceState(ordnanceID, available, buildProgress, lockOnPosition, lockOnDescription);
     }
 
     public OrdnanceState tickProgress(ArcaneShipEntity ship){
         Ordnance ordnance = OrdnanceRegistry.get(ordnanceID);
         if (available() >= ordnance.maxStock()){
-            return new OrdnanceState(ordnanceID, ordnance.maxStock(), 0.0f);
+            return new OrdnanceState(ordnanceID, ordnance.maxStock(), 0.0f, lockOnPosition, lockOnDescription);
         }
         AbstractPowerSource abstractPowerSource = ActivePowerSourceAttachment.getActivePowerSource(ship);
         if (!(abstractPowerSource instanceof ShipPowerSourceAttachment shipPower)) {
@@ -81,7 +87,7 @@ public record OrdnanceState (
             available+=1;
         }
         shipPower.consume(new SpellCastContext(ship),null, ordnance.recreationPerTick());
-        return new OrdnanceState(ordnanceID, available, buildProgress);
+        return new OrdnanceState(ordnanceID, available, buildProgress, lockOnPosition, lockOnDescription);
 
     }
 
@@ -89,11 +95,7 @@ public record OrdnanceState (
             ArcaneShipEntity ship,
             UUID pilotUUID
     ) {
-        if (ship.getPilot() == null){
-            Minagic.LOGGER.error("Ship {} has received a firing command but had no pilot", ship.debugIdentity());
-            return this.copy();
-        }
-        if (available() == 0){
+        if (available() == 0 && ship.getPilot() != null){
             HudAlertAttachment.addToEntity(ship.getPilot(), "No ordnance available", 0xFFFF000, 2, 60);
             return this.copy();
         }
@@ -104,7 +106,7 @@ public record OrdnanceState (
         int mountIndex = ordnance.maxStock() - available();
 
         Quaternionf orientation =
-                new Quaternionf(ship.getState().orientation());
+                new Quaternionf(ship.state.orientation());
 
         Vec3 pos = ordnance.localPosition().get(mountIndex);
         Vec3 dir = ordnance.localDirection().get(mountIndex);
@@ -129,9 +131,18 @@ public record OrdnanceState (
                 worldPosition,
                 worldDirection,
                 pilotUUID,
-                ship.getUUID()
+                ship.getUUID(),
+                ship.targetingComputer.copyToMissile(ship.level())
         );
-        return new OrdnanceState(ordnanceID, available -1, buildProgress);
+        return new OrdnanceState(ordnanceID, available -1, buildProgress, lockOnPosition, lockOnDescription);
     }
+
+    public OrdnanceState setLockOnPosition(Vector3f position){
+        return new OrdnanceState(ordnanceID, available, buildProgress, position, lockOnDescription);
+    }
+    public OrdnanceState setLockOnDescription(String description){
+        return new OrdnanceState(ordnanceID, available, buildProgress, lockOnPosition, description);
+    }
+
 
 }

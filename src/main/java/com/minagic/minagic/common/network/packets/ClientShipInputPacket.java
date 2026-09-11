@@ -57,7 +57,7 @@ public record ClientShipInputPacket(float vertical, float forward, float strafe,
         if (!(ctx.player() instanceof ServerPlayer serverPlayer)) return;
         if (!(ctx.player().getVehicle() instanceof ArcaneShipEntity ship)) return;
         //if (ship.getControllingPassenger() != serverPlayer) return;
-
+        ship.overrideControls();
         ship.acceptInputs(ClientShipInputHandler.ShipInput.fromPacket(pkt));
 
 

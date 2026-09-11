@@ -4,6 +4,8 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.common.registry.ModEntityTypes;
 import com.minagic.minagic.wizard.starships.entities.MK1Missile;
 import com.minagic.minagic.wizard.starships.rendering.DefaultOrdnanceRenderer;
+import com.minagic.minagic.wizard.starships.utilities.weapons.targeting.MissileTargetingComputer;
+import com.minagic.minagic.wizard.starships.utilities.weapons.targeting.NoTargetingComputer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
@@ -191,7 +193,7 @@ public final class OrdnanceRegistry {
     public static void defaultMissiles(){
         Ordnance mk1MissileRack = new Ordnance(
 
-                (level, position, direction, pilot, ship) ->
+                (level, position, direction, pilot, ship, targetingComputer) ->
 
                         new MK1Missile(
 
@@ -209,7 +211,8 @@ public final class OrdnanceRegistry {
 
                                 pilot,
 
-                                ship
+                                ship,
+                                targetingComputer
 
                         ),
 
@@ -221,16 +224,18 @@ public final class OrdnanceRegistry {
 
                 3,
                 5,
-                new DefaultOrdnanceRenderer()
+                new DefaultOrdnanceRenderer(),
+                MissileTargetingComputer::new
+
 
         );
         register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "ordnance_mk1_missile_rack"), mk1MissileRack);
         Ordnance noOrdnance = new Ordnance(
-                ((level, position, direction, sourceUUID, shipUUID) -> null),
+                ((level, position, direction, sourceUUID, shipUUID, t) -> null),
                 List.of(),
                 List.of(),
                 0, 0, 0,
-                new DefaultOrdnanceRenderer());
+                new DefaultOrdnanceRenderer(), NoTargetingComputer::new);
         register(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "ordnance_no_rack"), noOrdnance);
 
     }

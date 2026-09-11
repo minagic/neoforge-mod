@@ -1,9 +1,10 @@
 package com.minagic.minagic.wizard.starships.entities;
 
 import com.minagic.minagic.DamageTypes;
-import com.minagic.minagic.Minagic;
 import com.minagic.minagic.common.registry.ModEntityTypes;
 import com.minagic.minagic.utilities.SpellUtils;
+import com.minagic.minagic.wizard.starships.utilities.weapons.flight.MissileGuidanceSystem;
+import com.minagic.minagic.wizard.starships.utilities.weapons.targeting.TargetingComputer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.ItemSupplier;
@@ -39,7 +40,8 @@ public class MK1Missile
             Vec3 pos,
             Vec3 dir,
             UUID sourceUUID,
-            UUID shipUUID
+            UUID shipUUID,
+            TargetingComputer computer
     ) {
         MK1Missile missile = new MK1Missile(
                 ModEntityTypes.MK1_MISSILE.get(),
@@ -50,10 +52,11 @@ public class MK1Missile
         missile.shipUUID = shipUUID;
         missile.sourceUUID = sourceUUID;
         missile.direction = dir.normalize();
-        missile.speed = 2.5;
+        missile.speed = 2.5+level.getEntityInAnyDimension(shipUUID).getDeltaMovement().length();
         missile.gravity = 0.0;
         missile.setPos(pos);
-        missile.computer = new ArcaneShipMissileComputer();
+        missile.computer = computer;
+        missile.guidingSystem = new MissileGuidanceSystem();
         missile.tags = Set.of(
                 com.minagic.minagic.DamageTypes.MAGIC,
                 DamageTypes.INJURY,
@@ -69,19 +72,7 @@ public class MK1Missile
     public void tick(){
 
         super.tick();
-        if (this.level().isClientSide()) return;
-        if (!(this.computer instanceof ArcaneShipMissileComputer missileComputer)) {
 
-            return;
-
-        }
-        if (!computer.stillLockedOn(this)) {
-
-            attemptResolve();
-            if (cachedOwner != null && cachedOwner.isAlive() && this.distanceTo(cachedOwner) < 6) return;
-            createMissileExplosion();
-            this.discard();
-        }
     }
 
     public void attemptResolve(){
@@ -100,7 +91,10 @@ public class MK1Missile
 
     @Override
     public void hitEntity(EntityHitResult hitResult) {
-        if (hitResult.getEntity().getUUID() == this.shipUUID || hitResult.getEntity().getUUID() == this.sourceUUID || (hitResult.getEntity() instanceof ArcaneShipProjectile projectile && projectile.shipUUID == this.shipUUID))
+        if (
+                hitResult.getEntity().getUUID() == this.shipUUID ||
+                hitResult.getEntity().getUUID() == this.sourceUUID ||
+                (hitResult.getEntity() instanceof ArcaneShipProjectile projectile && projectile.shipUUID == this.shipUUID)) return;
         attemptResolve();
         if (cachedOwner != null && cachedOwner.isAlive() && this.distanceTo(cachedOwner) < 6) return; // arming distance
         createMissileExplosion();

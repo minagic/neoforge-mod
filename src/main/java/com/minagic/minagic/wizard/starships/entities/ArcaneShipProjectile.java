@@ -5,6 +5,7 @@ import com.minagic.minagic.Minagic;
 import com.minagic.minagic.MinagicDamage;
 import com.minagic.minagic.baseProjectiles.SpellProjectileEntity;
 import com.minagic.minagic.utilities.SpellUtils;
+import com.minagic.minagic.wizard.starships.utilities.weapons.targeting.TargetingComputer;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageType;
@@ -29,7 +30,7 @@ public abstract class ArcaneShipProjectile extends SpellProjectileEntity {
         super(type, level);
     }
 
-    public abstract ArcaneShipProjectile create(Level level,Vec3 pos, Vec3 dir, UUID sourceUUID, UUID shipUUID);
+    public abstract ArcaneShipProjectile create(Level level, Vec3 pos, Vec3 dir, UUID sourceUUID, UUID shipUUID, TargetingComputer computer);
     @Override
     public void hitEntity(EntityHitResult hitResult){
         if (this.level().isClientSide()) return;

@@ -2,7 +2,6 @@ package com.minagic.minagic.wizard.starships.entities;
 
 import com.minagic.minagic.DamageTypes;
 import com.minagic.minagic.Minagic;
-import com.minagic.minagic.capabilities.hudAlerts.FlightControls;
 import com.minagic.minagic.capabilities.hudAlerts.HudAlertAttachment;
 import com.minagic.minagic.capabilities.powersource.ActivePowerSourceAttachment;
 import com.minagic.minagic.client.input.ClientShipInputHandler;
@@ -10,8 +9,10 @@ import com.minagic.minagic.common.registry.ModEntityTypes;
 import com.minagic.minagic.wizard.starships.entities.models.wizard_fighter;
 import com.minagic.minagic.wizard.starships.rendering.OrdnanceRenderer;
 import com.minagic.minagic.wizard.starships.utilities.*;
+import com.minagic.minagic.wizard.starships.utilities.weapons.targeting.TargetingComputer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -38,19 +39,29 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.Math;
 import java.util.*;
 
-import static net.minecraft.world.level.block.Blocks.AIR;
-
 public class ArcaneShipEntity extends LivingEntity {
+    private static final Logger log = LoggerFactory.getLogger(ArcaneShipEntity.class);
     public ShipState state = ShipState.DEFAULT();
+    public OrdnanceState ordnance = new OrdnanceState(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "ordnance_mk1_missile_rack"), 3, 0f, new Vector3f(0, 0, 0), "none");
+    public final TargetingComputer targetingComputer = OrdnanceRegistry.get(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "ordnance_mk1_missile_rack")).computerProvider().getComputer();
+
+    public ShipAITelemetry telemetry = new ShipAITelemetry();
+    private ShipAI ai = new ShipAI();
+    private boolean override;
+
+    public void overrideControls(){
+        this.override = true;
+    }
     float K = 0.02f;
 
     public Vector3f getCockpitOffset(){
@@ -103,7 +114,7 @@ public class ArcaneShipEntity extends LivingEntity {
 
         return LivingEntity.createLivingAttributes()
 
-                .add(Attributes.MAX_HEALTH, 100.0D)
+                .add(Attributes.MAX_HEALTH, 10D)
 
                 .add(Attributes.MOVEMENT_SPEED, 0.0D)
 
@@ -125,7 +136,7 @@ public class ArcaneShipEntity extends LivingEntity {
         return InteractionResult.SUCCESS;
     }
 
-    public OrdnanceState ordnance = new OrdnanceState(ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "ordnance_mk1_missile_rack"), 3, 0f);
+
 
 
     @Override
@@ -141,6 +152,7 @@ public class ArcaneShipEntity extends LivingEntity {
         return null;
     }
     public void acceptInputs(ClientShipInputHandler.ShipInput input) {
+
         state = state.acceptShipInput(input);
         entityData.set(SHIP_STATE, state);
     }
@@ -153,51 +165,109 @@ public class ArcaneShipEntity extends LivingEntity {
 
     @Override
     public void tick() {
+        long t0 = System.nanoTime();
         float impactVelocity = (float) this.getDeltaMovement().y;
         boolean wasOnGround = this.onGround();
         setNoGravity(true);
 
         super.tick();
-
+        long t05 = System.nanoTime();
         if (level().isClientSide()) {return;}
-
+        if (getPilot() == null && this.tickCount > 40) {
+            ai.doShipState(this);
+        }
+        long t1 = System.nanoTime();
         state = state.parseShipInput(this);
-        entityData.set(SHIP_STATE, state);
+
 
         LivingEntity pilot = getPilot();
 
-
+        long t2 = System.nanoTime();
         ShipPhysics.tickTranslational(this);
+        long t3 = System.nanoTime();
         state = ShipPhysics.tickRotational(this);
+        long t4 = System.nanoTime();
         entityData.set(
                 SHIP_STATE,
                 state
         );
-
+        long t45 = System.nanoTime();
+        this.telemetry.GPWS = checkGPWS();
+        long t5 = System.nanoTime();
         if (pilot != null) {
-            FlightControls.setCraftOrientation(
-                    pilot,
-                    new Quaternionf(state.orientation())
-            );
+//            FlightControls.setCraftOrientation(
+//                    pilot,
+//                    new Quaternionf(state.orientation())
+//            );
+            pilot.setXRot(0);
+            pilot.setYRot(0);
             pilot.fallDistance = 0d;
-            if(this.checkGPWS()){
+            if(this.telemetry.GPWS){
                 HudAlertAttachment.addToEntity(pilot, "Terrain, Pull Up", 0xFFFF0000, 1, 30);
             }
         }
 
+        long t6 = System.nanoTime();
+
+
+
        if (wasOnGround){applyLandingDamage(impactVelocity);}
-
+       this.targetingComputer.acquireTarget(this);
        this.ordnance = ordnance.tickProgress(this);
+       this.ordnance = ordnance
+               .setLockOnPosition(this.targetingComputer.lockOnPosition(this.level()))
+               .setLockOnDescription(targetingComputer.lockOnDescription(this.level()));
        entityData.set(ORDNANCE_STATE, ordnance);
+       long t7 = System.nanoTime();
 
 
+
+       if (t7-t0 > 10000000) {
+           Minagic.LOGGER.info("Ticking ship entity {} took {} ns", this.debugIdentity(), t7 - t0);
+           Minagic.LOGGER.info("Breakdown: supertick + cheap stuff: {}, ai: {}, input: {}, translational: {}, rotational: {}, data write: {}, gpws: {}, pilot modifications: {}, ordnance and fall damage: {}", t05 - t0, t1-t05, t2 - t1, t3 - t2, t4 - t3, t45-t4, t5 - t45, t6 - t5, t7 - t6);
+       }
     }
 
-    private boolean checkGPWS(){
+    public boolean checkGPWS(){
         if( this.level().isClientSide())return false;
-        Vec3 course = this.getDeltaMovement().scale(70);
-        HitResult hit = this.level().clip(new ClipContext(this.position(), this.position().add(course), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+        Vec3 start = position();
+        float predictionTicks = 25.0f;
+        float maxlen = 96f;
+        Vec3 course = getDeltaMovement().scale(predictionTicks);
+        if (course.lengthSqr() > Math.pow(maxlen, 2)){
+            course = course.normalize().scale(maxlen);
+        }
+        Vec3 end = start.add(course);
+
+        //long t0 = System.nanoTime();
+
+        HitResult hit = level().clip(
+                new ClipContext(
+                        start,
+                        end,
+                        ClipContext.Block.COLLIDER,
+                        ClipContext.Fluid.SOURCE_ONLY,
+                        this
+                )
+        );
+
+//        long elapsed = System.nanoTime() - t0;
+//
+//        double travelled = hit.getType() == HitResult.Type.BLOCK
+//                ? start.distanceTo(hit.getLocation())
+//                : course.length();
+
+//        Minagic.LOGGER.info(
+//                "GPWS {} ms ray={} travelled={} hit={} start={} end={}",
+//                elapsed / 1e6,
+//                course.length(),
+//                travelled,
+//                hit.getType(),
+//                start,
+//                end
+//        );
         return hit.getType() == HitResult.Type.BLOCK;
+
     }
     private static final double SAFE_LANDING_SPEED = 0.25;
 
@@ -292,7 +362,7 @@ public class ArcaneShipEntity extends LivingEntity {
                 new Vec3(Math.toRadians(1f), Math.toRadians(1f), Math.toRadians(2f)),
                 0.7f,
                 2F,
-                1/30F,
+                1/240F,
                 createEngines()
         );
     }
@@ -318,7 +388,7 @@ public class ArcaneShipEntity extends LivingEntity {
         }
 
         @Override
-        public ArcaneShipProjectile create(Level level, Vec3 pos, Vec3 dir, UUID sourceUUID, UUID shipUUID) {
+        public ArcaneShipProjectile create(Level level, Vec3 pos, Vec3 dir, UUID sourceUUID, UUID shipUUID, TargetingComputer computer) {
             MK1Bullet bullet = new MK1Bullet(ModEntityTypes.MK1_BULLET.get(), level);
             bullet.baseDmg = 10;
             bullet.shipUUID = shipUUID;
@@ -400,10 +470,19 @@ public class ArcaneShipEntity extends LivingEntity {
         // =========================
 
         public static class State extends EntityRenderState {
-
             public Quaternionf orientation = new Quaternionf();
             public OrdnanceState ordnanceState = OrdnanceState.DEFAULT();
             public int packedLight;
+
+            public State(){
+                this.entityType = ModEntityTypes.ARCANE_SHIP.get();
+            }
+            public static State extract(@NotNull ArcaneShipEntity ship){
+                State state = new State();
+                state.orientation.set(ship.getEntityData().get(SHIP_STATE).orientation());
+                state.ordnanceState = ship.getEntityData().get(ORDNANCE_STATE).copy();
+                return state;
+            }
 
         }
 
@@ -466,6 +545,7 @@ public class ArcaneShipEntity extends LivingEntity {
                 @NotNull SubmitNodeCollector collector,
                 @NotNull CameraRenderState cameraState
         ) {
+            long t0 = System.nanoTime();
             ResourceLocation FIGHTER_TEXTURE = ResourceLocation.fromNamespaceAndPath(Minagic.MODID, "textures/entity/arcane_ship_fighter.png");
             poseStack.pushPose();
             poseStack.mulPose(state.orientation);
@@ -481,6 +561,9 @@ public class ArcaneShipEntity extends LivingEntity {
             renderOrdnance(poseStack, collector, state);
 
             poseStack.popPose();
+            if (Minecraft.getInstance().getFps() < 20) {
+                Minagic.LOGGER.info("Rendering ship took {} ns, current FPS is measured at {}", System.nanoTime() - t0, Minecraft.getInstance().getFps());
+            }
         }
 
         // =========================

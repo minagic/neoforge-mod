@@ -1,12 +1,10 @@
 package com.minagic.minagic.wizard.starships.utilities;
 
-import com.minagic.minagic.wizard.starships.entities.ArcaneShipEntity;
 import com.minagic.minagic.wizard.starships.entities.ArcaneShipProjectile;
 import com.minagic.minagic.wizard.starships.rendering.OrdnanceRenderer;
+import com.minagic.minagic.wizard.starships.utilities.weapons.targeting.TargetingComputer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +17,9 @@ public record Ordnance(
         int manaToRecreate,
         int maxStock,
         int recreationPerTick,
-        OrdnanceRenderer renderer
+        OrdnanceRenderer renderer,
+        TargetingComputerProvider computerProvider
+
 ) {
     @FunctionalInterface
     public interface ProjectileFactory {
@@ -29,8 +29,14 @@ public record Ordnance(
                 Vec3 position,
                 Vec3 direction,
                 UUID sourceUUID,
-                UUID shipUUID
+                UUID shipUUID,
+                TargetingComputer computer
         );
+    }
+
+    @FunctionalInterface
+    public interface TargetingComputerProvider{
+        TargetingComputer getComputer();
     }
 
 }
